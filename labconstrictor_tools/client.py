@@ -6,8 +6,10 @@ with WorkerProcess("myapp") as worker:
     task.status    # COMPLETE | FAILED | CANCELED | CRASHED
 """
 
+import collections
 import json
 import os
+import signal
 import subprocess
 import sys
 import threading
@@ -32,6 +34,24 @@ def _brief(inputs, limit=300):
     return text if len(text) <= limit else text[:limit] + "...(%d chars)" % len(text)
 
 
+class _Tail:
+    """The last ~1 MB of the worker's stderr. A chatty tool (progress bars, debug output) must not grow the host's memory without limit."""
+
+    LIMIT = 1_000_000
+
+    def __init__(self):
+        self._lines, self._chars = collections.deque(), 0
+
+    def append(self, line):
+        self._lines.append(line)
+        self._chars += len(line)
+        while self._chars > self.LIMIT and len(self._lines) > 1:
+            self._chars -= len(self._lines.popleft())
+
+    def __iter__(self):
+        return iter(list(self._lines))
+
+
 class WorkerStartError(RuntimeError):
     """The worker process could not even be started; the message says what to check."""
 
@@ -52,7 +72,9 @@ class WorkerProcess:
             }
         env = {key: value for key, value in os.environ.items() if key not in _SCRUBBED_ENV}
         env.update(
-            PYTHONPATH=os.pathsep.join([self.entry["runtime_path"], *self.entry["pythonpath"]]),
+            PYTHONPATH=os.pathsep.join(
+                x for x in (self.entry["runtime_path"], *self.entry["pythonpath"]) if x
+            ),
             PYTHONNOUSERSITE="1",
             PYTHONIOENCODING="utf-8",
             PYTHONUNBUFFERED="1",
@@ -76,6 +98,8 @@ class WorkerProcess:
                 errors="replace",
                 env=env,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),  # no console flash on Windows
+                start_new_session=os.name
+                == "posix",  # own process group: children of a tool die with the worker
             )
         except OSError as error:
             reason = log.explain_spawn_error(error, command)
@@ -91,7 +115,7 @@ class WorkerProcess:
             env["PYTHONPATH"],
         )
         self.tasks = {}
-        self.stderr = []
+        self.stderr = _Tail()
         threading.Thread(target=self._read_responses, daemon=True).start()
         self._stderr_thread = threading.Thread(target=self._read_stderr, daemon=True)
         self._stderr_thread.start()
@@ -135,12 +159,22 @@ class WorkerProcess:
         try:
             self.proc.stdin.close()
             self.proc.wait(timeout=timeout)
+            self._kill_group()  # the worker is gone; reap anything it left behind
         except Exception:  # noqa: BLE001 - best effort shutdown
             self.kill()
 
     def kill(self):
+        self._kill_group()
         self.proc.kill()
         self.proc.wait()
+
+    def _kill_group(self):
+        """POSIX: stop everything the worker started (a tool's subprocesses or daemons would otherwise outlive it)."""
+        if os.name == "posix":
+            try:
+                os.killpg(self.proc.pid, signal.SIGKILL)
+            except (ProcessLookupError, PermissionError, OSError):
+                pass
 
     def _send(self, message):
         self.proc.stdin.write(json.dumps(message) + "\n")

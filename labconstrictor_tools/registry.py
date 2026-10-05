@@ -72,13 +72,27 @@ def _check_name(name):
     return name
 
 
+def _runtime_needed(interpreter):
+    """False if the app's own interpreter already has labconstrictor_tools. Then nothing may be added to its PYTHONPATH:
+    runtime_path() is the *registering* interpreter's site-packages, whose numpy/pandas/... would shadow the app's own.
+    """
+    try:
+        done = subprocess.run(
+            [str(interpreter), "-I", "-c", "import labconstrictor_tools"], capture_output=True, timeout=60
+        )
+        return done.returncode != 0
+    except (OSError, subprocess.SubprocessError):
+        return True
+
+
 def register(name, prefix, module, version="", pythonpath=(), display_name=None, directory=None):
     """Register an installed app: generate its schema with the app's own interpreter, cache it, write the entry."""
     _check_name(name)
     interpreter = python_for(prefix)
+    runtime = runtime_path() if _runtime_needed(interpreter) else ""
     env = {
         **os.environ,
-        "PYTHONPATH": os.pathsep.join([runtime_path(), *map(str, pythonpath)]),
+        "PYTHONPATH": os.pathsep.join(x for x in (runtime, *map(str, pythonpath)) if x),
         "PYTHONNOUSERSITE": "1",
     }
     command = [str(interpreter), "-m", "labconstrictor_tools", "describe", "--module", module]
@@ -107,7 +121,7 @@ def register(name, prefix, module, version="", pythonpath=(), display_name=None,
         "python": str(interpreter),
         "module": module,
         "pythonpath": [str(x) for x in pythonpath],
-        "runtime_path": runtime_path(),
+        "runtime_path": runtime,
         "schema_path": str(schema_path),
     }
     _write_atomic(
@@ -120,6 +134,10 @@ def _write_atomic(path, text):
     """Readers (hosts) may look at the folder at any moment: never expose a half-written file."""
     temporary = path.with_name(path.name + ".tmp")
     temporary.write_text(text, encoding="utf-8")
+    if os.name == "posix":
+        os.chmod(
+            temporary, 0o644
+        )  # not the umask's choice: with 0002 (Ubuntu's default) readers would reject our own entry as group-writable
     os.replace(temporary, path)
 
 

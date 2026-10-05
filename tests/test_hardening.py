@@ -165,6 +165,83 @@ class WorkerSurvivesGarbage(unittest.TestCase):
                 p.kill()
 
 
+class ProcessHygiene(unittest.TestCase):
+    def test_a_tools_child_process_dies_with_the_worker(self):
+        import psutil
+
+        folder = Path(tempfile.mkdtemp(prefix="lcmod_"))
+        (folder / "spawner_lc_tools.py").write_text(
+            "import subprocess, sys\nfrom labconstrictor_tools import Scalars, tool\n\n"
+            "@tool('Spawn')\ndef spawn() -> Scalars:\n"
+            "    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'])\n"
+            "    return {'pid': child.pid}\n"
+        )
+        old = dict(os.environ)
+        try:
+            os.environ["LC_HOME"] = tempfile.mkdtemp(prefix="lchome_")
+            with client.WorkerProcess(module="spawner_lc_tools", pythonpath=[folder]) as worker:
+                pid = worker.task("spawn", {}).wait(30).outputs["results"][0]["values"]["pid"]
+                self.assertTrue(psutil.pid_exists(pid))
+            time.sleep(1)
+            self.assertFalse(
+                psutil.pid_exists(pid) and psutil.Process(pid).status() != "zombie",
+                "child outlived the worker",
+            )
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+
+    def test_worker_stderr_kept_by_the_host_is_bounded(self):
+        tail = client._Tail()
+        for _ in range(50):
+            tail.append("e" * 100_000 + "\n")
+        kept = sum(len(x) for x in tail)
+        self.assertLess(kept, client._Tail.LIMIT + 200_000)
+        self.assertTrue(list(tail)[-1].startswith("e"))
+
+
+class RuntimeDoesNotLeakIntoTheApp(unittest.TestCase):
+    def test_runtime_path_is_only_added_when_the_app_lacks_the_package(self):
+        home = Path(tempfile.mkdtemp(prefix="lchome_"))
+        old = dict(os.environ)
+        try:
+            os.environ["LC_HOME"] = str(home)
+            has = registry.register("has", sys.prefix, SYNTHETIC_MODULE, "0")
+            self.assertEqual(
+                has["runtime_path"], ""
+            )  # Tools is installed in this environment: nothing to inject
+            bare = Path(tempfile.mkdtemp(prefix="lcbare_")) / "env"
+            subprocess.run(
+                [sys.executable, "-m", "venv", "--without-pip", str(bare)], check=True, capture_output=True
+            )
+            lacking = registry.register("lacking", bare, SYNTHETIC_MODULE, "0")
+            self.assertEqual(
+                lacking["runtime_path"], registry.runtime_path()
+            )  # an app without the package still works
+            with client.WorkerProcess("lacking") as worker:
+                self.assertEqual(worker.task("scalar_echo", {"a": 1, "b": 2}).wait(60).status, "COMPLETE")
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+
+
+class UmaskDoesNotBreakOwnEntries(unittest.TestCase):
+    @unittest.skipUnless(os.name == "posix", "POSIX permissions")
+    def test_entries_registered_under_umask_002_are_still_trusted(self):
+        home = Path(tempfile.mkdtemp(prefix="lchome_"))
+        previous = os.umask(0o002)
+        old = dict(os.environ)
+        try:
+            os.environ["LC_HOME"] = str(home)
+            registry.register("mine", sys.prefix, SYNTHETIC_MODULE, "0")
+            self.assertIn("mine", registry.load_all())
+            self.assertEqual((home / "apps" / "mine.json").stat().st_mode & 0o022, 0)
+        finally:
+            os.umask(previous)
+            os.environ.clear()
+            os.environ.update(old)
+
+
 class Races(unittest.TestCase):
     def test_entry_unregistered_during_a_scan_is_not_reported_as_broken(self):
         from unittest import mock

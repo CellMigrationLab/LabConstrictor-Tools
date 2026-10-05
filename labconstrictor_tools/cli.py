@@ -242,7 +242,7 @@ def _live_schema(entry):
     env = {
         **os.environ,
         "PYTHONNOUSERSITE": "1",
-        "PYTHONPATH": os.pathsep.join([entry["runtime_path"], *entry["pythonpath"]]),
+        "PYTHONPATH": os.pathsep.join(x for x in (entry["runtime_path"], *entry["pythonpath"]) if x),
     }
     command = [entry["python"], "-m", "labconstrictor_tools", "describe", "--module", entry["module"]]
     started = time.perf_counter()
