@@ -242,6 +242,25 @@ class UmaskDoesNotBreakOwnEntries(unittest.TestCase):
             os.environ.update(old)
 
 
+class Scaling(unittest.TestCase):
+    def test_loading_schemas_scans_the_registry_once(self):
+        from unittest import mock
+
+        home = Path(tempfile.mkdtemp(prefix="lchome_"))
+        old = dict(os.environ)
+        try:
+            os.environ["LC_HOME"] = str(home)
+            for i in range(5):
+                registry.register("app%d" % i, sys.prefix, SYNTHETIC_MODULE, "0")
+            with mock.patch.object(registry, "load_entries", wraps=registry.load_entries) as scans:
+                schemas, _ = registry.load_schemas()
+            self.assertEqual(len(schemas), 5)
+            self.assertEqual(scans.call_count, 1)
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+
+
 class Races(unittest.TestCase):
     def test_entry_unregistered_during_a_scan_is_not_reported_as_broken(self):
         from unittest import mock

@@ -232,9 +232,10 @@ def load_all():
     return load_entries()[0]
 
 
-def schema(app):
-    """The cached schema of one app. Raises ValueError with a readable reason if it cannot be used."""
-    entry = load_all()[app]
+def schema(app, entries=None):
+    """The cached schema of one app. Raises ValueError with a readable reason if it cannot be used.
+    `entries` (from load_entries) avoids re-scanning the registry for every app."""
+    entry = (entries if entries is not None else load_all())[app]
     try:
         schema = json.loads(Path(entry["schema_path"]).read_text(encoding="utf-8"))
     except (OSError, ValueError) as error:
@@ -253,7 +254,7 @@ def load_schemas():
     schemas = {}
     for name in entries:
         try:
-            schemas[name] = schema(name)
+            schemas[name] = schema(name, entries)
         except ValueError as error:
             problems.append((name, str(error)))
     return schemas, problems
