@@ -73,7 +73,11 @@ class WorkerProcess:
         env = {key: value for key, value in os.environ.items() if key not in _SCRUBBED_ENV}
         env.update(
             PYTHONPATH=os.pathsep.join(
-                x for x in (self.entry["runtime_path"], *self.entry["pythonpath"]) if x
+                # the app's own paths first: runtime_path (the host interpreter's site-packages in direct mode) must not
+                # shadow a working-tree copy of the module that is also installed there
+                x
+                for x in (*self.entry["pythonpath"], self.entry["runtime_path"])
+                if x
             ),
             PYTHONNOUSERSITE="1",
             PYTHONIOENCODING="utf-8",
@@ -190,6 +194,7 @@ class WorkerProcess:
             if task:
                 task.handle(message)
         self._on_exit()
+        self._close_pipe(self.proc.stdout)
 
     def _on_exit(self):
         """stdout closed: the worker is gone. Unfinished tasks crashed - say why, with the worker's own last words."""
@@ -224,6 +229,15 @@ class WorkerProcess:
         for line in self.proc.stderr:
             self.stderr.append(line)
             log.logger().debug("worker[%s] %s", self.proc.pid, line.rstrip())
+        self._close_pipe(self.proc.stderr)
+
+    @staticmethod
+    def _close_pipe(pipe):
+        """The reader threads own the read ends: close them at EOF, or each run leaks two file descriptors until GC."""
+        try:
+            pipe.close()
+        except (OSError, ValueError):
+            pass
 
 
 class Task:

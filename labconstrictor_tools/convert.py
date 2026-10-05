@@ -86,8 +86,12 @@ def _read_image(value):
         if path.suffix.lower() in (".tif", ".tiff", ".btf"):  # also .ome.tif
             import tifffile
 
-            return tifffile.imread(path)
-        return _read_other_format(path)
+            array = tifffile.imread(path)
+        else:
+            array = _read_other_format(path)
+        if array.size == 0:  # tifffile only warns about some damaged headers and returns an empty array
+            raise ToolError("unreadable_image", "cannot read %s: the file contains no image data" % path.name)
+        return array
     except ToolError:
         raise
     except Exception as error:  # noqa: BLE001 - any reader failure is the user's file problem
