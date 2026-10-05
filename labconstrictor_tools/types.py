@@ -18,6 +18,10 @@ class File:
     "arbitrary file input (path)"
 
 
+class Folder:
+    "folder input (a directory path; hosts show a folder chooser)"
+
+
 # ---- semantic output types (what the tool function RETURNS)
 class ImageOut:
     "ndarray -> image"
@@ -43,7 +47,7 @@ class Affine:
     "3x3 homogeneous matrix in (y,x) pixel coordinates mapping SOURCE pixels -> TARGET pixels"
 
 
-INPUT_TYPES = {Image: "image", Labels: "labels", Table: "table", File: "file"}
+INPUT_TYPES = {Image: "image", Labels: "labels", Table: "table", File: "file", Folder: "folder"}
 OUTPUT_TYPES = {
     ImageOut: "image",
     LabelsOut: "labels",

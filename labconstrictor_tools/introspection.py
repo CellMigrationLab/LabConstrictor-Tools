@@ -116,6 +116,9 @@ def _param(name, p, hint, argdoc):
     desc = _m(meta, T.Description).value if _m(meta, T.Description) else argdoc.get(name)
     if desc:
         d["description"] = desc
+    if not d["required"] and "default" not in d:
+        # "unset" is a real value (default None / Optional[...]): hosts must be able to leave it unset and then omit it
+        d["nullable"] = True
     if d["type"] == "choice" and "default" not in d and d["required"]:
         d["default"] = d["choices"][0]
     return d

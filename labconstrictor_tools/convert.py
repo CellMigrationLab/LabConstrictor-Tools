@@ -38,6 +38,11 @@ def _load_one(param, value):
         return pd.read_csv(value)
     if kind == "file":
         return Path(value)
+    if kind == "folder":
+        path = Path(value)
+        if not path.is_dir():
+            raise ToolError("folder_not_found", "'%s': folder not found: %s" % (param["label"], path))
+        return path
     if kind == "integer":
         if isinstance(value, bool) or int(value) != value:
             raise ToolError("invalid_parameter", "'%s' must be an integer" % param["label"])

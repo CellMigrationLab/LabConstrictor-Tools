@@ -60,5 +60,39 @@ class Run2(unittest.TestCase):
         self.assertEqual(Path(first).resolve(), folder.resolve())
 
 
+class Schema(unittest.TestCase):
+    def test_nullable_and_folder_in_the_manifest(self):
+        from pathlib import Path as P
+        from typing import Annotated, Optional
+
+        from labconstrictor_tools import Folder, Min, Scalars
+        from labconstrictor_tools.decorators import tool
+        from labconstrictor_tools.introspection import describe_tool
+
+        @tool("T", id="nullable_probe")
+        def t(
+            a: Optional[int] = None,
+            b: Annotated[float, Min(0)] = 1.0,
+            c: Optional[str] = None,
+            d: Optional[Folder] = None,
+            e: Optional[P] = None,
+        ) -> Scalars:
+            return {}
+
+        by = {p["name"]: p for p in describe_tool(t.__lc_tool__)["inputs"]}
+        self.assertTrue(
+            by["a"]["nullable"] and by["c"]["nullable"] and by["d"]["nullable"] and by["e"]["nullable"]
+        )
+        self.assertNotIn("nullable", by["b"])
+        self.assertEqual((by["d"]["type"], by["e"]["type"]), ("folder", "file"))
+
+    def test_folder_input_must_be_a_directory(self):
+        param = {"name": "f", "label": "F", "type": "folder", "required": True}
+        self.assertEqual(convert._load_one(param, tempfile.gettempdir()), Path(tempfile.gettempdir()))
+        with self.assertRaises(ToolError) as caught:
+            convert._load_one(param, "/definitely/not/here")
+        self.assertEqual(caught.exception.code, "folder_not_found")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
