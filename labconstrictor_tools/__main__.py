@@ -1,0 +1,138 @@
+"""python -m labconstrictor_tools <command>   (also installed as the `labconstrictor-tools` command)
+
+Used by installers : register | unregister
+Used by hosts      : describe | serve                (internal: schema generation and the tool worker)
+Used by people     : list | run | check | test | doctor     (see cli.py)
+"""
+
+import argparse
+import importlib
+import json
+import sys
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(prog="labconstrictor-tools", description=__doc__.splitlines()[0])
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    describe = sub.add_parser("describe", help="print the JSON schema of a declaration module (internal)")
+    describe.add_argument("--module", required=True)
+    describe.add_argument("--application")
+    describe.add_argument("--version")
+
+    serve = sub.add_parser("serve", help="run the tool worker on stdin/stdout (internal)")
+    serve.add_argument("--module", required=True)
+    serve.add_argument("--pythonpath", action="append", default=[])
+
+    register = sub.add_parser(
+        "register", help="make an installed app visible to Napari/Fiji (post-install step)"
+    )
+    register.add_argument("--name", required=True)
+    register.add_argument("--prefix", required=True, help="install prefix of the app (contains its python)")
+    register.add_argument(
+        "--module", required=True, help="module declaring the tools, importable in the app's Python"
+    )
+    register.add_argument("--version", default="")
+    register.add_argument("--display-name")
+    register.add_argument("--pythonpath", action="append", default=[])
+    register.add_argument(
+        "--dir", help="write the entry here instead of the per-user registry (e.g. a shared folder)"
+    )
+
+    unregister = sub.add_parser("unregister", help="remove an app (pre-uninstall step)")
+    unregister.add_argument("--name", required=True)
+    unregister.add_argument("--dir")
+
+    lst = sub.add_parser("list", help="installed apps and their tools")
+    lst.add_argument("--json", action="store_true")
+
+    run = sub.add_parser("run", help="run a tool without a GUI")
+    run.add_argument("app")
+    run.add_argument("tool")
+    run.add_argument("params", nargs="*", metavar="name=value")
+    run.add_argument("--usage", action="store_true", help="show the tool's parameters and exit")
+    run.add_argument("--out", help="directory for the results (default: a temporary one)")
+    run.add_argument("--keep", action="store_true")
+    run.add_argument(
+        "--no-record", action="store_true", help="do not write a run record under <LC_HOME>/runs"
+    )
+    run.add_argument("--timeout", type=float, default=None, help="kill the worker after this many seconds")
+
+    check = sub.add_parser("check", help="validate a declaration module (for app authors)")
+    check.add_argument("--module", required=True)
+    check.add_argument("--pythonpath", action="append", default=[])
+
+    test = sub.add_parser("test", help="run the tools on small samples and check the results (for authors)")
+    test.add_argument("--module", required=True)
+    test.add_argument("--pythonpath", action="append", default=[])
+    test.add_argument("--python", help="interpreter for the workers (default: this one)")
+    test.add_argument("--cases", help="JSON file with test cases; without it every tool gets a smoke test")
+    test.add_argument("--sample", action="append", default=[], metavar="name=path")
+    test.add_argument("--only", help="test just this tool id")
+    test.add_argument("--timeout", type=float, default=120)
+    test.add_argument("--check-cancel", action="store_true", help="also check that tools react to cancel")
+    test.add_argument("--json", action="store_true")
+
+    export = sub.add_parser("export-notebook", help="write the %%%%lc_tool cells of a notebook to a module")
+    export.add_argument("notebook")
+    export.add_argument("--out", default="lc_tools.py")
+
+    init = sub.add_parser("init", help="write a starter declaration module (for app authors)")
+    init.add_argument("path", help="e.g. my_app_tools.py")
+
+    logs = sub.add_parser("logs", help="show the end of the log file (all front-ends write to it)")
+    logs.add_argument("-n", "--lines", type=int, default=60)
+    logs.add_argument("--path", action="store_true", help="print the log file location only")
+
+    bundle = sub.add_parser(
+        "support-bundle", help="zip logs, registry and versions to attach to a bug report"
+    )
+    bundle.add_argument("--out")
+
+    doctor = sub.add_parser("doctor", help="diagnose the installation")
+    doctor.add_argument("--json", action="store_true")
+
+    return parser
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    if args.command == "describe":
+        importlib.import_module(args.module)
+        from .introspection import describe_tools
+
+        print(json.dumps(describe_tools(args.module, args.application, args.version), indent=2))
+    elif args.command == "serve":
+        from .worker import Worker
+
+        Worker(args.module, args.pythonpath).serve()
+    elif args.command == "register":
+        from . import registry
+
+        entry = registry.register(
+            args.name, args.prefix, args.module, args.version, args.pythonpath, args.display_name, args.dir
+        )
+        print(json.dumps(entry, indent=2))
+    elif args.command == "unregister":
+        from . import registry
+
+        print(registry.unregister(args.name, args.dir))
+    else:
+        from . import cli
+
+        return {
+            "list": cli.cmd_list,
+            "run": cli.cmd_run,
+            "check": cli.cmd_check,
+            "test": cli.cmd_test,
+            "logs": cli.cmd_logs,
+            "support-bundle": cli.cmd_support_bundle,
+            "export-notebook": cli.cmd_export_notebook,
+            "doctor": cli.cmd_doctor,
+            "init": cli.cmd_init,
+        }[args.command](args)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

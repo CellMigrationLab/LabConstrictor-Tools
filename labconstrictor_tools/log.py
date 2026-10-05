@@ -1,0 +1,114 @@
+"""One log file for every front-end: <LC_HOME>/logs/labconstrictor.log (rotating, 5 x 1 MB).
+
+Napari, the command line and (through the same line format) Fiji append to it, so a bug report needs one file:
+    labconstrictor-tools logs            # print the tail          labconstrictor-tools support-bundle   # zip for a bug report
+Logging never raises: an unwritable log folder must not break a run.
+"""
+
+import logging
+import logging.handlers
+import platform
+import sys
+
+from . import registry
+
+LOG_NAME = "labconstrictor.log"
+_FORMAT = "%(asctime)s.%(msecs)03d %(levelname)-7s pid=%(process)d %(message)s"
+_logger = None
+
+
+def log_dir():
+    return registry.home() / "logs"
+
+
+def log_path():
+    return log_dir() / LOG_NAME
+
+
+def logger():
+    global _logger
+    if _logger is not None:
+        return _logger
+    _logger = logging.getLogger("labconstrictor")
+    _logger.setLevel(logging.DEBUG)
+    _logger.propagate = False
+    try:
+        log_dir().mkdir(parents=True, exist_ok=True)
+        handler = logging.handlers.RotatingFileHandler(
+            log_path(), maxBytes=1_000_000, backupCount=5, encoding="utf-8"
+        )
+        handler.setFormatter(logging.Formatter(_FORMAT, "%Y-%m-%d %H:%M:%S"))
+        _logger.addHandler(handler)
+        _logger.info("---- session start: %s", environment_summary())
+    except OSError:
+        _logger.addHandler(logging.NullHandler())
+    return _logger
+
+
+def environment_summary():
+    return "labconstrictor_tools=%s python=%s (%s) platform=%s LC_HOME=%s" % (
+        version(),
+        platform.python_version(),
+        sys.executable,
+        platform.platform(),
+        registry.home(),
+    )
+
+
+def version():
+    try:
+        from importlib.metadata import version as package_version
+
+        return package_version("labconstrictor-tools")
+    except Exception:  # noqa: BLE001 - running from a checkout
+        return "unknown (checkout)"
+
+
+def info(message, *args):
+    logger().info(message, *args)
+
+
+def warning(message, *args):
+    logger().warning(message, *args)
+
+
+def error(message, *args, exc_info=False):
+    logger().error(message, *args, exc_info=exc_info)
+
+
+def tail(lines=60):
+    """Last `lines` lines of the log, newest last (for 'Details' windows and `labconstrictor-tools logs`)."""
+    try:
+        return "".join(log_path().read_text(encoding="utf-8", errors="replace").splitlines(True)[-lines:])
+    except OSError:
+        return ""
+
+
+def explain_spawn_error(error_, command):
+    """Turn an OSError from starting a worker into a sentence that says what to check."""
+    path = command[0]
+    if isinstance(error_, FileNotFoundError):
+        return (
+            "the app's Python was not found at %s (was the app moved, uninstalled or is the drive not mounted?)"
+            % path
+        )
+    if isinstance(error_, PermissionError):
+        return (
+            "no permission to run %s (check execute rights, antivirus quarantine, or a read-only/noexec mount)"
+            % path
+        )
+    return "could not start %s: %s" % (path, error_)
+
+
+def hint_for_exit(returncode, stderr_tail):
+    """A one-line likely cause for a worker that died on its own."""
+    text = stderr_tail or ""
+    if "ModuleNotFoundError" in text or "ImportError" in text:
+        return "a Python package is missing or broken in the app's environment (see the traceback above)"
+    if returncode in (-9, 137):
+        return "the worker was killed (out of memory? the OS OOM killer ends big image jobs this way)"
+    if returncode in (-11, 139, 3221225477):
+        return "the worker crashed natively (segmentation fault in a compiled library)"
+    if returncode == 3:
+        return "the app's tool module failed to import (see the traceback above)"
+    return ""

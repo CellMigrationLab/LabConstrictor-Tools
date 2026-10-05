@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "labconstrictor-tools"
+version = "0.1.0"
+description = "Declare scientific tools as typed Python functions; Napari, Fiji and notebooks build their GUIs from the generated schema"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []   # standard library only: it has to live in every LabConstrictor app environment
+
+[project.optional-dependencies]
+test = ["numpy", "pandas", "tifffile", "scipy", "ipywidgets", "ipython"]   # what the test suites and the example app need
+
+[project.urls]
+Repository = "https://github.com/CellMigrationLab/LabConstrictor-Tools"
+
+[project.scripts]
+labconstrictor-tools = "labconstrictor_tools.__main__:main"
+
+[tool.setuptools]
+packages = ["labconstrictor_tools", "labconstrictor_tools.examples"]
+
+
+[tool.black]
+line-length = 110
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "UP031", "UP032", "B905"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["E402", "B007"]   # test scripts set up sys.path / env before importing

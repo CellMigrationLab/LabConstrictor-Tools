@@ -1,0 +1,6 @@
+[
+  {"tool": "scalar_echo", "inputs": {"a": 2.0, "b": 3.5}, "expect": {"results": {"values": {"sum": 5.5}}}},
+  {"tool": "slow", "inputs": {"seconds": 0.6, "steps": 3}, "expect": {"progress_events_min": 3}},
+  {"tool": "slow", "inputs": {"seconds": 20, "steps": 40}, "cancel_after_s": 1.0},
+  {"tool": "explode", "expect": {"status": "FAILED", "code": "expected_failure", "message_contains": "always fails"}}
+]
