@@ -38,6 +38,11 @@ def _load_one(param, value):
         return pd.read_csv(value)
     if kind == "file":
         return Path(value)
+    if kind == "folder":
+        path = Path(value)
+        if not path.is_dir():
+            raise ToolError("folder_not_found", "'%s': folder not found: %s" % (param["label"], path))
+        return path
     if kind == "integer":
         if isinstance(value, bool) or int(value) != value:
             raise ToolError("invalid_parameter", "'%s' must be an integer" % param["label"])
@@ -86,8 +91,12 @@ def _read_image(value):
         if path.suffix.lower() in (".tif", ".tiff", ".btf"):  # also .ome.tif
             import tifffile
 
-            return tifffile.imread(path)
-        return _read_other_format(path)
+            array = tifffile.imread(path)
+        else:
+            array = _read_other_format(path)
+        if array.size == 0:  # tifffile only warns about some damaged headers and returns an empty array
+            raise ToolError("unreadable_image", "cannot read %s: the file contains no image data" % path.name)
+        return array
     except ToolError:
         raise
     except Exception as error:  # noqa: BLE001 - any reader failure is the user's file problem

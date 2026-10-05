@@ -7,10 +7,13 @@
 { "protocol": 1, "application": str, "version": str,
   "tools": [ { "id", "label", "description"?,
                "inputs":  [ { "name", "label", "type", "required", "default"?, "description"?, "choices"?,
-                              "minimum"?, "maximum"?, "unit"?, "axes"?, "pixel_size_of"? } ],
+                              "minimum"?, "maximum"?, "unit"?, "axes"?, "pixel_size_of"?, "nullable"? } ],
                "outputs": [ { "name", "type", "axes"?, "display"?: {"apply_to", "relative_to"?} } ] } ] }
 ```
-Input `type`: `string integer float boolean choice image labels table file`. Output `type`: `image labels table values affine file`.
+Input `type`: `string integer float boolean choice image labels table file folder`.
+`nullable: true` (additive, protocol 1): the parameter is optional AND has no default value (`= None` / `Optional[...]`). A host must let the
+user leave it unset and then omit it from the request (the tool receives `None`); showing 0 or an empty string instead is a bug.
+`folder` is a directory path (the worker checks it exists); hosts show a folder chooser. Output `type`: `image labels table values affine file`.
 Hosts must skip (and report) a schema whose `protocol` they do not support.
 
 ## Wire protocol (host <-> worker)

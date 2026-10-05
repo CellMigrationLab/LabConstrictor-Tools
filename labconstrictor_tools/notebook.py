@@ -53,7 +53,7 @@ class ToolForm:
         }
         tooltip = param.get("description", "")
         default = param.get("default")
-        if kind in ("image", "labels", "table", "file", "string"):
+        if kind in ("image", "labels", "table", "file", "folder", "string"):
             hint = {
                 "image": "path to a TIFF image",
                 "labels": "path to a TIFF label image",
@@ -93,7 +93,7 @@ class ToolForm:
         inputs = {}
         for param in self.schema["inputs"]:
             value = self.controls[param["name"]].value
-            if param["type"] in ("image", "labels", "table", "file") and not str(value).strip():
+            if param["type"] in ("image", "labels", "table", "file", "folder") and not str(value).strip():
                 continue
             inputs[param["name"]] = value
         return inputs
