@@ -42,6 +42,7 @@ def build_parser():
     unregister = sub.add_parser("unregister", help="remove an app (pre-uninstall step)")
     unregister.add_argument("--name", required=True)
     unregister.add_argument("--dir")
+    unregister.add_argument("--prefix", help="only remove the entry if it belongs to this install prefix")
 
     lst = sub.add_parser("list", help="installed apps and their tools")
     lst.add_argument("--json", action="store_true")
@@ -126,7 +127,7 @@ def main(argv=None):
     elif args.command == "unregister":
         from . import registry
 
-        print(registry.unregister(args.name, args.dir))
+        print(registry.unregister(args.name, args.dir, args.prefix))
     else:
         from . import cli
 

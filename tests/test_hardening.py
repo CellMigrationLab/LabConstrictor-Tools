@@ -242,6 +242,28 @@ class UmaskDoesNotBreakOwnEntries(unittest.TestCase):
             os.environ.update(old)
 
 
+class TwoInstallsOfOneApp(unittest.TestCase):
+    def test_uninstalling_the_older_install_keeps_the_newer_registration(self):
+        home = Path(tempfile.mkdtemp(prefix="lchome_"))
+        register(home, "app")  # first install (prefix = GENERIC_PREFIX)
+        newer = Path(tempfile.mkdtemp(prefix="lcnewer_"))
+        (newer / "bin").mkdir()
+        (newer / "bin" / "python").symlink_to(sys.executable)
+        done = cli(
+            "register", "--name", "app", "--prefix", str(newer), "--module", SYNTHETIC_MODULE, home=home
+        )
+        self.assertEqual(done.returncode, 0, done.stderr)
+        cli(
+            "unregister", "--name", "app", "--prefix", str(GENERIC_PREFIX), home=home
+        )  # the OLD install is uninstalled
+        self.assertTrue((home / "apps" / "app.json").exists(), "newer registration was removed")
+        cli("unregister", "--name", "app", "--prefix", str(newer), home=home)
+        self.assertFalse((home / "apps" / "app.json").exists())
+        register(home, "other")
+        cli("unregister", "--name", "other", home=home)  # without --prefix: unconditional, as before
+        self.assertFalse((home / "apps" / "other.json").exists())
+
+
 class Scaling(unittest.TestCase):
     def test_loading_schemas_scans_the_registry_once(self):
         from unittest import mock

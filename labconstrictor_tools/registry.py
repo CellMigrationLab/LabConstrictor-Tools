@@ -141,10 +141,22 @@ def _write_atomic(path, text):
     os.replace(temporary, path)
 
 
-def unregister(name, directory=None):
+def unregister(name, directory=None, prefix=None):
+    """Remove an app. With `prefix`, only if the entry still belongs to that install: a second install of the same app
+    (another prefix, e.g. an upgrade in a new folder) registered later must survive the first one's uninstall.
+    """
     _check_name(name)
     removed = False
     target = Path(directory) if directory else apps_dir()
+    if prefix is not None:
+        try:
+            owner = json.loads((target / (name + ".json")).read_text(encoding="utf-8")).get("prefix")
+        except (OSError, ValueError):
+            owner = None
+        if owner is not None and os.path.normcase(os.path.abspath(owner)) != os.path.normcase(
+            os.path.abspath(prefix)
+        ):
+            return False
     for filename in (name + ".json", name + ".schema.json"):
         path = target / filename
         if path.exists():
