@@ -188,6 +188,8 @@ def load_entries():
                     problems.append((name, "ignored: " + reason))
                     continue
                 entries[name] = entry
+            except FileNotFoundError:
+                continue  # unregistered while we were scanning: the app is simply gone
             except (OSError, ValueError, KeyError) as error:
                 problems.append((name, "unreadable entry (%s)" % error))
     _log_problems(problems)

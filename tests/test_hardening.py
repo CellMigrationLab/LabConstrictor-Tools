@@ -7,6 +7,8 @@ import os
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
 
@@ -124,6 +126,64 @@ class RegistryNamesAndPriority(unittest.TestCase):
             self.assertIn("not owned", dict(problems)["synthetic"])
             os.chown(self.shared / "synthetic.json", 0, 0)  # root-owned (an administrator): fine
             self.assertIn("synthetic", registry.load_entries()[0])
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+
+
+def _drain(stream, sink):
+    for line in stream:
+        sink.append(line)
+
+
+class WorkerSurvivesGarbage(unittest.TestCase):
+    def test_non_object_json_lines_do_not_make_the_worker_deaf(self):
+        env = {**os.environ, "PYTHONPATH": str(V3)}
+        for junk in (b"[1,2,3]\n", b"42\n", b"null\n", b'"str"\n', b"\xff\xfe\n", b"{broken\n"):
+            p = subprocess.Popen(
+                [sys.executable, "-m", "labconstrictor_tools", "serve", "--module", SYNTHETIC_MODULE],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env,
+            )  # fmt: skip
+            try:
+                request = {
+                    "task": "good",
+                    "requestType": "EXECUTE",
+                    "script": "lc:scalar_echo",
+                    "inputs": {"a": 1, "b": 2},
+                }
+                p.stdin.write(junk + json.dumps(request).encode() + b"\n")
+                p.stdin.flush()
+                answered = False
+                lines = []
+                threading.Thread(target=_drain, args=(p.stdout, lines), daemon=True).start()
+                end = time.time() + 10
+                while not answered and time.time() < end:
+                    answered = any(b"COMPLETION" in line for line in lines)
+                    time.sleep(0.1)
+                self.assertTrue(answered, "worker went deaf after %r" % junk)
+            finally:
+                p.kill()
+
+
+class Races(unittest.TestCase):
+    def test_entry_unregistered_during_a_scan_is_not_reported_as_broken(self):
+        from unittest import mock
+
+        home = Path(tempfile.mkdtemp(prefix="lchome_"))
+        register(home, "synthetic")
+        old = dict(os.environ)
+        try:
+            os.environ["LC_HOME"] = str(home)
+            real = Path.read_text
+
+            def vanished(self, *a, **k):
+                if self.name == "synthetic.json":
+                    raise FileNotFoundError(2, "gone", str(self))
+                return real(self, *a, **k)
+
+            with mock.patch.object(Path, "read_text", vanished):
+                entries, problems = registry.load_entries()
+            self.assertEqual((entries, problems), ({}, []))
         finally:
             os.environ.clear()
             os.environ.update(old)

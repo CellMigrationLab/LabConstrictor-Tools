@@ -65,9 +65,13 @@ class Channel:
             if not line:
                 continue
             try:
-                yield json.loads(line)
+                request = json.loads(line)
             except ValueError:
                 continue
+            if isinstance(
+                request, dict
+            ):  # a list/number/null line must not kill the reader thread (the worker would go deaf)
+                yield request
 
 
 def _stdin_lines():

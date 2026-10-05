@@ -125,6 +125,9 @@ def cmd_run(args):
         )
     except client.WorkerStartError as error:
         raise SystemExit("✖ %s" % error) from error
+    except KeyboardInterrupt:  # Ctrl-C: the worker is closed by run_once's context manager; no traceback
+        print("✖ interrupted; the worker was asked to stop", file=sys.stderr)
+        return 130
     report = {"status": task.status, "seconds": round(time.time() - started, 2)}
     if getattr(task, "record_dir", None):
         report["run_record"] = str(task.record_dir / "run.json")
