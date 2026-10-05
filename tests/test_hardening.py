@@ -183,8 +183,16 @@ class CancelThatHadToKill(unittest.TestCase):
 class NarrowConsoles(unittest.TestCase):
     def test_status_symbols_do_not_crash_on_a_cp1252_stdout(self):
         """Found on windows-latest CI: UnicodeEncodeError for the check mark printed by check/test/support-bundle."""
-        home = Path(tempfile.mkdtemp(prefix="lchome_"))
-        done = cli("check", "--module", SYNTHETIC_MODULE, home=home, extra_env={"PYTHONIOENCODING": "cp1252"})
+        env = {
+            **os.environ,
+            "LC_HOME": tempfile.mkdtemp(prefix="lchome_"),
+            "PYTHONPATH": str(V3),
+            "PYTHONIOENCODING": "cp1252",
+        }
+        done = subprocess.run(
+            [sys.executable, "-m", "labconstrictor_tools", "check", "--module", SYNTHETIC_MODULE],
+            capture_output=True, text=True, encoding="cp1252", env=env,
+        )  # fmt: skip
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertNotIn("UnicodeEncodeError", done.stderr)
 
