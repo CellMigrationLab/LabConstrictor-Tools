@@ -94,6 +94,7 @@ def register(name, prefix, module, version="", pythonpath=(), display_name=None,
         **os.environ,
         "PYTHONPATH": os.pathsep.join(x for x in (runtime, *map(str, pythonpath)) if x),
         "PYTHONNOUSERSITE": "1",
+        "PYTHONSAFEPATH": "1",
     }
     command = [str(interpreter), "-m", "labconstrictor_tools", "describe", "--module", module]
     command += ["--application", display_name or name, "--version", version]
@@ -178,6 +179,8 @@ def _untrusted_reason(entry_file, entry):
         inside = False
     if not inside:
         return "interpreter %s is not inside the install prefix %s" % (python, prefix)
+    if Path(prefix).parent == Path(prefix):  # "/" or "C:\\": containment would prove nothing
+        return "the install prefix %s is a filesystem root" % prefix
     if os.name == "posix":
         info = entry_file.stat()
         # per-user entries must be ours; entries in shared folders (LC_APPS_PATH, /etc) may also belong to root (the administrator)

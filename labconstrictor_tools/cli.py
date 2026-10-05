@@ -12,6 +12,7 @@ import argparse
 import importlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -113,6 +114,8 @@ def cmd_run(args):
         inputs[name] = parse_value(by_name[name], text)
     if args.out:
         inputs["_job_dir"] = str(Path(args.out).resolve())
+    else:  # a known place instead of a random /tmp folder per run; the newest RESULTS_KEPT runs are kept
+        inputs["_job_dir"] = str(_new_results_dir(args.app, tool["id"]))
     started = time.time()
     try:
         task = client.run_once(
@@ -139,12 +142,26 @@ def cmd_run(args):
         if task.traceback:
             print(task.traceback, file=sys.stderr)
     print(json.dumps(report, indent=2))
-    if task.status == "COMPLETE" and not args.out and not args.keep:
+    if task.status == "COMPLETE" and not args.out:
         print(
-            "(results are in %s - use --out DIR to choose where they go)" % task.outputs["job_dir"],
+            "(results are in %s - use --out DIR to choose where they go; the newest %d runs are kept)"
+            % (task.outputs["job_dir"], RESULTS_KEPT),
             file=sys.stderr,
         )
     return 0 if task.status == "COMPLETE" else 1
+
+
+RESULTS_KEPT = 20
+
+
+def _new_results_dir(app, tool_id):
+    """<LC_HOME>/results/<time>_<app>_<tool>; older run folders beyond RESULTS_KEPT are removed (only inside results/)."""
+    base = registry.home() / "results"
+    base.mkdir(parents=True, exist_ok=True)
+    folders = sorted(p for p in base.iterdir() if p.is_dir() and not p.is_symlink())
+    for old in folders[: max(0, len(folders) - (RESULTS_KEPT - 1))]:
+        shutil.rmtree(old, ignore_errors=True)
+    return base / ("%s_%s_%s" % (time.strftime("%Y%m%dT%H%M%S"), app, tool_id))
 
 
 def _print_progress(message, fraction):
@@ -242,7 +259,8 @@ def _live_schema(entry):
     env = {
         **os.environ,
         "PYTHONNOUSERSITE": "1",
-        "PYTHONPATH": os.pathsep.join(x for x in (entry["runtime_path"], *entry["pythonpath"]) if x),
+        "PYTHONSAFEPATH": "1",
+        "PYTHONPATH": os.pathsep.join(x for x in (*entry["pythonpath"], entry["runtime_path"]) if x),
     }
     command = [entry["python"], "-m", "labconstrictor_tools", "describe", "--module", entry["module"]]
     started = time.perf_counter()
