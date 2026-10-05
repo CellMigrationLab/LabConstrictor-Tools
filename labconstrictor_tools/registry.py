@@ -65,8 +65,16 @@ def runtime_path():
     return str(Path(__file__).resolve().parent.parent)
 
 
+def _check_name(name):
+    """An app name becomes a file name in the registry: refuse anything that could point outside of it."""
+    if not name or name in (".", "..") or any(c in name for c in "/\\\0") or name != name.strip():
+        raise ValueError("invalid app name %r: it must be a plain name without path separators" % (name,))
+    return name
+
+
 def register(name, prefix, module, version="", pythonpath=(), display_name=None, directory=None):
     """Register an installed app: generate its schema with the app's own interpreter, cache it, write the entry."""
+    _check_name(name)
     interpreter = python_for(prefix)
     env = {
         **os.environ,
@@ -116,6 +124,7 @@ def _write_atomic(path, text):
 
 
 def unregister(name, directory=None):
+    _check_name(name)
     removed = False
     target = Path(directory) if directory else apps_dir()
     for filename in (name + ".json", name + ".schema.json"):
@@ -139,10 +148,14 @@ def _untrusted_reason(entry_file, entry):
         inside = False
     if not inside:
         return "interpreter %s is not inside the install prefix %s" % (python, prefix)
-    if os.name == "posix" and entry_file.parent == apps_dir():
+    if os.name == "posix":
         info = entry_file.stat()
-        if info.st_uid != os.getuid():
-            return "entry file is not owned by the current user"
+        # per-user entries must be ours; entries in shared folders (LC_APPS_PATH, /etc) may also belong to root (the administrator)
+        owners = {os.getuid()} if entry_file.parent == apps_dir() else {os.getuid(), 0}
+        if info.st_uid not in owners:
+            return "entry file is not owned by the current user" + (
+                "" if entry_file.parent == apps_dir() else " or root"
+            )
         if info.st_mode & 0o022:
             return "entry file is writable by other users"
     return None
@@ -163,6 +176,8 @@ def load_entries():
             try:
                 entry = json.loads(entry_file.read_text(encoding="utf-8"))
                 name = entry["name"]
+                if name in entries or any(name == p[0] for p in problems):
+                    continue  # the file name differs from the app name it claims: priority still goes to the earlier directory
                 if not Path(entry["python"]).exists():
                     problems.append(
                         (name, "not available on this machine (interpreter %s is missing)" % entry["python"])

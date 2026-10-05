@@ -12,6 +12,7 @@ interpreter that runs them (needs `pip install -e ".[test]"`).
 | test_environments | concurrency, duplicate/broken/future-protocol apps, orphaned workers (optional read-only prefix: `LC_TEST_RO_PREFIX`) |
 | test_notebook_form | the ipywidgets form |
 | test_author_tools | `%%lc_tool`, `export-notebook`, `labconstrictor-tools test` |
+| test_hardening | NaN/inf rejected, strict-JSON results, registry priority and trust, unsafe app names, skipped-app explanations, message after a forced kill on Cancel |
 | test_logging | failures are explained and logged; `support-bundle` |
 | windows/test_windows.py | the same layer on Windows: `python tests/windows/test_windows.py` (also run under Wine via run_suite.sh) |
 

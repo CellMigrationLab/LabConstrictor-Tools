@@ -94,8 +94,11 @@ def parse_value(param, text):
 def cmd_run(args):
     from . import client
 
-    schemas, _ = registry.load_schemas()
+    schemas, problems = registry.load_schemas()
     if args.app not in schemas:
+        reason = dict(problems).get(args.app)
+        if reason:
+            raise SystemExit("app %r is installed but cannot be used: %s" % (args.app, reason))
         raise SystemExit("unknown app %r; installed: %s" % (args.app, ", ".join(sorted(schemas)) or "none"))
     tool = _find_tool(schemas[args.app], args.tool)
     if args.usage:

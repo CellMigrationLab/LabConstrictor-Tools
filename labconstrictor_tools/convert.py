@@ -6,6 +6,7 @@ Outputs: ndarray -> TIFF, DataFrame/dict/list -> CSV, matrices -> JSON, dict -> 
 numpy/pandas/tifffile are imported lazily, only when a tool actually uses those types.
 """
 
+import math
 from pathlib import Path
 
 from .types import ToolError
@@ -42,7 +43,10 @@ def _load_one(param, value):
             raise ToolError("invalid_parameter", "'%s' must be an integer" % param["label"])
         return _check_range(param, int(value))
     if kind == "float":
-        return _check_range(param, float(value))
+        number = float(value)
+        if not math.isfinite(number):
+            raise ToolError("invalid_parameter", "'%s' must be a finite number" % param["label"])
+        return _check_range(param, number)
     if kind == "boolean":
         return bool(value)
     if kind == "choice":
@@ -147,10 +151,23 @@ def _write_one(out, value, job_dir):
     if kind == "file":
         return {"type": "file", "name": name, "path": str(value)}
     if kind == "values":
-        return {"type": "values", "name": name, "values": dict(value)}
+        return {"type": "values", "name": name, "values": {str(k): _plain(v) for k, v in dict(value).items()}}
     if kind == "affine":
         return {"type": "affine", "name": name, "matrix_yx": _as_3x3(value), **out.get("display", {})}
     raise ToolError("bad_return", "unsupported output type %r" % kind)
+
+
+def _plain(value):
+    """A value that survives strict JSON: numpy scalars become Python numbers (not strings), NaN/inf become null."""
+    if hasattr(value, "item") and getattr(value, "ndim", None) == 0:  # numpy scalar or 0-d array
+        value = value.item()
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, (list, tuple)):
+        return [_plain(v) for v in value]
+    if isinstance(value, dict):
+        return {str(k): _plain(v) for k, v in value.items()}
+    return value
 
 
 def _as_3x3(matrix):

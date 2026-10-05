@@ -8,6 +8,7 @@ takes the real stdout for itself and redirects the process-wide stdout to stderr
 """
 
 import json
+import math
 import os
 import sys
 import threading
@@ -22,6 +23,16 @@ def tool_id_from_script(script):
     return script[len(TOOL_PREFIX) :] if script.startswith(TOOL_PREFIX) else None
 
 
+def _finite(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, dict):
+        return {k: _finite(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_finite(v) for v in value]
+    return value
+
+
 class Channel:
     """Thread-safe writer of response lines on the worker's real stdout."""
 
@@ -32,7 +43,13 @@ class Channel:
         self._lock = threading.Lock()
 
     def send(self, task, response_type, **fields):
-        line = json.dumps({"task": task, "responseType": response_type, **fields}, default=str)
+        message = {"task": task, "responseType": response_type, **fields}
+        try:
+            line = json.dumps(
+                message, default=str, allow_nan=False
+            )  # NaN/Infinity are not JSON: other hosts cannot parse them
+        except ValueError:
+            line = json.dumps(_finite(message), default=str, allow_nan=False)
         with self._lock:
             try:
                 self._out.write(line + "\n")

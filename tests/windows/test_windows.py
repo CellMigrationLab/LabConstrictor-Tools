@@ -34,6 +34,9 @@ def tmpdirs():
 class W(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # never wipe a real registry: without an explicit LC_HOME use a private one
+        if not os.environ.get("LC_HOME"):
+            os.environ["LC_HOME"] = tempfile.mkdtemp(prefix="lc_windows_test_home_")
         shutil.rmtree(registry.home(), ignore_errors=True)
         cls.e2 = registry.register("synthetic", PREFIX, SYNTHETIC, "0", [], "Synthetic")
 
@@ -45,7 +48,7 @@ class W(unittest.TestCase):
 
     def test_01_layout_and_registry(self):
         R["registry_entry"] = self.e2
-        self.assertTrue(self.e2["python"].lower().endswith("python.exe"))
+        self.assertTrue(os.name != "nt" or self.e2["python"].lower().endswith("python.exe"))
         self.assertTrue(Path(self.e2["python"]).exists())
         R["python_for"] = str(registry.python_for(PREFIX))
         self.assertIn("synthetic", registry.load_all())
@@ -65,7 +68,7 @@ class W(unittest.TestCase):
         self.assertEqual(t.status, "COMPLETE", t.error)
         d = t.outputs["diagnostics"]
         R["worker_diagnostics"] = d
-        self.assertTrue(d["sys.executable"].lower().endswith("python.exe"))
+        self.assertTrue(os.name != "nt" or d["sys.executable"].lower().endswith("python.exe"))
 
     def test_03_unicode_stdout_and_text(self):
         t = self.run_tool("synthetic", "unicode_echo", {"text": "µm → ✓ naïve"})

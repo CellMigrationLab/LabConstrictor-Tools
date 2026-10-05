@@ -42,7 +42,7 @@ class WorkerProcess:
     def __init__(self, app=None, *, module=None, pythonpath=(), python=None):
         """`app`: a registered app. Without it, start `module` directly (authors testing before registering)."""
         if app is not None:
-            self.entry = registry.load_all()[app]
+            self.entry = self._entry_for(app)
         else:
             self.entry = {
                 "python": python or sys.executable,
@@ -96,6 +96,21 @@ class WorkerProcess:
         self._stderr_thread = threading.Thread(target=self._read_stderr, daemon=True)
         self._stderr_thread.start()
 
+    @staticmethod
+    def _entry_for(app):
+        """The registry entry of `app`; if it is missing, say why (skipped entries carry a reason) instead of a bare KeyError."""
+        entries, problems = registry.load_entries()
+        if app in entries:
+            return entries[app]
+        reason = dict(problems).get(app)
+        text = (
+            "app %r cannot be used: %s" % (app, reason)
+            if reason
+            else "app %r is not registered (installed apps: %s)" % (app, ", ".join(sorted(entries)) or "none")
+        )
+        log.error("worker start failed: %s", text)
+        raise WorkerStartError(text + " (details in %s)" % log.log_path())
+
     @property
     def alive(self):
         return self.proc.poll() is None
@@ -148,10 +163,17 @@ class WorkerProcess:
         self._stderr_thread.join(2)
         tail = "".join(self.stderr)[-2500:].strip()
         pending = [t for t in self.tasks.values() if not t.done.is_set()]
+        cancelled = any(t.cancel_requested for t in pending)
         log.info(
             "worker pid=%s exited code=%s after %.1fs", self.proc.pid, returncode, time.time() - self._started
         )
-        if pending:
+        if pending and cancelled:
+            message = (
+                "the tool did not stop when Cancel was pressed, so its worker was stopped (code %s)"
+                % returncode
+            )
+            log.info("%s", message)
+        elif pending:
             hint = log.hint_for_exit(returncode, tail)
             message = "worker exited unexpectedly (code %s)" % returncode
             if hint:
@@ -178,6 +200,7 @@ class Task:
         self.launched = threading.Event()  # the worker accepted the task (its LAUNCH message arrived)
         self.status = "RUNNING"
         self.outputs, self.error, self.code, self.traceback = {}, None, None, None
+        self.cancel_requested = False
 
     def handle(self, message):
         if self.done.is_set():  # a finished task never changes state (e.g. when the worker later exits)
@@ -216,6 +239,7 @@ class Task:
 
     def cancel(self):
         """Request cooperative cancellation (the tool must call check_cancel()); kill the worker if it ignores it."""
+        self.cancel_requested = True
         self.worker._send({"task": self.id, "requestType": "CANCEL"})
 
     def wait(self, timeout=None):
