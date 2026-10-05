@@ -7,7 +7,7 @@ name = "labconstrictor-tools"
 version = "0.1.0"
 description = "Declare scientific tools as typed Python functions; Napari, Fiji and notebooks build their GUIs from the generated schema"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = []   # standard library only: it has to live in every LabConstrictor app environment
 
 [project.optional-dependencies]

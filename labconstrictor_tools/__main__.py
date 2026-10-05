@@ -95,7 +95,17 @@ def build_parser():
     return parser
 
 
+def _tolerant_streams():
+    """Windows consoles/pipes often use cp1252/cp437: printing the status symbols (check, cross, warning) must never crash a command."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv=None):
+    _tolerant_streams()
     args = build_parser().parse_args(argv)
     if args.command == "describe":
         importlib.import_module(args.module)

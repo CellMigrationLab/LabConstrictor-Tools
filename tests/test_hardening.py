@@ -180,5 +180,14 @@ class CancelThatHadToKill(unittest.TestCase):
             os.environ.update(old)
 
 
+class NarrowConsoles(unittest.TestCase):
+    def test_status_symbols_do_not_crash_on_a_cp1252_stdout(self):
+        """Found on windows-latest CI: UnicodeEncodeError for the check mark printed by check/test/support-bundle."""
+        home = Path(tempfile.mkdtemp(prefix="lchome_"))
+        done = cli("check", "--module", SYNTHETIC_MODULE, home=home, extra_env={"PYTHONIOENCODING": "cp1252"})
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertNotIn("UnicodeEncodeError", done.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()
