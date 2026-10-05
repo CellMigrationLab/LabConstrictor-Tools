@@ -175,6 +175,7 @@ class Task:
         self.worker, self.tool_id, self.on_update = worker, tool_id, on_update
         self.id = str(uuid.uuid4())
         self.done = threading.Event()
+        self.launched = threading.Event()  # the worker accepted the task (its LAUNCH message arrived)
         self.status = "RUNNING"
         self.outputs, self.error, self.code, self.traceback = {}, None, None, None
 
@@ -182,6 +183,8 @@ class Task:
         if self.done.is_set():  # a finished task never changes state (e.g. when the worker later exits)
             return
         kind = message["responseType"]
+        if kind == "LAUNCH":
+            self.launched.set()
         if kind == "UPDATE" and self.on_update:
             fraction = message["current"] / message["maximum"] if message.get("maximum") else None
             self.on_update(message.get("message"), fraction)

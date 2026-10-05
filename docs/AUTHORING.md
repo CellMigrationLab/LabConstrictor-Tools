@@ -134,4 +134,4 @@ can run in CI. Tools without a case, and tools skipped because a required `--sam
 ```
 
 Expectations per output type: images `shape`, `dtype`, `mean`, `max`, `n_labels`; tables `columns`, `rows`, `cells`
-(`{"speed[0]": 1.5}`); values `{key: value}`; affine `matrix`. Floats compare with a relative tolerance of 1e-6.
+(`{"speed[0]": 1.5}`); values `{key: value}` (or `{key: {"approx": 12.0, "tol": 0.5}}`); affine `matrix`. Floats compare with a relative tolerance of 1e-6.

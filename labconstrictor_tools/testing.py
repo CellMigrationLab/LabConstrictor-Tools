@@ -174,8 +174,15 @@ def _compare(name, result, wanted):
                 problems.append("%s: %s is %r, expected %r" % (name, key, actual, value))
     elif kind == "values":
         for key, value in wanted.get("equals", wanted).items():
-            if key not in result["values"] or not _close(result["values"][key], value):
-                problems.append("%s: %s is %r, expected %r" % (name, key, result["values"].get(key), value))
+            actual = result["values"].get(key)
+            if isinstance(value, dict) and "approx" in value:  # {"approx": 12.0, "tol": 0.5}
+                ok = isinstance(actual, (int, float)) and abs(actual - value["approx"]) <= value.get(
+                    "tol", 1e-6
+                )
+            else:
+                ok = key in result["values"] and _close(actual, value)
+            if not ok:
+                problems.append("%s: %s is %r, expected %r" % (name, key, actual, value))
     elif kind == "affine" and "matrix" in wanted:
         flat = [v for row in result["matrix_yx"] for v in row]
         if not all(_close(a, b) for a, b in zip(flat, [v for row in wanted["matrix"] for v in row])):
@@ -256,7 +263,10 @@ def _cancel_warnings(tool, case, worker_args):
     with client.WorkerProcess(**worker_args) as worker:
         inputs = dict(case.get("inputs", {}))
         task = worker.task(tool["id"], inputs)
-        time.sleep(0.2)
+        task.launched.wait(60)
+        time.sleep(
+            1.0
+        )  # let the tool really start: a cancel that arrives first is honoured without the tool's help
         if task.done.is_set():
             return []  # too quick to cancel: nothing to learn
         task.cancel()
