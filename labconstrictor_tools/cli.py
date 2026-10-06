@@ -12,6 +12,7 @@ import argparse
 import importlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -91,7 +92,12 @@ def parse_value(param: ParamSchema, text: str) -> Any:
         if text.lower() not in ("1", "0", "true", "false", "yes", "no"):
             raise SystemExit("%s: expected true/false, got %r" % (param["name"], text))
         return text.lower() in ("1", "true", "yes")
-    return text  # image/labels/table/file: a path; string/choice: as is (the worker validates choices)
+    if (
+        kind == "choice"
+    ):  # the declared choice whose text matches (a choice may be a number); else as typed: the worker rejects it
+        matches = [c for c in param.get("choices", []) if str(c) == text]
+        return matches[0] if len(matches) == 1 else text
+    return text  # image/labels/table/file: a path; string: as is
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -113,6 +119,8 @@ def cmd_run(args: argparse.Namespace) -> int:
         name, sep, text = pair.partition("=")
         if not sep or name not in by_name:
             raise SystemExit("bad parameter %r\n%s" % (pair, usage(args.app, tool)))
+        if name in inputs:
+            raise SystemExit("parameter %r was given more than once" % name)
         inputs[name] = parse_value(by_name[name], text)
     if args.out:
         inputs["_job_dir"] = str(Path(args.out).resolve())
@@ -156,18 +164,54 @@ def cmd_run(args: argparse.Namespace) -> int:
 RESULTS_KEPT = 20
 
 
+_RUN_FOLDER = re.compile(
+    r"^\d{8}T\d{6}_"
+)  # what _new_results_dir creates: nothing else in results/ is ever pruned
+
+
+def _slug(text):
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", text).lstrip(".") or "x"
+
+
 def _new_results_dir(app, tool_id):
-    """<LC_HOME>/results/<time>_<app>_<tool>; older run folders beyond RESULTS_KEPT are removed (only inside results/)."""
+    """<LC_HOME>/results/<time>_<id>_<app>_<tool>, created here (two runs in the same second never share a folder).
+    Older run folders beyond RESULTS_KEPT are removed; only folders this command created (by name) are ever touched.
+    """
     base = registry.home() / "results"
     base.mkdir(parents=True, exist_ok=True)
-    folders = sorted(p for p in base.iterdir() if p.is_dir() and not p.is_symlink())
+    folders = sorted(
+        p for p in base.iterdir() if p.is_dir() and not p.is_symlink() and _RUN_FOLDER.match(p.name)
+    )
     for old in folders[: max(0, len(folders) - (RESULTS_KEPT - 1))]:
-        shutil.rmtree(old, ignore_errors=True)
-    return base / ("%s_%s_%s" % (time.strftime("%Y%m%dT%H%M%S"), app, tool_id))
+        try:
+            shutil.rmtree(old)
+        except OSError as error:
+            log.warning(
+                "could not remove the old results folder %s (%s: %s)", old, type(error).__name__, error
+            )
+    for _ in range(20):
+        name = "%s_%s_%s_%s" % (
+            time.strftime("%Y%m%dT%H%M%S"),
+            os.urandom(3).hex(),
+            _slug(app),
+            _slug(tool_id),
+        )
+        folder = base / name
+        try:
+            folder.mkdir()
+        except FileExistsError:
+            continue
+        if folder.resolve().parent != base.resolve():
+            raise SystemExit("refusing to write results outside %s: %s" % (base, folder))
+        return folder
+    raise SystemExit("could not create a results folder in %s" % base)
 
 
 def _print_progress(message, fraction):
-    print("[%3d%%] %s" % (100 * (fraction or 0), message), file=sys.stderr)
+    shown = (
+        "[ ?%]" if fraction is None else "[%3d%%]" % round(100 * fraction)
+    )  # None = indeterminate, not 0 %
+    print("%s %s" % (shown, message), file=sys.stderr)
 
 
 # ---------------------------------------------------------------- check (for authors)
@@ -222,6 +266,8 @@ def cmd_test(args: argparse.Namespace) -> int:
         name, sep, path = pair.partition("=")
         if not sep:
             raise SystemExit("--sample expects name=path, got %r" % pair)
+        if name in samples:
+            raise SystemExit("--sample %r was given more than once" % name)
         samples[name] = str(Path(path).resolve())
     cases = testing.load_cases(args.cases) if args.cases else None
     reports, untested = testing.run_suite(
@@ -284,17 +330,38 @@ def diagnose() -> list[tuple[str, str, str]]:
         except ValueError as error:
             findings.append((name, "error", str(error)))
             continue
-        result, seconds = _live_schema(entry)
-        if result.returncode:
+        try:
+            result, seconds = _live_schema(entry)
+            live = None if result.returncode else _strip(json.loads(result.stdout))
+        except subprocess.TimeoutExpired:
             findings.append(
                 (
                     name,
                     "error",
-                    "cannot load its tools with its own interpreter: "
-                    + result.stderr.strip().splitlines()[-1],
+                    "its interpreter did not answer within 120 s (importing the tool module hangs?)",
                 )
             )
-        elif _strip(json.loads(result.stdout)) != _strip(cached):
+            continue
+        except (OSError, ValueError) as error:  # cannot start, or it printed something that is not a schema
+            findings.append(
+                (
+                    name,
+                    "error",
+                    "cannot load its tools with its own interpreter: %s: %s" % (type(error).__name__, error),
+                )
+            )
+            continue
+        if result.returncode:
+            lines = result.stderr.strip().splitlines()
+            findings.append(
+                (
+                    name,
+                    "error",
+                    "cannot load its tools with its own interpreter (exit %s): %s"
+                    % (result.returncode, lines[-1] if lines else "no error output"),
+                )
+            )
+        elif live != _strip(cached):
             findings.append(
                 (
                     name,
@@ -354,14 +421,24 @@ def cmd_support_bundle(args: argparse.Namespace) -> int:
     out = Path(args.out or "labconstrictor-support-%s.zip" % datetime.now().strftime("%Y%m%d-%H%M%S"))
     home = registry.home()
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as bundle:
-        for folder in ("logs", "apps"):
-            for path in sorted((home / folder).glob("*")) if (home / folder).is_dir() else []:
-                if path.is_file():
-                    bundle.write(path, "%s/%s" % (folder, path.name))
-        runs = sorted(p for p in (home / "runs").glob("*") if p.is_dir()) if (home / "runs").is_dir() else []
+        skipped: list[str] = []
+        for folder, pattern in (("logs", "*.log*"), ("apps", "*.json")):
+            for path in _bundle_files(home / folder, pattern, skipped):
+                bundle.write(path, "%s/%s" % (folder, path.name))
+        runs = sorted(p for p in (home / "runs").glob("*") if p.is_dir() and not p.is_symlink())
         for run in runs[-10:]:
-            for path in run.glob("*.json"):
+            for path in _bundle_files(run, "*.json", skipped):
                 bundle.write(path, "runs/%s/%s" % (run.name, path.name))
+        if skipped:
+            bundle.writestr(
+                "skipped.txt",
+                "left out of this bundle (not regular files of the expected kind):\n" + "\n".join(skipped),
+            )
+            print(
+                "⚠ left %d item(s) out of the bundle (symlinks or unexpected files): see skipped.txt in it"
+                % len(skipped),
+                file=sys.stderr,
+            )
         buffer = io.StringIO()
         with redirect_stdout(buffer):
             cmd_doctor(argparse.Namespace(json=False))
@@ -372,6 +449,25 @@ def cmd_support_bundle(args: argparse.Namespace) -> int:
         "contents) and version information. Please attach it to the bug report." % out
     )
     return 0
+
+
+def _bundle_files(folder, pattern, skipped):
+    """Regular files of the expected kind directly inside `folder`. A symlink would make the zip contain whatever it points
+    to (a private key, say): leave those out and say so."""
+    if not folder.is_dir() or folder.is_symlink():
+        return
+    for path in sorted(folder.glob("*")):
+        expected = path.match(pattern)
+        if (
+            path.is_symlink()
+            or not path.is_file()
+            or not expected
+            or path.resolve().parent != folder.resolve()
+        ):
+            if path.is_symlink() or path.is_file():
+                skipped.append(str(path))
+            continue
+        yield path
 
 
 def _environment_report():
