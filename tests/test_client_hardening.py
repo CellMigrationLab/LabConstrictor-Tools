@@ -156,5 +156,17 @@ class RunRecordPruning(PrivateHome):
         self.assertIn("could not remove the old run record", log.tail(20))
 
 
+class StderrTail(unittest.TestCase):
+    def test_total_counts_everything_ever_received_even_after_trimming(self):
+        tail = client._Tail()
+        tail.append("a" * 10)
+        mark = tail.total
+        for _ in range(3):
+            tail.append("b" * (client._Tail.LIMIT // 2))  # forces the bounded tail to drop old lines
+        self.assertEqual(mark, 10)
+        self.assertEqual(tail.total - mark, 3 * (client._Tail.LIMIT // 2))
+        self.assertLessEqual(len("".join(tail)), client._Tail.LIMIT + client._Tail.LIMIT // 2)
+
+
 if __name__ == "__main__":
     unittest.main()

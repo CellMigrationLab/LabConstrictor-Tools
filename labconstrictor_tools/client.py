@@ -48,8 +48,10 @@ class _Tail:
 
     def __init__(self):
         self._lines, self._chars = collections.deque(), 0
+        self.total = 0  # characters ever received (the tail itself is bounded): lets a host keep only what came after a point in time
 
     def append(self, line: str) -> None:
+        self.total += len(line)
         self._lines.append(line)
         self._chars += len(line)
         while self._chars > self.LIMIT and len(self._lines) > 1:
