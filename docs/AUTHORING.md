@@ -130,7 +130,7 @@ labconstrictor-tools test --module my_app_lc_tools --pythonpath . --sample image
 
 Checked for every run that completes, with no configuration: results match the declared outputs, files exist, images use
 a dtype ImageJ can open, tables parse, affines are finite 3x3, values are plain JSON. `--check-cancel` additionally cancels a
-running tool and warns if it ignores the request (`check_cancel()` missing). Exit status is non-zero when anything fails, so it
+running tool and FAILS the case if the tool ignores the request for 10 s (`check_cancel()` missing). Exit status is non-zero when anything fails, so it
 can run in CI. Tools without a case, and tools skipped because a required `--sample` is missing, are listed.
 
 `tests.json` (paths are relative to the file):
@@ -147,3 +147,8 @@ can run in CI. Tools without a case, and tools skipped because a required `--sam
 
 Expectations per output type: images `shape`, `dtype`, `mean`, `max`, `n_labels`; tables `columns`, `rows`, `cells`
 (`{"speed[0]": 1.5}`); values `{key: value}` (or `{key: {"approx": 12.0, "tol": 0.5}}`); affine `matrix`. Floats compare with a relative tolerance of 1e-6.
+
+The cases file is validated before anything runs: an unknown or misspelled key (`max_secods`, `row` instead of `rows`, a result
+expectation that does not exist for that output type) is an error that names it, never an assertion that is quietly skipped. An
+affine `matrix` must be 3x3. Relative file names are resolved only for parameters declared as image, labels, table, file or
+folder: a text parameter is passed exactly as written.

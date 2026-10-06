@@ -111,10 +111,16 @@ def main(argv: list[str] | None = None) -> int:
     _tolerant_streams()
     args = build_parser().parse_args(argv)
     if args.command == "describe":
-        importlib.import_module(args.module)
+        from contextlib import redirect_stdout
+
         from .introspection import describe_tools
 
-        print(json.dumps(describe_tools(args.module, args.application, args.version), indent=2))
+        # stdout is a machine protocol here (the registry stores it as the schema): whatever the declaration module prints
+        # while it is imported goes to stderr, so the JSON document is the only thing on stdout
+        with redirect_stdout(sys.stderr):
+            importlib.import_module(args.module)
+            schema = describe_tools(args.module, args.application, args.version)
+        print(json.dumps(schema, indent=2))
     elif args.command == "serve":
         from .worker import Worker
 
