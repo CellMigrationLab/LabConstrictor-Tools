@@ -87,6 +87,30 @@ class Label(_Marker):
     "human-readable label"
 
 
+class Group(_Marker):
+    "heading the parameter is listed under in the form (parameters keep their order; a group is shown where it first appears)"
+
+
+class Advanced(_Marker):
+    "listed under 'Advanced settings' (collapsed by default in hosts that can); use Advanced() without an argument"
+
+    def __init__(self, value=True):
+        super().__init__(bool(value))
+
+
+class EnabledWhen:
+    """Only meaningful when another parameter has a value: EnabledWhen("fixed_seed") = that parameter is set / true;
+    EnabledWhen("segmentation", "cellpose", "instanseg") = it equals one of these. Hosts grey the parameter out otherwise
+    (Fiji cannot do that dynamically and shows it always); the tool must therefore still accept the parameter when it is not enabled.
+    """
+
+    def __init__(self, param, *equals):
+        self.param, self.equals = param, list(equals)
+
+    def __repr__(self):
+        return "EnabledWhen(%r%s)" % (self.param, "".join(", %r" % (e,) for e in self.equals))
+
+
 class Axes(_Marker):
     "axes string, e.g. 'YX'"
 

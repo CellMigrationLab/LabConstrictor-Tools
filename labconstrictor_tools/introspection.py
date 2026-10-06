@@ -116,6 +116,13 @@ def _param(name, p, hint, argdoc):
     desc = _m(meta, T.Description).value if _m(meta, T.Description) else argdoc.get(name)
     if desc:
         d["description"] = desc
+    if _m(meta, T.Group):
+        d["group"] = _m(meta, T.Group).value
+    if _m(meta, T.Advanced) and _m(meta, T.Advanced).value:
+        d["advanced"] = True
+    when = _m(meta, T.EnabledWhen)
+    if when:
+        d["enabled_when"] = {"param": when.param, **({"equals": when.equals} if when.equals else {})}
     if not d["required"] and "default" not in d:
         # "unset" is a real value (default None / Optional[...]): hosts must be able to leave it unset and then omit it
         d["nullable"] = True
@@ -169,6 +176,14 @@ def describe_tool(t):
     for i in ins:
         if "pixel_size_of" in i and i["pixel_size_of"] not in names:
             raise DeclarationError("tool %r: PixelSizeOf(%r) names no parameter" % (t.id, i["pixel_size_of"]))
+    for i in ins:
+        rule = i.get("enabled_when")
+        if rule and rule["param"] not in names:
+            raise DeclarationError(
+                "tool %r: EnabledWhen(%r) on %r names no parameter" % (t.id, rule["param"], i["name"])
+            )
+        if rule and rule["param"] == i["name"]:
+            raise DeclarationError("tool %r: parameter %r cannot be enabled by itself" % (t.id, i["name"]))
     outs = _outputs(hints.get("return", inspect.Signature.empty), t.id)
     for o in outs:
         for k in ("apply_to", "relative_to"):
