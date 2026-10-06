@@ -18,6 +18,9 @@ from typing import Any
 TOOL_PREFIX = "lc:"
 JOB_DIR_KEY = "_job_dir"  # reserved input: host-owned directory for outputs
 TERMINAL = ("COMPLETION", "FAILURE", "CANCELATION")
+MAX_REQUEST_BYTES = (
+    16 * 1024 * 1024
+)  # a request carries parameters and file references, never image data: refuse more
 
 
 def tool_id_from_script(script: str) -> str | None:
@@ -35,6 +38,16 @@ def _finite(value):
     return value
 
 
+def _encode(message: dict[str, Any]) -> str:
+    """Strict JSON. NaN/Infinity are not JSON (other hosts cannot parse them): they travel as null, which PROTOCOL.md
+    documents. Any other value that JSON cannot represent raises TypeError - it is never turned into text silently.
+    """
+    try:
+        return json.dumps(message, allow_nan=False)
+    except ValueError:
+        return json.dumps(_finite(message), allow_nan=False)
+
+
 class Channel:
     """Thread-safe writer of response lines on the worker's real stdout."""
 
@@ -47,11 +60,24 @@ class Channel:
     def send(self, task: str, response_type: str, **fields: Any) -> None:
         message = {"task": task, "responseType": response_type, **fields}
         try:
-            line = json.dumps(
-                message, default=str, allow_nan=False
-            )  # NaN/Infinity are not JSON: other hosts cannot parse them
-        except ValueError:
-            line = json.dumps(_finite(message), default=str, allow_nan=False)
+            line = _encode(message)
+        except TypeError as error:
+            if response_type not in TERMINAL:
+                raise
+            print(
+                "LabConstrictor worker: a %s message cannot be serialised: %s" % (response_type, error),
+                file=sys.stderr,
+                flush=True,
+            )
+            line = _encode(
+                {
+                    "task": task,
+                    "responseType": "FAILURE",
+                    "error": "[unserializable_result] the tool returned a value that cannot be sent to the host (%s)"
+                    % error,
+                    "code": "unserializable_result",
+                }
+            )
         with self._lock:
             try:
                 self._out.write(line + "\n")
@@ -61,7 +87,7 @@ class Channel:
 
     @staticmethod
     def read_requests() -> Iterator[dict[str, Any]]:
-        """Yield parsed request dicts from stdin until EOF; malformed lines are skipped."""
+        """Yield parsed request dicts from stdin until EOF; malformed lines are skipped (and reported on stderr)."""
         for line in _stdin_lines():
             line = line.strip()
             if not line:
@@ -85,11 +111,62 @@ class Channel:
             yield request  # (a list/number/null line was skipped above: it must not kill the reader thread)
 
 
+def _oversized(size: int) -> None:
+    print(
+        "LabConstrictor worker: ignoring a request line longer than %d bytes (%d read so far)"
+        % (MAX_REQUEST_BYTES, size),
+        file=sys.stderr,
+        flush=True,
+    )
+
+
 def _stdin_lines():
     if os.name != "nt":
-        yield from sys.stdin
+        yield from _bounded_lines(sys.stdin.readline)
         return
     yield from _stdin_lines_without_pending_read()
+
+
+def _bounded_lines(readline, limit: int = MAX_REQUEST_BYTES) -> Iterator[str]:
+    """Lines from `readline`, except that a line longer than `limit` is dropped (reported once) instead of buffered."""
+    while True:
+        line = readline(limit + 1)
+        if not line:
+            return
+        if len(line) > limit and not line.endswith("\n"):
+            _oversized(len(line))
+            while line and not line.endswith("\n"):  # skip the rest of that line without keeping it
+                line = readline(limit)
+            continue
+        yield line
+
+
+class LineSplitter:
+    """Bytes -> lines for the Windows reader, with the same size limit (a line without newline is dropped, not kept)."""
+
+    def __init__(self, limit: int = MAX_REQUEST_BYTES) -> None:
+        self.limit, self.buffer, self.dropping = limit, b"", False
+
+    def feed(self, chunk: bytes) -> list[str]:
+        out: list[str] = []
+        *lines, rest = (self.buffer + chunk).split(b"\n")
+        for raw in lines:
+            if self.dropping:
+                self.dropping = False  # the newline ended the oversized line
+            elif len(raw) > self.limit:
+                _oversized(len(raw))
+            else:
+                out.append(raw.decode("utf-8", errors="replace"))
+        if len(rest) > self.limit:
+            if not self.dropping:
+                _oversized(len(rest))
+            self.dropping, rest = True, b""
+        self.buffer = rest
+        return out
+
+    def finish(self) -> list[str]:
+        rest, self.buffer = self.buffer, b""
+        return [rest.decode("utf-8", errors="replace")] if rest.strip() and not self.dropping else []
 
 
 def _stdin_lines_without_pending_read(poll_seconds=0.02):
@@ -114,7 +191,7 @@ def _stdin_lines_without_pending_read(poll_seconds=0.02):
         ctypes.c_void_p,
     ]
     handle = wintypes.HANDLE(msvcrt.get_osfhandle(0))
-    buffer = b""
+    splitter = LineSplitter()
     while True:
         available = wintypes.DWORD(0)
         if not kernel32.PeekNamedPipe(handle, None, 0, None, ctypes.byref(available), None):
@@ -123,11 +200,7 @@ def _stdin_lines_without_pending_read(poll_seconds=0.02):
             chunk = os.read(0, available.value)
             if not chunk:
                 break
-            buffer += chunk
-            *lines, buffer = buffer.split(b"\n")
-            for raw in lines:
-                yield raw.decode("utf-8", errors="replace")
+            yield from splitter.feed(chunk)
         else:
             time.sleep(poll_seconds)
-    if buffer.strip():
-        yield buffer.decode("utf-8", errors="replace")
+    yield from splitter.finish()

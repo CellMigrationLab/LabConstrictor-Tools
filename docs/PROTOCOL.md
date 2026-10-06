@@ -10,6 +10,14 @@
                               "minimum"?, "maximum"?, "unit"?, "axes"?, "pixel_size_of"?, "nullable"?, "group"?, "advanced"?, "enabled_when"? } ],
                "outputs": [ { "name", "type", "axes"?, "display"?: {"apply_to", "relative_to"?} } ] } ] }
 ```
+Value rules (enforced by the worker, each violation is a `FAILURE` with code `invalid_parameter` or a declaration error at registration):
+* `boolean` must be a JSON `true`/`false` (never text or numbers); `choice` values must match a choice in type and value; a `float` is never a boolean.
+* A parameter given as `null` is treated as not given: it takes its default, or (when `nullable`) the tool receives `None`. `Optional[...]` with a non-None default is refused when the app is registered (a host can only leave it at the default or unset).
+* A default must be valid for its declared type (checked when the schema is generated, not when a host omits the value).
+* A `choice` declared with an `Enum` annotation reaches the tool as the Enum member.
+* An image/labels input with no pixels is refused (`empty_image`), from a file or from shared memory.
+* Image outputs: integers are never changed in value (wide integers that fit 16 bits are stored as 16-bit; others must be exact as 32-bit float or the result fails with `unsupported_dtype`); floating point values are stored as float32 (about 7 significant digits); float values outside the float32 range fail.
+
 Input `type`: `string integer float boolean choice image labels table file folder`.
 `nullable: true` (additive, protocol 1): the parameter is optional AND has no default value (`= None` / `Optional[...]`). A host must let the
 user leave it unset and then omit it from the request (the tool receives `None`); showing 0 or an empty string instead is a bug.
@@ -24,6 +32,14 @@ The worker (`python -m labconstrictor_tools serve --module M`) speaks the Appose
 |---|---|
 | `{"task": id, "requestType": "EXECUTE", "script": "lc:<tool_id>", "inputs": {...}}` | `LAUNCH`, then `UPDATE {message, current, maximum}`*, then exactly one of `COMPLETION {outputs}`, `FAILURE {error, code, traceback?}`, `CANCELATION` |
 | `{"task": id, "requestType": "CANCEL"}` | the task ends with `CANCELATION` if the tool calls `check_cancel()` |
+
+Rules the worker enforces (each violation is written to the worker log/stderr):
+* `task` must be a non-empty string and unique until the task's terminal response; an `EXECUTE` that reuses the id of a running task is ignored (answering would end the running task on the host).
+* `script` must be text and `inputs` an object (or absent); otherwise the worker answers `FAILURE` with code `bad_request` instead of running the tool with defaults.
+* A `CANCEL` for a task that is not running is ignored (it is not remembered for a later `EXECUTE`). Unknown `requestType`s, non-JSON lines and non-object lines are ignored. A request line longer than 16 MiB is dropped.
+* A tool that calls `sys.exit()` or is interrupted ends with `FAILURE` (code `SystemExit`/`KeyboardInterrupt`); a result JSON cannot carry ends with `FAILURE` code `unserializable_result`.
+* NaN and Infinity cannot be written in JSON: they are sent as `null`. A host must treat `null` in a numeric value as "not a finite number".
+
 
 * `script` must be `lc:<id>` of a declared tool. **Anything else (e.g. Python source) is refused** (`unknown_tool`).
 * `inputs`: image/labels/table/file values are file paths (an Appose `ndarray` shared-memory object is also accepted for images);

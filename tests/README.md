@@ -15,6 +15,9 @@ interpreter that runs them (needs `pip install -e ".[test]"`).
 | test_regressions_run2 | worker pipes closed, `--pythonpath` precedence, damaged TIFF, nullable/folder/group/advanced/enabled_when in the schema, host cwd not on the worker's path, root prefix refused, CLI results folder pruned |
 | test_hardening | NaN/inf rejected, strict-JSON results, registry priority and trust, unsafe app names, skipped-app explanations, message after a forced kill on Cancel |
 | test_cli_hardening | support bundle never follows symlinks, doctor survives broken apps, unique results folders, duplicate arguments |
+| test_convert_hardening | dtype narrowing never changes values, invalid defaults refused, strict booleans/choices, enums restored, empty images refused |
+| test_worker_protocol | the worker fed raw hostile requests: bad ids/inputs, duplicates, sys.exit, unserialisable results, oversized lines |
+| test_client_hardening | host client: callback errors, cancel escalation, task cleanup, shutdown, concurrent sends, record pruning |
 | test_logging | failures are explained and logged; `support-bundle` |
 | windows/test_windows.py | the same layer on Windows: `python tests/windows/test_windows.py` (also run under Wine via run_suite.sh) |
 

@@ -25,6 +25,7 @@ ProgressCallback = Callable[
     [str, float | None], None
 ]  # (message, fraction 0..1 or None) as the worker reports it
 
+CANCEL_GRACE_S = 10.0  # Task.cancel(): how long a tool gets to honour the request before its worker is killed
 _SCRUBBED_ENV = ("PYTHONHOME", "VIRTUAL_ENV", "CONDA_PREFIX", "QT_PLUGIN_PATH", "PYTHONPATH")
 _STATUS_BY_RESPONSE = {
     "COMPLETION": "COMPLETE",
@@ -124,19 +125,28 @@ class WorkerProcess:
             log.error("worker start failed: %s | command=%s", reason, command)
             raise WorkerStartError(reason + " (details in %s)" % log.log_path()) from error
         self._command, self._started = command, time.time()
-        log.info(
-            "worker started pid=%s app=%s python=%s module=%s PYTHONPATH=%s",
-            self.proc.pid,
-            app or "(direct)",
-            command[0],
-            self.entry["module"],
-            env["PYTHONPATH"],
-        )
+        self._send_lock = threading.Lock()
         self.tasks: dict[str, Task] = {}
         self.stderr = _Tail()
-        threading.Thread(target=self._read_responses, daemon=True).start()
-        self._stderr_thread = threading.Thread(target=self._read_stderr, daemon=True)
-        self._stderr_thread.start()
+        try:
+            log.info(
+                "worker started pid=%s app=%s python=%s module=%s PYTHONPATH=%s",
+                self.proc.pid,
+                app or "(direct)",
+                command[0],
+                self.entry["module"],
+                env["PYTHONPATH"],
+            )
+            reader = threading.Thread(target=self._read_responses, daemon=True)
+            self._stderr_thread = threading.Thread(target=self._read_stderr, daemon=True)
+            reader.start()
+            self._stderr_thread.start()
+        except BaseException:  # noqa: BLE001 - nobody holds this object yet: do not leave its process behind
+            log.error(
+                "worker pid=%s: initialisation failed after the process started; stopping it", self.proc.pid
+            )
+            self.kill()
+            raise
 
     @staticmethod
     def _entry_for(app):
@@ -179,13 +189,50 @@ class WorkerProcess:
                 self.proc.stdin.close()
             self.proc.wait(timeout=timeout)
             self._kill_group()  # the worker is gone; reap anything it left behind
-        except Exception:  # noqa: BLE001 - best effort shutdown
+        except (subprocess.TimeoutExpired, OSError, ValueError) as error:
+            log.warning(
+                "worker pid=%s did not exit within %s s of being asked to (%s: %s); killing it",
+                self.proc.pid,
+                timeout,
+                type(error).__name__,
+                error,
+            )
             self.kill()
 
     def kill(self) -> None:
         self._kill_group()
+        self._kill_tree_windows()
         self.proc.kill()
         self.proc.wait()
+
+    def _kill_tree_windows(self):
+        """Windows has no process groups here: `taskkill /T` stops the worker AND the processes it started. (Not yet run on
+        real Windows; if it fails the worker itself is still killed right after, and the log says what remains.)
+        """
+        if os.name != "nt" or self.proc.poll() is not None:
+            return
+        try:
+            result = subprocess.run(
+                ["taskkill", "/PID", str(self.proc.pid), "/T", "/F"],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
+            if result.returncode:
+                log.warning(
+                    "worker pid=%s: taskkill exited %s (%s); processes started by the tool may still be running",
+                    self.proc.pid,
+                    result.returncode,
+                    (result.stderr or result.stdout).strip()[:200],
+                )
+        except (OSError, subprocess.SubprocessError) as error:
+            log.warning(
+                "worker pid=%s: could not stop its process tree (%s: %s); processes started by the tool may still be running",
+                self.proc.pid,
+                type(error).__name__,
+                error,
+            )
 
     def _kill_group(self):
         """POSIX: stop everything the worker started (a tool's subprocesses or daemons would otherwise outlive it)."""
@@ -203,8 +250,11 @@ class WorkerProcess:
                 )
 
     def _send(self, message):
-        self.proc.stdin.write(json.dumps(message) + "\n")
-        self.proc.stdin.flush()
+        with (
+            self._send_lock
+        ):  # task() and cancel() may be called from different threads: one request line at a time
+            self.proc.stdin.write(json.dumps(message) + "\n")
+            self.proc.stdin.flush()
 
     def _read_responses(self):
         for line in self.proc.stdout:
@@ -221,7 +271,18 @@ class WorkerProcess:
                 continue
             task = self.tasks.get(message.get("task"))
             if task:
-                task.handle(message)
+                try:
+                    task.handle(message)
+                except (
+                    Exception
+                ) as error:  # noqa: BLE001 - this thread is the only reader: it must keep reading
+                    log.error(
+                        "task %s: handling a %r message failed (%s: %s); continuing",
+                        task.id[:8],
+                        message.get("responseType"),
+                        type(error).__name__,
+                        error,
+                    )
         self._on_exit()
         self._close_pipe(self.proc.stdout)
 
@@ -230,7 +291,7 @@ class WorkerProcess:
         returncode = self.proc.wait()
         self._stderr_thread.join(2)
         tail = "".join(self.stderr)[-2500:].strip()
-        pending = [t for t in self.tasks.values() if not t.done.is_set()]
+        pending = [t for t in list(self.tasks.values()) if not t.done.is_set()]
         cancelled = any(t.cancel_requested for t in pending)
         log.info(
             "worker pid=%s exited code=%s after %.1fs", self.proc.pid, returncode, time.time() - self._started
@@ -286,19 +347,39 @@ class Task:
     def handle(self, message: dict[str, Any]) -> None:
         if self.done.is_set():  # a finished task never changes state (e.g. when the worker later exits)
             return
-        kind = message["responseType"]
+        kind = message.get("responseType")
         if kind == "LAUNCH":
             self.launched.set()
-        if kind == "UPDATE" and self.on_update:
-            fraction = message["current"] / message["maximum"] if message.get("maximum") else None
-            self.on_update(message.get("message") or "", fraction)
+        if kind == "UPDATE":
+            self._update(message)
         elif kind in _STATUS_BY_RESPONSE:
             self.status = _STATUS_BY_RESPONSE[kind]
             self.outputs = message.get("outputs", {})
             self.error, self.code = message.get("error"), message.get("code")
             self.traceback = message.get("traceback")
             self._log_outcome()
+            self.worker.tasks.pop(
+                self.id, None
+            )  # finished: the worker keeps no reference (a host holds its Task)
             self.done.set()
+        elif kind != "LAUNCH":
+            log.warning("task %s: ignoring a worker message of unknown type %r", self.id[:8], kind)
+
+    def _update(self, message: dict[str, Any]) -> None:
+        """Progress goes to the host's callback; a callback that raises must not stop the protocol reader (or the task)."""
+        if not self.on_update:
+            return
+        try:
+            fraction = message["current"] / message["maximum"] if message.get("maximum") else None
+            self.on_update(message.get("message") or "", fraction)
+        except Exception as error:  # noqa: BLE001 - host code
+            log.error(
+                "task %s: the progress callback failed (%s: %s); progress is no longer reported for this task",
+                self.id[:8],
+                type(error).__name__,
+                error,
+            )
+            self.on_update = None
 
     def _log_outcome(self):
         if self.status == "COMPLETE":
@@ -318,10 +399,35 @@ class Task:
                 ("\n" + self.traceback) if self.traceback else "",
             )
 
-    def cancel(self) -> None:
-        """Request cooperative cancellation (the tool must call check_cancel()); kill the worker if it ignores it."""
+    def cancel(self, grace: float | None = CANCEL_GRACE_S) -> None:
+        """Request cooperative cancellation (the tool must call check_cancel()). If the task is still running after
+        `grace` seconds the worker is killed (this ends every task on that worker; pass None to manage this yourself).
+        """
         self.cancel_requested = True
         self.worker._send({"task": self.id, "requestType": "CANCEL"})
+        if grace is not None:
+            timer = threading.Timer(grace, self._escalate, args=(grace,))
+            timer.daemon = True
+            timer.start()
+
+    def _escalate(self, grace: float) -> None:
+        if self.done.is_set():
+            return
+        log.warning(
+            "task %s ignored the cancel request for %s s: killing worker pid=%s",
+            self.id[:8],
+            grace,
+            self.worker.proc.pid,
+        )
+        try:
+            self.worker.kill()
+        except Exception as error:  # noqa: BLE001 - runs on a timer thread: say so rather than die silently
+            log.error(
+                "task %s: could not kill the worker after the cancel grace period (%s: %s)",
+                self.id[:8],
+                type(error).__name__,
+                error,
+            )
 
     def wait(self, timeout: float | None = None) -> "Task":
         """Block until finished or `timeout` seconds passed (then status stays RUNNING). Returns self."""

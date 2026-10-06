@@ -56,6 +56,7 @@ class Worker:
         self.tools = {tool.id: tool for tool in tools_in(module)}
         self.schemas = {tid: describe_tool(tool) for tid, tool in self.tools.items()}
         self._cancel_events: dict[str, threading.Event] = {}
+        self._owned_dirs: set[Path] = set()  # job folders this worker created and has not handed over yet
 
     @staticmethod
     def _preload_numpy():
@@ -75,23 +76,72 @@ class Worker:
                 return
             self._run_task(*item)
 
+    @staticmethod
+    def _complain(text, *args):
+        print("LabConstrictor worker: " + text % args, file=sys.stderr, flush=True)
+
     def _read_requests(self, pending):
-        for request in self.channel.read_requests():
-            task, kind = request.get("task"), request.get("requestType")
-            if kind == "EXECUTE":
-                self._cancel_events[task] = threading.Event()
-                self.channel.send(task, "LAUNCH")
-                pending.put((task, request.get("script", ""), request.get("inputs")))
-            elif kind == "CANCEL" and task in self._cancel_events:
-                self._cancel_events[task].set()
+        try:
+            for request in self.channel.read_requests():
+                self._dispatch(request, pending)
+        except (
+            BaseException
+        ):  # noqa: BLE001 - the reader must never die silently: the main thread would wait for ever
+            self._complain("the request reader failed, shutting down:\n%s", traceback.format_exc())
         # stdin closed: with a task still running the host is gone (crash, kill) - nobody is listening any more.
         for event in list(self._cancel_events.values()):
             event.set()
         if self._cancel_events:
-            timer = threading.Timer(ORPHAN_GRACE_S, os._exit, args=(1,))
+            timer = threading.Timer(ORPHAN_GRACE_S, self._orphan_exit)
             timer.daemon = True
             timer.start()
         pending.put(None)
+
+    def _dispatch(self, request, pending):
+        task, kind = request.get("task"), request.get("requestType")
+        if not isinstance(task, str) or not task:
+            self._complain("ignoring a %r request without a text task id", kind)
+        elif kind == "EXECUTE":
+            script, inputs = request.get("script"), request.get("inputs")
+            if (
+                task in self._cancel_events
+            ):  # an answer would end the running task of that id on the host: stay silent
+                self._complain("ignoring EXECUTE for task %r: that task id is still in use", task)
+            elif not isinstance(script, str) or not (inputs is None or isinstance(inputs, dict)):
+                self._complain(
+                    "rejecting EXECUTE for task %r: script must be text and inputs an object", task
+                )
+                self.channel.send(
+                    task,
+                    "FAILURE",
+                    error="[bad_request] EXECUTE needs a text script and an object of inputs",
+                    code="bad_request",
+                )
+            else:
+                self._cancel_events[task] = threading.Event()
+                self.channel.send(task, "LAUNCH")
+                pending.put((task, script, inputs or {}))
+        elif kind == "CANCEL":
+            event = self._cancel_events.get(task)
+            if event is None:
+                self._complain(
+                    "CANCEL for task %r, which is not running (already finished or never started)", task
+                )
+            else:
+                event.set()
+        else:
+            self._complain("ignoring a request of unknown type %r for task %r", kind, task)
+
+    def _orphan_exit(self):
+        """The host is gone and the tool ignored the cancel request: leave, but not without removing our temp folders."""
+        for path in list(self._owned_dirs):
+            shutil.rmtree(path, ignore_errors=True)
+        os._exit(1)
+
+    def _remove_job_dir(self, path):
+        shutil.rmtree(path, ignore_errors=True)
+        if path.exists():
+            self._complain("could not remove the temporary folder %s completely", path)
 
     # ---- one task -----------------------------------------------------
     def _run_task(self, task, script, inputs):
@@ -107,16 +157,33 @@ class Worker:
             tool_id = tool_id_from_script(script)
             if tool_id not in self.tools:
                 raise T.ToolError("unknown_tool", "only declared tools may be executed; got %r" % script[:40])
-            inputs = dict(inputs or {})
+            inputs = dict(inputs)
             given = inputs.pop(JOB_DIR_KEY, None)
             owns_job_dir = given is None
             job_dir = Path(given or tempfile.mkdtemp(prefix="lcjob_"))
             job_dir.mkdir(parents=True, exist_ok=True)
+            if owns_job_dir:
+                self._owned_dirs.add(job_dir)
             final = self._execute(tool_id, inputs, job_dir, cancel)
         except T.Cancelled:
             final = ("CANCELATION", {})
         except T.ToolError as error:
             final = ("FAILURE", {"error": "[%s] %s" % (error.code, error.message), "code": error.code})
+        except (
+            SystemExit,
+            KeyboardInterrupt,
+        ) as error:  # a tool leaving the interpreter must still get an answer
+            self._complain(
+                "tool %r tried to stop the worker with %s(%r)", script, type(error).__name__, error.args
+            )
+            final = (
+                "FAILURE",
+                {
+                    "error": "[%s] the tool called sys.exit() or was interrupted (%r)"
+                    % (type(error).__name__, error.args),
+                    "code": type(error).__name__,
+                },
+            )
         except Exception as error:  # noqa: BLE001 - any tool failure becomes a structured FAILURE
             print(
                 "LabConstrictor worker: tool %r failed:\n%s" % (script, traceback.format_exc()),
@@ -132,16 +199,18 @@ class Worker:
                 },
             )
         finally:
-            self._cancel_events.pop(task, None)
+            runtime.install()  # late progress()/cancelled() calls from a tool's leftover threads do nothing
         if job_dir is not None and owns_job_dir and final[0] != "COMPLETION":
             # Clean up BEFORE the terminal message: a client that sees CANCELED/FAILED may look at the temp dir at once.
-            shutil.rmtree(job_dir, ignore_errors=True)
+            self._remove_job_dir(job_dir)
+        self._owned_dirs.discard(job_dir)  # a finished result belongs to the host now
+        self._cancel_events.pop(task, None)
         self.channel.send(task, final[0], **final[1])
 
     def _execute(self, tool_id, inputs, job_dir, cancel):
         schema = self.schemas[tool_id]
         t0 = time.perf_counter()
-        kwargs = convert.load_inputs(schema, inputs)
+        kwargs = convert.load_inputs(schema, inputs, self.tools[tool_id].fn)
         t1 = time.perf_counter()
         returned = self.tools[tool_id].fn(**kwargs)
         t2 = time.perf_counter()
@@ -167,6 +236,8 @@ class Worker:
         return ("COMPLETION", {"outputs": outputs})
 
     def _send_progress(self, task, fraction, message):
+        if task not in self._cancel_events:
+            return  # the task is over
         fields = {"message": str(message)}
         if fraction is not None:
             fields.update(current=int(100 * fraction), maximum=100)

@@ -14,7 +14,9 @@ _sinks: dict[str, Any] = {"progress": None, "cancelled": None}
 def install(
     progress: Callable[[float | None, str], None] | None = None, cancelled: Callable[[], bool] | None = None
 ) -> None:
-    """Called by the worker around each task."""
+    """Called by the worker around each task (and with no arguments after it, so a late call from a tool's own
+    thread does nothing). A thread that outlives its task and calls progress() while a NEW task runs is reported on
+    that new task: a tool must stop its threads before it returns."""
     _sinks["progress"], _sinks["cancelled"] = progress, cancelled
 
 
