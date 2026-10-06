@@ -33,6 +33,14 @@ The worker (`python -m labconstrictor_tools serve --module M`) speaks the Appose
 | `{"task": id, "requestType": "EXECUTE", "script": "lc:<tool_id>", "inputs": {...}}` | `LAUNCH`, then `UPDATE {message, current, maximum}`*, then exactly one of `COMPLETION {outputs}`, `FAILURE {error, code, traceback?}`, `CANCELATION` |
 | `{"task": id, "requestType": "CANCEL"}` | the task ends with `CANCELATION` if the tool calls `check_cancel()` |
 
+Rules the worker enforces (each violation is written to the worker log/stderr):
+* `task` must be a non-empty string and unique until the task's terminal response; an `EXECUTE` that reuses the id of a running task is ignored (answering would end the running task on the host).
+* `script` must be text and `inputs` an object (or absent); otherwise the worker answers `FAILURE` with code `bad_request` instead of running the tool with defaults.
+* A `CANCEL` for a task that is not running is ignored (it is not remembered for a later `EXECUTE`). Unknown `requestType`s, non-JSON lines and non-object lines are ignored. A request line longer than 16 MiB is dropped.
+* A tool that calls `sys.exit()` or is interrupted ends with `FAILURE` (code `SystemExit`/`KeyboardInterrupt`); a result JSON cannot carry ends with `FAILURE` code `unserializable_result`.
+* NaN and Infinity cannot be written in JSON: they are sent as `null`. A host must treat `null` in a numeric value as "not a finite number".
+
+
 * `script` must be `lc:<id>` of a declared tool. **Anything else (e.g. Python source) is refused** (`unknown_tool`).
 * `inputs`: image/labels/table/file values are file paths (an Appose `ndarray` shared-memory object is also accepted for images);
   scalars are JSON values; `_job_dir` (reserved) names the host-owned directory for outputs.

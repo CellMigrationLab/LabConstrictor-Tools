@@ -60,5 +60,6 @@ Each run also has `<LC_HOME>/runs/<time>_<app>_<tool>/run.json`.
 * The worker reads image files whole (no lazy/chunked reading); TIFF always, other formats only when the app has `imageio`.
 * No sandbox: a tool runs with the user's rights, like any app code. The worker only executes tools declared by the registered module.
 * A protocol change is a major version; hosts say so in the UI when an app speaks a newer protocol than they do.
+* A tool must stop the threads it starts before it returns: a leftover thread that calls `progress()` while the NEXT task runs is reported on that next task (after its own task ends the hooks do nothing).
 * Logs are one shared rotating file; concurrent writers (Napari, Fiji, CLI) do not lock it.
 * A worker is started with `PYTHONSAFEPATH=1` (Python 3.11+) so that the directory the host was started from is not on the tool's import path; on older Pythons a stray `pandas.py` there could shadow a real package.

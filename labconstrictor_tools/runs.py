@@ -71,4 +71,12 @@ def _safe(text):
 def _prune(keep=KEEP):
     folders = sorted(p for p in runs_dir().iterdir() if p.is_dir())
     for old in folders[:-keep]:
-        shutil.rmtree(old, ignore_errors=True)
+        try:
+            shutil.rmtree(old)
+        except OSError as error:  # keep going: one stuck folder must not stop the others from being pruned
+            log.warning(
+                "could not remove the old run record %s (%s: %s); old records will accumulate",
+                old,
+                type(error).__name__,
+                error,
+            )
