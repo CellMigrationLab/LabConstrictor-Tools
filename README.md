@@ -40,7 +40,7 @@ The contract between them is the schema and the worker protocol only ([docs/PROT
     labconstrictor-tools register --name myapp --prefix <app prefix> --module myapp_lc_tools --pythonpath .   # by hand; the installer does it (without --pythonpath: the module is installed in the app)
     labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/  # no GUI needed (without --out: ~/.labconstrictor/results/<time>_<app>_<tool>, newest 20 kept)
 
-In a notebook: `%load_ext labconstrictor_tools.notebook_magic`, then `%%lc_tool "Label" --export lc_tools.py` on a cell with a function.
+In a notebook: `%load_ext labconstrictor_tools.notebook_magic`, then `%%lc_tool "Label" --export myapp_lc_tools.py` on a cell with a function.
 Full guide: [docs/AUTHORING.md](docs/AUTHORING.md).
 
 ## For users and administrators
