@@ -39,7 +39,7 @@ announce themselves. *Prefix* = the folder you chose when installing the app.
 | Field | Your entry |
 |---|---|
 | Tester name and date | |
-| Operating system and version (e.g. Windows 11 23H2, macOS 14.5 Apple silicon, Ubuntu 24.04) | |
+| Operating system and version (e.g. Windows 11 23H2, macOS 14.5 Apple silicon (Intel Macs are not supported), Ubuntu 24.04) | |
 | Computer: RAM, is it a managed/office computer with antivirus or admin restrictions? | |
 | Are you behind a proxy or firewall? | |
 | Do you have admin rights? (Yes / No) | |
@@ -53,7 +53,7 @@ announce themselves. *Prefix* = the folder you chose when installing the app.
 ---
 
 ## 1. What you need
-- [ ] A computer with the operating system you will report on, and at least 25 GB of free disk space (NucleiSky downloads PyTorch: its installed folder is about 9 GB, the download caches take about 5 GB more, and the optional Cellpose model 1.2 GB). On a very bare Linux system Napari may also need the `libxcb-*` system packages (error `Could not load the Qt platform plugin "xcb"`): install them with your package manager; that is a computer setup problem, not a LabConstrictor one.
+- [ ] A computer with the operating system you will report on (Windows, Linux, or a Mac with Apple silicon: **Intel Macs are not supported**, the installers cannot install there because some required packages no longer ship Intel Mac builds; if you only have an Intel Mac, please tell us instead of testing), and at least 25 GB of free disk space (NucleiSky downloads PyTorch: its installed folder is about 9 GB, the download caches take about 5 GB more, and the optional Cellpose model 1.2 GB). On a very bare Linux system Napari may also need the `libxcb-*` system packages (error `Could not load the Qt platform plugin "xcb"`): install them with your package manager; that is a computer setup problem, not a LabConstrictor one.
 - [ ] Internet access during installation (the installers download packages) and, for item N9, for the first Cellpose/InstanSeg run.
 - [ ] The two installers for your operating system (from the project's release page or from the person who sent you this protocol): NucleiSky and CellTracksColab.
 - [ ] Python 3.10 or newer to create the Napari environment (or an existing Napari installation you are allowed to modify; a fresh one is better).
