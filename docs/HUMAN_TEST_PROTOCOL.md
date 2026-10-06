@@ -166,7 +166,7 @@ The last lines name the registry folder and the log file location.
 ### S5. Nothing unexpected was installed or written
 **Do:** look in your home folder.
 
-**Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer itself may also create menu entries (on Linux under `~/.local/share/applications` and `~/.local/share/desktop-directories`) and the folders of the tools it uses (`~/.conda`, `~/.mamba`, `~/.cache`, `~/.config`, `~/.local/share/mime`; later also `~/.imagej` and `~/.java` from Fiji and `~/.cellpose` from Cellpose), including dated backups of `~/.config/menus/applications.menu`: that is normal and not a failure. No error dialogs appeared during installation. Installation did not require administrator rights unless you chose a protected folder.
+**Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer itself may also create menu entries (on Linux under `~/.local/share/applications`, which also gets `fiji.desktop` when Fiji first starts, and `~/.local/share/desktop-directories`) and the folders of the tools it uses (`~/.conda`, `~/.mamba`, `~/.cache`, `~/.config`, `~/.local/share/mime`; later also `~/.imagej` and `~/.java` from Fiji and `~/.cellpose` from Cellpose), including dated backups of `~/.config/menus/applications.menu`: that is normal and not a failure. No error dialogs appeared during installation. Installation did not require administrator rights unless you chose a protected folder.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -181,6 +181,8 @@ The last lines name the registry folder and the log file location.
 **Expect:** a JSON report with `"status": "COMPLETE"`, a result of type `table`, and a last line `(results are in ...results/<time>_<id>_CellTracksColab_calculate_metrics - use --out DIR ...; the newest 20 runs are kept)`. (`<id>` is a short random string, so that two runs in the same second never share a folder.) The folder contains `table.csv` with two data rows.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+*Note:* the `(results are in …)` line is written to the error stream: in a terminal it appears last, but if you redirect or pipe the output it can appear before the JSON. That is not a failure.
 
 ### C2. A readable error
 **Do:**
@@ -227,6 +229,8 @@ Under *Segmentation*: *Segmentation* = threshold, *Threshold method* = otsu, *Bl
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
+*What it should look like:* ![N2 the NucleiSky form in Napari](img/N2_napari_form.png)
+
 ### N3. Open the test images
 **Do:** `File > Open File(s)...`, select `testdata/ns/reference.tif` and `testdata/ns/query.tif`. In the form set *Reference* = `reference`, *Query* = `query`.
 
@@ -238,11 +242,13 @@ Under *Segmentation*: *Segmentation* = threshold, *Threshold method* = otsu, *Bl
 **Do:** press **Run**. (The very first run after installation can take up to 2 minutes while code is compiled and loaded. After that, a run in a new worker takes about 10 to 20 seconds and a run in a kept worker about 2 seconds.)
 
 **Expect:** the status line shows a progress message (`segmenting nuclei`, then `matching 9 query nuclei against 429 reference nuclei`) and the progress bar moves. At the end the status line reads
-`✔ done in <n>s  rotation_deg=12.17..., scale=1.002..., bbox_y0y1x0x1=[637, 963, 597, 923], n_nuclei_reference=429, n_nuclei_query=9, matcher=quad`.
+`✔ done in <n>s  rotation_deg=12.1721, scale=1.0024, offset_y_px=700.3293, offset_x_px=605.5654, bbox_y0y1x0x1=[637, 963, 597, 923], n_nuclei_reference=429, n_nuclei_query=9, matcher=quad` (the digits after the decimal point may differ slightly).
 Two new layers appear: `NucleiSky:alignment` and `NucleiSky:query_aligned`. The Run button is usable again and **Details...** is enabled.
 Accept rotation between 12.0 and 12.4, scale between 0.99 and 1.01. The nucleus counts should be exactly 429 and 9.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (numbers you saw): ______________________________
+
+*What it should look like:* ![N4 result in Napari](img/N4_napari_result.png)
 
 ### N5. The result is placed correctly
 **Do:** hide `reference` and `query`; show `NucleiSky:query_aligned` over `reference` (set its blending to `additive` if needed) and zoom to the bright cluster.
@@ -250,6 +256,8 @@ Accept rotation between 12.0 and 12.4, scale between 0.99 and 1.01. The nucleus 
 **Expect:** the aligned query is a small bright patch located inside the large reference field, and its nuclei sit on top of the reference's nuclei (no obvious shift or rotation).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+*What it should look like:* ![N5 aligned query over the reference](img/N5_napari_aligned_over_reference.png)
 
 ### N6. Choose the matcher
 **Do:** set *Matcher* to `quad`, run; then `hashing`, run; then `triangles`, run.
@@ -259,6 +267,8 @@ This is the correct outcome for these test images. It must be a notice (a status
 (`graph` behaves like `triangles` on these images.)
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+*What it should look like:* ![N6 no-match notice in Napari](img/N6_napari_triangles_notice.png)
 
 ### N7. Images from files instead of layers
 **Do:** set *Matcher* back to `auto`. Next to *Reference*, press *Select file* (under *or file*) and choose `testdata/ns/reference.tif`; do the same for *Query* with `query.tif`. Run.
@@ -274,7 +284,7 @@ This is the correct outcome for these test images. It must be a notice (a status
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-### N9. Other segmentation settings (optional: needs internet; the Cellpose run takes about 20 minutes or more on a computer without a graphics card)
+### N9. Other segmentation settings (optional: needs internet; the Cellpose run can take from about 3 minutes (measured on a 4-core Linux computer) to 20 minutes or more on a computer without a graphics card)
 **Do:** set *Segmentation* = `threshold`, *Threshold method* = `li`, *Min area* = 80, run. Then set *Segmentation* = `cellpose`, run.
 
 **Expect:** the `li` run completes with `n_nuclei_reference` close to 425 (not 429) and `n_nuclei_query=9`. The Cellpose run is slow (the status line says it is loading cellpose and the progress bar keeps moving; the first time it also downloads a model of about 1 GB); it completes with about 347 reference nuclei and a rotation near 12.17, or, if the download is blocked, shows a message `segmentation_unavailable ... the first run needs internet` instead of freezing. (InstanSeg is known not to find nuclei in these synthetic images; do not report that.)
@@ -313,6 +323,8 @@ The sentence tells you what is wrong without a programmer.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
+*Known issue (reported 2026-10-06):* the log extract inside **Details...** is the end of the shared log file, so it can still show matcher lines of earlier runs. Do not report this again; do report anything else that looks wrong.
+
 ### N14. The second app: a table result
 **Do:** clear *or file* rows. Choose app `CellTracksColab`, tool `Calculate Track Metrics`. For *Tracks* press *Select file* and choose `testdata/tracks.csv`. Run.
 
@@ -320,6 +332,8 @@ The sentence tells you what is wrong without a programmer.
 Switching between the two apps in the first drop-down works and shows the right tool each time.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+*What it should look like:* ![N14 table in Napari](img/N14_napari_table_celltracks.png)
 
 ### N15. Faster second run
 **Do:** choose app `NucleiSky`, tool `Relocalize 2D` again (N14 left CellTracksColab selected, which has no Matcher). Set *Reference* = `reference`, *Query* = `query`, clear the *or file* rows, and set *Matcher* = `auto`. Make sure *Keep the worker running between runs (faster repeat runs)* is ticked. Press **Restart worker**, then press **Run** three times in a row (wait for each to finish).
@@ -351,6 +365,8 @@ and put it into the folder `scripts/Plugins/LabConstrictor/` inside your Fiji fo
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Menu path you used: ______________________________
 
+*What it should look like:* ![F0 the menu entry Plugins > LabConstrictor > LabConstrictor Tools](img/F0_fiji_menu.png)
+
 ### F1. Choose app and tool
 **Do:** open `File > Open...` for `testdata/ns/reference.tif` first and then `testdata/ns/query.tif` (the order matters: the first open image is offered as the reference). Start the plugin from the menu.
 
@@ -364,6 +380,8 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
+*What it should look like:* ![F2 the Fiji form](img/F2_fiji_form_top.png)
+
 ### F3. Run with defaults
 **Do:** set the pixel sizes to 0.65 (reference) and 0.325 (query) if they differ, leave everything else, press OK.
 
@@ -371,12 +389,16 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (numbers): ______________________________
 
+*What it should look like:* ![F3 alignment overlay in Fiji](img/F3_fiji_alignment_overlay.png)
+
 ### F4. Matcher choice and "no match"
 **Do:** start the plugin again, set *Matcher* = `hashing`, OK; then again with `triangles`.
 
 **Expect:** `hashing` works (`matcher=hashing`). `triangles` shows a plain **message** window (information, not the red error style) with `No match found with the 'triangles' matcher. This is not an error in the images: try Matcher = auto, or another matcher.`
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+*What it should look like:* ![F4 no-match message in Fiji](img/F4_fiji_triangles_message.png)
 
 ### F5. Unset values
 **Do:** start the plugin; tick **Set fixed seed** and type 3; tick **Set time limit** and type 60; OK. Then run again with both boxes unticked.
@@ -399,6 +421,8 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
+*Tip:* click once on Fiji's main window (the one with the menu bar) before pressing **Esc**, so that it has keyboard focus, and start pressing about 3 seconds after you press OK (a run takes about 12 seconds). On a bare Linux X server without a window manager Fiji never gets keyboard focus and Esc does nothing: that is a computer setup problem.
+
 ### F8. An error you can understand
 **Do:** start the plugin with no image open, choose `testdata/fake.tif` as *Reference (or file)* and `query.tif` as the query; OK.
 
@@ -406,12 +430,18 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
+*Note:* the error window may also list the worker's last output lines (they start with `[SERVICE-…]`). They can be very long, so the window can be wider than a small screen and its **OK** button can be off-screen. If so, close it with **Alt+F4** (Windows/Linux) or Cmd+W (macOS) and write the screen size in the notes. This is a known cosmetic problem.
+
+*What it should look like:* ![F8 the Fiji error window (very wide)](img/F8_fiji_error_dialog.png)
+
 ### F9. CellTracksColab: a table result
 **Do:** start the plugin, choose `CellTracksColab`; this tool has a single input, so Fiji shows only a plain *Choose a file* window instead of a form: choose `testdata/tracks.csv` in it.
 
 **Expect:** a window named **table** (Fiji Results table) with 2 rows whose columns include `Unique_ID`, `Track Duration`, `Mean Speed`, `Total Distance Traveled`, `Directionality`.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+*What it should look like:* ![F9 table in Fiji](img/F9_fiji_table_result.png)
 
 ### F10. Run a one-image tool twice (known open question; needs a real desktop, not a remote or virtual screen)
 **Do:** register the small example app that ships with the tools package, using the Python of your Napari environment (it has everything the example needs):
@@ -431,12 +461,20 @@ Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
+*Note:* the **Log** window opens by itself when the plugin runs and has something to say; there is no `Window > Log` entry before that. Start the plugin first, then look for the Log window.
+
+*What it should look like:* ![F11 Log line for a skipped app](img/F11_fiji_log_skipped_app.png)
+
 ### F12. Macro recording and replay (jar only: option B)
 **Do:** `Plugins > Macros > Record...`. Run NucleiSky with defaults through the dialog (F3). Look at the recorder text. Copy the recorded line into a macro (`Plugins > Macros > New...`), close the result windows, and run the macro.
 
 **Expect:** the recorder shows one line like `run("LabConstrictor Tools...", "app=NucleiSky tool=[Relocalize 2D] reference=reference.tif query=query.tif reference_pixel_size_um=0.65 ...");`. The line **does not** contain `fixed_seed=` or `max_seconds=` when those were not set. Running the macro runs the tool without any dialog and gives the same result. A wrong tool name in the macro gives a message that lists the valid tools.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+*Known issue (reported 2026-10-06):* at the moment the recorder writes `run("Relocalize 2D", "... fixed_seed=0 ... max_seconds=0.0")` instead of the line described above, ImageJ shows `Recorder: Duplicate keyword ... "max_seconds"`, and replaying the recorded line gives `Macro Error: Unrecognized command: "Relocalize 2D"`. Mark this test FAIL if you see the same, and paste the recorded line and the exact messages in the notes.
+
+![F12 recorded line](img/F12_fiji_recorder_recorded_line.png) ![F12 duplicate keyword](img/F12_fiji_recorder_duplicate_keyword.png) ![F12 replay error](img/F12_fiji_macro_replay_error.png)
 
 ### F13. Closing leaves nothing behind
 **Do:** close Fiji and check the process list as in N16.
@@ -521,6 +559,8 @@ Run `doctor` and `list` with **NucleiSky's** Python (see "Which Python"). Start 
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
+*Known issue (reported 2026-10-06):* while uninstalling this app you may see `WARNING: could not remove ... from the LabConstrictor tools registry ... (run: "<prefix>/bin/python" -m labconstrictor_tools unregister --name ...)`. The folder named in the command is deleted right afterwards, so the command cannot be pasted any more; in this case nothing was registered, so nothing needs removing. Check with `list` (NucleiSky's Python) that the app is not listed.
+
 ---
 
 ## 9. Operating-system specific checks
@@ -559,7 +599,11 @@ Send, in one message or issue titled `Test report: <OS> <your name> <date>`:
 | with `li` threshold and min area 80 | 425 / 9 |
 | with reference mask (and query mask) | 393 / 9 |
 | `triangles` and `graph` | "No match found ..." (this is expected on these images) |
-| time of a normal run | about 10 to 20 s (first run after installation up to 2 minutes) |
+| time of a normal run | about 10 to 20 s (first run after installation up to 2 minutes; measured on a 4-core Linux computer: 12 s, never 2 minutes) |
+| repeat run in a kept worker (Napari) | about 2 s |
+| run in Fiji | about 12 s every time (Fiji starts a new worker for each run) |
+| installing NucleiSky / CellTracksColab (Linux, fast network) | about 6 min / 1 min |
+| Cellpose run (Napari) | 347 reference nuclei, rotation 12.17, about 3 minutes on 4 CPU cores |
 
 ## Appendix B. What the author of this protocol did and did not verify
 The commands, file names, expected texts and numbers were checked on **Linux** (Ubuntu 24.04, Python 3.12 app environments, Napari 0.9, Fiji with Java 21) with the real installers and the same fixtures,
