@@ -212,7 +212,9 @@ class RuntimeDoesNotLeakIntoTheApp(unittest.TestCase):
             )  # Tools is installed in this environment: nothing to inject
             bare = Path(tempfile.mkdtemp(prefix="lcbare_")) / "env"
             subprocess.run(
-                [sys.executable, "-m", "venv", "--without-pip", str(bare)], check=True, capture_output=True
+                [sys.executable, "-m", "venv", "--copies", "--without-pip", str(bare)],
+                check=True,
+                capture_output=True,
             )
             lacking = registry.register("lacking", bare, SYNTHETIC_MODULE, "0")
             self.assertEqual(
