@@ -10,6 +10,7 @@ import shutil
 from datetime import datetime, timezone
 
 from . import registry
+from .protocol import JOB_DIR_KEY
 
 KEEP = 50
 STDERR_TAIL_CHARS = 4000
@@ -36,7 +37,9 @@ def record(app, tool_id, inputs, task, seconds, stderr=""):
             "error": task.error,
             "code": task.code,
             "traceback": task.traceback,
-            "inputs": inputs,
+            "inputs": {
+                k: v for k, v in inputs.items() if k != JOB_DIR_KEY
+            },  # the host-owned folder is not a user input
             "results": [
                 {k: v for k, v in r.items() if k != "matrix_yx"} for r in task.outputs.get("results", [])
             ],

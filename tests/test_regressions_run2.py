@@ -3,7 +3,10 @@ worker pipes that were never closed, and --pythonpath being shadowed by the host
 """
 
 import gc
+import os
+import sys
 import tempfile
+import time
 import unittest
 import warnings
 from pathlib import Path
@@ -92,6 +95,58 @@ class Schema(unittest.TestCase):
         with self.assertRaises(ToolError) as caught:
             convert._load_one(param, "/definitely/not/here")
         self.assertEqual(caught.exception.code, "folder_not_found")
+
+
+class Hardening(unittest.TestCase):
+    @unittest.skipIf(sys.version_info < (3, 11), "PYTHONSAFEPATH needs Python 3.11+")
+    def test_host_cwd_does_not_shadow_the_tools_imports(self):
+        cwd = Path(tempfile.mkdtemp())
+        (cwd / "colorsys.py").write_text("SHADOWED = True\n")
+        tools = Path(tempfile.mkdtemp())
+        (tools / "cwd_probe_lc_tools.py").write_text(
+            "from labconstrictor_tools import Scalars, tool\n"
+            "@tool('Probe')\n"
+            "def probe() -> Scalars:\n"
+            "    import colorsys\n"
+            "    return {'shadowed': hasattr(colorsys, 'SHADOWED')}\n"
+        )
+        before = os.getcwd()
+        os.chdir(cwd)
+        try:
+            with client.WorkerProcess(module="cwd_probe_lc_tools", pythonpath=[str(tools)]) as worker:
+                task = worker.task("probe", {})
+                task.wait(60)
+        finally:
+            os.chdir(before)
+        self.assertEqual(task.status, "COMPLETE", task.error)
+        self.assertFalse(task.outputs["results"][0]["values"]["shadowed"])
+
+    @unittest.skipIf(os.name != "posix", "POSIX path semantics")
+    def test_a_filesystem_root_is_not_an_install_prefix(self):
+        from labconstrictor_tools import registry
+
+        folder = Path(tempfile.mkdtemp())
+        entry_file = folder / "evil.json"
+        entry_file.write_text("{}")
+        os.chmod(entry_file, 0o644)
+        reason = registry._untrusted_reason(entry_file, {"prefix": "/", "python": sys.executable})
+        self.assertIn("filesystem root", reason or "")
+
+    def test_cli_results_go_to_a_known_folder_and_old_ones_are_pruned(self):
+        from labconstrictor_tools import cli, registry
+
+        os.environ["LC_HOME"] = tempfile.mkdtemp()
+        try:
+            for _ in range(cli.RESULTS_KEPT + 5):
+                folder = cli._new_results_dir("a", "t")
+                folder.mkdir(parents=True, exist_ok=True)
+                (folder / "x").write_text("1")
+                time.sleep(0.002)
+                folder.rename(folder.with_name(folder.name + "_%d" % int(time.time() * 1000)))
+            kept = list((registry.home() / "results").iterdir())
+            self.assertLessEqual(len(kept), cli.RESULTS_KEPT)
+        finally:
+            os.environ.pop("LC_HOME", None)
 
 
 class Presentation(unittest.TestCase):

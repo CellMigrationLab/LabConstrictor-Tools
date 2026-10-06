@@ -80,6 +80,7 @@ class WorkerProcess:
                 if x
             ),
             PYTHONNOUSERSITE="1",
+            PYTHONSAFEPATH="1",  # Python 3.11+: the host's working directory is not put on the worker's import path
             PYTHONIOENCODING="utf-8",
             PYTHONUNBUFFERED="1",
         )

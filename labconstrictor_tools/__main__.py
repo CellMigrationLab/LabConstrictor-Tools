@@ -53,7 +53,9 @@ def build_parser():
     run.add_argument("params", nargs="*", metavar="name=value")
     run.add_argument("--usage", action="store_true", help="show the tool's parameters and exit")
     run.add_argument("--out", help="directory for the results (default: a temporary one)")
-    run.add_argument("--keep", action="store_true")
+    run.add_argument(
+        "--keep", action="store_true", help="(no effect, kept for compatibility: results are always kept)"
+    )
     run.add_argument(
         "--no-record", action="store_true", help="do not write a run record under <LC_HOME>/runs"
     )
