@@ -269,7 +269,10 @@ def cmd_test(args: argparse.Namespace) -> int:
         if name in samples:
             raise SystemExit("--sample %r was given more than once" % name)
         samples[name] = str(Path(path).resolve())
-    cases = testing.load_cases(args.cases) if args.cases else None
+    try:
+        cases = testing.load_cases(args.cases) if args.cases else None
+    except ValueError as error:  # an invalid cases file: say what is wrong, no traceback
+        raise SystemExit("✖ %s" % error) from error
     reports, untested = testing.run_suite(
         args.module,
         args.pythonpath,

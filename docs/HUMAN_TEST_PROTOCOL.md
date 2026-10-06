@@ -60,9 +60,19 @@ announce themselves. *Prefix* = the folder you chose when installing the app.
 - [ ] Fiji (https://fiji.sc, "Fiji with Java"). Use a fresh unzipped copy, not your daily one, if you can.
 - [ ] A screenshot tool, a text editor, and this document.
 
-**Folder names used below.** Replace `<PREFIX_NS>` and `<PREFIX_CT>` with the install folders of NucleiSky and CellTracksColab.
-The Python of an app is `<PREFIX>/bin/python` (Linux, macOS) or `<PREFIX>\python.exe` (Windows). Every command below uses
-`python -m labconstrictor_tools ...`, which works the same way on all systems.
+**Folder names used below.** Replace `<PREFIX_NS>` and `<PREFIX_CT>` with the install folders of NucleiSky and CellTracksColab
+(type the real folder: nothing in `<...>` is a variable your terminal understands).
+
+**Which Python.** Each app has its own Python. The commands below start it by its full path:
+
+| | Linux / macOS (terminal) | Windows (PowerShell) |
+|---|---|---|
+| NucleiSky's Python (`<NS_PY>`) | `<PREFIX_NS>/bin/python` | `& "<PREFIX_NS>\python.exe"` |
+| CellTracksColab's Python (`<CT_PY>`) | `<PREFIX_CT>/bin/python` | `& "<PREFIX_CT>\python.exe"` |
+
+In every command, `<NS_PY>` / `<CT_PY>` stands for the matching line of this table, typed in full (in PowerShell the `&` and the quotes are
+needed, also when the path has no space). Unless a test says otherwise, use **NucleiSky's** Python for `list`, `doctor` and `support-bundle`.
+Windows users: if your terminal is `cmd.exe` instead of PowerShell, leave out the `&`.
 
 **Where things are**
 | What | Linux / macOS | Windows |
@@ -98,6 +108,9 @@ curl.exe -L -o tracks.csv https://raw.githubusercontent.com/CellMigrationLab/Cel
 ```
 `fake.tif` is a text file that pretends to be an image (used to check the error messages). Cutting a real image short is optional (test E3).
 
+**Write down the full path of this `testdata` folder** (in the terminal: `pwd` on Linux/macOS, `Get-Location` in PowerShell). From here on,
+**`<TESTDATA>` means that exact folder**, for example `/home/anna/testdata` or `C:\Users\Anna\testdata`; `testdata/ns/reference.tif` means `<TESTDATA>/ns/reference.tif`.
+
 **Expect:** the folder `ns` contains `reference.tif` (5.1 MB), `query.tif` (0.5 MB), `reference_mask.tif`, `query_mask.tif`, `ground_truth.json`; the last line printed by the generator is `ok (1600, 1600) (520, 520)`.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
@@ -108,7 +121,7 @@ curl.exe -L -o tracks.csv https://raw.githubusercontent.com/CellMigrationLab/Cel
 
 ### S1. Install NucleiSky
 **Do:** run the NucleiSky installer. Choose an install folder (write it in the record sheet). Wait until it says it has finished.
-(Linux/macOS batch alternative: `bash NucleiSky-0.1.1-Linux-x86_64.sh -b -p <PREFIX_NS>`.) This takes several minutes (it downloads PyTorch).
+(Linux batch example: `bash NucleiSky-0.1.1-Linux-x86_64.sh -b -p <PREFIX_NS>`. macOS: use the macOS installer file you were given, for example `bash <that file> -b -p <PREFIX_NS>`; never the Linux file.) This takes several minutes (it downloads PyTorch).
 
 **Expect:** the installer finishes without an error message and without asking to close it manually after a failure.
 The file `<PREFIX_NS>/menuinst_debug.log` exists and its last line is `Post-install completed successfully.`
@@ -122,14 +135,18 @@ The file `<PREFIX_NS>/menuinst_debug.log` exists and its last line is `Post-inst
 * Windows: expect the line `Found nucleisky_lc_tools: registering ...`, followed by a block of text that contains `"schema_path"`,
   and **no** line starting with `WARNING: tool registration failed`. (The Windows script does not print "Tools registered".)
 
-Then run: `<PREFIX_NS>/bin/python -m labconstrictor_tools list`
+Then run, with NucleiSky's Python (see "Which Python"):
+* Linux/macOS: `<PREFIX_NS>/bin/python -m labconstrictor_tools list`
+* Windows PowerShell: `& "<PREFIX_NS>\python.exe" -m labconstrictor_tools list`
 
 **Expect:** the output contains `NucleiSky  (0.1.1)` followed by an indented line `relocalize               Relocalize 2D`.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### S3. Install CellTracksColab
-**Do:** run the CellTracksColab installer (same as S1, install folder `<PREFIX_CT>`). Then `<PREFIX_CT>/bin/python -m labconstrictor_tools list`.
+**Do:** run the CellTracksColab installer (same as S1, install folder `<PREFIX_CT>`). Then run `list` with CellTracksColab's Python:
+* Linux/macOS: `<PREFIX_CT>/bin/python -m labconstrictor_tools list`
+* Windows PowerShell: `& "<PREFIX_CT>\python.exe" -m labconstrictor_tools list`
 
 **Expect:** the installer finishes; its `menuinst_debug.log` shows the same registration lines as in S2 (module `celltracks_lc_tools`).
 `list` shows **both** apps: `CellTracksColab  (1.1.0)` with `calculate_metrics        Calculate Track Metrics`, and `NucleiSky  (0.1.1)`.
@@ -137,7 +154,9 @@ Then run: `<PREFIX_NS>/bin/python -m labconstrictor_tools list`
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### S4. Diagnose
-**Do:** `<PREFIX_NS>/bin/python -m labconstrictor_tools doctor`
+**Do:**
+* Linux/macOS: `<PREFIX_NS>/bin/python -m labconstrictor_tools doctor`
+* Windows PowerShell: `& "<PREFIX_NS>\python.exe" -m labconstrictor_tools doctor`
 
 **Expect:** one line per app starting with a check mark, e.g. `NucleiSky    1 tool(s), schema current, interpreter <PREFIX_NS>/bin/python (0.05 s)`; no line starting with a cross.
 The last lines name the registry folder and the log file location.
@@ -155,14 +174,18 @@ The last lines name the registry folder and the log file location.
 
 ## 4. Command line (optional, 10 minutes)
 ### C1. Run a tool without any window
-**Do:** `<PREFIX_CT>/bin/python -m labconstrictor_tools run CellTracksColab calculate_metrics tracks=<testdata>/tracks.csv`
+**Do:**
+* Linux/macOS: `<PREFIX_CT>/bin/python -m labconstrictor_tools run CellTracksColab calculate_metrics tracks=<TESTDATA>/tracks.csv`
+* Windows PowerShell: `& "<PREFIX_CT>\python.exe" -m labconstrictor_tools run CellTracksColab calculate_metrics tracks=<TESTDATA>\tracks.csv`
 
-**Expect:** a JSON report with `"status": "COMPLETE"`, a result of type `table`, and a last line `(results are in ...results/<time>_CellTracksColab_calculate_metrics - use --out DIR ...; the newest 20 runs are kept)`. The folder contains `table.csv` with two data rows.
+**Expect:** a JSON report with `"status": "COMPLETE"`, a result of type `table`, and a last line `(results are in ...results/<time>_<id>_CellTracksColab_calculate_metrics - use --out DIR ...; the newest 20 runs are kept)`. (`<id>` is a short random string, so that two runs in the same second never share a folder.) The folder contains `table.csv` with two data rows.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### C2. A readable error
-**Do:** `<PREFIX_NS>/bin/python -m labconstrictor_tools run NucleiSky relocalize reference=<testdata>/fake.tif query=<testdata>/ns/query.tif`
+**Do:**
+* Linux/macOS: `<PREFIX_NS>/bin/python -m labconstrictor_tools run NucleiSky relocalize reference=<TESTDATA>/fake.tif query=<TESTDATA>/ns/query.tif`
+* Windows PowerShell: `& "<PREFIX_NS>\python.exe" -m labconstrictor_tools run NucleiSky relocalize reference=<TESTDATA>\fake.tif query=<TESTDATA>\ns\query.tif`
 
 **Expect:** `"status": "FAILED"`, `"code": "unreadable_image"` and an `error` that says `cannot read fake.tif: not a TIFF file`. No Python traceback dump is needed to understand it.
 
@@ -173,7 +196,9 @@ The last lines name the registry folder and the log file location.
 ## 5. Napari
 
 ### N0. Prepare Napari (once)
-**Do:** create a fresh environment and install (Linux/macOS shown; Windows: activate with `napari-env\Scripts\activate`):
+**Do:** create a fresh environment and install (Linux/macOS shown). On Windows run the same commands but activate the environment with
+PowerShell: `.\napari-env\Scripts\Activate.ps1`, or with cmd.exe: `napari-env\Scripts\activate.bat`. (If PowerShell refuses with an
+"execution of scripts is disabled" error, that is a setting of your computer, not a LabConstrictor problem: write it in the notes and use cmd.exe.)
 ```
 python -m venv napari-env
 source napari-env/bin/activate
@@ -228,7 +253,7 @@ Accept rotation between 12.0 and 12.4, scale between 0.99 and 1.01. The nucleus 
 **Do:** set *Matcher* to `quad`, run; then `hashing`, run; then `triangles`, run.
 
 **Expect:** `quad` and `hashing`: `✔ done`, the same rotation (about 12.17) and `matcher=quad` / `matcher=hashing` at the end of the status line. `triangles`: the status line shows **`⚠ No match found with the 'triangles' matcher. This is not an error in the images: try Matcher = auto, or another matcher.`**
-This is the correct outcome for these test images. It must be a notice (⚠), not a red cross, and the Run button must work again afterwards.
+This is the correct outcome for these test images. It must be a notice (a status line beginning with ⚠), not one beginning with ✖, and the Run button must work again afterwards.
 (`graph` behaves like `triangles` on these images.)
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
@@ -266,7 +291,7 @@ Now tick **set** under *Fixed seed*, type 3; tick **set** under *Time limit*, ty
 ### N11. Existing masks
 **Do:** in *Reference mask* press *Select file* (under *or file*) and choose `testdata/ns/reference_mask.tif`; run. Then also set *Query mask* from `query_mask.tif`; run. Finally set *Reference mask* to `query_mask.tif` (wrong size) and run.
 
-**Expect:** the first two runs complete with `n_nuclei_reference=393` and `n_nuclei_query=9` and a rotation near 12.17-12.19. The wrong-size run shows a red message
+**Expect:** the first two runs complete with `n_nuclei_reference=393` and `n_nuclei_query=9` and a rotation near 12.17-12.19. The wrong-size run shows a status line beginning with ✖:
 `✖ [mask_shape_mismatch] Reference mask must have the same size as its image: mask (520, 520), image (1600, 1600) ...`, stops within a few seconds, and the Run button works again.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
@@ -281,7 +306,7 @@ Now tick **set** under *Fixed seed*, type 3; tick **set** under *Time limit*, ty
 ### N13. An error you can understand
 **Do:** in *Reference* use *Select file* and choose `testdata/fake.tif` (the text file); *Query* = `query`. Run. Then press **Details...**.
 
-**Expect:** a red status line `✖ [unreadable_image] cannot read fake.tif: not a TIFF file: header=b'hell'  - click Details... for the full report (log: ...)`. **Details...** opens a window with the error, the worker output, the run record location and the end of the log.
+**Expect:** a status line beginning with ✖: `✖ [unreadable_image] cannot read fake.tif: not a TIFF file: header=b'hell'  - click Details... for the full report (log: ...)`. **Details...** opens a window with the error, the worker output, the run record location and the end of the log.
 The sentence tells you what is wrong without a programmer.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
@@ -295,14 +320,14 @@ Switching between the two apps in the first drop-down works and shows the right 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### N15. Faster second run
-**Do:** make sure *Keep the worker running between runs (faster repeat runs)* is ticked and *Matcher* = `auto`. Press **Restart worker**, then press **Run** three times in a row (wait for each to finish).
+**Do:** choose app `NucleiSky`, tool `Relocalize 2D` again (N14 left CellTracksColab selected, which has no Matcher). Set *Reference* = `reference`, *Query* = `query`, clear the *or file* rows, and set *Matcher* = `auto`. Make sure *Keep the worker running between runs (faster repeat runs)* is ticked. Press **Restart worker**, then press **Run** three times in a row (wait for each to finish).
 
 **Expect:** the first run after the restart takes the longest (10 to 20 seconds; up to 2 minutes if it is the first run since installation), the second and third about 2 seconds each. Write the three times in the notes. Then untick the box and run twice: both take about as long as the first run.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (times): ______________________________
 
 ### N16. Closing leaves nothing behind
-**Do:** close Napari. Open the process list (Task Manager on Windows, Activity Monitor on macOS, `ps aux | grep labconstrictor` on Linux).
+**Do:** close Napari. Open the process list (Task Manager on Windows, Activity Monitor on macOS, `ps aux | grep '[l]abconstrictor_tools.*serve'` on Linux).
 
 **Expect:** no `python ... labconstrictor_tools serve ...` process remains within 15 seconds.
 
@@ -360,7 +385,7 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 ### F6. Files instead of windows
 **Do:** `Window > Close All`. Start the plugin.
 
-**Expect:** the form now shows only the `(or file)` fields for images (there is nothing to choose from). Select `testdata/ns/reference.tif` and `query.tif` through them and run: same result as F3.
+**Expect:** the form now shows file-chooser fields named *Reference*, *Query* and the optional masks, and no open-image selectors (there is no open image to choose from). Select `testdata/ns/reference.tif` and `query.tif` through them and run: same result as F3.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -388,11 +413,11 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 ### F10. Run a one-image tool twice (known open question; needs a real desktop, not a remote or virtual screen)
 **Do:** register the small example app that ships with the tools package, using the Python of your Napari environment (it has everything the example needs):
 `<napari-env>/bin/python -m labconstrictor_tools register --name synthetic --prefix <napari-env> --module labconstrictor_tools.examples.synthetic`
-(Windows: `<napari-env>\Scripts\python.exe`). In Fiji open `testdata/ns/query.tif`. Start the plugin, choose application `synthetic`, tool `Image stats`, OK. Then start the plugin **again** and run `Image stats` a second time with the image still open.
+(Windows PowerShell: `& "<napari-env>\Scripts\python.exe" -m labconstrictor_tools register --name synthetic --prefix "<napari-env>" --module labconstrictor_tools.examples.synthetic`). In Fiji open `testdata/ns/query.tif`. Start the plugin, choose application `synthetic`, tool `Image stats`, OK. Then start the plugin **again** and run `Image stats` a second time with the image still open.
 
 **Expect:** both runs show the same dialog (with the open image selected) and print `synthetic values: {shape=..., dtype=..., mean=...}` in the Log window.
 **Mark FAIL** if the second run shows only a bare *Choose a file* prompt instead of the dialog, and describe exactly what you did (this is a known, unexplained problem; your observation is what we need).
-Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister --name synthetic`.
+Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister --name synthetic` (Windows: the same with `& "<napari-env>\Scripts\python.exe"`).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -422,21 +447,25 @@ Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister
 ## 7. When something is wrong (these tests change the app: do them last, and restore afterwards)
 
 ### E1. Registry listing survives a broken app
-**Do:** rename the file `<PREFIX_CT>/bin/python` (Windows: `<PREFIX_CT>\python.exe`) to `python.off`. Run `python -m labconstrictor_tools doctor` (use NucleiSky's python) and `... list`. Restart Napari, open the widget, and read the status line. Open the Fiji **Log** window after starting the plugin.
+**Do:** first **close Napari and Fiji completely** and check in the process list that no CellTracksColab worker (`python ... labconstrictor_tools serve`) is left; Windows will not rename a program that is still running. Then rename CellTracksColab's Python:
+* Linux/macOS: `mv <PREFIX_CT>/bin/python <PREFIX_CT>/bin/python.off`
+* Windows PowerShell: `Rename-Item "<PREFIX_CT>\python.exe" python.off`
 
-**Expect:** `doctor` shows a cross for `CellTracksColab` with `not available on this machine (interpreter ... is missing)`; `list` says `CellTracksColab  -- skipped: ...`. NucleiSky stays usable. Napari lists only `NucleiSky` and its status line reads `⚠ skipped: CellTracksColab (...)`. **Restore the file name afterwards** and check that `doctor` is clean again.
+Run `doctor` and `list` with **NucleiSky's** Python (see "Which Python"). Start Napari, open the widget, and read the status line. Start Fiji and open its **Log** window after starting the plugin.
+
+**Expect:** `doctor` shows a cross for `CellTracksColab` with `not available on this machine (interpreter ... is missing)`; `list` says `CellTracksColab  -- skipped: ...`. NucleiSky stays usable. Napari lists only `NucleiSky` and its status line reads `⚠ skipped: CellTracksColab (...)`. **Restore the file name before you continue** (Linux/macOS: `mv <PREFIX_CT>/bin/python.off <PREFIX_CT>/bin/python`; Windows PowerShell: `Rename-Item "<PREFIX_CT>\python.off" python.exe`) and check that `doctor` is clean again.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### E2. A package is missing inside an app
-**Do:** `<PREFIX_CT>/bin/python -m pip uninstall -y pandas`, then run `Calculate Track Metrics` in Napari. Afterwards reinstall: `<PREFIX_CT>/bin/python -m pip install pandas==2.2.2`.
+**Do:** first write down the installed version: `<CT_PY> -m pip show pandas` (look at the `Version:` line; write it in the notes). Then `<CT_PY> -m pip uninstall -y pandas`, and run `Calculate Track Metrics` in Napari. Afterwards reinstall **exactly the version you wrote down**: `<CT_PY> -m pip install pandas==<that version>`. (`<CT_PY>`: see "Which Python"; on Windows it is `& "<PREFIX_CT>\python.exe"`.)
 
 **Expect:** `✖ [ModuleNotFoundError] No module named 'pandas'  - click Details...`. Details shows the traceback. After reinstalling, the tool works again.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### E3. Damaged and unusual files
-**Do:** in Napari (and Fiji if you like) use these as the *Reference* file: (a) a text file called `fake.tif` (done in N13); (b) a TIFF cut short: `head -c 3000000 testdata/ns/reference.tif > testdata/short.tif` (Windows: ask a colleague or skip); (c) a path with spaces and non-English letters (copy `query.tif` to a folder `test é 日本` and use it).
+**Do:** in Napari (and Fiji if you like) use these as the *Reference* file: (a) a text file called `fake.tif` (done in N13); (b) a TIFF cut short: Linux/macOS `head -c 3000000 <TESTDATA>/ns/reference.tif > <TESTDATA>/short.tif`; Windows PowerShell `$b=[IO.File]::ReadAllBytes("<TESTDATA>\ns\reference.tif"); [IO.File]::WriteAllBytes("<TESTDATA>\short.tif",$b[0..2999999])`; (c) a path with spaces and non-English letters (copy `query.tif` to a folder `test é 日本` and use it).
 
 **Expect:** (a) as N13. (b) `✖ [unreadable_image] cannot read short.tif: failed to read ... bytes, got ...`. (c) the run works exactly as with the normal path.
 
@@ -450,9 +479,9 @@ Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### E5. Support bundle
-**Do:** `python -m labconstrictor_tools support-bundle --out testdata/bundle.zip`, open the zip.
+**Do:** `<NS_PY> -m labconstrictor_tools support-bundle --out <TESTDATA>/bundle.zip` (Windows PowerShell: `& "<PREFIX_NS>\python.exe" -m labconstrictor_tools support-bundle --out "<TESTDATA>\bundle.zip"`), open the zip.
 
-**Expect:** it contains `logs/labconstrictor.log`, `apps/*.json`, the latest `runs/*/run.json`, `doctor.txt` and `environment.txt`. It contains file names and folder names but **no image or table contents** and no passwords/tokens (search the text for your user name: it will appear in paths, that is expected; tell us if you do not want to share it).
+**Expect:** it contains `logs/labconstrictor.log`, `apps/*.json`, the latest `runs/*/run.json`, `doctor.txt` and `environment.txt`. It contains file names, folder names and the parameter values of recent runs, but **no image or table contents**. The tool does not intentionally collect passwords or tokens, but the logs and run records are **not scrubbed of secrets**: read through the files in the zip before you share it, and remove it if it contains paths, parameter values, tokens or anything else private (your user name will appear in paths; that is expected, tell us if you do not want to share it).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -468,21 +497,22 @@ Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### U2. Uninstall one app
-**Do:** uninstall CellTracksColab with its normal uninstaller (Windows: *Apps & features*; Linux/macOS: the uninstall script described on the app's download page). Then `python -m labconstrictor_tools list` and look at Napari (press *Rescan apps*) and Fiji (restart the plugin).
+**Do:** first close Napari and Fiji and check in the process list that no CellTracksColab worker is running (on Windows a running worker locks files). Then uninstall CellTracksColab with its normal uninstaller (Windows: *Apps & features*; Linux/macOS: the uninstall script described on the app's download page). Then run `list` (NucleiSky's Python) and reopen Napari and Fiji only now: look at Napari (press *Rescan apps*) and Fiji (restart the plugin).
 
 **Expect:** `CellTracksColab` is gone from all three; `NucleiSky` is still listed and still runs. `~/.labconstrictor/apps` no longer contains `CellTracksColab.json`.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### U3. Install the same app twice, then remove the older one
-**Do:** install CellTracksColab into a folder `A` (it may already exist from S3 or U2; install it again if you removed it). Then install it **again** into a different folder `B`. Uninstall the copy in `A` only. Run `list` and run the tool in Napari.
+**Do:** (close Napari and Fiji before every uninstall below, and reopen them only when the uninstall has finished) install CellTracksColab into a folder `A` (it may already exist from S3 or U2; install it again if you removed it). Then install it **again** into a different folder `B`. Uninstall the copy in `A` only. Run `list` and run the tool in Napari.
 
 **Expect:** after uninstalling `A`, `list` still shows `CellTracksColab` and the tool still runs (the newer installation, `B`, owns the registration). After you also uninstall `B`, `CellTracksColab` disappears from `list`.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### U4. Installation without internet for the tools package (optional, advanced)
-**Do:** before running an installer, set an unreachable source: Linux/macOS `LC_TOOLS_SPEC=/nonexistent/x.whl bash installer.sh -b -p <new folder>`; Windows (cmd): `set LC_TOOLS_SPEC=C:\nonexistent\x.whl` then start the installer from the same window.
+**Do:** before running an installer, set an unreachable source: Linux/macOS `LC_TOOLS_SPEC=/nonexistent/x.whl bash installer.sh -b -p <new folder>`; Windows cmd.exe: `set LC_TOOLS_SPEC=C:\nonexistent\x.whl`, Windows PowerShell: `$env:LC_TOOLS_SPEC='C:\nonexistent\x.whl'`, then start the installer from the same window.
+**Afterwards, in that same window, remove the setting** (cmd.exe: `set LC_TOOLS_SPEC=`; PowerShell: `Remove-Item Env:LC_TOOLS_SPEC`), or every later installer started from it fails the same way.
 
 **Expect:** the installation still **finishes** and the app itself works; `menuinst_debug.log` contains `WARNING: tool registration failed - ...`; `list` does not show the app. (Remove that install afterwards.)
 
@@ -494,7 +524,7 @@ Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister
 ### Windows only
 - [ ] **W1** The installer path contains a space (for example `C:\Users\Your Name\Apps\NucleiSky`) and installation, registration (S2) and a run still work. Notes: ______
 - [ ] **W2** `menuinst_debug.log` has the registration lines described in S2 (Windows variant) and none of: `The syntax of the command is incorrect`, `was unexpected at this time`, `is not recognized`. Notes: ______
-- [ ] **W3** The registered version is correct: `python -m labconstrictor_tools list` shows `NucleiSky  (0.1.1)` and **not** `(0)` or `(no version)`. Notes: ______
+- [ ] **W3** The registered version is correct: `list` (S2) shows `NucleiSky  (0.1.1)` and **not** `(0)` or `(no version)`. Notes: ______
 - [ ] **W4** Antivirus / SmartScreen did not block the worker (a run starts within 30 s of pressing Run). Notes: ______
 - [ ] **W5** After closing Napari or Fiji, no `python.exe` of the app remains in Task Manager. Notes: ______
 ### macOS only
@@ -509,7 +539,7 @@ Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister
 Send, in one message or issue titled `Test report: <OS> <your name> <date>`:
 - [ ] this document with all boxes ticked and the record sheet filled in;
 - [ ] screenshots of: N2 (the form), N4 (result), N6 (triangles message), F2 (Fiji form), F3 (overlay), and one screenshot per FAIL;
-- [ ] the support bundle zip (section E5) if anything failed;
+- [ ] the support bundle zip (test E5) if anything failed. **Open it first**: the logs and run records are not scrubbed of secrets; leave out or remove anything private;
 - [ ] a short free-text answer to: *Was anything confusing, slow, or surprising even though the test passed?*
 
 **Bug description template** (one per FAIL): Test number; what you did (exact clicks/commands); what you expected; what happened; severity; screenshot; support bundle attached (yes/no).

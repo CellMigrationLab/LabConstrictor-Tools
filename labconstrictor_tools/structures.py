@@ -81,3 +81,33 @@ class AppSchema(_AppRequired, total=False):
 
 # a result as the worker reports it: {"type": ..., "name": ..., plus "path" / "values" / "matrix_yx" ...}
 Result = dict[str, Any]
+
+
+class _CaseRequired(TypedDict):
+    tool: str
+
+
+class CaseSpec(_CaseRequired, total=False):
+    """One entry of a cases file (see testing.validate_case for the allowed keys)."""
+
+    inputs: dict[str, Any]
+    expect: dict[str, Any]
+    skip: str | None
+    cancel_after_s: float
+    comment: str
+    _dir: str
+
+
+class _ReportRequired(TypedDict):
+    tool: str
+    problems: list[str]
+    warnings: list[str]
+    skipped: str | None
+    seconds: float
+
+
+class CaseReport(_ReportRequired, total=False):
+
+    status: str
+    traceback: str
+    stderr_tail: list[str]

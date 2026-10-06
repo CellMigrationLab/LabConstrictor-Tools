@@ -18,6 +18,7 @@ interpreter that runs them (needs `pip install -e ".[test]"`).
 | test_convert_hardening | dtype narrowing never changes values, invalid defaults refused, strict booleans/choices, enums restored, empty images refused |
 | test_worker_protocol | the worker fed raw hostile requests: bad ids/inputs, duplicates, sys.exit, unserialisable results, oversized lines |
 | test_client_hardening | host client: callback errors, cancel escalation, task cleanup, shutdown, concurrent sends, record pruning |
+| test_testing_hardening | the author test harness: unknown expectation keys refused, 3x3 matrices, directories are not files, text inputs never become paths, describe output stays JSON, cancel check verdict |
 | test_logging | failures are explained and logged; `support-bundle` |
 | windows/test_windows.py | the same layer on Windows: `python tests/windows/test_windows.py` (also run under Wine via run_suite.sh) |
 
