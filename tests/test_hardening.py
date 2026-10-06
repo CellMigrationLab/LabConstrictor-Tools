@@ -377,3 +377,163 @@ class NarrowConsoles(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RegistryHardening(unittest.TestCase):
+    """Findings of the registry audit: planted files, malformed JSON, writable interpreters, hangs, relative LC_HOME."""
+
+    def setUp(self):
+        self.home = Path(tempfile.mkdtemp(prefix="lchome_"))
+        self._saved = {k: os.environ.get(k) for k in ("LC_HOME", "LC_APPS_PATH")}
+        os.environ["LC_HOME"] = str(self.home)
+        os.environ["LC_APPS_PATH"] = ""
+        self._reset_logger()
+
+    @staticmethod
+    def _reset_logger():
+        """The log file is chosen when the logger is first used: forget it so the next use follows LC_HOME."""
+        import logging
+
+        from labconstrictor_tools import log
+
+        logger = logging.getLogger("labconstrictor")
+        for handler in list(logger.handlers):
+            logger.removeHandler(handler)
+            handler.close()
+        log._logger = None
+
+    def tearDown(self):
+        self._reset_logger()
+        for key, value in self._saved.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+    def _entry(self, name="good", **changes):
+        folder = registry.apps_dir()
+        folder.mkdir(parents=True, exist_ok=True)
+        python = registry.python_for(GENERIC_PREFIX)
+        entry = {
+            "schema": 1, "name": name, "display_name": name, "version": "1", "prefix": str(GENERIC_PREFIX),
+            "python": str(python), "module": SYNTHETIC_MODULE, "pythonpath": [], "runtime_path": "",
+            "schema_path": str(folder / (name + ".schema.json")),
+        }  # fmt: skip
+        entry.update(changes)
+        (folder / (name + ".json")).write_text(json.dumps(entry))
+        (folder / (name + ".schema.json")).write_text(
+            json.dumps({"protocol": 1, "tools": [{"id": "t", "label": "T", "inputs": [], "outputs": []}]})
+        )
+        for path in folder.iterdir():
+            path.chmod(0o644)
+        return folder
+
+    def test_a_planted_symlink_is_not_followed_when_registering(self):
+        victim = self.home / "victim.txt"
+        victim.write_text("PRECIOUS")
+        folder = registry.apps_dir()
+        folder.mkdir(parents=True)
+        (folder / "x.json.tmp").symlink_to(victim)
+        registry.register("x", GENERIC_PREFIX, SYNTHETIC_MODULE, version="1")
+        self.assertEqual(victim.read_text(), "PRECIOUS")
+        self.assertEqual(json.loads((folder / "x.json").read_text())["name"], "x")
+        self.assertEqual(
+            [p.name for p in folder.glob("*.tmp") if p.is_symlink()], ["x.json.tmp"]
+        )  # left alone
+
+    def test_a_malformed_entry_is_skipped_with_a_reason_and_good_apps_survive(self):
+        self._entry("good")
+        folder = self._entry("bad", python=7)
+        self._entry("good")  # rewrites nothing of bad
+        entries, problems = registry.load_entries()
+        self.assertEqual(sorted(entries), ["good"])
+        self.assertEqual([name for name, _ in problems], ["bad"])
+        self.assertIn("python", problems[0][1])
+        (folder / "list.json").write_text("[1, 2]")
+        (folder / "list.json").chmod(0o644)
+        entries, problems = registry.load_entries()
+        self.assertEqual(sorted(entries), ["good"])
+        self.assertIn("list", [name for name, _ in problems])
+
+    def test_a_malformed_schema_is_skipped_with_a_reason(self):
+        folder = self._entry("good")
+        (folder / "good.schema.json").write_text("[]")
+        schemas, problems = registry.load_schemas()
+        self.assertEqual(schemas, {})
+        self.assertEqual(problems, [("good", "schema is not a JSON object")])
+
+    def test_a_schema_outside_the_entry_folder_is_refused(self):
+        elsewhere = Path(tempfile.mkdtemp(prefix="elsewhere_"))
+        (elsewhere / "s.json").write_text("{}")
+        (elsewhere / "s.json").chmod(0o644)
+        self._entry("good", schema_path=str(elsewhere / "s.json"))
+        entries, problems = registry.load_entries()
+        self.assertEqual(entries, {})
+        self.assertIn("not in the same folder", problems[0][1])
+
+    @unittest.skipIf(os.name != "posix", "POSIX permissions")
+    def test_an_interpreter_folder_writable_by_everybody_is_refused(self):
+        prefix = Path(tempfile.mkdtemp(prefix="prefix_"))
+        (prefix / "bin").mkdir()
+        python = prefix / "bin" / "python"
+        python.symlink_to(sys.executable)
+        self._entry("ww", prefix=str(prefix), python=str(python))
+        (prefix / "bin").chmod(0o777)
+        try:
+            entries, problems = registry.load_entries()
+            self.assertNotIn("ww", entries)
+            self.assertIn("writable by everybody", problems[0][1])
+            (prefix / "bin").chmod(0o755)
+            prefix.chmod(0o755)
+            self.assertIn("ww", registry.load_entries()[0])
+        finally:
+            (prefix / "bin").chmod(0o755)
+
+    def test_unregister_with_an_unreadable_entry_still_removes_it_and_says_so(self):
+        from labconstrictor_tools import log
+
+        folder = registry.apps_dir()
+        folder.mkdir(parents=True)
+        (folder / "junk.json").write_text("{not json")
+        self.assertTrue(registry.unregister("junk", prefix="/some/prefix"))
+        self.assertFalse((folder / "junk.json").exists())
+        self.assertIn("cannot be read", log.tail(20))
+
+    def test_a_hanging_schema_generation_times_out_with_an_explanation(self):
+        from unittest import mock
+
+        real_run = subprocess.run
+
+        def hang_on_describe(command, *args, **kwargs):
+            if "describe" in command:
+                raise subprocess.TimeoutExpired(cmd=command, timeout=1)
+            return real_run(command, *args, **kwargs)
+
+        with mock.patch.object(registry.subprocess, "run", side_effect=hang_on_describe):
+            with self.assertRaises(RuntimeError) as caught:
+                registry.register("slow", GENERIC_PREFIX, SYNTHETIC_MODULE)
+        self.assertIn("timed out", str(caught.exception))
+        self.assertFalse((registry.apps_dir() / "slow.json").exists())
+
+    def test_a_relative_lc_home_is_made_absolute(self):
+        os.environ["LC_HOME"] = "relative_home"
+        self.assertTrue(registry.home().is_absolute())
+
+    def test_an_unwritable_log_folder_is_announced_once_on_stderr(self):
+        import contextlib
+        import io
+
+        from labconstrictor_tools import log
+
+        blocker = self.home / "blocked"
+        blocker.write_text("a file where a folder is needed")
+        os.environ["LC_HOME"] = str(blocker)
+        self._reset_logger()
+        stderr = io.StringIO()
+        try:
+            with contextlib.redirect_stderr(stderr):
+                log.error("first")
+                log.error("second")
+            self.assertEqual(stderr.getvalue().count("cannot write the log file"), 1)
+        finally:
+            self._reset_logger()

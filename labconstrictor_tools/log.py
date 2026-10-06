@@ -42,8 +42,13 @@ def logger() -> logging.Logger:
         handler.setFormatter(logging.Formatter(_FORMAT, "%Y-%m-%d %H:%M:%S"))
         _logger.addHandler(handler)
         _logger.info("---- session start: %s", environment_summary())
-    except OSError:
+    except OSError as error:
         _logger.addHandler(logging.NullHandler())
+        print(  # once per process: the run goes on, but nobody should believe a log is being written
+            "LabConstrictor: cannot write the log file %s (%s: %s); diagnostics will not be saved"
+            % (log_path(), type(error).__name__, error),
+            file=sys.stderr,
+        )
     return _logger
 
 
