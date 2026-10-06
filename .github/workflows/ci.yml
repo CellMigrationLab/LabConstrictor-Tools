@@ -17,8 +17,8 @@ jobs:
         with: { python-version: "${{ matrix.python }}" }
       - name: Private virtualenv (Linux)
         if: runner.os == 'Linux'
-        # the runner's own Python folder is world-writable, which the registry refuses by design: tests must use a private interpreter
-        run: python -m venv "$RUNNER_TEMP/venv" && echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+        # the runner's own Python folder and binary are world-writable, which the registry refuses by design: tests need a private interpreter (a copy, not a symlink to the runner one)
+        run: python -m venv --copies "$RUNNER_TEMP/venv" && echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
       - run: pip install -e ".[test]"
       - name: Python suites
         working-directory: tests
