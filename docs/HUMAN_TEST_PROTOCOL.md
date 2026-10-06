@@ -53,7 +53,7 @@ announce themselves. *Prefix* = the folder you chose when installing the app.
 ---
 
 ## 1. What you need
-- [ ] A computer with the operating system you will report on, and at least 16 GB of free disk space (NucleiSky downloads PyTorch; its installed folder is about 9 GB).
+- [ ] A computer with the operating system you will report on, and at least 25 GB of free disk space (NucleiSky downloads PyTorch: its installed folder is about 9 GB, the download caches take about 5 GB more, and the optional Cellpose model 1.2 GB). On a very bare Linux system Napari may also need the `libxcb-*` system packages (error `Could not load the Qt platform plugin "xcb"`): install them with your package manager; that is a computer setup problem, not a LabConstrictor one.
 - [ ] Internet access during installation (the installers download packages) and, for item N9, for the first Cellpose/InstanSeg run.
 - [ ] The two installers for your operating system (from the project's release page or from the person who sent you this protocol): NucleiSky and CellTracksColab.
 - [ ] Python 3.10 or newer to create the Napari environment (or an existing Napari installation you are allowed to modify; a fresh one is better).
@@ -166,7 +166,7 @@ The last lines name the registry folder and the log file location.
 ### S5. Nothing unexpected was installed or written
 **Do:** look in your home folder.
 
-**Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer itself may also create menu entries (on Linux under `~/.local/share/applications` and `~/.local/share/desktop-directories`) and conda's own folders (`~/.conda`, `~/.cache`, `~/.config`): that is normal and not a failure. No error dialogs appeared during installation. Installation did not require administrator rights unless you chose a protected folder.
+**Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer itself may also create menu entries (on Linux under `~/.local/share/applications` and `~/.local/share/desktop-directories`) and the folders of the tools it uses (`~/.conda`, `~/.mamba`, `~/.cache`, `~/.config`, `~/.local/share/mime`; later also `~/.imagej` and `~/.java` from Fiji and `~/.cellpose` from Cellpose), including dated backups of `~/.config/menus/applications.menu`: that is normal and not a failure. No error dialogs appeared during installation. Installation did not require administrator rights unless you chose a protected folder.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -207,7 +207,7 @@ napari
 ```
 (The two long web addresses are the project's source archives: pip downloads them like any package, no `git` program is needed.)
 
-**Expect:** Napari opens. `Plugins` menu contains **LabConstrictor tools** (listed as `LabConstrictor tools (napari-labconstrictor)`, or in a submenu `napari-labconstrictor`). A one-time notice about the PyQt5 backend is normal.
+**Expect:** Napari opens. `Plugins` menu contains **LabConstrictor tools** (the entry reads `LabConstrictor tools (LabConstrictor)`; on other Napari versions it may sit in a submenu). A one-time notice about the PyQt5 backend is normal.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -274,10 +274,10 @@ This is the correct outcome for these test images. It must be a notice (a status
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-### N9. Other segmentation settings (optional: needs internet and 3 to 5 minutes)
+### N9. Other segmentation settings (optional: needs internet; the Cellpose run takes about 20 minutes or more on a computer without a graphics card)
 **Do:** set *Segmentation* = `threshold`, *Threshold method* = `li`, *Min area* = 80, run. Then set *Segmentation* = `cellpose`, run.
 
-**Expect:** the `li` run completes with `n_nuclei_reference` close to 425 (not 429) and `n_nuclei_query=9`. The Cellpose run is slow (it downloads a model the first time; the status line says so and the progress bar keeps moving); it completes with about 347 reference nuclei and a rotation near 12.17, or, if the download is blocked, shows a message `segmentation_unavailable ... the first run needs internet` instead of freezing. (InstanSeg is known not to find nuclei in these synthetic images; do not report that.)
+**Expect:** the `li` run completes with `n_nuclei_reference` close to 425 (not 429) and `n_nuclei_query=9`. The Cellpose run is slow (the status line says it is loading cellpose and the progress bar keeps moving; the first time it also downloads a model of about 1 GB); it completes with about 347 reference nuclei and a rotation near 12.17, or, if the download is blocked, shows a message `segmentation_unavailable ... the first run needs internet` instead of freezing. (InstanSeg is known not to find nuclei in these synthetic images; do not report that.)
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -316,7 +316,7 @@ The sentence tells you what is wrong without a programmer.
 ### N14. The second app: a table result
 **Do:** clear *or file* rows. Choose app `CellTracksColab`, tool `Calculate Track Metrics`. For *Tracks* press *Select file* and choose `testdata/tracks.csv`. Run.
 
-**Expect:** `✔ done ... table 'table' (2 rows)`. A table panel appears at the bottom with columns `Unique_ID`, `Track Duration`, `Mean Speed`, `Total Distance Traveled`, `Directionality`.
+**Expect:** `✔ done ... table 'table' (2 rows)`. A table panel appears at the bottom whose columns include `Unique_ID`, `Track Duration`, `Mean Speed`, `Total Distance Traveled`, `Directionality` (it also has the median, maximum, minimum and standard deviation of the speed).
 Switching between the two apps in the first drop-down works and shows the right tool each time.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
@@ -340,11 +340,12 @@ Switching between the two apps in the first drop-down works and shows the right 
 ## 6. Fiji
 
 ### F0. Install the plugin (once)
-**Option A, no build (use this):** copy the file `LabConstrictor.groovy` from
-https://github.com/CellMigrationLab/LabConstrictor-Fiji/blob/main/src/main/resources/org/cellmigrationlab/labconstrictor/LabConstrictor.groovy
-into `Fiji.app/scripts/Plugins/LabConstrictor/` (create the folders), then restart Fiji. In this mode the menu entry is the script's name, normally `Plugins > LabConstrictor > LabConstrictor`; write down the exact menu path you see.
+**Option A, no build (use this):** download the file `LabConstrictor_Tools.groovy` from
+https://github.com/CellMigrationLab/LabConstrictor-Fiji/blob/main/src/main/resources/org/cellmigrationlab/labconstrictor/LabConstrictor_Tools.groovy
+(button *Download raw file*; keep the name exactly, **the underscore matters**: Fiji lists a script in its menus only when its name contains one)
+and put it into the folder `scripts/Plugins/LabConstrictor/` inside your Fiji folder (create the two folders `scripts/Plugins` and `LabConstrictor` if they do not exist; the Fiji folder is called `Fiji.app` on macOS and Windows and `Fiji` on Linux), then restart Fiji. The menu entry is `Plugins > LabConstrictor > LabConstrictor Tools`; write down the exact menu path you see. (If you cannot find it in the menu, type `LabConstrictor` into Fiji's search bar at the top and press *Run*, and write that down as a failure of this test.)
 
-**Option B, jar (needed for the macro test F12; needs Java and Maven):** clone the Fiji repository, run `mvn package`, copy `target/labconstrictor-fiji-0.1.0.jar` into `Fiji.app/plugins/`, restart Fiji. The entry is `Plugins > LabConstrictor > LabConstrictor Tools...`.
+**Option B, jar (needed for the macro test F12; needs Java and Maven):** clone the Fiji repository, run `mvn package`, copy `target/labconstrictor-fiji-0.1.0.jar` into the `plugins` folder of your Fiji folder, restart Fiji. The entry is `Plugins > LabConstrictor > LabConstrictor Tools...`.
 
 **Expect:** after restart the menu entry exists. Do not install both options at the same time.
 
@@ -366,7 +367,7 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 ### F3. Run with defaults
 **Do:** set the pixel sizes to 0.65 (reference) and 0.325 (query) if they differ, leave everything else, press OK.
 
-**Expect:** a progress bar in Fiji's status line, then: a new image window **NucleiSky:query_aligned**, a window **Alignment overlay (green = reference, magenta = query)** showing a green field of nuclei with a small white/pink cluster where the query lies, and, in the **Log** window, a line `NucleiSky values: {rotation_deg=12.17..., ..., n_nuclei_reference=429, n_nuclei_query=9, matcher=quad}`.
+**Expect:** a progress bar in Fiji's status line, then: a new image window **NucleiSky:query_aligned**, a window **Alignment overlay (green = reference, magenta = query)** showing a green field of nuclei with a small white/pink cluster where the query lies, and, in the **Log** window, a line starting `NucleiSky values: [rotation_deg:12.17..., ...` that also contains `n_nuclei_reference:429`, `n_nuclei_query:9` and `matcher:quad` (the order of the entries may differ).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (numbers): ______________________________
 
@@ -394,21 +395,21 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 ### F7. Cancel
 **Do:** run again and press the **Esc** key while the progress bar is moving.
 
-**Expect:** the run stops within a few seconds, no result windows appear, the status line says `canceled`/`cancelled`, and the next run works.
+**Expect:** the run stops within a few seconds, no result windows appear, the Log window says `LabConstrictor: the run was cancelled` (Fiji's own status line may only say that the command finished), and the next run works.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### F8. An error you can understand
 **Do:** start the plugin with no image open, choose `testdata/fake.tif` as *Reference (or file)* and `query.tif` as the query; OK.
 
-**Expect:** a red error window titled `LabConstrictor: NucleiSky` saying `[unreadable_image] cannot read fake.tif: not a TIFF file ...` and naming the log file. No Java stack trace shown.
+**Expect:** an error window titled `LabConstrictor: NucleiSky` saying `[unreadable_image] cannot read fake.tif: not a TIFF file ...` and naming the log file. No Java stack trace shown.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### F9. CellTracksColab: a table result
-**Do:** start the plugin, choose `CellTracksColab`; the tool needs no further choice; in the file field *Tracks* choose `testdata/tracks.csv`; OK.
+**Do:** start the plugin, choose `CellTracksColab`; this tool has a single input, so Fiji shows only a plain *Choose a file* window instead of a form: choose `testdata/tracks.csv` in it.
 
-**Expect:** a window named **table** (Fiji Results table) with 2 rows and the columns `Unique_ID`, `Track Duration`, `Mean Speed`, `Total Distance Traveled`, `Directionality`.
+**Expect:** a window named **table** (Fiji Results table) with 2 rows whose columns include `Unique_ID`, `Track Duration`, `Mean Speed`, `Total Distance Traveled`, `Directionality`.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -417,7 +418,7 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 `<napari-env>/bin/python -m labconstrictor_tools register --name synthetic --prefix <napari-env> --module labconstrictor_tools.examples.synthetic`
 (Windows PowerShell: `& "<napari-env>\Scripts\python.exe" -m labconstrictor_tools register --name synthetic --prefix "<napari-env>" --module labconstrictor_tools.examples.synthetic`). In Fiji open `testdata/ns/query.tif`. Start the plugin, choose application `synthetic`, tool `Image stats`, OK. Then start the plugin **again** and run `Image stats` a second time with the image still open.
 
-**Expect:** both runs show the same dialog (with the open image selected) and print `synthetic values: {shape=..., dtype=..., mean=...}` in the Log window.
+**Expect:** both runs show the same dialog (with the open image selected) and print a line `synthetic values: [shape:[520, 520], dtype:uint16, mean:...]` (the order may differ) in the Log window.
 **Mark FAIL** if the second run shows only a bare *Choose a file* prompt instead of the dialog, and describe exactly what you did (this is a known, unexplained problem; your observation is what we need).
 Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister --name synthetic` (Windows: the same with `& "<napari-env>\Scripts\python.exe"`).
 
@@ -499,7 +500,7 @@ Run `doctor` and `list` with **NucleiSky's** Python (see "Which Python"). Start 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### U2. Uninstall one app
-**Do:** first close Napari and Fiji and check in the process list that no CellTracksColab worker is running (on Windows a running worker locks files). Then uninstall CellTracksColab with its normal uninstaller (Windows: *Apps & features*; Linux/macOS: the uninstall script described on the app's download page). Then run `list` (NucleiSky's Python) and reopen Napari and Fiji only now: look at Napari (press *Rescan apps*) and Fiji (restart the plugin).
+**Do:** first close Napari and Fiji and check in the process list that no CellTracksColab worker is running (on Windows a running worker locks files). Then uninstall CellTracksColab with its normal uninstaller (Windows: *Apps & features*; Linux/macOS: run `bash <PREFIX>/uninstall.sh`, where `<PREFIX>` is the folder you installed into). Then run `list` (NucleiSky's Python) and reopen Napari and Fiji only now: look at Napari (press *Rescan apps*) and Fiji (restart the plugin).
 
 **Expect:** `CellTracksColab` is gone from all three; `NucleiSky` is still listed and still runs. `~/.labconstrictor/apps` no longer contains `CellTracksColab.json`.
 

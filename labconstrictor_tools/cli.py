@@ -141,6 +141,11 @@ def cmd_run(args: argparse.Namespace) -> int:
     except KeyboardInterrupt:  # Ctrl-C: the worker is closed by run_once's context manager; no traceback
         print("✖ interrupted; the worker was asked to stop", file=sys.stderr)
         return 130
+    if task.status != "COMPLETE" and not args.out:
+        try:
+            Path(inputs["_job_dir"]).rmdir()  # only if it is empty: nothing was produced, nothing to keep
+        except OSError:
+            pass
     report = {"status": task.status, "seconds": round(time.time() - started, 2)}
     if task.record_dir:
         report["run_record"] = str(task.record_dir / "run.json")
