@@ -8,6 +8,7 @@ Used by people     : list | run | check | test | doctor     (see cli.py)
 import argparse
 import importlib
 import json
+import os
 import sys
 
 
@@ -108,6 +109,19 @@ def _tolerant_streams():
 
 
 def main(argv: list[str] | None = None) -> int:
+    try:
+        return _main(argv)
+    except BrokenPipeError:
+        # whoever reads our output (`| head`, a pager that was quit) went away: that is not an error worth a traceback.
+        # stdout is pointed at the null device so that the flush at interpreter exit cannot fail a second time.
+        try:
+            os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        except (OSError, ValueError, AttributeError):
+            pass
+        return 0
+
+
+def _main(argv: list[str] | None = None) -> int:
     _tolerant_streams()
     args = build_parser().parse_args(argv)
     if args.command == "describe":

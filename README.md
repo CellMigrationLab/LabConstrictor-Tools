@@ -31,7 +31,8 @@ The contract between them is the schema and the worker protocol only ([docs/PROT
 [docs/REPOSITORIES.md](docs/REPOSITORIES.md)).
 
 ## Install
-    pip install labconstrictor-tools                 # (not on PyPI yet) pip install git+https://github.com/CellMigrationLab/LabConstrictor-Tools
+    pip install labconstrictor-tools                 # once it is on PyPI; until then:
+    pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip   # no git needed
 
 ## For app authors
     labconstrictor-tools init myapp_lc_tools.py      # starter declaration module

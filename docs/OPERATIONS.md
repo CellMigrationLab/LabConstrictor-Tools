@@ -2,7 +2,7 @@
 
 ## Install
 * Each app environment needs `labconstrictor-tools` (standard library only, no dependencies).
-* Napari (nothing is on PyPI yet): `pip install git+https://github.com/CellMigrationLab/LabConstrictor-Tools git+https://github.com/CellMigrationLab/napari-labconstrictor` in the napari environment. Plugins > LabConstrictor tools.
+* Napari (nothing is on PyPI yet): `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip https://github.com/CellMigrationLab/napari-labconstrictor/archive/refs/heads/main.zip` in the napari environment (source archives: no `git` program needed; `git+https://github.com/...` works too if you have git). Plugins > LabConstrictor tools.
 * Fiji (no release or update site yet): either copy `LabConstrictor.groovy` from the Fiji repository to `Fiji.app/scripts/Plugins/LabConstrictor/` (no build), or build the jar with `mvn package` and copy `target/labconstrictor-fiji-<version>.jar` to `Fiji.app/plugins/`, then restart: Plugins > LabConstrictor > LabConstrictor Tools... (jar) or Plugins > LabConstrictor > LabConstrictor (script). The macro recorder needs the jar.
 * Fiji and Napari never import an app's packages, so apps with conflicting dependencies can coexist.
 
