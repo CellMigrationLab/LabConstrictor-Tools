@@ -171,11 +171,15 @@ class Arguments(PrivateHome):
 class FailedRunLeavesNoEmptyFolder(PrivateHome):
     def test_a_failed_run_does_not_leave_an_empty_results_folder(self):
         register(self.home, "synthetic")
-        done = cli("run", "synthetic", "image_stats", "image=/nonexistent/none.tif", "--no-record", home=self.home)
+        done = cli(
+            "run", "synthetic", "image_stats", "image=/nonexistent/none.tif", "--no-record", home=self.home
+        )
         self.assertIn('"status": "FAILED"', done.stdout)
         results = self.home / "results"
         self.assertEqual(list(results.iterdir()) if results.exists() else [], [])
-        ok = cli("run", "synthetic", "scalar_echo", "a=1", "b=2", "--no-record", home=self.home)  # a good run keeps its folder
+        ok = cli(
+            "run", "synthetic", "scalar_echo", "a=1", "b=2", "--no-record", home=self.home
+        )  # a good run keeps its folder
         self.assertIn('"status": "COMPLETE"', ok.stdout)
         self.assertEqual(len(list(results.iterdir())), 1)
 

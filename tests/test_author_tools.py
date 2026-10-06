@@ -76,7 +76,9 @@ class TestCommand(unittest.TestCase):
             "test", "--module", "tools", "--pythonpath", str(V3 / "tests/broken_app"),
             "--only", "deaf", "--check-cancel", "--timeout", "40",
         )  # fmt: skip
-        self.assertEqual(code, 1, out)  # --check-cancel asked for a verdict: a tool that ignores Cancel fails it
+        self.assertEqual(
+            code, 1, out
+        )  # --check-cancel asked for a verdict: a tool that ignores Cancel fails it
         self.assertIn("ignored a cancel request", out)
 
     def test_samples_feed_required_inputs(self):
