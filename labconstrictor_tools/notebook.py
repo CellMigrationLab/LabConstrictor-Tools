@@ -107,7 +107,7 @@ class ToolForm:
         runtime.install(progress=self._on_progress, cancelled=lambda: False)
         self.results = None
         try:
-            kwargs = convert.load_inputs(self.schema, self.values())
+            kwargs = convert.load_inputs(self.schema, self.values(), self.function)
             returned = self.function(**kwargs)
             self.results = convert.build_results(self.schema, returned, tempfile.mkdtemp(prefix="lcnb_"))
             self.status.value = "✔ done"
