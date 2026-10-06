@@ -14,6 +14,7 @@ interpreter that runs them (needs `pip install -e ".[test]"`).
 | test_author_tools | `%%lc_tool`, `export-notebook`, `labconstrictor-tools test` |
 | test_regressions_run2 | worker pipes closed, `--pythonpath` precedence, damaged TIFF, nullable/folder/group/advanced/enabled_when in the schema, host cwd not on the worker's path, root prefix refused, CLI results folder pruned |
 | test_hardening | NaN/inf rejected, strict-JSON results, registry priority and trust, unsafe app names, skipped-app explanations, message after a forced kill on Cancel |
+| test_convert_hardening | dtype narrowing never changes values, invalid defaults refused, strict booleans/choices, enums restored, empty images refused |
 | test_logging | failures are explained and logged; `support-bundle` |
 | windows/test_windows.py | the same layer on Windows: `python tests/windows/test_windows.py` (also run under Wine via run_suite.sh) |
 

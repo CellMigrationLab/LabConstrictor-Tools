@@ -141,7 +141,7 @@ class Worker:
     def _execute(self, tool_id, inputs, job_dir, cancel):
         schema = self.schemas[tool_id]
         t0 = time.perf_counter()
-        kwargs = convert.load_inputs(schema, inputs)
+        kwargs = convert.load_inputs(schema, inputs, self.tools[tool_id].fn)
         t1 = time.perf_counter()
         returned = self.tools[tool_id].fn(**kwargs)
         t2 = time.perf_counter()

@@ -2,6 +2,7 @@
 
 import enum
 import inspect
+import math
 import re
 from typing import Annotated, Literal, Union, get_args, get_origin, get_type_hints
 
@@ -66,6 +67,25 @@ def _m(meta, cls):
     return None
 
 
+def _check_default(name, d):
+    """A default is passed to the tool as it is: it must be valid for the declared type (a host cannot be expected to catch it)."""
+    if "default" not in d:
+        return
+    value, kind = d["default"], d["type"]
+    ok = {
+        "integer": lambda v: isinstance(v, int) and not isinstance(v, bool),
+        "float": lambda v: isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v),
+        "string": lambda v: isinstance(v, str),
+        "boolean": lambda v: isinstance(v, bool),
+        "choice": lambda v: any(type(v) is type(c) and v == c for c in d["choices"]),
+    }.get(kind)
+    if ok and not ok(value):
+        raise DeclarationError(
+            "parameter %r: default %r is not a valid %s%s"
+            % (name, value, kind, " (choices %s)" % d["choices"] if kind == "choice" else "")
+        )
+
+
 def _param(name, p, hint, argdoc):
     base, meta, optional = _unwrap(hint)
     d = {
@@ -73,6 +93,11 @@ def _param(name, p, hint, argdoc):
         "label": (_m(meta, T.Label).value if _m(meta, T.Label) else name.replace("_", " ").capitalize()),
     }
     has_default = p.default is not inspect.Parameter.empty
+    if optional and has_default and p.default is not None:
+        raise DeclarationError(
+            "parameter %r: Optional[...] with the default %r cannot be expressed (a host can only leave it at its default "
+            "or unset). Use `= None` for 'unset', or drop Optional" % (name, p.default)
+        )
     d["required"] = not (has_default or optional)
     if has_default and p.default is not None:
         d["default"] = p.default.value if isinstance(p.default, enum.Enum) else p.default
@@ -97,6 +122,7 @@ def _param(name, p, hint, argdoc):
         d["type"] = "file"
     else:
         raise DeclarationError("parameter %r: unsupported annotation %r" % (name, hint))
+    _check_default(name, d)
     if d["type"] in ("integer", "float"):
         for key, cls in (("minimum", T.Min), ("maximum", T.Max)):
             if _m(meta, cls):
