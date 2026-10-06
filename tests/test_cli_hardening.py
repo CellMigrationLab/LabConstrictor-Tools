@@ -6,6 +6,7 @@ import io
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -118,6 +119,22 @@ class ResultsFolders(PrivateHome):
         folder = lc_cli._new_results_dir("../../app", "../../../outside")
         self.assertEqual(folder.resolve().parent, (self.home / "results").resolve())
         self.assertNotIn("/", folder.name)
+
+
+class ClosedPipe(PrivateHome):
+    def test_output_to_a_reader_that_went_away_is_not_a_traceback(self):
+        """`list | head`, or a pager that was quit: the command ends quietly."""
+        register(self.home, "synthetic")
+        read_end, write_end = os.pipe()
+        os.close(read_end)  # nobody reads: every write fails with EPIPE
+        done = subprocess.run(
+            [sys.executable, "-c", "import sys; from labconstrictor_tools.__main__ import main; sys.exit(main(['list']))"],
+            stdout=write_end, stderr=subprocess.PIPE, text=True,
+            env={**os.environ, "LC_HOME": str(self.home), "LC_APPS_PATH": "", "PYTHONPATH": str(_paths.ROOT)},
+        )  # fmt: skip
+        os.close(write_end)
+        self.assertEqual(done.stderr, "")
+        self.assertEqual(done.returncode, 0)
 
 
 class Arguments(PrivateHome):

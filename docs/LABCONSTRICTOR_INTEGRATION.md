@@ -12,9 +12,11 @@ The Linux (`.sh`) hooks were run inside real installers built with `constructor`
 ## `post_install.sh` / `post_install.bat` (after the app's own `pip install`)
 1. Looks for `<package>_lc_tools` in the app's Python (`importlib.util.find_spec`); the `.sh` also requires the bundled `setup.py`.
 2. Reads the app version from the top-level `version:` line of the bundled `construct.yaml` (quotes removed; `0` if missing).
-3. Installs `labconstrictor-tools`: `pip install "${LC_TOOLS_SPEC:-labconstrictor-tools}"`. `LC_TOOLS_SPEC` may be a wheel, a git URL
-   (for example `git+https://github.com/CellMigrationLab/LabConstrictor-Tools@main`) or a mirror. The package is not on PyPI yet, so without
-   `LC_TOOLS_SPEC` this step fails and registration is skipped.
+3. Installs `labconstrictor-tools`: `pip install "${LC_TOOLS_SPEC:-https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip}"`. The default is the GitHub source archive of the package
+   (a plain zip: the user's computer needs internet access at that moment but no `git`), because the package is not on PyPI yet; once it is,
+   the default becomes `labconstrictor-tools`. `LC_TOOLS_SPEC` overrides it: a wheel, a git URL (for example
+   `git+https://github.com/CellMigrationLab/LabConstrictor-Tools@main`), a mirror. If this step fails (no internet, unreachable source) the
+   installation still finishes, registration is skipped and `menuinst_debug.log` says `WARNING: tool registration failed`.
 4. Runs `python -m labconstrictor_tools register --name <App> --prefix <prefix> --module <package>_lc_tools --version <version> --display-name <App>`.
    (No `--pythonpath`: the module is installed in the app's environment.)
 5. Writes to `menuinst_debug.log`: `Found <package>_lc_tools: registering ...`; then on success (`.sh`) `Tools registered (labconstrictor-tools list shows them).`

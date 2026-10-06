@@ -111,7 +111,7 @@ curl.exe -L -o tracks.csv https://raw.githubusercontent.com/CellMigrationLab/Cel
 **Write down the full path of this `testdata` folder** (in the terminal: `pwd` on Linux/macOS, `Get-Location` in PowerShell). From here on,
 **`<TESTDATA>` means that exact folder**, for example `/home/anna/testdata` or `C:\Users\Anna\testdata`; `testdata/ns/reference.tif` means `<TESTDATA>/ns/reference.tif`.
 
-**Expect:** the folder `ns` contains `reference.tif` (5.1 MB), `query.tif` (0.5 MB), `reference_mask.tif`, `query_mask.tif`, `ground_truth.json`; the last line printed by the generator is `ok (1600, 1600) (520, 520)`.
+**Expect:** the folder `ns` contains `reference.tif` (5.1 MB), `query.tif` (0.5 MB), `reference_mask.tif`, `query_mask.tif`, `ground_truth.json`, plus a few more masks used only by the project's own automated tests (`*_binary.tif`, `*_fractions.tif`: ignore them); the last line printed by the generator is `ok (1600, 1600) (520, 520)`.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -129,7 +129,7 @@ The file `<PREFIX_NS>/menuinst_debug.log` exists and its last line is `Post-inst
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### S2. The tools were registered during installation
-**Do:** open `menuinst_debug.log` of NucleiSky and search for `lc_tools`.
+**Do:** open `menuinst_debug.log` of NucleiSky and search for `lc_tools`. (During installation the installer downloads the small *labconstrictor-tools* package from GitHub, so the computer needs internet access at that moment; the log shows `Successfully installed labconstrictor-tools-...`.)
 * Linux/macOS: expect the lines `Found nucleisky_lc_tools: registering the tools of NucleiSky for Napari and Fiji` and
   `Tools registered (labconstrictor-tools list shows them).` There must be **no** line starting with `WARNING: tool registration failed`.
 * Windows: expect the line `Found nucleisky_lc_tools: registering ...`, followed by a block of text that contains `"schema_path"`,
@@ -166,7 +166,7 @@ The last lines name the registry folder and the log file location.
 ### S5. Nothing unexpected was installed or written
 **Do:** look in your home folder.
 
-**Expect:** the only new LabConstrictor folder is `.labconstrictor` (registry, logs, runs). No error dialogs appeared during installation. Installation did not require administrator rights unless you chose a protected folder.
+**Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer itself may also create menu entries (on Linux under `~/.local/share/applications` and `~/.local/share/desktop-directories`) and conda's own folders (`~/.conda`, `~/.cache`, `~/.config`): that is normal and not a failure. No error dialogs appeared during installation. Installation did not require administrator rights unless you chose a protected folder.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -202,9 +202,11 @@ PowerShell: `.\napari-env\Scripts\Activate.ps1`, or with cmd.exe: `napari-env\Sc
 ```
 python -m venv napari-env
 source napari-env/bin/activate
-pip install "napari[pyqt5]" git+https://github.com/CellMigrationLab/LabConstrictor-Tools git+https://github.com/CellMigrationLab/napari-labconstrictor
+pip install "napari[pyqt5]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip https://github.com/CellMigrationLab/napari-labconstrictor/archive/refs/heads/main.zip
 napari
 ```
+(The two long web addresses are the project's source archives: pip downloads them like any package, no `git` program is needed.)
+
 **Expect:** Napari opens. `Plugins` menu contains **LabConstrictor tools** (listed as `LabConstrictor tools (napari-labconstrictor)`, or in a submenu `napari-labconstrictor`). A one-time notice about the PyQt5 backend is normal.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
