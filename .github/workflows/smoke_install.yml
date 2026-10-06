@@ -123,7 +123,13 @@ jobs:
       - name: The hook registered the app
         shell: bash
         run: |
-          grep -q "Tools registered" "$HOME/ctc/menuinst_debug.log" && echo "Tools registered: found" || { echo "FAIL: 'Tools registered' is not in menuinst_debug.log"; exit 1; }
+          LOG="$HOME/ctc/menuinst_debug.log"
+          ! grep -q "WARNING: tool registration failed" "$LOG" || { echo "FAIL: the hook reported 'tool registration failed'"; exit 1; }
+          grep -q "Found celltracks_lc_tools: registering" "$LOG" || { echo "FAIL: 'Found celltracks_lc_tools: registering' is not in menuinst_debug.log"; exit 1; }
+          if [ "$RUNNER_OS" != "Windows" ]; then  # only the .sh hook prints this line (the protocol says so)
+            grep -q "Tools registered" "$LOG" || { echo "FAIL: 'Tools registered' is not in menuinst_debug.log"; exit 1; }
+          fi
+          echo "registration lines found"
 
       - name: Bridge smoke test (Linux/macOS)
         if: runner.os != 'Windows'
