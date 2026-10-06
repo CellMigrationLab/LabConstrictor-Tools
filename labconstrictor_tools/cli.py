@@ -17,8 +17,10 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 from . import log, registry
+from .structures import ParamSchema, ToolSchema
 
 HEAVY_MODULES = (
     "numpy",
@@ -34,7 +36,7 @@ HEAVY_MODULES = (
 
 
 # ---------------------------------------------------------------- list
-def cmd_list(args):
+def cmd_list(args: argparse.Namespace) -> int:
     schemas, problems = registry.load_schemas()
     if args.json:
         print(json.dumps({"apps": schemas, "problems": problems}, indent=2))
@@ -56,7 +58,7 @@ def _find_tool(schema, wanted):
     raise SystemExit("no such tool %r; available: %s" % (wanted, ", ".join(t["id"] for t in schema["tools"])))
 
 
-def usage(app, tool):
+def usage(app: str, tool: ToolSchema) -> str:
     lines = [
         "%s %s: %s" % (app, tool["id"], tool.get("description", tool["label"])),
         "  parameters (name=value):",
@@ -76,7 +78,7 @@ def usage(app, tool):
     return "\n".join(lines)
 
 
-def parse_value(param, text):
+def parse_value(param: ParamSchema, text: str) -> Any:
     kind = param["type"]
     try:
         if kind == "integer":
@@ -92,7 +94,7 @@ def parse_value(param, text):
     return text  # image/labels/table/file: a path; string/choice: as is (the worker validates choices)
 
 
-def cmd_run(args):
+def cmd_run(args: argparse.Namespace) -> int:
     from . import client
 
     schemas, problems = registry.load_schemas()
@@ -132,7 +134,7 @@ def cmd_run(args):
         print("✖ interrupted; the worker was asked to stop", file=sys.stderr)
         return 130
     report = {"status": task.status, "seconds": round(time.time() - started, 2)}
-    if getattr(task, "record_dir", None):
+    if task.record_dir:
         report["run_record"] = str(task.record_dir / "run.json")
     if task.status == "COMPLETE":
         report["results"] = task.outputs["results"]
@@ -169,7 +171,7 @@ def _print_progress(message, fraction):
 
 
 # ---------------------------------------------------------------- check (for authors)
-def cmd_check(args):
+def cmd_check(args: argparse.Namespace) -> int:
     from .decorators import tools_in
     from .introspection import DeclarationError, describe_tools
 
@@ -212,7 +214,7 @@ def cmd_check(args):
 
 
 # ---------------------------------------------------------------- test (for authors)
-def cmd_test(args):
+def cmd_test(args: argparse.Namespace) -> int:
     from . import testing
 
     samples = {}
@@ -239,7 +241,7 @@ def cmd_test(args):
     return 1 if any(r["problems"] for r in reports) or not reports else 0
 
 
-def cmd_export_notebook(args):
+def cmd_export_notebook(args: argparse.Namespace) -> int:
     from . import exporter
 
     cells, errors = exporter.export_notebook(args.notebook, args.out)
@@ -272,7 +274,7 @@ def _strip(schema):
     return {k: v for k, v in schema.items() if k not in ("application", "version")}
 
 
-def diagnose():
+def diagnose() -> list[tuple[str, str, str]]:
     """-> list of (app, level, message); level in ok / warning / error."""
     entries, problems = registry.load_entries()
     findings = [(name, "error", reason) for name, reason in problems]
@@ -316,7 +318,7 @@ def diagnose():
     return findings
 
 
-def cmd_doctor(args):
+def cmd_doctor(args: argparse.Namespace) -> int:
     findings = diagnose()
     if args.json:
         print(json.dumps([{"app": a, "level": level, "message": m} for a, level, m in findings], indent=2))
@@ -330,7 +332,7 @@ def cmd_doctor(args):
 
 
 # ---------------------------------------------------------------- logs and bug reports
-def cmd_logs(args):
+def cmd_logs(args: argparse.Namespace) -> int:
     if args.path:
         print(log.log_path())
         return 0
@@ -342,7 +344,7 @@ def cmd_logs(args):
     return 0
 
 
-def cmd_support_bundle(args):
+def cmd_support_bundle(args: argparse.Namespace) -> int:
     """One zip with everything needed to debug a problem from afar: logs, registry entries, recent run records, versions."""
     import io
     import zipfile
@@ -426,7 +428,7 @@ def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
 '''
 
 
-def cmd_init(args):
+def cmd_init(args: argparse.Namespace) -> int:
     target = Path(args.path)
     if target.exists():
         raise SystemExit("%s already exists; not overwriting" % target)

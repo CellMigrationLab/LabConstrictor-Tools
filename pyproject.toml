@@ -37,3 +37,8 @@ ignore = ["E501", "UP031", "UP032", "B905"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["E402", "B007"]   # test scripts set up sys.path / env before importing
+
+[tool.mypy]
+# the example app uses the semantic marker types (Image, ...) as annotations on purpose
+ignore_missing_imports = true
+exclude = ["labconstrictor_tools/examples/"]

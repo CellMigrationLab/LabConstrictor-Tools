@@ -8,13 +8,15 @@ numpy/pandas/tifffile are imported lazily, only when a tool actually uses those 
 
 import math
 from pathlib import Path
+from typing import Any
 
+from .structures import Result, ToolSchema
 from .types import ToolError
 
 DEFAULT_AXES = {2: "YX", 3: "ZYX", 4: "CZYX"}
 
 
-def load_inputs(schema, inputs):
+def load_inputs(schema: ToolSchema, inputs: dict[str, Any]) -> dict[str, Any]:
     """Validate `inputs` against the tool schema and return keyword arguments for the tool function."""
     kwargs = {}
     for param in schema["inputs"]:
@@ -128,7 +130,7 @@ def _ndarray_from_shared_memory(descriptor):
         shm.close()
 
 
-def build_results(schema, returned, job_dir):
+def build_results(schema: ToolSchema, returned: Any, job_dir: str | Path) -> list[Result]:
     """Turn the tool's return value into the list of typed results declared by the schema."""
     outputs = schema["outputs"]
     values = [returned] if len(outputs) == 1 else list(returned or [])
@@ -190,7 +192,7 @@ def _as_3x3(matrix):
     return m.tolist()
 
 
-def portable_dtype(array):
+def portable_dtype(array: Any) -> Any:
     """Cast to a dtype every host can open (ImageJ's TIFF reader has no float64, int64, uint32/64, bool or int8)."""
     import numpy as np
 

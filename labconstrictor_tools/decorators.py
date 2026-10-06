@@ -1,14 +1,17 @@
 """@tool registration. Registration only records the function; nothing scientific runs or is imported."""
 
-_REGISTRY = {}
+from collections.abc import Callable
+from typing import Any
+
+_REGISTRY: dict[str, "Tool"] = {}
 
 
 class Tool:
-    def __init__(self, fn, id, label):
+    def __init__(self, fn: Callable[..., Any], id: str, label: str) -> None:
         self.fn, self.id, self.label, self.module = fn, id, label, fn.__module__
 
 
-def tool(label=None, *, id=None):
+def tool(label: str | Callable[..., Any] | None = None, *, id: str | None = None) -> Any:
     """@tool("Calculate Track Metrics")   or   @tool()   (label defaults to the function name)."""
     if callable(label) and id is None:  # bare @tool
         fn, label = label, None
@@ -33,15 +36,15 @@ def _register(fn, label, id):
     return fn
 
 
-def tools_in(module_name=None):
+def tools_in(module_name: str | None = None) -> list[Tool]:
     return [t for t in _REGISTRY.values() if module_name is None or t.module == module_name]
 
 
-def clear():
+def clear() -> None:
     _REGISTRY.clear()
 
 
-def forget_module(module_name):
+def forget_module(module_name: str) -> None:
     """Drop the registrations of one module (temporary modules created while checking notebook cells)."""
     for tid in [t.id for t in tools_in(module_name)]:
         del _REGISTRY[tid]

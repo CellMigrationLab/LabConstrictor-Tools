@@ -1,5 +1,7 @@
 """Semantic types + metadata markers for tool declarations. Pure stdlib; no scientific imports."""
 
+from typing import Any
+
 
 # ---- semantic input types (what the tool function RECEIVES: Image->ndarray, Table->DataFrame, File->Path)
 class Image:
@@ -60,10 +62,10 @@ OUTPUT_TYPES = {
 
 # ---- metadata markers (use inside typing.Annotated[...])
 class _Marker:
-    def __init__(self, value):
+    def __init__(self, value: Any) -> None:
         self.value = value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "%s(%r)" % (type(self).__name__, self.value)
 
 
@@ -94,7 +96,7 @@ class Group(_Marker):
 class Advanced(_Marker):
     "listed under 'Advanced settings' (collapsed by default in hosts that can); use Advanced() without an argument"
 
-    def __init__(self, value=True):
+    def __init__(self, value: bool = True) -> None:
         super().__init__(bool(value))
 
 
@@ -104,10 +106,10 @@ class EnabledWhen:
     (Fiji cannot do that dynamically and shows it always); the tool must therefore still accept the parameter when it is not enabled.
     """
 
-    def __init__(self, param, *equals):
+    def __init__(self, param: str, *equals: Any) -> None:
         self.param, self.equals = param, list(equals)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "EnabledWhen(%r%s)" % (self.param, "".join(", %r" % (e,) for e in self.equals))
 
 
@@ -126,17 +128,17 @@ class PixelSizeOf(_Marker):
 class ApplyTo:
     """Output hint for Affine: apply this transform to image parameter `source` (optionally shown on top of `target`)."""
 
-    def __init__(self, source, target=None):
+    def __init__(self, source: str, target: str | None = None) -> None:
         self.source, self.target = source, target
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "ApplyTo(%r,%r)" % (self.source, self.target)
 
 
 class ToolError(Exception):
     """Raise from a tool to return a structured, user-readable error: ToolError('no_match', 'message')."""
 
-    def __init__(self, code, message):
+    def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code, self.message = code, message
 

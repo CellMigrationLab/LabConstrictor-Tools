@@ -7,26 +7,31 @@ file *paths* and parameter values you passed, never image or table contents.
 import json
 import re
 import shutil
+from collections.abc import Mapping
 from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
 
-from . import registry
+from . import log, registry
 from .protocol import JOB_DIR_KEY
 
 KEEP = 50
 STDERR_TAIL_CHARS = 4000
 
 
-def runs_dir():
+def runs_dir() -> Path:
     return registry.home() / "runs"
 
 
-def record(app, tool_id, inputs, task, seconds, stderr=""):
+def record(
+    app: str, tool_id: str, inputs: dict[str, Any], task: Any, seconds: float, stderr: str = ""
+) -> Path | None:
     """Write the record of one finished task; returns the record folder. Never raises (a log must not break a run)."""
     try:
         started = datetime.now(timezone.utc)
         folder = runs_dir() / ("%s_%s_%s" % (started.strftime("%Y%m%dT%H%M%S%f"), _safe(app), _safe(tool_id)))
         folder.mkdir(parents=True, exist_ok=True)
-        entry = registry.load_all().get(app, {})
+        entry: Mapping[str, Any] = registry.load_all().get(app) or {}
         content = {
             "app": app,
             "app_version": entry.get("version"),
@@ -50,7 +55,12 @@ def record(app, tool_id, inputs, task, seconds, stderr=""):
         (folder / "run.json").write_text(json.dumps(content, indent=2, default=str), encoding="utf-8")
         _prune()
         return folder
-    except Exception:  # noqa: BLE001
+    except (
+        Exception
+    ) as error:  # noqa: BLE001 - a record must never break a run, but its absence must be visible
+        log.warning(
+            "could not write the run record for %s %s: %s: %s", app, tool_id, type(error).__name__, error
+        )
         return None
 
 

@@ -1,0 +1,83 @@
+"""Typed shapes of the JSON documents that cross process boundaries: the schema hosts read, the registry entry hosts trust,
+and what a worker sends back. They are plain dicts at run time (they come from JSON); the types document the contract
+(docs/PROTOCOL.md) and let a type checker catch a misspelled key."""
+
+from typing import Any, TypedDict
+
+
+class RegistryEntry(TypedDict):
+    """`<registry>/<name>.json`, written by `register`."""
+
+    schema: int
+    name: str
+    display_name: str
+    version: str
+    prefix: str
+    python: str
+    module: str
+    pythonpath: list[str]
+    runtime_path: str
+    schema_path: str
+
+
+class _ParamRequired(TypedDict):
+    name: str
+    label: str
+    type: str
+    required: bool
+
+
+class ParamSchema(_ParamRequired, total=False):
+    """One input of a tool. `type` is one of: string integer float boolean choice image labels table file folder."""
+
+    default: Any
+    description: str
+    choices: list[Any]
+    minimum: float
+    maximum: float
+    unit: str
+    axes: str
+    pixel_size_of: str
+    nullable: bool
+    group: str
+    advanced: bool
+    enabled_when: dict[str, Any]
+
+
+class _OutputRequired(TypedDict):
+    name: str
+    type: str
+
+
+class OutputSchema(_OutputRequired, total=False):
+    """One output of a tool. `type` is one of: image labels table values affine file."""
+
+    axes: str
+    display: dict[str, str]
+
+
+class _ToolRequired(TypedDict):
+    id: str
+    label: str
+    inputs: list[ParamSchema]
+    outputs: list[OutputSchema]
+
+
+class ToolSchema(_ToolRequired, total=False):
+    description: str
+
+
+class _AppRequired(TypedDict):
+    protocol: int
+    tools: list[ToolSchema]
+
+
+class AppSchema(_AppRequired, total=False):
+    """`<registry>/<name>.schema.json`: everything a host needs to build forms without starting Python."""
+
+    application: str
+    version: str
+
+
+# a result as the worker reports it: {"type": ..., "name": ..., plus "path" / "values" / "matrix_yx" ...}
+Result = dict[str, Any]

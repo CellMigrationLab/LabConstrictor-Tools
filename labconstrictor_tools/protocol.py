@@ -12,13 +12,15 @@ import math
 import os
 import sys
 import threading
+from collections.abc import Iterator
+from typing import Any
 
 TOOL_PREFIX = "lc:"
 JOB_DIR_KEY = "_job_dir"  # reserved input: host-owned directory for outputs
 TERMINAL = ("COMPLETION", "FAILURE", "CANCELATION")
 
 
-def tool_id_from_script(script):
+def tool_id_from_script(script: str) -> str | None:
     """`lc:<id>` -> `<id>`; anything else (e.g. Python source) -> None."""
     return script[len(TOOL_PREFIX) :] if script.startswith(TOOL_PREFIX) else None
 
@@ -42,7 +44,7 @@ class Channel:
         sys.stdout = sys.stderr
         self._lock = threading.Lock()
 
-    def send(self, task, response_type, **fields):
+    def send(self, task: str, response_type: str, **fields: Any) -> None:
         message = {"task": task, "responseType": response_type, **fields}
         try:
             line = json.dumps(
@@ -58,7 +60,7 @@ class Channel:
                 pass  # the host is gone: nobody to tell
 
     @staticmethod
-    def read_requests():
+    def read_requests() -> Iterator[dict[str, Any]]:
         """Yield parsed request dicts from stdin until EOF; malformed lines are skipped."""
         for line in _stdin_lines():
             line = line.strip()
@@ -67,11 +69,20 @@ class Channel:
             try:
                 request = json.loads(line)
             except ValueError:
+                print(
+                    "LabConstrictor worker: ignoring a request line that is not JSON: %.200r" % line,
+                    file=sys.stderr,
+                    flush=True,
+                )
                 continue
-            if isinstance(
-                request, dict
-            ):  # a list/number/null line must not kill the reader thread (the worker would go deaf)
-                yield request
+            if not isinstance(request, dict):
+                print(
+                    "LabConstrictor worker: ignoring a request that is not an object: %.200r" % line,
+                    file=sys.stderr,
+                    flush=True,
+                )
+                continue
+            yield request  # (a list/number/null line was skipped above: it must not kill the reader thread)
 
 
 def _stdin_lines():

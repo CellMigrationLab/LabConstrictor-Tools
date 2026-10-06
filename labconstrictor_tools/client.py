@@ -15,9 +15,15 @@ import sys
 import threading
 import time
 import uuid
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
+from typing import Any
 
 from . import log, registry
+
+ProgressCallback = Callable[
+    [str, float | None], None
+]  # (message, fraction 0..1 or None) as the worker reports it
 
 _SCRUBBED_ENV = ("PYTHONHOME", "VIRTUAL_ENV", "CONDA_PREFIX", "QT_PLUGIN_PATH", "PYTHONPATH")
 _STATUS_BY_RESPONSE = {
@@ -42,13 +48,13 @@ class _Tail:
     def __init__(self):
         self._lines, self._chars = collections.deque(), 0
 
-    def append(self, line):
+    def append(self, line: str) -> None:
         self._lines.append(line)
         self._chars += len(line)
         while self._chars > self.LIMIT and len(self._lines) > 1:
             self._chars -= len(self._lines.popleft())
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return iter(list(self._lines))
 
 
@@ -59,7 +65,14 @@ class WorkerStartError(RuntimeError):
 class WorkerProcess:
     """One worker subprocess running in the app's own interpreter. Reusable for several tasks."""
 
-    def __init__(self, app=None, *, module=None, pythonpath=(), python=None):
+    def __init__(
+        self,
+        app: str | None = None,
+        *,
+        module: str | None = None,
+        pythonpath: Sequence[str] = (),
+        python: str | None = None,
+    ) -> None:
         """`app`: a registered app. Without it, start `module` directly (authors testing before registering)."""
         if app is not None:
             self.entry = self._entry_for(app)
@@ -119,7 +132,7 @@ class WorkerProcess:
             self.entry["module"],
             env["PYTHONPATH"],
         )
-        self.tasks = {}
+        self.tasks: dict[str, Task] = {}
         self.stderr = _Tail()
         threading.Thread(target=self._read_responses, daemon=True).start()
         self._stderr_thread = threading.Thread(target=self._read_stderr, daemon=True)
@@ -141,16 +154,16 @@ class WorkerProcess:
         raise WorkerStartError(text + " (details in %s)" % log.log_path())
 
     @property
-    def alive(self):
+    def alive(self) -> bool:
         return self.proc.poll() is None
 
-    def __enter__(self):
+    def __enter__(self) -> "WorkerProcess":
         return self
 
-    def __exit__(self, *exc):
+    def __exit__(self, *exc: object) -> None:
         self.close()
 
-    def task(self, tool_id, inputs, on_update=None):
+    def task(self, tool_id: str, inputs: dict[str, Any], on_update: ProgressCallback | None = None) -> "Task":
         task = Task(self, tool_id, on_update)
         self.tasks[task.id] = task
         log.info(
@@ -159,16 +172,17 @@ class WorkerProcess:
         self._send({"task": task.id, "requestType": "EXECUTE", "script": "lc:" + tool_id, "inputs": inputs})
         return task
 
-    def close(self, timeout=5):
+    def close(self, timeout: float = 5) -> None:
         """Ask the worker to exit (close stdin); kill it if it does not."""
         try:
-            self.proc.stdin.close()
+            if self.proc.stdin:
+                self.proc.stdin.close()
             self.proc.wait(timeout=timeout)
             self._kill_group()  # the worker is gone; reap anything it left behind
         except Exception:  # noqa: BLE001 - best effort shutdown
             self.kill()
 
-    def kill(self):
+    def kill(self) -> None:
         self._kill_group()
         self.proc.kill()
         self.proc.wait()
@@ -178,8 +192,15 @@ class WorkerProcess:
         if os.name == "posix":
             try:
                 os.killpg(self.proc.pid, signal.SIGKILL)
-            except (ProcessLookupError, PermissionError, OSError):
-                pass
+            except ProcessLookupError:
+                pass  # already gone: the normal case after a clean exit
+            except OSError as error:
+                log.warning(
+                    "worker pid=%s: could not stop its process group (%s: %s); processes started by the tool may still be running",
+                    self.proc.pid,
+                    type(error).__name__,
+                    error,
+                )
 
     def _send(self, message):
         self.proc.stdin.write(json.dumps(message) + "\n")
@@ -190,6 +211,13 @@ class WorkerProcess:
             try:
                 message = json.loads(line)
             except ValueError:
+                message = None
+            if not isinstance(
+                message, dict
+            ):  # a list/number/garbage line must not kill this thread: every task would hang
+                log.warning(
+                    "worker pid=%s sent a line that is not a protocol message: %.200r", self.proc.pid, line
+                )
                 continue
             task = self.tasks.get(message.get("task"))
             if task:
@@ -242,16 +270,20 @@ class WorkerProcess:
 
 
 class Task:
-    def __init__(self, worker, tool_id, on_update):
+    def __init__(self, worker: WorkerProcess, tool_id: str, on_update: ProgressCallback | None) -> None:
         self.worker, self.tool_id, self.on_update = worker, tool_id, on_update
         self.id = str(uuid.uuid4())
         self.done = threading.Event()
         self.launched = threading.Event()  # the worker accepted the task (its LAUNCH message arrived)
         self.status = "RUNNING"
-        self.outputs, self.error, self.code, self.traceback = {}, None, None, None
+        self.outputs: dict[str, Any] = {}
+        self.error: str | None = None
+        self.code: str | None = None
+        self.traceback: str | None = None
+        self.record_dir: Path | None = None  # set by run_once(record=True)
         self.cancel_requested = False
 
-    def handle(self, message):
+    def handle(self, message: dict[str, Any]) -> None:
         if self.done.is_set():  # a finished task never changes state (e.g. when the worker later exits)
             return
         kind = message["responseType"]
@@ -259,7 +291,7 @@ class Task:
             self.launched.set()
         if kind == "UPDATE" and self.on_update:
             fraction = message["current"] / message["maximum"] if message.get("maximum") else None
-            self.on_update(message.get("message"), fraction)
+            self.on_update(message.get("message") or "", fraction)
         elif kind in _STATUS_BY_RESPONSE:
             self.status = _STATUS_BY_RESPONSE[kind]
             self.outputs = message.get("outputs", {})
@@ -286,18 +318,25 @@ class Task:
                 ("\n" + self.traceback) if self.traceback else "",
             )
 
-    def cancel(self):
+    def cancel(self) -> None:
         """Request cooperative cancellation (the tool must call check_cancel()); kill the worker if it ignores it."""
         self.cancel_requested = True
         self.worker._send({"task": self.id, "requestType": "CANCEL"})
 
-    def wait(self, timeout=None):
+    def wait(self, timeout: float | None = None) -> "Task":
         """Block until finished or `timeout` seconds passed (then status stays RUNNING). Returns self."""
         self.done.wait(timeout)
         return self
 
 
-def run_once(app, tool_id, inputs, on_update=None, timeout=None, record=False):
+def run_once(
+    app: str,
+    tool_id: str,
+    inputs: dict[str, Any],
+    on_update: ProgressCallback | None = None,
+    timeout: float | None = None,
+    record: bool = False,
+) -> Task:
     """Fresh worker for one run. If `timeout` seconds pass the worker is killed and the task is CRASHED.
     With record=True a run record is written (see runs.py); it is available as `task.record_dir`."""
     started = time.time()
