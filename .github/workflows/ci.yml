@@ -15,6 +15,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "${{ matrix.python }}" }
+      - name: Private virtualenv (Linux)
+        if: runner.os == 'Linux'
+        # the runner's own Python folder is world-writable, which the registry refuses by design: tests must use a private interpreter
+        run: python -m venv "$RUNNER_TEMP/venv" && echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
       - run: pip install -e ".[test]"
       - name: Python suites
         working-directory: tests
@@ -28,4 +32,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install black ruff && black --check . && ruff check .
+      - run: pip install black==26.10.0 ruff==0.16.10 && black --check . && ruff check .
