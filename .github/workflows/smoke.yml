@@ -1,0 +1,42 @@
+# A short check that the bridge can be established on each operating system: install the package in a private
+# virtualenv, register the built-in synthetic app, and run tests/smoke_bridge.py. Read the table in the job summary.
+name: smoke-bridge
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/smoke-bridge]
+jobs:
+  bridge:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-15, macos-15-intel]
+        python: ["3.10", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ matrix.python }}" }
+      - name: Private virtualenv and package install
+        shell: bash
+        run: |
+          python -m venv --copies "$RUNNER_TEMP/venv"
+          if [ -d "$RUNNER_TEMP/venv/Scripts" ]; then PY="$RUNNER_TEMP/venv/Scripts/python.exe"; else PY="$RUNNER_TEMP/venv/bin/python"; fi
+          echo "PY=$PY" >> "$GITHUB_ENV"
+          echo "LC_HOME=$RUNNER_TEMP/lchome" >> "$GITHUB_ENV"
+          "$PY" -m pip install .
+      - name: Register the synthetic app
+        shell: bash
+        run: |
+          PREFIX="$("$PY" -c 'import sys; print(sys.prefix)')"
+          "$PY" -m labconstrictor_tools register --name synthetic --prefix "$PREFIX" --module labconstrictor_tools.examples.synthetic --version 0.0
+      - name: Bridge smoke test
+        shell: bash
+        run: '"$PY" tests/smoke_bridge.py --app synthetic --tool scalar_echo --fail-tool explode --fast-tool scalar_echo --slow-tool slow'
+      - name: Keep the logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-logs-${{ matrix.os }}-py${{ matrix.python }}
+          path: ${{ runner.temp }}/lchome/logs
+          if-no-files-found: ignore
