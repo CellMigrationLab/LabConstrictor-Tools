@@ -11,7 +11,7 @@ import json
 import sys
 
 
-def build_parser():
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="labconstrictor-tools", description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -107,7 +107,7 @@ def _tolerant_streams():
             pass
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
     _tolerant_streams()
     args = build_parser().parse_args(argv)
     if args.command == "describe":

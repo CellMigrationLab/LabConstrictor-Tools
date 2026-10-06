@@ -9,6 +9,8 @@ import logging
 import logging.handlers
 import platform
 import sys
+from collections.abc import Sequence
+from pathlib import Path
 
 from . import registry
 
@@ -17,15 +19,15 @@ _FORMAT = "%(asctime)s.%(msecs)03d %(levelname)-7s pid=%(process)d %(message)s"
 _logger = None
 
 
-def log_dir():
+def log_dir() -> Path:
     return registry.home() / "logs"
 
 
-def log_path():
+def log_path() -> Path:
     return log_dir() / LOG_NAME
 
 
-def logger():
+def logger() -> logging.Logger:
     global _logger
     if _logger is not None:
         return _logger
@@ -45,7 +47,7 @@ def logger():
     return _logger
 
 
-def environment_summary():
+def environment_summary() -> str:
     return "labconstrictor_tools=%s python=%s (%s) platform=%s LC_HOME=%s" % (
         version(),
         platform.python_version(),
@@ -55,7 +57,7 @@ def environment_summary():
     )
 
 
-def version():
+def version() -> str:
     try:
         from importlib.metadata import version as package_version
 
@@ -64,19 +66,19 @@ def version():
         return "unknown (checkout)"
 
 
-def info(message, *args):
+def info(message: str, *args: object) -> None:
     logger().info(message, *args)
 
 
-def warning(message, *args):
+def warning(message: str, *args: object) -> None:
     logger().warning(message, *args)
 
 
-def error(message, *args, exc_info=False):
+def error(message: str, *args: object, exc_info: bool = False) -> None:
     logger().error(message, *args, exc_info=exc_info)
 
 
-def tail(lines=60):
+def tail(lines: int = 60) -> str:
     """Last `lines` lines of the log, newest last (for 'Details' windows and `labconstrictor-tools logs`)."""
     try:
         return "".join(log_path().read_text(encoding="utf-8", errors="replace").splitlines(True)[-lines:])
@@ -84,7 +86,7 @@ def tail(lines=60):
         return ""
 
 
-def explain_spawn_error(error_, command):
+def explain_spawn_error(error_: OSError, command: Sequence[str]) -> str:
     """Turn an OSError from starting a worker into a sentence that says what to check."""
     path = command[0]
     if isinstance(error_, FileNotFoundError):
@@ -100,7 +102,7 @@ def explain_spawn_error(error_, command):
     return "could not start %s: %s" % (path, error_)
 
 
-def hint_for_exit(returncode, stderr_tail):
+def hint_for_exit(returncode: int | None, stderr_tail: str | None) -> str:
     """A one-line likely cause for a worker that died on its own."""
     text = stderr_tail or ""
     if "ModuleNotFoundError" in text or "ImportError" in text:

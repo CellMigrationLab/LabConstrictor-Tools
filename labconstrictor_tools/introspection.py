@@ -6,7 +6,8 @@ import re
 from typing import Annotated, Literal, Union, get_args, get_origin, get_type_hints
 
 from . import types as T
-from .decorators import tools_in
+from .decorators import Tool, tools_in
+from .structures import AppSchema, ToolSchema
 
 PROTOCOL = 1
 SCALARS = {str: "string", int: "integer", float: "float", bool: "boolean"}
@@ -159,7 +160,7 @@ def _outputs(ret, tool_id):
     return outs
 
 
-def describe_tool(t):
+def describe_tool(t: Tool) -> ToolSchema:
     fn = t.fn
     sig = inspect.signature(fn)
     try:
@@ -192,19 +193,18 @@ def describe_tool(t):
                     "tool %r: output %r refers to unknown parameter %r" % (t.id, o["name"], o["display"][k])
                 )
     desc = (inspect.getdoc(fn) or "").split("\n\n")[0].replace("\n", " ").strip()
-    return {
-        "id": t.id,
-        "label": t.label,
-        **({"description": desc} if desc else {}),
-        "inputs": ins,
-        "outputs": outs,
-    }
+    schema: ToolSchema = {"id": t.id, "label": t.label, "inputs": ins, "outputs": outs}
+    if desc:
+        schema["description"] = desc
+    return schema
 
 
-def describe_tools(module_name=None, application=None, version=None):
+def describe_tools(
+    module_name: str | None = None, application: str | None = None, version: str | None = None
+) -> AppSchema:
     """Deterministic JSON-compatible schema for all tools declared by `module_name`."""
     ts = sorted(tools_in(module_name), key=lambda t: t.id)
-    out = {"protocol": PROTOCOL, "tools": [describe_tool(t) for t in ts]}
+    out: AppSchema = {"protocol": PROTOCOL, "tools": [describe_tool(t) for t in ts]}
     if application:
         out["application"] = application
     if version:

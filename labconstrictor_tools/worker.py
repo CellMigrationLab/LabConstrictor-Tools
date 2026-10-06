@@ -14,7 +14,9 @@ import tempfile
 import threading
 import time
 import traceback
+from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 from . import convert, runtime
 from . import types as T
@@ -26,7 +28,7 @@ ORPHAN_GRACE_S = 10.0  # after the host disappears, how long a running tool gets
 
 
 class Worker:
-    def __init__(self, module, pythonpath=()):
+    def __init__(self, module: str, pythonpath: Sequence[str] = ()) -> None:
         for path in pythonpath:
             sys.path.insert(0, path)
         self.channel = Channel()
@@ -53,7 +55,7 @@ class Worker:
             raise SystemExit(3) from None
         self.tools = {tool.id: tool for tool in tools_in(module)}
         self.schemas = {tid: describe_tool(tool) for tid, tool in self.tools.items()}
-        self._cancel_events = {}
+        self._cancel_events: dict[str, threading.Event] = {}
 
     @staticmethod
     def _preload_numpy():
@@ -63,9 +65,9 @@ class Worker:
             import numpy  # noqa: F401
 
     # ---- serving ------------------------------------------------------
-    def serve(self):
+    def serve(self) -> None:
         """Run tasks on the MAIN thread; a helper thread reads stdin so CANCEL is seen while a tool runs."""
-        pending = queue.Queue()
+        pending: queue.Queue[tuple[str, str, Any] | None] = queue.Queue()
         threading.Thread(target=self._read_requests, args=(pending,), daemon=True).start()
         while True:
             item = pending.get()

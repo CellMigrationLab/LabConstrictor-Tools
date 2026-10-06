@@ -17,22 +17,25 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Sequence
 from pathlib import Path
+
+from .structures import AppSchema, RegistryEntry
 
 SUPPORTED_PROTOCOLS = (1,)
 
 
 # ---------------------------------------------------------------- locations
-def home():
+def home() -> Path:
     return Path(os.environ.get("LC_HOME") or (Path.home() / ".labconstrictor"))
 
 
-def apps_dir():
+def apps_dir() -> Path:
     """The per-user directory that `register` writes to."""
     return home() / "apps"
 
 
-def system_dir():
+def system_dir() -> Path:
     if os.name == "nt":
         return Path(os.environ.get("PROGRAMDATA", r"C:\ProgramData")) / "LabConstrictor" / "apps"
     if sys.platform == "darwin":
@@ -40,7 +43,7 @@ def system_dir():
     return Path("/etc/labconstrictor/apps")
 
 
-def search_dirs():
+def search_dirs() -> list[Path]:
     """Directories searched for entries, highest priority first."""
     extra = [Path(p) for p in os.environ.get("LC_APPS_PATH", "").split(os.pathsep) if p]
     seen, ordered = set(), []
@@ -52,7 +55,7 @@ def search_dirs():
 
 
 # ---------------------------------------------------------------- writing
-def python_for(prefix):
+def python_for(prefix: str | Path) -> Path:
     p = Path(prefix)
     for c in (p / "python.exe", p / "Scripts" / "python.exe", p / "bin" / "python"):
         if c.exists():
@@ -60,7 +63,7 @@ def python_for(prefix):
     return p / ("python.exe" if os.name == "nt" else "bin/python")
 
 
-def runtime_path():
+def runtime_path() -> str:
     """Directory that contains the `labconstrictor_tools` package (put on the worker's PYTHONPATH)."""
     return str(Path(__file__).resolve().parent.parent)
 
@@ -85,7 +88,15 @@ def _runtime_needed(interpreter):
         return True
 
 
-def register(name, prefix, module, version="", pythonpath=(), display_name=None, directory=None):
+def register(
+    name: str,
+    prefix: str | Path,
+    module: str,
+    version: str = "",
+    pythonpath: Sequence[str | Path] = (),
+    display_name: str | None = None,
+    directory: str | Path | None = None,
+) -> RegistryEntry:
     """Register an installed app: generate its schema with the app's own interpreter, cache it, write the entry."""
     _check_name(name)
     interpreter = python_for(prefix)
@@ -113,7 +124,7 @@ def register(name, prefix, module, version="", pythonpath=(), display_name=None,
     target.mkdir(parents=True, exist_ok=True)
     schema_path = target / (name + ".schema.json")
     _write_atomic(schema_path, result.stdout)
-    entry = {
+    entry: RegistryEntry = {
         "schema": 1,
         "name": name,
         "display_name": display_name or name,
@@ -142,7 +153,7 @@ def _write_atomic(path, text):
     os.replace(temporary, path)
 
 
-def unregister(name, directory=None, prefix=None):
+def unregister(name: str, directory: str | Path | None = None, prefix: str | Path | None = None) -> bool:
     """Remove an app. With `prefix`, only if the entry still belongs to that install: a second install of the same app
     (another prefix, e.g. an upgrade in a new folder) registered later must survive the first one's uninstall.
     """
@@ -194,9 +205,10 @@ def _untrusted_reason(entry_file, entry):
     return None
 
 
-def load_entries():
+def load_entries() -> tuple[dict[str, RegistryEntry], list[tuple[str, str]]]:
     """-> ({name: entry} for every usable app, [(name, reason)] for every app that had to be skipped)."""
-    entries, problems = {}, []
+    entries: dict[str, RegistryEntry] = {}
+    problems: list[tuple[str, str]] = []
     for directory in search_dirs():
         if not directory.is_dir():
             continue
@@ -229,7 +241,7 @@ def load_entries():
     return entries, problems
 
 
-_LOGGED_PROBLEMS = set()
+_LOGGED_PROBLEMS: set[tuple[str, str]] = set()
 
 
 def _log_problems(problems):
@@ -242,12 +254,12 @@ def _log_problems(problems):
             log.warning("app %r skipped: %s", name, reason)
 
 
-def load_all():
+def load_all() -> dict[str, RegistryEntry]:
     """Usable entries only (see `load_entries` for the reasons others are skipped)."""
     return load_entries()[0]
 
 
-def schema(app, entries=None):
+def schema(app: str, entries: dict[str, RegistryEntry] | None = None) -> AppSchema:
     """The cached schema of one app. Raises ValueError with a readable reason if it cannot be used.
     `entries` (from load_entries) avoids re-scanning the registry for every app."""
     entry = (entries if entries is not None else load_all())[app]
@@ -263,7 +275,7 @@ def schema(app, entries=None):
     return schema
 
 
-def load_schemas():
+def load_schemas() -> tuple[dict[str, AppSchema], list[tuple[str, str]]]:
     """-> ({app: schema} for every usable app, [(app, reason)] for every app that had to be skipped, for any reason)."""
     entries, problems = load_entries()
     schemas = {}

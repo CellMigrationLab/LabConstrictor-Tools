@@ -181,5 +181,111 @@ class Presentation(unittest.TestCase):
             describe_tool(q.__lc_tool__)
 
 
+class QuietFailuresAreVisible(unittest.TestCase):
+    """Failures that used to vanish are now in the log (or on stderr, which the host logs)."""
+
+    @staticmethod
+    def _reset_logger():
+        """The log file is chosen when the logger is first used: forget it so the next use follows LC_HOME."""
+        import logging
+
+        from labconstrictor_tools import log
+
+        lg = logging.getLogger("labconstrictor")
+        for handler in list(lg.handlers):
+            lg.removeHandler(handler)
+            handler.close()
+        log._logger = None
+
+    def setUp(self):
+        self._saved = os.environ.get("LC_HOME")
+        os.environ["LC_HOME"] = tempfile.mkdtemp()
+        self._reset_logger()
+
+    def tearDown(self):
+        if self._saved is None:
+            os.environ.pop("LC_HOME", None)
+        else:
+            os.environ["LC_HOME"] = self._saved
+        self._reset_logger()
+
+    def test_a_failed_run_record_is_logged_and_does_not_raise(self):
+        import types as _types
+        from unittest import mock
+
+        from labconstrictor_tools import log, runs
+
+        task = _types.SimpleNamespace(
+            status="COMPLETE", error=None, code=None, traceback=None, outputs={}, cancel_requested=False
+        )
+        with mock.patch.object(runs, "_prune", side_effect=OSError("disk full")):
+            self.assertIsNone(runs.record("app", "tool", {}, task, 1.0))
+        self.assertIn("could not write the run record", log.tail(20))
+        self.assertIn("disk full", log.tail(20))
+
+    def test_a_failed_process_group_kill_is_logged(self):
+        import types as _types
+        from unittest import mock
+
+        from labconstrictor_tools import log
+
+        worker = client.WorkerProcess.__new__(client.WorkerProcess)
+        worker.proc = _types.SimpleNamespace(pid=4242)
+        with mock.patch.object(os, "killpg", side_effect=PermissionError("not allowed")):
+            worker._kill_group()
+        self.assertIn("could not stop its process group", log.tail(20))
+
+    def test_a_worker_line_that_is_not_an_object_does_not_kill_the_reader(self):
+        import types as _types
+        from unittest import mock
+
+        from labconstrictor_tools import log
+
+        worker = client.WorkerProcess.__new__(client.WorkerProcess)
+        seen = []
+        task = _types.SimpleNamespace(handle=seen.append)
+        worker.tasks = {"t1": task}
+        worker.proc = _types.SimpleNamespace(
+            pid=7, stdout=iter(["[1, 2]\n", "garbage\n", '{"task": "t1", "responseType": "UPDATE"}\n'])
+        )
+        with (
+            mock.patch.object(client.WorkerProcess, "_on_exit"),
+            mock.patch.object(client.WorkerProcess, "_close_pipe"),
+        ):
+            worker._read_responses()
+        self.assertEqual(
+            [m["responseType"] for m in seen], ["UPDATE"]
+        )  # the good line after two bad ones arrived
+        self.assertIn("not a protocol message", log.tail(20))
+
+    def test_malformed_requests_are_reported_on_stderr_and_skipped(self):
+        import contextlib
+        import io
+        from unittest import mock
+
+        from labconstrictor_tools import protocol
+
+        lines = ["not json\n", "[1, 2]\n", '{"task": "a", "requestType": "EXECUTE"}\n']
+        captured = io.StringIO()
+        with (
+            mock.patch.object(protocol, "_stdin_lines", return_value=iter(lines)),
+            contextlib.redirect_stderr(captured),
+        ):
+            requests = list(protocol.Channel.read_requests())
+        self.assertEqual(requests, [{"task": "a", "requestType": "EXECUTE"}])
+        self.assertIn("not JSON", captured.getvalue())
+        self.assertIn("not an object", captured.getvalue())
+
+    def test_a_progress_update_without_a_message_reaches_the_callback_as_text(self):
+        import types as _types
+
+        received = []
+        task = client.Task(
+            _types.SimpleNamespace(proc=_types.SimpleNamespace(pid=1)), "t", lambda m, f: received.append(m)
+        )
+        task.handle({"responseType": "UPDATE", "current": 5, "maximum": 10})
+        self.assertEqual(received, [""])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

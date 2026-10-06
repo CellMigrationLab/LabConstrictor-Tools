@@ -60,7 +60,7 @@ All front-ends write to one log, `~/.labconstrictor/logs/labconstrictor.log`. Se
 
 ## Development
     pip install -e ".[test]" black ruff
-    black --check . && ruff check .
+    black --check . && ruff check . && mypy labconstrictor_tools      # pip install mypy
     cd tests && python -m unittest discover -p "test_*.py"      # about 80 s; no real apps needed (78 tests, 2 skipped)
 
 Status: **testing phase**. Demonstrated on Linux with real NucleiSky and CellTracksColab installers (Napari and Fiji); Windows only under Wine
