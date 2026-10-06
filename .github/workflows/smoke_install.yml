@@ -18,6 +18,8 @@ env:
 jobs:
   build:
     name: Build installer (${{ matrix.os_name }})
+    # Intel Macs are not supported (llvmlite and PyTorch no longer ship macOS x86_64 wheels): informational only
+    continue-on-error: ${{ matrix.os_name == 'macos-intel' }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -74,6 +76,8 @@ jobs:
 
   install:
     name: Install and check (${{ matrix.os_name }})
+    # Intel Macs are not supported (llvmlite and PyTorch no longer ship macOS x86_64 wheels): informational only
+    continue-on-error: ${{ matrix.os_name == 'macos-intel' }}
     needs: build
     runs-on: ${{ matrix.runner }}
     strategy:
