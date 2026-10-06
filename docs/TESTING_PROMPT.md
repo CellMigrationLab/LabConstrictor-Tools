@@ -1,4 +1,6 @@
-# Prompt: test the LabConstrictor tools bridge from the repositories
+# Prompt: test the LabConstrictor tools bridge from the repositories (for an AI agent)
+
+*This page is a prompt for an AI coding agent. Testing by a person on a real computer (Windows, macOS, Linux; Napari and Fiji by hand): use [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md).*
 
 Copy everything below the line into a fresh Claude Code session (a new container) that has access to the six repositories.
 
@@ -23,27 +25,28 @@ in the app's own Python in a separate worker process. Image inputs can come from
 | `NucleiSky` | `bridge-test` | app: `src/nucleisky_lc_tools`, hooks in its scripts, `lc_tests/` |
 | `CellTracksColab` | `bridge-test` | app: `src/celltracks_lc_tools`, hooks in its scripts, `lc_tests/` |
 
-Read each repo's README first. **Never push to `main` of LabConstrictor, NucleiSky or CellTracksColab.** Put fixes on a new branch
-named `claude/<topic>` and report; do not open pull requests unless asked. For the three new repos, also use branches for fixes.
+Read each repo's README first. **Never push to `main` or `bridge-test` of LabConstrictor, NucleiSky or CellTracksColab.** Put fixes on a new branch
+named `claude/<topic>` and report; do not open pull requests unless asked. For the three new repos (Tools, Napari, Fiji), also use branches for fixes.
 
 ## Environment you must build (nothing is pre-installed)
 * Python 3.11 and 3.12 (venvs), Linux. Java 21 and Maven (`mvn`). `xvfb-run` plus Qt/X libraries for Napari
   (`libegl1 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0`).
 * **Fiji** (download the Linux64 bundle from https://downloads.imagej.net/fiji/latest/fiji-latest-linux64-jdk.zip; if the network blocks it,
   say so, and test everything else). Fiji needs a display: tests run it under `xvfb-run`.
-* The Tools repository may be private: install it from the **local clone** (`pip install ./LabConstrictor-Tools`) rather than `git+https`.
-  The app installers use `LC_TOOLS_SPEC` for this (see step 4).
+* If the Tools repository is public, also test `pip install git+https://github.com/CellMigrationLab/LabConstrictor-Tools` and say what happens; if it is private, install
+  from the **local clone** (`pip install ./LabConstrictor-Tools`). The app installers use `LC_TOOLS_SPEC` for this (see step 4).
+* Run everything as a **normal, non-root user** with the default Ubuntu umask (0002); a root-only run once hid a real bug.
 * Use a private registry for every test run: `export LC_HOME=$(mktemp -d)`.
 
 ## Steps (do them in order; stop and report on a blocker, do not improvise around it silently)
 1. **Tools repo.** `pip install -e "./LabConstrictor-Tools[test]" black ruff`; run `black --check . && ruff check .`, then
-   `cd tests && python -m unittest discover -v -p "test_*.py"` (about 2 minutes; expect 52 tests, 1 skipped). Also run
+   `cd tests && python -m unittest discover -v -p "test_*.py"` (about 80 seconds; expect 78 tests, 2 skipped: the read-only-prefix test, and a foreign-owned-entry test that needs root). Also run
    `python tests/windows/test_windows.py` (it is Windows-oriented but should pass on Linux). Run the suite twice: report any flaky test.
 2. **Napari repo.** Fresh venv (Python 3.11), `pip install "napari[pyqt5]" pandas scipy imageio tifffile`, then install the Tools clone and
-   `pip install -e ./napari-labconstrictor`. Run `tests/test_units.py`, and with `xvfb-run -a` `tests/test_widget.py` and
-   `tests/test_file_sources.py`. Open `evidence/widget_kitchen_sink.png` and describe what the UI looks like.
+   `pip install -e ./napari-labconstrictor`. Run `tests/test_units.py`, and with `xvfb-run -a` `tests/test_widget.py`,
+   `tests/test_file_sources.py`, `tests/test_run_state.py` and `tests/test_presentation.py` (each prints `FAILURES: none` when good). Open `evidence/widget_kitchen_sink.png` and describe what the UI looks like.
 3. **Fiji repo.** `mvn -B package` (jar), then `export LC_FIJI_HOME=<Fiji.app>` and, in an env with the Tools clone + numpy pandas tifffile,
-   `python tests/run_cases.py` (script mode) and `LC_FIJI_MODE=jar python tests/run_cases.py` (jar mode). Expect 10 cases each. Look at the
+   `python tests/run_cases.py` (script mode) and `LC_FIJI_MODE=jar python tests/run_cases.py` (jar mode). Expect 21 cases each (about 5 minutes per mode). Look at the
    screenshots under `evidence/` (dialogs). If a case hangs, the runner prints Fiji's output tail: report it.
 4. **Install hook, template-level (shell block).** In `LabConstrictor` (branch `bridge-test`) read the added block in
    `app/bash_bat_scripts/post_install.sh`. In a scratch conda/venv env with a fake package `demo` that ships `demo_lc_tools.py` (use the example in
@@ -66,14 +69,14 @@ named `claude/<topic>` and report; do not open pull requests unless asked. For t
      (`menuinst_debug.log` in the prefix). Report honestly if the sandbox cannot do this.
 6. **Failure diagnostics.** Break things on purpose and check that the error is *explained*, in Napari ("Details..."), in Fiji (error dialog) and in
    `$LC_HOME/logs/labconstrictor.log`: delete the app's python, remove a package from the app env, pass a corrupt TIFF, give a missing file, kill the
-   worker (`kill -9`) mid-run, cancel a long NucleiSky run. Run `labconstrictor-tools doctor`, `logs`, `support-bundle` and check the zip contents.
+   worker (`kill -9`) mid-run, cancel a long NucleiSky run (once early, once during matching). Run `labconstrictor-tools doctor`, `logs`, `support-bundle` and check the zip contents.
 7. **Review and adversarial pass.** Read `labconstrictor_tools/{worker,client,registry,convert,cli}.py`, the Fiji Groovy script, and the Napari widget
    looking for: path/command injection through registry entries or tool inputs, leftover processes or temp folders, behaviour with spaces/non-ASCII
    in paths, Windows-only pitfalls, UI states that can get stuck. Try to break them with a test; do not just opine.
 
 ## Known gaps (verify, do not assume)
 Windows and macOS were never tested natively (Windows only under Wine earlier). The `.bat` hooks have never run. CI workflows in the repos have
-not run. The Fiji jar is a packaging shell around a Groovy script (no Java port, no update site). Tables are file-only inputs. Large images are read
+not run (CI credits ran out). Fiji cannot grey out fields (`enabled_when` is ignored there). InstanSeg finds almost no nuclei in the synthetic test images. The Fiji jar is a packaging shell around a Groovy script (no Java port, no update site). Tables are file-only inputs. Large images are read
 whole by the worker. `labconstrictor-tools` is not on PyPI, so installers that run `pip install labconstrictor-tools` fail until it is published or
 `LC_TOOLS_SPEC` is set; the registration step then logs a warning and the app itself still installs.
 

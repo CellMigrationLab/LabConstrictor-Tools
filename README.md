@@ -4,7 +4,7 @@
 interface in **Napari**, **Fiji**, **Jupyter notebooks** and the **command line** without writing any GUI code.
 
 ```python
-# lc_tools.py in your app
+# src/myapp_lc_tools/__init__.py in your app (the module must be called <package>_lc_tools, see docs/AUTHORING.md)
 from typing import Annotated
 from labconstrictor_tools import Image, ImageOut, Min, check_cancel, progress, tool
 
@@ -34,11 +34,11 @@ The contract between them is the schema and the worker protocol only ([docs/PROT
     pip install labconstrictor-tools                 # (not on PyPI yet) pip install git+https://github.com/CellMigrationLab/LabConstrictor-Tools
 
 ## For app authors
-    labconstrictor-tools init lc_tools.py            # starter declaration module
-    labconstrictor-tools check --module lc_tools     # validate declarations, warn about slow imports
-    labconstrictor-tools test  --module lc_tools --cases lc_tests/cases.json    # run tools on small samples, check results
-    labconstrictor-tools register --name myapp --prefix <app prefix> --module lc_tools --pythonpath <app dir>   # the installer does this
-    labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/  # no GUI needed
+    labconstrictor-tools init myapp_lc_tools.py      # starter declaration module
+    labconstrictor-tools check --module myapp_lc_tools --pythonpath .     # validate declarations, warn about slow imports
+    labconstrictor-tools test  --module myapp_lc_tools --pythonpath . --cases lc_tests/cases.json    # run tools on small samples, check results
+    labconstrictor-tools register --name myapp --prefix <app prefix> --module myapp_lc_tools --pythonpath .   # by hand; the installer does it (without --pythonpath: the module is installed in the app)
+    labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/  # no GUI needed (without --out: ~/.labconstrictor/results/<time>_<app>_<tool>, newest 20 kept)
 
 In a notebook: `%load_ext labconstrictor_tools.notebook_magic`, then `%%lc_tool "Label" --export lc_tools.py` on a cell with a function.
 Full guide: [docs/AUTHORING.md](docs/AUTHORING.md).
@@ -53,16 +53,18 @@ All front-ends write to one log, `~/.labconstrictor/logs/labconstrictor.log`. Se
     labconstrictor_tools/        the package (types, decorators, introspection = schema, convert, protocol, worker, client,
                                  registry, runs, log, cli, testing, exporter, notebook, notebook_magic)
     labconstrictor_tools/examples/synthetic.py    example app exercising every type; used by all host test suites
-    docs/                        AUTHORING, PROTOCOL, OPERATIONS, LABCONSTRICTOR_INTEGRATION, REPOSITORIES
+    docs/                        AUTHORING, PROTOCOL, OPERATIONS, LABCONSTRICTOR_INTEGRATION, REPOSITORIES,
+                                 HUMAN_TEST_PROTOCOL (checklist for people), TESTING_PROMPT (prompt for an AI agent)
     tests/                       python test suites (see tests/README.md); tests/windows for a native Windows run
     fixtures/                    small test data (large images are generated on demand)
 
 ## Development
     pip install -e ".[test]" black ruff
     black --check . && ruff check .
-    cd tests && for t in test_*.py; do python $t; done      # a few minutes; no real apps needed
+    cd tests && python -m unittest discover -p "test_*.py"      # about 80 s; no real apps needed (78 tests, 2 skipped)
 
-Status: **testing phase**. Demonstrated on Linux with real NucleiSky, CellTracksColab and VLab4Mic installs; Windows only under Wine;
-macOS untested. See the "Known limits" section of docs/OPERATIONS.md.
+Status: **testing phase**. Demonstrated on Linux with real NucleiSky and CellTracksColab installers (Napari and Fiji); Windows only under Wine
+(the `.bat` install hooks have never run on real Windows); macOS untested. To help test on Windows or macOS follow
+[docs/HUMAN_TEST_PROTOCOL.md](docs/HUMAN_TEST_PROTOCOL.md). See also the "Known limits" section of docs/OPERATIONS.md.
 
 License: MIT.

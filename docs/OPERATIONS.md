@@ -2,8 +2,8 @@
 
 ## Install
 * Each app environment needs `labconstrictor-tools` (standard library only, no dependencies).
-* Napari: `pip install napari-labconstrictor` in the napari environment. Plugins > LabConstrictor tools.
-* Fiji: copy `labconstrictor-fiji-<version>.jar` into `Fiji.app/plugins/` and restart: Plugins > LabConstrictor > LabConstrictor Tools...
+* Napari (nothing is on PyPI yet): `pip install git+https://github.com/CellMigrationLab/LabConstrictor-Tools git+https://github.com/CellMigrationLab/napari-labconstrictor` in the napari environment. Plugins > LabConstrictor tools.
+* Fiji (no release or update site yet): either copy `LabConstrictor.groovy` from the Fiji repository to `Fiji.app/scripts/Plugins/LabConstrictor/` (no build), or build the jar with `mvn package` and copy `target/labconstrictor-fiji-<version>.jar` to `Fiji.app/plugins/`, then restart: Plugins > LabConstrictor > LabConstrictor Tools... (jar) or Plugins > LabConstrictor > LabConstrictor (script). The macro recorder needs the jar.
 * Fiji and Napari never import an app's packages, so apps with conflicting dependencies can coexist.
 
 ## Many apps, many users, network shares
@@ -29,6 +29,7 @@
 ## Troubleshooting
 * `labconstrictor-tools doctor` checks every entry (interpreter, schema, protocol, staleness) and prints what to fix.
 * Stale tool list after an app update: run `labconstrictor-tools register ...` again (the installer does this).
+* `labconstrictor-tools run` without `--out` writes its results to `<LC_HOME>/results/<time>_<app>_<tool>` (the newest 20 are kept; Napari and Fiji use their own temporary folders and remove them).
 * Every run writes `<LC_HOME>/runs/<time>_<app>_<tool>/run.json` (parameters as file paths and values, never pixel data; status,
   error, traceback, interpreter, worker output). Napari's *Details...* button shows it; attach it to bug reports. The newest 50 are kept.
 * First run slow? Imports dominate (a repeat run in a kept worker is ~10x faster). Napari keeps the worker for 10 minutes by default.
@@ -53,9 +54,11 @@ Fiji: the error dialog shows the worker's last lines and the log location; unexp
 Each run also has `<LC_HOME>/runs/<time>_<app>_<tool>/run.json`.
 
 ## Known limits (testing phase)
-* Verified on Linux with real NucleiSky, CellTracksColab and VLab4Mic installs. Windows only under Wine (real Windows installer,
-  host and worker both Windows processes); macOS, UNC/NFS shares and multi-user "all users" installs are untested.
+* Verified on Linux with real NucleiSky and CellTracksColab installers, in Napari and Fiji (an earlier VLab4Mic check is not repeated here).
+  Windows only under Wine (real Windows installer, host and worker both Windows processes); the `.bat` install hooks have never run on real
+  Windows; macOS, UNC/NFS shares and multi-user "all users" installs are untested. People can help with these: docs/HUMAN_TEST_PROTOCOL.md.
 * The worker reads image files whole (no lazy/chunked reading); TIFF always, other formats only when the app has `imageio`.
 * No sandbox: a tool runs with the user's rights, like any app code. The worker only executes tools declared by the registered module.
 * A protocol change is a major version; hosts say so in the UI when an app speaks a newer protocol than they do.
 * Logs are one shared rotating file; concurrent writers (Napari, Fiji, CLI) do not lock it.
+* A worker is started with `PYTHONSAFEPATH=1` (Python 3.11+) so that the directory the host was started from is not on the tool's import path; on older Pythons a stray `pandas.py` there could shadow a real package.

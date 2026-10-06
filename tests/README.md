@@ -12,8 +12,11 @@ interpreter that runs them (needs `pip install -e ".[test]"`).
 | test_environments | concurrency, duplicate/broken/future-protocol apps, orphaned workers (optional read-only prefix: `LC_TEST_RO_PREFIX`) |
 | test_notebook_form | the ipywidgets form |
 | test_author_tools | `%%lc_tool`, `export-notebook`, `labconstrictor-tools test` |
+| test_regressions_run2 | worker pipes closed, `--pythonpath` precedence, damaged TIFF, nullable/folder/group/advanced/enabled_when in the schema, host cwd not on the worker's path, root prefix refused, CLI results folder pruned |
 | test_hardening | NaN/inf rejected, strict-JSON results, registry priority and trust, unsafe app names, skipped-app explanations, message after a forced kill on Cancel |
 | test_logging | failures are explained and logged; `support-bundle` |
 | windows/test_windows.py | the same layer on Windows: `python tests/windows/test_windows.py` (also run under Wine via run_suite.sh) |
 
-Real apps are tested in the apps' own repositories (`lc_tests/`), with `labconstrictor-tools test`.
+Run everything: `cd tests && python -m unittest discover -p "test_*.py"` (about 80 s; 78 tests, 2 skipped: the read-only-prefix test needs `LC_TEST_RO_PREFIX`, the foreign-owned-entry test needs root).
+
+Real apps are tested in the apps' own repositories (`lc_tests/`), with `labconstrictor-tools test`. A checklist for people testing on a real computer: [../docs/HUMAN_TEST_PROTOCOL.md](../docs/HUMAN_TEST_PROTOCOL.md).

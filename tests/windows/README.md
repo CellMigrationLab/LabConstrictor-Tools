@@ -1,7 +1,7 @@
 # Windows check (Wine)
 
 No Windows machine was available, so the real Windows installer is run under Wine 9 and the tests run with the Windows
-`python.exe` (host AND worker are Windows processes). This is *not* a substitute for real Windows - see REPORT_V2.md §17.
+`python.exe` (host AND worker are Windows processes). This is *not* a substitute for real Windows: for a test on a real Windows computer follow ../../docs/HUMAN_TEST_PROTOCOL.md.
 
 1. `wine installer.exe /S /D=C:\apps\<App>` (needs `wine64` + `wine32`; the constructor installers are 32-bit NSIS).
 2. Install the app's requirements into it (inside a sandbox with TLS interception set `PIP_CERT`).

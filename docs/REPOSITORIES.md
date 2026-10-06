@@ -1,6 +1,6 @@
 # Three repositories: what goes where
 
-| Repository (suggested name) | Published as | Contains | Depends on |
+| Repository (suggested name) | Intended publication (**none of these is published yet: install from the git URLs**) | Contains | Depends on |
 |---|---|---|---|
 | **`LabConstrictor-Tools`** | PyPI `labconstrictor-tools` (import `labconstrictor_tools`) | declaration API (`@tool`, types), schema generation, worker, client, registry, run records, logging, CLI (`check`, `test`, `run`, `register`, `doctor`, `logs`, `support-bundle`, `export-notebook`), notebook form and `%%lc_tool`; the protocol and authoring docs; the example/synthetic apps and the Python test suites | nothing (standard library) |
 | **`napari-labconstrictor`** | PyPI + napari hub | the dock widget (`napari_labconstrictor`, `napari.yaml`) and its GUI tests | `labconstrictor-tools`, napari |
