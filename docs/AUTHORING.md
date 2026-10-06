@@ -4,7 +4,7 @@ A *tool* is a normal Python function with type hints. Napari, Fiji, notebooks an
 forms from the signature - you write no GUI code and no JSON.
 
 ```python
-# my_app_tools.py (in your app's package)
+# src/my_app_lc_tools/__init__.py  (next to your package `my_app`; the name MUST be <package>_lc_tools, see below)
 from typing import Annotated
 from labconstrictor_tools import Image, ImageOut, Min, progress, check_cancel, tool
 
@@ -22,7 +22,11 @@ def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
     return gaussian(image, sigma, preserve_range=True)
 ```
 
-`labconstrictor-tools init my_app_tools.py` writes this starter for you.
+`labconstrictor-tools init my_app_lc_tools.py` writes this starter for you.
+
+**Naming rule.** The LabConstrictor installer registers an app's tools only if the app's Python package `<package>` is
+accompanied by a module named exactly **`<package>_lc_tools`** (for the package `nucleisky`: `src/nucleisky_lc_tools/__init__.py`, which the
+app lists in `construct.yaml` under `extra_files` like the rest of `src/`). Any other name works from the command line but is never registered by the installer.
 
 ## What you declare, what is inferred
 
@@ -33,11 +37,15 @@ def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
 | `x: Image` / `Labels` | an image chosen from the host (you receive a numpy array) |
 | `x: Table` | a CSV file (you receive a pandas DataFrame) |
 | `x: Path` / `File` | a file (you receive a `Path`) |
+| `x: Folder` | a folder (you receive a `Path`; the worker checks that it exists; hosts show a folder chooser) |
 | a default value | the form's default; no default = required |
-| `Optional[T]` / `T \| None` | optional |
+| `Optional[T]`, `T \| None`, or a default of `None` | optional **and unset by default**: Napari shows a "set" checkbox, Fiji "Set <name>"; if it stays unticked your function receives `None` (never 0 or an empty string) |
 | `Annotated[float, Min(0), Max(1), Unit("um/px"), Description("..."), Label("...")]` | bounds (enforced everywhere), unit, tooltip, label |
 | `Annotated[Image, Axes("YX")]` | the tool wants exactly that many dimensions; a clear error otherwise |
 | `Annotated[float, PixelSizeOf("image")]` | hosts prefill this from the image's calibration (converted to um) |
+| `Annotated[..., Group("Segmentation")]` | the parameter is listed under that heading; the parameters of a group are shown together |
+| `Annotated[..., Advanced()]` | listed last, behind "Show advanced settings" (Napari) / under "Advanced settings" (Fiji) |
+| `Annotated[..., EnabledWhen("other")]` or `EnabledWhen("other", "a", "b")` | greyed out in Napari unless `other` is set/true or equals one of the values; **Fiji ignores it** (all fields stay editable) |
 | docstring `Args:` section | tooltips |
 
 Return one value or a tuple. Annotate the return type with what it is:
@@ -61,6 +69,8 @@ Return one value or a tuple. Annotate the return type with what it is:
 4. **Do not keep state between runs in module globals** - hosts may reuse the worker (faster repeat runs), so a stale global will
    leak into the next run. (Caching a loaded model is fine if it is keyed by its settings.)
 5. **Write outputs through the return value**, not into the app folder (it may be read-only, e.g. on a network share).
+6. **"Nothing found" is not an error.** When the honest answer is "no result" (no match, no nuclei), raise `ToolError("no_match", "No match found: ...say what to try...")` (or code `no_result`). Napari shows it as a notice (a warning sign, not a red cross) and Fiji as a plain message window instead of an error dialog.
+7. **Presentation hints are only hints.** `Group`, `Advanced` and `EnabledWhen` may be ignored by a host (Fiji ignores `EnabledWhen`; older hosts ignore all three), so the function must accept every parameter whether or not it is "enabled".
 
 ## Where do images come from?
 
@@ -73,13 +83,15 @@ read with `tifffile`; other formats (PNG, JPEG, ...) are read if the app environ
 ## Try it without any GUI
 
 ```
-labconstrictor-tools check --module my_app_tools --pythonpath .
-labconstrictor-tools register --name myapp --prefix <app prefix> --module my_app_tools --pythonpath .   # installer does this
-labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/
+labconstrictor-tools check --module my_app_lc_tools --pythonpath .
+labconstrictor-tools register --name myapp --prefix <app prefix> --module my_app_lc_tools --pythonpath .   # by hand; the installer does it
+labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/      # without --out: <LC_HOME>/results/<time>_<app>_<tool> (newest 20 kept)
 labconstrictor-tools run myapp blur --usage
 ```
 
 In a notebook: `from labconstrictor_tools.notebook import form; form(blur)`.
+
+Note: with `--pythonpath`, the folder you give is searched **before** anything installed in the same Python, so you test your working copy, not an older installed copy of the same module.
 
 ## Keep the logic in your notebook: `%%lc_tool`
 
@@ -89,7 +101,7 @@ LabConstrictor apps are notebooks, so you can declare a tool where you already w
 %load_ext labconstrictor_tools.notebook_magic
 ```
 ```python
-%%lc_tool "Gaussian blur" --export lc_tools.py
+%%lc_tool "Gaussian blur" --export my_app_lc_tools.py
 def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
     from skimage.filters import gaussian
     return gaussian(image, sigma)
@@ -98,22 +110,22 @@ def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
 `Image`, `Annotated`, `Min`, `tool`, ... are already available in the notebook. The magic adds `@tool`, checks the cell
 as a stand-alone module, shows the same form Napari/Fiji will generate (`--no-form` to skip), and with `--export` writes the
 function to a module as a managed block (`# >>> lc-tool: blur` ... `# <<< lc-tool: blur`); running the cell again
-replaces that block. Options: `--function NAME` when the cell defines several functions, `--export` alone means `lc_tools.py`.
+replaces that block. Options: `--function NAME` when the cell defines several functions, `--export` alone means `lc_tools.py` (a name the installer does not pick up: use `<package>_lc_tools.py`).
 
 What the check catches, **before** the tool ever runs in a worker: a function that uses a name defined in another notebook cell
 (`uses 'helper', defined elsewhere in the notebook`), invalid declarations, module-level numpy/torch imports. Only imports,
 function/class definitions and literal constants are exported; other top-level statements are listed as "not exported".
 A cell with problems is not run and nothing is written.
 
-Without Jupyter (CI, a notebook someone else wrote): `labconstrictor-tools export-notebook analysis.ipynb --out lc_tools.py`.
+Without Jupyter (CI, a notebook someone else wrote): `labconstrictor-tools export-notebook analysis.ipynb --out my_app_lc_tools.py`.
 
 ## Test the tool: `labconstrictor-tools test`
 
 Runs each tool through the real worker (the same process model as Napari/Fiji), on small samples:
 
 ```
-labconstrictor-tools test --module my_app_tools --pythonpath . --cases tests.json
-labconstrictor-tools test --module my_app_tools --pythonpath . --sample image=small.tif   # smoke test of every tool
+labconstrictor-tools test --module my_app_lc_tools --pythonpath . --cases tests.json
+labconstrictor-tools test --module my_app_lc_tools --pythonpath . --sample image=small.tif   # smoke test of every tool
 ```
 
 Checked for every run that completes, with no configuration: results match the declared outputs, files exist, images use

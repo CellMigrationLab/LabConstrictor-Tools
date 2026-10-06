@@ -1,24 +1,39 @@
-# What the LabConstrictor template would change
+# How the LabConstrictor template registers an app's tools (as built)
 
-**Status: proposal. None of this has been run inside a real installer build** (the runtime itself was tested with real installed
-apps on Linux and the worker/registry layer with a real Windows installer under Wine).
+**Status.** Implemented on the `bridge-test` branches of `LabConstrictor` (the template), `NucleiSky` and `CellTracksColab`.
+The Linux (`.sh`) hooks were run inside real installers built with `constructor`. The Windows (`.bat`) hooks have **never been run on Windows**
+(see HUMAN_TEST_PROTOCOL.md). An earlier draft of this page proposed a different design (`lc_tools.py`, `APP_NAME` variables): that is not what was built.
 
-1. `requirements.txt` (merged from notebooks' requirements): add `labconstrictor-tools==<x.y.z>` (+ hash).
-2. `app/bash_bat_scripts/post_install.sh` / `.bat`, after the existing `pip install -r requirements.txt`:
-   ```sh
-   # only if the app ships a declaration module (see docs/AUTHORING.md)
-   if [ -f "$PROJECT_ROOT/lc_tools.py" ]; then
-       "$PYTHON_EXE" -m labconstrictor_tools register --name "$APP_NAME" --prefix "$PREFIX" \
-           --module lc_tools --pythonpath "$PROJECT_ROOT" --version "$APP_VERSION" --display-name "$APP_DISPLAY_NAME" \
-           >> "$LOG_FILE" 2>&1 || echo "tool registration failed (the app itself is fine)" >> "$LOG_FILE"
-   fi
-   ```
-   (`.bat`: the same with `%PREFIX%\python.exe`.) A failure must never fail the installation.
-3. `pre_uninstall.sh` / `.bat`: `"$PYTHON_EXE" -m labconstrictor_tools unregister --name "$APP_NAME" || true`.
-4. Template files: ship `lc_tools.py` from the app repo (listed in `construct.yaml` `extra_files`, like `src/`), and add the docs page.
-5. Template sync: a migration that adds items 1-3 to existing app repos; apps without `lc_tools.py` are unaffected.
-6. Updating an app (re-running its installer) re-registers it, which refreshes the cached schema.
+## What an app must contain
+* A Python package `<package>` listed in `construct.yaml` (`extra_files`, with its `setup.py`), as for any app with external code.
+* A module **`<package>_lc_tools`** next to it (for NucleiSky `src/nucleisky_lc_tools/__init__.py`), also listed under `extra_files`.
+  Apps without such a module are unaffected: the hook does nothing.
 
-Open questions for the template maintainers: where `APP_NAME`/version variables come from in the scripts; whether the registry
-should be per-user or per-machine for "All users" installs (supported by `--dir` + `LC_APPS_PATH`, not wired up here);
-the final package name and hosting.
+## `post_install.sh` / `post_install.bat` (after the app's own `pip install`)
+1. Looks for `<package>_lc_tools` in the app's Python (`importlib.util.find_spec`); the `.sh` also requires the bundled `setup.py`.
+2. Reads the app version from the top-level `version:` line of the bundled `construct.yaml` (quotes removed; `0` if missing).
+3. Installs `labconstrictor-tools`: `pip install "${LC_TOOLS_SPEC:-labconstrictor-tools}"`. `LC_TOOLS_SPEC` may be a wheel, a git URL
+   (for example `git+https://github.com/CellMigrationLab/LabConstrictor-Tools@main`) or a mirror. The package is not on PyPI yet, so without
+   `LC_TOOLS_SPEC` this step fails and registration is skipped.
+4. Runs `python -m labconstrictor_tools register --name <App> --prefix <prefix> --module <package>_lc_tools --version <version> --display-name <App>`.
+   (No `--pythonpath`: the module is installed in the app's environment.)
+5. Writes to `menuinst_debug.log`: `Found <package>_lc_tools: registering ...`; then on success (`.sh`) `Tools registered (labconstrictor-tools list shows them).`
+   (the `.bat` prints the register output instead); on failure `WARNING: tool registration failed - see the pip and register output above ...`.
+   **A failure here never fails the installation.**
+
+## `pre_uninstall.sh` / `.bat`
+`python -m labconstrictor_tools unregister --name <App> --prefix <prefix>`, errors ignored. With `--prefix`, the entry is removed only if it still belongs to
+this installation: installing the same app twice and uninstalling the older copy leaves the newer registration in place.
+
+## Placeholders
+In the template the hooks contain `PROJECT_NAME` and `PYTHON_PROJ_NAME`, substituted in each app repository (the app's display name and its Python package).
+An unsubstituted `PYTHON_PROJ_NAME` in the `import` line of `post_install.sh` once made the NucleiSky installer exit with `ModuleNotFoundError`; if you
+see that, the substitution did not happen.
+
+## Where the registry is
+`~/.labconstrictor/apps` (per user; override with `LC_HOME`). Shared and system-wide directories: docs/OPERATIONS.md.
+
+## Open questions
+* Publishing `labconstrictor-tools` on PyPI, so that `LC_TOOLS_SPEC` is no longer needed (and pinning it with hashes in the apps' requirements).
+* Per-machine ("all users") installs: supported by `register --dir` and `LC_APPS_PATH`, not wired into the installers.
+* Verifying the `.bat` hooks on Windows and the whole flow on macOS.
