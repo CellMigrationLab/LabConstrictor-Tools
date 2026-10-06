@@ -94,5 +94,37 @@ class Schema(unittest.TestCase):
         self.assertEqual(caught.exception.code, "folder_not_found")
 
 
+class Presentation(unittest.TestCase):
+    def test_group_advanced_and_enabled_when_in_the_manifest(self):
+        from typing import Annotated, Literal, Optional
+
+        from labconstrictor_tools import Advanced, EnabledWhen, Group, Scalars
+        from labconstrictor_tools.decorators import tool
+        from labconstrictor_tools.introspection import DeclarationError, describe_tool
+
+        @tool("P", id="presentation_probe")
+        def p(
+            mode: Annotated[Literal["a", "b"], Group("Main")] = "a",
+            fixed_seed: Annotated[bool, Group("Advanced seed"), Advanced()] = False,
+            seed: Annotated[Optional[int], Advanced(), EnabledWhen("fixed_seed")] = None,
+            extra: Annotated[int, EnabledWhen("mode", "b")] = 1,
+        ) -> Scalars:
+            return {}
+
+        by = {i["name"]: i for i in describe_tool(p.__lc_tool__)["inputs"]}
+        self.assertEqual(by["mode"]["group"], "Main")
+        self.assertTrue(by["fixed_seed"]["advanced"] and by["seed"]["advanced"])
+        self.assertNotIn("advanced", by["mode"])
+        self.assertEqual(by["seed"]["enabled_when"], {"param": "fixed_seed"})
+        self.assertEqual(by["extra"]["enabled_when"], {"param": "mode", "equals": ["b"]})
+
+        @tool("Q", id="presentation_probe_bad")
+        def q(a: Annotated[int, EnabledWhen("nope")] = 1) -> Scalars:
+            return {}
+
+        with self.assertRaises(DeclarationError):
+            describe_tool(q.__lc_tool__)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

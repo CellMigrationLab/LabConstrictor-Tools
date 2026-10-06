@@ -3,14 +3,17 @@
 from .decorators import tool
 from .runtime import cancelled, check_cancel, progress
 from .types import (
+    Advanced,
     Affine,
     ApplyTo,
     Axes,
     Cancelled,
     Description,
+    EnabledWhen,
     File,
     FileOut,
     Folder,
+    Group,
     Image,
     ImageOut,
     Label,
@@ -28,14 +31,17 @@ from .types import (
 )
 
 __all__ = [
+    "Advanced",
     "Affine",
     "ApplyTo",
     "Axes",
     "Cancelled",
     "Description",
+    "EnabledWhen",
     "File",
     "FileOut",
     "Folder",
+    "Group",
     "Image",
     "ImageOut",
     "Label",
