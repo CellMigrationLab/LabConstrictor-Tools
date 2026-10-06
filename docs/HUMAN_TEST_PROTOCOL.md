@@ -318,12 +318,10 @@ Now tick **set** under *Fixed seed*, type 3; tick **set** under *Time limit*, ty
 ### N13. An error you can understand
 **Do:** in *Reference* use *Select file* and choose `testdata/fake.tif` (the text file); *Query* = `query`. Run. Then press **Details...**.
 
-**Expect:** a status line beginning with ✖: `✖ [unreadable_image] cannot read fake.tif: not a TIFF file: header=b'hell'  - click Details... for the full report (log: ...)`. **Details...** opens a window with the error, the worker output, the run record location and the end of the log.
+**Expect:** a status line beginning with ✖: `✖ [unreadable_image] cannot read fake.tif: not a TIFF file: header=b'hell'  - click Details... for the full report (log: ...)`. **Details...** opens a window with the error, the worker output, the run record location and the path of the log file.
 The sentence tells you what is wrong without a programmer.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*Known issue (reported 2026-10-06):* the log extract inside **Details...** is the end of the shared log file, so it can still show matcher lines of earlier runs. Do not report this again; do report anything else that looks wrong.
 
 ### N14. The second app: a table result
 **Do:** clear *or file* rows. Choose app `CellTracksColab`, tool `Calculate Track Metrics`. For *Tracks* press *Select file* and choose `testdata/tracks.csv`. Run.
@@ -430,7 +428,7 @@ Fields that do not apply to the chosen segmentation are **not** greyed out in Fi
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-*Note:* the error window may also list the worker's last output lines (they start with `[SERVICE-…]`). They can be very long, so the window can be wider than a small screen and its **OK** button can be off-screen. If so, close it with **Alt+F4** (Windows/Linux) or Cmd+W (macOS) and write the screen size in the notes. This is a known cosmetic problem.
+*Note:* the error window may also list the worker's last output lines (at most 8, each cut at 300 characters). If it is still wider than your screen, close it with **Alt+F4** (Windows/Linux) or Cmd+W (macOS) and write the screen size in the notes.
 
 *What it should look like:* ![F8 the Fiji error window (very wide)](img/F8_fiji_error_dialog.png)
 
@@ -465,16 +463,18 @@ Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister
 
 *What it should look like:* ![F11 Log line for a skipped app](img/F11_fiji_log_skipped_app.png)
 
-### F12. Macro recording and replay (jar only: option B)
-**Do:** `Plugins > Macros > Record...`. Run NucleiSky with defaults through the dialog (F3). Look at the recorder text. Copy the recorded line into a macro (`Plugins > Macros > New...`), close the result windows, and run the macro.
+### F12. Macro call typed by hand (jar only: option B)
+The Macro Recorder does **not** record this plugin yet (it writes a wrong line); do not use it. A macro line typed by hand works.
 
-**Expect:** the recorder shows one line like `run("LabConstrictor Tools...", "app=NucleiSky tool=[Relocalize 2D] reference=reference.tif query=query.tif reference_pixel_size_um=0.65 ...");`. The line **does not** contain `fixed_seed=` or `max_seconds=` when those were not set. Running the macro runs the tool without any dialog and gives the same result. A wrong tool name in the macro gives a message that lists the valid tools.
+**Do:** open `reference.tif` and `query.tif` (File > Open). `Plugins > Macros > New...`, type this single line, and run it:
+
+`run("LabConstrictor Tools...", "app=NucleiSky tool=[Relocalize 2D] reference=reference.tif query=query.tif reference_pixel_size_um=0.65 query_pixel_size_um=0.325 segmentation=threshold");`
+
+Then run it again with `tool=[No such tool]`.
+
+**Expect:** the first run shows no dialog and gives the same result as F3 (rotation about 12.17, `n_nuclei_query:9`). The second shows a message that lists the valid tools.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*Known issue (reported 2026-10-06):* at the moment the recorder writes `run("Relocalize 2D", "... fixed_seed=0 ... max_seconds=0.0")` instead of the line described above, ImageJ shows `Recorder: Duplicate keyword ... "max_seconds"`, and replaying the recorded line gives `Macro Error: Unrecognized command: "Relocalize 2D"`. Mark this test FAIL if you see the same, and paste the recorded line and the exact messages in the notes.
-
-![F12 recorded line](img/F12_fiji_recorder_recorded_line.png) ![F12 duplicate keyword](img/F12_fiji_recorder_duplicate_keyword.png) ![F12 replay error](img/F12_fiji_macro_replay_error.png)
 
 ### F13. Closing leaves nothing behind
 **Do:** close Fiji and check the process list as in N16.
@@ -559,7 +559,7 @@ Run `doctor` and `list` with **NucleiSky's** Python (see "Which Python"). Start 
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-*Known issue (reported 2026-10-06):* while uninstalling this app you may see `WARNING: could not remove ... from the LabConstrictor tools registry ... (run: "<prefix>/bin/python" -m labconstrictor_tools unregister --name ...)`. The folder named in the command is deleted right afterwards, so the command cannot be pasted any more; in this case nothing was registered, so nothing needs removing. Check with `list` (NucleiSky's Python) that the app is not listed.
+*Note:* a warning `could not remove ... from the LabConstrictor tools list; ... delete the files ...` appears at uninstall only if an entry was really left behind; if you see it, delete the two files it names and write it in the notes.
 
 ---
 
