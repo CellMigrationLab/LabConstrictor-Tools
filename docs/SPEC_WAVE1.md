@@ -61,7 +61,8 @@ The example app (`labconstrictor_tools.examples.interactions`) gets one tool per
 ## Order of PRs
 Tools (slider and radio, then shapes, then region) → Napari, Fiji, QuPath for each → apps: NucleiSky (outlines and a region to match inside), VLab4Mic (sliders and radio), the StarDist app when it exists (outlines).
 
-## Questions
-1. Is 50 000 outlines the right host limit?
-2. Should `labels_to_shapes` live in Tools (needs scikit-image only when called) or be left to each app?
-3. For several selected objects, labels 1..N or one merged region?
+## Decisions (answered by the maintainer)
+1. Host limit: 50 000 outlines (hosts say how many were left out).
+2. `labels_to_shapes` lives in Tools (`labconstrictor_tools.shapes`); scikit-image is needed only when it is called.
+3. Several selected objects reach the tool as labels 1..N, not one merged region.
+4. Build order: slider and radio plus Copy as command first, then `ShapesOut`, then `RegionOf`.
