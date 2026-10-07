@@ -231,6 +231,8 @@ def _hints(item: dict) -> str:
         found.append("folded group")
     if item.get("widget"):
         found.append("shown as a %s" % item["widget"])
+    if item.get("region_of"):
+        found.append("filled from the selection on %s" % item["region_of"])
     if item.get("pick_channel"):
         found.append("channel chosen in the host")
     if item.get("replace"):

@@ -19,6 +19,7 @@ from labconstrictor_tools import (
     Group,
     Image,
     ImageOut,
+    Labels,
     LabelsOut,
     Max,
     MessageOut,
@@ -26,6 +27,7 @@ from labconstrictor_tools import (
     Name,
     PickChannel,
     PointsOut,
+    RegionOf,
     Widget,
     Replace,
     Scalars,
@@ -83,6 +85,7 @@ def find_bright_spots(
     image: Annotated[Image, Axes("YX"), Description("The image to search")],
     threshold: Annotated[float, Min(0), Max(1), Widget("slider"), Description("Fraction of the maximum above which a pixel counts as a spot")] = 0.8,
     look_for: Annotated[Literal["bright", "dark"], Widget("radio"), Description("Mark bright spots, or dark ones (the image is inverted first)")] = "bright",
+    region: Annotated[Optional[Labels], Axes("YX"), RegionOf("image"), Description("Only look inside this region (the host fills it from the selection)")] = None,
 ) -> tuple[
     Annotated[PointsOut, Name("spots"), ApplyTo("image"), Replace()],  # ApplyTo: the pixels these y, x belong to
     Annotated[MessageOut, Name("summary")],
@@ -93,10 +96,16 @@ def find_bright_spots(
 
     if look_for == "dark":
         image = image.max() - image
-    peak = float(image.max())
+    inside = np.ones(image.shape, bool)
+    if region is not None:                                 # RegionOf: only the selected objects count (an empty selection is an error)
+        from labconstrictor_tools.region import bbox
+
+        bbox(region, image)
+        inside = np.asarray(region) > 0
+    peak = float(image[inside].max())
     if peak <= 0:
         raise ToolError("no_result", "The image is empty (its maximum is 0): nothing to find.")
-    is_peak = (image == maximum_filter(image, size=5)) & (image >= threshold * peak)
+    is_peak = (image == maximum_filter(image, size=5)) & (image >= threshold * peak) & inside
     ys, xs = np.nonzero(is_peak)
     if len(ys) == 0:
         raise ToolError("no_result", "No spot above %.0f%% of the maximum." % (100 * threshold))

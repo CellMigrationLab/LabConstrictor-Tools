@@ -126,6 +126,16 @@ class Widget(_Marker):
         super().__init__(value)
 
 
+class RegionOf(_Marker):
+    """On an optional Labels input: the host fills it from the current selection (Napari the selected Shapes layer, Fiji the ROI,
+    QuPath the selected annotations) as a label image the size of the image named here (0 outside, 1..N for the selected objects),
+    behind a "use the selection" box that is off by default. A tool must treat None as "the whole image"; see
+    `labconstrictor_tools.region.bbox`. Without host support it is the plain optional Labels chooser."""
+
+    def __init__(self, value: str) -> None:
+        super().__init__(str(value))
+
+
 class Advanced(_Marker):
     "listed under 'Advanced settings' (collapsed by default in hosts that can); use Advanced() without an argument"
 

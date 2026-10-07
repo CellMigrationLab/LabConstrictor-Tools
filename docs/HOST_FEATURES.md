@@ -16,12 +16,13 @@ Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar)
 | `ClearAfterRun` | yes | not needed (a fresh dialog every run) | yes |
 | `Replace` | updates the layer or dock in place | closes the previous window, overlay or ROIs | reuses the results window, replaces the annotation |
 | `PickChannel` | RGB colours, channels of a TIFF file | a channel number | channel names |
+| `RegionOf` (run on the selection) | planned | planned | planned |
 | `ImageOut`, `LabelsOut` | layer | window | preview and "Open in QuPath" |
 | `TableOut` | table dock | Results table | table in the results window |
 | `Scalars` | in the status line | in the Log | in the results window and status |
 | `MessageOut` | quoted block under the status | Log and a dialog | label under the status and in the results |
 | `PointsOut` | points layer (scaled like its image) | point ROIs, ROI Manager, table | point annotation on the open image, else a table |
-| `ShapesOut` | planned | planned | planned |
+| `ShapesOut` | shapes layer (outer boundary per part, note for holes) | overlay and ROI Manager entries (holes kept) | annotations with measurements (holes kept) |
 | `Affine` | overlay layer | overlay window | matrix shown |
 | Progress, Cancel, kept worker, run details | yes | progress and Esc | yes |
 | Macro / command recording | no | yes (macro recorder, replay) | no |
