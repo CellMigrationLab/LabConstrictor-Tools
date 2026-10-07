@@ -31,6 +31,8 @@ RESULT_KEYS = {  # what may be asserted about a result of each type ("values": a
     "labels": {"shape", "dtype", "mean", "max", "n_labels"},
     "table": {"columns", "rows", "cells"},
     "affine": {"matrix"},
+    "message": {"contains"},
+    "points": {"rows", "columns"},
     "file": set(),
 }
 
@@ -146,6 +148,10 @@ def _result_problems(result: Result) -> list[str]:
             json.dumps(result["values"], allow_nan=False)
         except (TypeError, ValueError) as error:
             return ["%s: values are not plain JSON (%s)" % (name, error)]
+    if kind == "message":
+        return [] if isinstance(result.get("text"), str) and result["text"].strip() else ["%s: the message is empty" % name]
+    if kind == "points":
+        return _points_problems(name, result)
     if kind == "affine":
         matrix = result.get("matrix_yx")
         ok = (
@@ -155,6 +161,23 @@ def _result_problems(result: Result) -> list[str]:
         )
         return [] if ok else ["%s: affine is not a finite 3x3 matrix" % name]
     return []
+
+
+def _points_problems(name: str, result: Result) -> list[str]:
+    import pandas as pd
+
+    path = Path(result["path"])
+    if not path.is_file():
+        return ["%s: file %s does not exist" % (name, path)]
+    frame = pd.read_csv(path)
+    problems = []
+    if list(frame.columns[:2]) != ["y", "x"]:
+        problems.append("%s: the first two columns must be y and x (got %s)" % (name, list(frame.columns[:2])))
+    elif not frame[["y", "x"]].apply(lambda c: c.map(math.isfinite)).all().all():
+        problems.append("%s: y and x must be finite numbers" % name)
+    if result.get("n") != len(frame):
+        problems.append("%s: reports %s points but the file has %d" % (name, result.get("n"), len(frame)))
+    return problems
 
 
 def _image_problems(name: str, result: Result) -> list[str]:
@@ -264,6 +287,17 @@ def _compare(name: str, result: Result, wanted: dict[str, Any]) -> list[str]:
                 ok = key in result["values"] and _close(actual, value)
             if not ok:
                 problems.append("%s: %s is %r, expected %r" % (name, key, actual, value))
+    elif kind == "message" and "contains" in wanted:
+        if wanted["contains"] not in result["text"]:
+            problems.append("%s: the message lacks %r" % (name, wanted["contains"]))
+    elif kind == "points":
+        import pandas as pd
+
+        frame = pd.read_csv(result["path"])
+        if "rows" in wanted and len(frame) != wanted["rows"]:
+            problems.append("%s: %d points, expected %d" % (name, len(frame), wanted["rows"]))
+        if "columns" in wanted and not set(wanted["columns"]) <= set(frame.columns):
+            problems.append("%s: missing columns %s" % (name, sorted(set(wanted["columns"]) - set(frame.columns))))
     elif kind == "affine" and "matrix" in wanted:
         expected = wanted["matrix"]
         if not (

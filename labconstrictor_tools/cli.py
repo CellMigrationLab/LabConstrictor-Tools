@@ -220,6 +220,22 @@ def _print_progress(message, fraction):
 
 
 # ---------------------------------------------------------------- check (for authors)
+def _hints(item: dict) -> str:
+    """The interaction hints of a parameter or output, so an author sees what hosts will do with it."""
+    found = []
+    if item.get("choices_from"):
+        found.append("dropdown from %s" % item["choices_from"]["tool"])
+    if item.get("clear_after_run"):
+        found.append("cleared after a run")
+    if item.get("group_collapsed"):
+        found.append("folded group")
+    if item.get("replace"):
+        found.append("replaces the previous result")
+    if item.get("advanced"):
+        found.append("advanced")
+    return "   [%s]" % ", ".join(found) if found else ""
+
+
 def cmd_check(args: argparse.Namespace) -> int:
     from .decorators import tools_in
     from .introspection import DeclarationError, describe_tools
@@ -243,11 +259,11 @@ def cmd_check(args: argparse.Namespace) -> int:
         print("✔ %-22s %s" % (tool["id"], tool["label"]))
         for p in tool["inputs"]:
             print(
-                "      in  %-24s %-8s %s"
-                % (p["name"], p["type"], "required" if p["required"] else "default %r" % (p.get("default"),))
+                "      in  %-24s %-8s %s%s"
+                % (p["name"], p["type"], "required" if p["required"] else "default %r" % (p.get("default"),), _hints(p))
             )
         for o in tool["outputs"]:
-            print("      out %-24s %s" % (o["name"], o["type"]))
+            print("      out %-24s %-8s%s" % (o["name"], o["type"], _hints(o)))
     print("%d tool(s); declarations load in %.0f ms" % (len(tools_in(args.module)), seconds * 1000))
     if heavy:
         print(

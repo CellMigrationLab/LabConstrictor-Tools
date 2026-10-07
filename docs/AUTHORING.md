@@ -60,6 +60,8 @@ Return one value or a tuple. Annotate the return type with what it is:
 | `Scalars` | dict of numbers/strings shown to the user |
 | `Affine` + `ApplyTo("query", "reference")` | 3x3 matrix mapping *query pixels -> reference pixels* (y, x order); hosts apply it for you |
 | `FileOut` | a file path |
+| `MessageOut` | a short text for the user (plain; `**bold**` is fine): instructions, a readout, a warning. Shown in a dialog / the status line, never in the log |
+| `Annotated[PointsOut, ApplyTo("image")]` | a DataFrame / list of dicts with columns `y` and `x` (pixels of that image; other columns become properties) -> Napari points layer, Fiji point ROIs, QuPath point annotations |
 | `Annotated[ImageOut, Name("view"), Replace()]` | each run replaces the previous result named `view` (Napari layer / Fiji window) instead of adding "view [1]" |
 | `Annotated[ImageOut, Name("aligned"), Axes("YX")]` | name the output / say what its axes are |
 
@@ -156,3 +158,20 @@ The cases file is validated before anything runs: an unknown or misspelled key (
 expectation that does not exist for that output type) is an error that names it, never an assertion that is quietly skipped. An
 affine `matrix` must be 3x3. Relative file names are resolved only for parameters declared as image, labels, table, file or
 folder: a text parameter is passed exactly as written.
+
+
+## Recipes: interaction hints at a glance
+
+A copy-and-adapt example that uses every hint lives in `labconstrictor_tools/examples/interactions.py`
+(`labconstrictor-tools check --module labconstrictor_tools.examples.interactions` lists what each parameter will do in a host).
+
+| I want to... | Declare |
+|---|---|
+| a dropdown whose options depend on earlier input | a `str` parameter with `ChoicesFrom("tool_that_lists_them", depends=[...])`; that tool returns `Scalars` with `{"choices": [...]}`. Accept any string: hosts without the hint show a text field |
+| a field that must not keep its last value | `ClearAfterRun()` |
+| each run to replace the last result instead of piling up layers / windows | `Replace()` on the output (users keep one by renaming it) |
+| a long form with optional sections | `Group("...")` and `Collapsed()` (or `Advanced()` for the rarely used) |
+| to mark objects found in an image | return `PointsOut` (columns `y`, `x`, then any properties) |
+| to tell the user something | return `MessageOut` |
+
+Every hint is optional and additive: a host that does not know it shows a plain, still working form, so the tool never depends on a hint to be correct.

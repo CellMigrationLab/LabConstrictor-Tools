@@ -195,7 +195,35 @@ def _write_one(out, value, job_dir):
         return {"type": "values", "name": name, "values": {str(k): _plain(v) for k, v in dict(value).items()}}
     if kind == "affine":
         return {"type": "affine", "name": name, "matrix_yx": _as_3x3(value), **out.get("display", {})}
+    if kind == "message":
+        text = str(value).strip()
+        if not text:
+            raise ToolError("bad_return", "the message output '%s' is empty" % name)
+        return {"type": "message", "name": name, "text": text}
+    if kind == "points":
+        return _write_points(name, value, job_dir, out.get("display", {}))
     raise ToolError("bad_return", "unsupported output type %r" % kind)
+
+
+def _write_points(name, value, job_dir, display):
+    """Points as a CSV with the columns y and x (finite pixel coordinates) plus any properties."""
+    import numpy as np
+    import pandas as pd
+
+    frame = value if isinstance(value, pd.DataFrame) else pd.DataFrame(value)
+    missing = [c for c in ("y", "x") if c not in frame.columns]
+    if missing:
+        raise ToolError("bad_return", "the points output '%s' needs the columns y and x (missing: %s)" % (name, ", ".join(missing)))
+    for column in ("y", "x"):
+        numbers = pd.to_numeric(frame[column], errors="coerce").to_numpy(dtype=float)
+        if not np.isfinite(numbers).all():
+            raise ToolError("bad_return", "the points output '%s' has a %s coordinate that is not a finite number" % (name, column))
+        frame[column] = numbers
+    others = [c for c in frame.columns if c not in ("y", "x")]
+    frame = frame[["y", "x"] + others]
+    path = job_dir / (name + ".csv")
+    frame.to_csv(path, index=False)
+    return {"type": "points", "name": name, "path": str(path), "n": int(len(frame)), "columns": list(frame.columns), **display}
 
 
 def _plain(value):
