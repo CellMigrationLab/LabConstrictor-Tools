@@ -350,5 +350,16 @@ class InteractionHintTests(unittest.TestCase):
             describe_tools()
 
 
+    def test_replace_applies_to_an_affine_output(self):
+        import numpy as np
+
+        @tool
+        def align(image: Image) -> Annotated[Affine, ApplyTo("image"), Name("alignment"), Replace()]:
+            return np.eye(3)
+
+        out = describe_tools()["tools"][0]["outputs"][0]
+        self.assertEqual((out["type"], out["replace"]), ("affine", True))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

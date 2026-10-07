@@ -143,7 +143,7 @@ class Collapsed(_Marker):
 
 
 class Replace(_Marker):
-    "output hint: a new run replaces the result of the previous run of this output (same layer / window) instead of adding one"
+    "output hint (image, labels, table or affine): a new run replaces the result of the previous run of this output (same layer / window) instead of adding one"
 
     def __init__(self, value: bool = True) -> None:
         super().__init__(bool(value))
