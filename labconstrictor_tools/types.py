@@ -45,6 +45,16 @@ class Scalars:
     "dict of JSON-able values"
 
 
+class MessageOut:
+    "str -> a message for the user (plain text; **bold** and lists are fine): instructions, a readout, a warning. Not a log: keep it short"
+
+
+class PointsOut:
+    """DataFrame / dict-of-lists / list-of-dicts with columns `y` and `x` (pixel coordinates, in the frame of the image named by
+    ApplyTo, or of the first image input) -> points: a Napari points layer, Fiji point ROIs, QuPath point annotations. Any other
+    column is kept as a property of each point (for example `label` or `score`)."""
+
+
 class Affine:
     "3x3 homogeneous matrix in (y,x) pixel coordinates mapping SOURCE pixels -> TARGET pixels"
 
@@ -57,6 +67,8 @@ OUTPUT_TYPES = {
     FileOut: "file",
     Scalars: "values",
     Affine: "affine",
+    MessageOut: "message",
+    PointsOut: "points",
 }
 
 

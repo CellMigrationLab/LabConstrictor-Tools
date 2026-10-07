@@ -181,8 +181,8 @@ def _outputs(ret, tool_id):
             raise DeclarationError("tool %r output %d: unsupported return annotation %r" % (tool_id, i, it))
         o = {"name": _m(m, T.Name).value if _m(m, T.Name) else T.OUTPUT_TYPES[b], "type": T.OUTPUT_TYPES[b]}
         if _m(m, T.Replace) and _m(m, T.Replace).value:
-            if o["type"] not in ("image", "labels", "table", "affine"):
-                raise DeclarationError("tool %r output %d: Replace applies to an image, labels, table or affine output" % (tool_id, i))
+            if o["type"] not in ("image", "labels", "table", "affine", "points"):
+                raise DeclarationError("tool %r output %d: Replace applies to an image, labels, table, points or affine output" % (tool_id, i))
             o["replace"] = True
         if _m(m, T.Axes):
             o["axes"] = _m(m, T.Axes).value

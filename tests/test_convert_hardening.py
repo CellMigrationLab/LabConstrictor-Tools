@@ -171,5 +171,82 @@ class EnabledWhenKeepsFalsyValues(unittest.TestCase):
         self.assertEqual(rule, {"param": "normalize", "equals": [False]})
 
 
+class MessageAndPointsOutputs(unittest.TestCase):
+    def _results(self, annotation_fn):
+        import tempfile
+
+        schema = describe_tool(annotation_fn.__lc_tool__)
+        folder = tempfile.mkdtemp()
+        return convert.build_results(schema, annotation_fn(), folder)
+
+    def setUp(self):
+        from labconstrictor_tools import decorators
+
+        decorators.clear()
+
+    def test_message_is_text_and_an_empty_one_is_refused(self):
+        from labconstrictor_tools import MessageOut
+
+        @tool
+        def say() -> MessageOut:
+            return "  hello **world**  "
+
+        self.assertEqual(self._results(say), [{"type": "message", "name": "message", "text": "hello **world**"}])
+
+        @tool
+        def silent() -> MessageOut:
+            return "   "
+
+        with self.assertRaises(ToolError) as caught:
+            self._results(silent)
+        self.assertEqual(caught.exception.code, "bad_return")
+
+    def test_points_keep_y_x_first_and_properties_after(self):
+        from labconstrictor_tools import PointsOut
+
+        @tool
+        def where() -> PointsOut:
+            return [{"label": "a", "x": 3, "y": 1}, {"label": "b", "x": 5.5, "y": 2}]
+
+        (result,) = self._results(where)
+        self.assertEqual((result["type"], result["n"], result["columns"]), ("points", 2, ["y", "x", "label"]))
+        import pandas as pd
+
+        frame = pd.read_csv(result["path"])
+        self.assertEqual(frame["x"].tolist(), [3.0, 5.5])
+
+    def test_points_without_y_x_or_with_nan_are_refused_with_a_clear_message(self):
+        import pandas as pd
+
+        from labconstrictor_tools import PointsOut
+
+        @tool
+        def no_x() -> PointsOut:
+            return {"y": [1, 2]}
+
+        with self.assertRaisesRegex(ToolError, "needs the columns y and x"):
+            self._results(no_x)
+        from labconstrictor_tools import decorators
+
+        decorators.clear()
+
+        @tool
+        def nan_y() -> PointsOut:
+            return pd.DataFrame({"y": [1.0, float("nan")], "x": [1.0, 2.0]})
+
+        with self.assertRaisesRegex(ToolError, "not a finite number"):
+            self._results(nan_y)
+
+    def test_points_carry_the_image_they_are_placed_on(self):
+        from labconstrictor_tools import ApplyTo, PointsOut
+
+        @tool
+        def placed(image: Image) -> Annotated[PointsOut, ApplyTo("image")]:
+            return [{"y": 1, "x": 1}]
+
+        schema = describe_tool(placed.__lc_tool__)
+        self.assertEqual(schema["outputs"][0]["display"], {"apply_to": "image"})
+
+
 if __name__ == "__main__":
     unittest.main()

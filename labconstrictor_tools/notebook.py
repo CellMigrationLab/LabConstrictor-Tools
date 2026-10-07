@@ -140,6 +140,13 @@ class ToolForm:
                     display(pd.read_csv(result["path"]))
                 elif kind == "values":
                     print(result["name"], result["values"])
+                elif kind == "message":
+                    print(result["text"])
+                elif kind == "points":
+                    import pandas as pd
+                    from IPython.display import display
+
+                    display(pd.read_csv(result["path"]))
                 elif kind == "affine":
                     print(
                         result["name"],

@@ -27,7 +27,7 @@ Interaction hints (additive within protocol 1; a host that ignores them shows a 
 * `clear_after_run: true`: after a successful run, hosts that keep form values between runs put the parameter back to its default (or unset). Fiji opens a fresh dialog each run and needs nothing.
 * `choices_from: {"tool", "depends", "field"}` (string parameters): the options come from another tool of the app. The host runs `tool` with the current values of the parameters named in `depends` and reads the list under `field` of its `values` result; it shows a dropdown, and falls back to a text field when the call cannot be answered. The value stays a free string for the tool. Fiji builds its dialog before the user types anything, so it asks with the values used by the previous run of the same app (kept in `<LC_HOME>/state`) and falls back to the text field the first time.
 * output `replace: true` (image, labels, table, affine: the overlay): a new run replaces the previous result of the same output (same layer / window name) instead of adding "name [1]".
-`folder` is a directory path (the worker checks it exists); hosts show a folder chooser. Output `type`: `image labels table values affine file`.
+`folder` is a directory path (the worker checks it exists); hosts show a folder chooser. Output `type`: `image labels table values affine file message points`. `message`: `{text}` (plain text, short). `points`: `{path, n, columns, apply_to?}`, a CSV whose first two columns are `y` and `x` (finite pixel coordinates in the frame of the image named by `apply_to`, else of the first image); other columns are properties of each point.
 Hosts must skip (and report) a schema whose `protocol` they do not support.
 
 ## Wire protocol (host <-> worker)
