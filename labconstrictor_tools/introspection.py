@@ -105,6 +105,12 @@ def _param(name, p, hint, argdoc):
         d["type"] = T.INPUT_TYPES[base]
         if _m(meta, T.Axes):
             d["axes"] = _m(meta, T.Axes).value
+        if _m(meta, T.PickChannel) and _m(meta, T.PickChannel).value:
+            if d["type"] != "image":
+                raise DeclarationError("parameter %r: PickChannel applies to an Image input" % name)
+            if d.get("axes") not in (None, "YX"):
+                raise DeclarationError("parameter %r: PickChannel gives the tool a 2D channel, so Axes must be YX (or absent)" % name)
+            d["pick_channel"] = True
     elif get_origin(base) is Literal:
         ch = list(get_args(base))
         d["type"] = "choice"
@@ -153,6 +159,8 @@ def _param(name, p, hint, argdoc):
         d["group_collapsed"] = True
     if _m(meta, T.ClearAfterRun) and _m(meta, T.ClearAfterRun).value:
         d["clear_after_run"] = True
+    if _m(meta, T.PickChannel) and _m(meta, T.PickChannel).value and "pick_channel" not in d:
+        raise DeclarationError("parameter %r: PickChannel applies to an Image input" % name)
     src = _m(meta, T.ChoicesFrom)
     if src:
         if d["type"] != "string":

@@ -229,6 +229,8 @@ def _hints(item: dict) -> str:
         found.append("cleared after a run")
     if item.get("group_collapsed"):
         found.append("folded group")
+    if item.get("pick_channel"):
+        found.append("channel chosen in the host")
     if item.get("replace"):
         found.append("replaces the previous result")
     if item.get("advanced"):

@@ -45,6 +45,7 @@ class ParamSchema(_ParamRequired, total=False):
     group_collapsed: bool
     clear_after_run: bool
     choices_from: dict[str, Any]
+    pick_channel: bool
 
 
 class _OutputRequired(TypedDict):

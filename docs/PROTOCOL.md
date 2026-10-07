@@ -7,7 +7,7 @@
 { "protocol": 1, "application": str, "version": str,
   "tools": [ { "id", "label", "description"?,
                "inputs":  [ { "name", "label", "type", "required", "default"?, "description"?, "choices"?,
-                              "minimum"?, "maximum"?, "unit"?, "axes"?, "pixel_size_of"?, "nullable"?, "group"?, "advanced"?, "enabled_when"?, "group_collapsed"?, "clear_after_run"?, "choices_from"? } ],
+                              "minimum"?, "maximum"?, "unit"?, "axes"?, "pixel_size_of"?, "nullable"?, "group"?, "advanced"?, "enabled_when"?, "group_collapsed"?, "clear_after_run"?, "choices_from"?, "pick_channel"? } ],
                "outputs": [ { "name", "type", "axes"?, "display"?: {"apply_to", "relative_to"?}, "replace"? } ] } ] }
 ```
 Value rules (enforced by the worker, each violation is a `FAILURE` with code `invalid_parameter` or a declaration error at registration):
@@ -26,6 +26,7 @@ Interaction hints (additive within protocol 1; a host that ignores them shows a 
 * `group_collapsed: true` (with `group`): the group is an accordion section that starts folded.
 * `clear_after_run: true`: after a successful run, hosts that keep form values between runs put the parameter back to its default (or unset). Fiji opens a fresh dialog each run and needs nothing.
 * `choices_from: {"tool", "depends", "field"}` (string parameters): the options come from another tool of the app. The host runs `tool` with the current values of the parameters named in `depends` and reads the list under `field` of its `values` result; it shows a dropdown, and falls back to a text field when the call cannot be answered. The value stays a free string for the tool. Fiji builds its dialog before the user types anything, so it asks with the values used by the previous run of the same app (kept in `<LC_HOME>/state`) and falls back to the text field the first time.
+* `pick_channel: true` (image inputs, `axes` YX or absent): the host lets the person choose a channel of the chosen image (names where the host has them, numbers otherwise) and sends the tool that channel only, as a 2D image. A host that cannot list channels sends the image as it is.
 * output `replace: true` (image, labels, table, affine: the overlay): a new run replaces the previous result of the same output (same layer / window name) instead of adding "name [1]".
 `folder` is a directory path (the worker checks it exists); hosts show a folder chooser. Output `type`: `image labels table values affine file message points`. `message`: `{text}` (plain text, short). `points`: `{path, n, columns, apply_to?}`, a CSV whose first two columns are `y` and `x` (finite pixel coordinates in the frame of the image named by `apply_to`, else of the first image); other columns are properties of each point.
 Hosts must skip (and report) a schema whose `protocol` they do not support.
