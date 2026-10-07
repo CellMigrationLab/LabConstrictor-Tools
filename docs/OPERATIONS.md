@@ -15,7 +15,7 @@
 * An app on a network share works if its Python can be started locally from that path; temporary files stay local; the app folder is
   never written to by the runtime. Tested: a read-only install at a different path than where it was created. **Not tested:**
   UNC paths, latency (first imports of torch/scipy over a network can take minutes), antivirus/AppLocker, many users on one share.
-* Remote execution (app on a server, host elsewhere) is not supported: the design assumes local process launch and shared files.
+* Remote execution (app on a server, host elsewhere) is not supported yet: the design assumes local process launch and shared files. A proposal over SSH is in [REMOTE_EXECUTION_SPEC.md](REMOTE_EXECUTION_SPEC.md). An app used entirely on the server (remote desktop, VNC, X forwarding, or the notebook on a headless Jupyter server) works as it is.
 
 ## Security model
 * The worker never runs host-supplied code: only tools declared by the app's own module can be started.
