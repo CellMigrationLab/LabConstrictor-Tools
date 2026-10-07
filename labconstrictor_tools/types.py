@@ -161,6 +161,16 @@ class Replace(_Marker):
         super().__init__(bool(value))
 
 
+class PickChannel(_Marker):
+    """On an Image input of a 2D tool: the person chooses the channel of a multi-channel image, and the host hands the tool only
+    that channel (a 2D array). Without it a host passes the image as it is, and a 2D tool refuses a multi-channel one.
+    Hosts that cannot list channels (Napari layers are usually one channel each) show a plain image chooser; the command line and
+    notebooks pass the file as it is."""
+
+    def __init__(self, value: bool = True) -> None:
+        super().__init__(bool(value))
+
+
 class Axes(_Marker):
     "axes string, e.g. 'YX'"
 

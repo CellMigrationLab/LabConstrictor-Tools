@@ -22,6 +22,7 @@ from labconstrictor_tools import (
     Max,
     Min,
     Name,
+    PickChannel,
     PixelSizeOf,
     Replace,
     Scalars,
@@ -359,6 +360,46 @@ class InteractionHintTests(unittest.TestCase):
 
         out = describe_tools()["tools"][0]["outputs"][0]
         self.assertEqual((out["type"], out["replace"]), ("affine", True))
+
+
+class PickChannelTests(unittest.TestCase):
+    def setUp(self):
+        decorators.clear()
+
+    def tearDown(self):
+        decorators.clear()
+
+    def test_schema_key(self):
+        @tool
+        def one(image: Annotated[Image, Axes("YX"), PickChannel()]) -> Scalars:
+            return {}
+
+        param = describe_tools()["tools"][0]["inputs"][0]
+        self.assertTrue(param["pick_channel"])
+        self.assertEqual(param["axes"], "YX")
+
+    def test_absent_without_the_marker(self):
+        @tool
+        def one(image: Image) -> Scalars:
+            return {}
+
+        self.assertNotIn("pick_channel", describe_tools()["tools"][0]["inputs"][0])
+
+    def test_only_for_images(self):
+        @tool
+        def bad(n: Annotated[int, PickChannel()] = 1) -> Scalars:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "applies to an Image input"):
+            describe_tools()
+
+    def test_the_tool_must_want_a_2d_image(self):
+        @tool
+        def bad(image: Annotated[Image, Axes("ZYX"), PickChannel()]) -> Scalars:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "Axes must be YX"):
+            describe_tools()
 
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@ from labconstrictor_tools import (
     MessageOut,
     Min,
     Name,
+    PickChannel,
     PointsOut,
     Replace,
     Scalars,
@@ -93,3 +94,11 @@ def find_bright_spots(
     if len(ys) == 0:
         raise ToolError("no_result", "No spot above %.0f%% of the maximum." % (100 * threshold))
     return [{"y": float(y), "x": float(x), "intensity": float(image[y, x])} for y, x in zip(ys, xs)], "Found **%d** spot(s)." % len(ys)
+
+
+@tool("Mean of a channel")
+def channel_mean(
+    image: Annotated[Image, Axes("YX"), PickChannel(), Description("A multi-channel image: choose the channel in the host")],
+) -> Scalars:
+    """A 2D tool that works on one channel of a multi-channel image: with PickChannel the host sends only the chosen channel."""
+    return {"mean": round(float(image.mean()), 4), "shape": "%d x %d" % image.shape}

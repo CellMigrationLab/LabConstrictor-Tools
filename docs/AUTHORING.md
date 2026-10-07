@@ -45,6 +45,7 @@ app lists in `construct.yaml` under `extra_files` like the rest of `src/`). Any 
 | `Annotated[float, PixelSizeOf("image")]` | hosts prefill this from the image's calibration (converted to um) |
 | `Annotated[..., Group("Segmentation")]` | the parameter is listed under that heading; the parameters of a group are shown together |
 | `Annotated[..., Advanced()]` | listed last, behind "Show advanced settings" (Napari) / under "Advanced settings" (Fiji) |
+| `Annotated[Image, Axes("YX"), PickChannel()]` | the person chooses a channel of a multi-channel image in the host (QuPath: the channel names; Fiji: the channel number) and your function receives only that channel as a 2D array. Napari layers are one channel each, so it only offers R/G/B for an RGB layer or the channels of a TIFF file given as "or file"; the command line and notebooks pass the image as it is |
 | `Annotated[..., Group("Advanced options"), Collapsed()]` | the group is an accordion section that starts folded (Napari); Fiji shows the heading and the fields |
 | `Annotated[str, ChoicesFrom("list_conditions", depends=["results_folder", "user_name"])]` | a dropdown filled by another tool (which returns `Scalars` with a `choices` list); a text field when it cannot be answered, so the tool accepts any string |
 | `Annotated[str, ClearAfterRun()]` | Napari empties/resets the field after a successful run (a stale answer cannot be sent twice) |
@@ -170,6 +171,7 @@ A copy-and-adapt example that uses every hint lives in `labconstrictor_tools/exa
 | a dropdown whose options depend on earlier input | a `str` parameter with `ChoicesFrom("tool_that_lists_them", depends=[...])`; that tool returns `Scalars` with `{"choices": [...]}`. Accept any string: hosts without the hint show a text field |
 | a field that must not keep its last value | `ClearAfterRun()` |
 | each run to replace the last result instead of piling up layers / windows | `Replace()` on the output (users keep one by renaming it) |
+| to work on one channel of a multi-channel image | `Annotated[Image, Axes("YX"), PickChannel()]` (without it a multi-channel image reaches a 2D tool as 3D and is refused) |
 | a long form with optional sections | `Group("...")` and `Collapsed()` (or `Advanced()` for the rarely used) |
 | to mark objects found in an image | return `PointsOut` (columns `y`, `x`, then any properties) |
 | to tell the user something | return `MessageOut` |
