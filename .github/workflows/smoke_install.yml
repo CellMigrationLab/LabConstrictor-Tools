@@ -1,19 +1,39 @@
-# Stage 2 of the smoke test: build the CellTracksColab installer on each operating system (the release workflow's steps, but
+# Stage 2 of the smoke test: build an app's installer (CellTracksColab by default; the inputs choose another LabConstrictor app) on each operating system (the release workflow's steps, but
 # nothing is released), install it silently as a plain user, and check that the tools bridge is established. The app's sources
 # come from the app repository (default branch bridge-test); the check itself is tests/smoke_bridge.py of this repository.
 name: smoke-install
 on:
   workflow_dispatch:
     inputs:
+      app_repo:
+        description: "Repository of the LabConstrictor app to build"
+        required: false
+        default: CellMigrationLab/CellTracksColab
       app_ref:
-        description: "Branch or tag of CellTracksColab to build"
+        description: "Branch or tag of the app to build"
         required: false
         default: bridge-test
+      app_name:
+        description: "Name of the app as registered (construct.yaml name)"
+        required: false
+        default: CellTracksColab
+      tools_module:
+        description: "Name of the tools module the hook must find (<package>_lc_tools)"
+        required: false
+        default: celltracks_lc_tools
+      smoke_args:
+        description: "Arguments of tests/smoke_bridge.py after --app (a tool that works, its parameters, a parameter that makes it fail)"
+        required: false
+        default: "--tool calculate_metrics --param tracks=app/lc_tests/fixtures/tracks.csv --bad-param tracks=/nonexistent/none.csv"
   push:
     branches: [claude/smoke-bridge]
 
 env:
+  APP_REPO: ${{ inputs.app_repo || 'CellMigrationLab/CellTracksColab' }}
   APP_REF: ${{ inputs.app_ref || 'bridge-test' }}
+  APP_NAME: ${{ inputs.app_name || 'CellTracksColab' }}
+  TOOLS_MODULE: ${{ inputs.tools_module || 'celltracks_lc_tools' }}
+  SMOKE_ARGS: ${{ inputs.smoke_args || '--tool calculate_metrics --param tracks=app/lc_tests/fixtures/tracks.csv --bad-param tracks=/nonexistent/none.csv' }}
 
 jobs:
   build:
@@ -39,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: CellMigrationLab/CellTracksColab
+          repository: ${{ env.APP_REPO }}
           ref: ${{ env.APP_REF }}
           path: app
       - uses: actions/setup-python@v4
@@ -51,7 +71,7 @@ jobs:
           echo "version $RELEASE_VERSION"
           bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.os_name }}.log" "bump_version.py" .tools/python/bump_version.py python .tools/python/bump_version.py "${RELEASE_VERSION}"
           bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.os_name }}.log" "bump_constructor.py" .tools/python/bump_constructor.py python .tools/python/bump_constructor.py
-          bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.os_name }}.log" "bump_Welcome_notebook.py" .tools/python/bump_Welcome_notebook.py python .tools/python/bump_Welcome_notebook.py CellMigrationLab CellTracksColab
+          bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.os_name }}.log" "bump_Welcome_notebook.py" .tools/python/bump_Welcome_notebook.py python .tools/python/bump_Welcome_notebook.py "${APP_REPO%%/*}" "${APP_REPO##*/}"
       - uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate: true
@@ -92,7 +112,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
-          repository: CellMigrationLab/CellTracksColab
+          repository: ${{ env.APP_REPO }}
           ref: ${{ env.APP_REF }}
           path: app
           sparse-checkout: lc_tests/fixtures
@@ -129,28 +149,23 @@ jobs:
         run: |
           LOG="$HOME/ctc/menuinst_debug.log"
           ! grep -q "WARNING: tool registration failed" "$LOG" || { echo "FAIL: the hook reported 'tool registration failed'"; exit 1; }
-          grep -q "Found celltracks_lc_tools: registering" "$LOG" || { echo "FAIL: 'Found celltracks_lc_tools: registering' is not in menuinst_debug.log"; exit 1; }
+          grep -q "Found $TOOLS_MODULE: registering" "$LOG" || { echo "FAIL: 'Found $TOOLS_MODULE: registering' is not in menuinst_debug.log"; exit 1; }
           if [ "$RUNNER_OS" != "Windows" ]; then  # only the .sh hook prints this line (the protocol says so)
             grep -q "Tools registered" "$LOG" || { echo "FAIL: 'Tools registered' is not in menuinst_debug.log"; exit 1; }
           fi
           echo "registration lines found"
 
-      - name: Bridge smoke test (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Bridge smoke test
         shell: bash
         run: |
-          "$HOME/ctc/bin/python" tests/smoke_bridge.py --app CellTracksColab --tool calculate_metrics --param tracks=app/lc_tests/fixtures/tracks.csv --bad-param tracks=/nonexistent/none.csv
-      - name: Bridge smoke test (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          "$HOME/ctc/python.exe" tests/smoke_bridge.py --app CellTracksColab --tool calculate_metrics --param tracks=app/lc_tests/fixtures/tracks.csv --bad-param tracks=C:/nonexistent/none.csv
+          if [ "$RUNNER_OS" = "Windows" ]; then PY="$HOME/ctc/python.exe"; else PY="$HOME/ctc/bin/python"; fi
+          "$PY" tests/smoke_bridge.py --app "$APP_NAME" $SMOKE_ARGS
 
       - name: Uninstall (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          ENTRY="$HOME/.labconstrictor/apps/CellTracksColab.json"
+          ENTRY="$HOME/.labconstrictor/apps/$APP_NAME.json"
           test -f "$ENTRY" && echo "registry entry present before uninstall" || echo "NOTE: registry entry missing before uninstall"
           bash "$HOME/ctc/uninstall.sh" 2> uninstall.err; echo "uninstall exit code $?"; cat uninstall.err
           test ! -d "$HOME/ctc" && echo "prefix removed" || { echo "FAIL: prefix still there"; exit 1; }
