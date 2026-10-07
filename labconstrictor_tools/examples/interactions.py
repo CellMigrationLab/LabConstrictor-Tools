@@ -27,6 +27,7 @@ from labconstrictor_tools import (
     PointsOut,
     Replace,
     Scalars,
+    TableOut,
     ToolError,
     tool,
 )
@@ -102,3 +103,12 @@ def channel_mean(
 ) -> Scalars:
     """A 2D tool that works on one channel of a multi-channel image: with PickChannel the host sends only the chosen channel."""
     return {"mean": round(float(image.mean()), 4), "shape": "%d x %d" % image.shape}
+
+
+@tool("Check this installation")
+def check_installation() -> tuple[Annotated[MessageOut, Name("readout")], Annotated[TableOut, Name("details")]]:
+    """What a person can run to see whether the machine, the worker and the GPU libraries are in order (the same three lines work in any app)."""
+    from labconstrictor_tools import diagnostics
+
+    checks = diagnostics.run_checks(benchmark=False)
+    return diagnostics.summary(checks), diagnostics.rows(checks)

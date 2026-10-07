@@ -179,3 +179,15 @@ A copy-and-adapt example that uses every hint lives in `labconstrictor_tools/exa
 | to tell the user something | return `MessageOut` |
 
 Every hint is optional and additive: a host that does not know it shows a plain, still working form, so the tool never depends on a hint to be correct.
+
+## A "Check this installation" tool in three lines
+`labconstrictor_tools.diagnostics` tests the machine (memory, free disk, write access, paths), the worker, the GPU tools (`nvidia-smi`, Apple chip) and PyTorch (CUDA, MPS, ROCm), optionally with a small CPU-versus-GPU benchmark. Each failure comes with the fix beside it. An app offers it to its users like this:
+
+```python
+@tool("Check this installation")
+def check_installation() -> tuple[Annotated[MessageOut, Name("readout")], Annotated[TableOut, Name("details")]]:
+    from labconstrictor_tools import diagnostics
+    checks = diagnostics.run_checks(benchmark=False)       # benchmark=True adds a CPU-versus-device timing
+    return diagnostics.summary(checks), diagnostics.rows(checks)
+```
+Probes only look at libraries that are already installed in the app; they never import something heavy to find it missing and never install anything. `diagnostics.torch_devices()` gives `["cpu", "cuda:0", "mps"]` for a device dropdown (`ChoicesFrom`). To add a probe, write a function returning a list of `diagnostics.Check` and pass it as `run_checks(extra=[...])`.
