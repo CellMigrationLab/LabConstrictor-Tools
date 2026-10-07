@@ -202,6 +202,8 @@ def _write_one(out, value, job_dir):
         return {"type": "message", "name": name, "text": text}
     if kind == "points":
         return _write_points(name, value, job_dir, out.get("display", {}))
+    if kind == "shapes":
+        return _write_shapes(name, value, job_dir, out.get("display", {}))
     raise ToolError("bad_return", "unsupported output type %r" % kind)
 
 
@@ -224,6 +226,75 @@ def _write_points(name, value, job_dir, display):
     path = job_dir / (name + ".csv")
     frame.to_csv(path, index=False)
     return {"type": "points", "name": name, "path": str(path), "n": int(len(frame)), "columns": list(frame.columns), **display}
+
+
+def _ring(name, number, vertices, ring_name="polygon"):
+    """One ring of (y, x) vertices -> a closed GeoJSON ring of [x, y] (finite, at least 3 distinct vertices)."""
+    import numpy as np
+
+    try:
+        array = np.asarray(vertices, dtype=float)
+    except (TypeError, ValueError):
+        raise ToolError("bad_return", "the shapes output '%s': %s %d is not a list of (y, x) vertices" % (name, ring_name, number)) from None
+    if array.ndim != 2 or array.shape[1] != 2:
+        raise ToolError("bad_return", "the shapes output '%s': %s %d must be an array of (y, x) vertices, got shape %s" % (name, ring_name, number, array.shape))
+    if not np.isfinite(array).all():
+        raise ToolError("bad_return", "the shapes output '%s': %s %d has a vertex that is not a finite number" % (name, ring_name, number))
+    if len(array) > 1 and (array[0] == array[-1]).all():
+        array = array[:-1]
+    if len(np.unique(array, axis=0)) < 3:
+        raise ToolError("bad_return", "the shapes output '%s': %s %d has fewer than 3 distinct vertices" % (name, ring_name, number))
+    ring = [[float(x), float(y)] for y, x in array]
+    return ring + [ring[0]]
+
+
+def _check_geojson(name, collection):
+    """A GeoJSON FeatureCollection of Polygon / MultiPolygon features with finite coordinates; anything else is refused."""
+    import math
+
+    if not isinstance(collection, dict) or collection.get("type") != "FeatureCollection" or not isinstance(collection.get("features"), list):
+        raise ToolError("bad_return", "the shapes output '%s': a GeoJSON dict must be a FeatureCollection with a list of features" % name)
+
+    def finite(node):
+        if isinstance(node, (int, float)) and not isinstance(node, bool):
+            return math.isfinite(node)
+        return isinstance(node, (list, tuple)) and all(finite(x) for x in node)
+
+    for i, feature in enumerate(collection["features"]):
+        geometry = feature.get("geometry") if isinstance(feature, dict) else None
+        kind = geometry.get("type") if isinstance(geometry, dict) else None
+        if kind not in ("Polygon", "MultiPolygon"):
+            raise ToolError("bad_return", "the shapes output '%s': feature %d is a %s; only Polygon and MultiPolygon are supported" % (name, i, kind or "geometry-less feature"))
+        if not finite(geometry.get("coordinates")):
+            raise ToolError("bad_return", "the shapes output '%s': feature %d has a coordinate that is not a finite number" % (name, i))
+
+
+def _write_shapes(name, value, job_dir, display):
+    """Outlines as a GeoJSON FeatureCollection ([x, y], pixel centres at integers). Accepts a FeatureCollection, or a list of
+    polygons: each an array of (y, x) vertices, or a dict with `polygon` (that array) and properties."""
+    import json
+
+    if isinstance(value, dict):
+        _check_geojson(name, value)
+        collection = value
+    else:
+        try:
+            items = list(value)
+        except TypeError:
+            raise ToolError("bad_return", "the shapes output '%s' must be a GeoJSON dict or a list of polygons" % name) from None
+        features = []
+        for i, item in enumerate(items):
+            properties = {}
+            if isinstance(item, dict):
+                properties = {str(k): _plain(v) for k, v in item.items() if k != "polygon"}
+                item = item.get("polygon")
+                if item is None:
+                    raise ToolError("bad_return", "the shapes output '%s': polygon %d is a dict without the key 'polygon'" % (name, i))
+            features.append({"type": "Feature", "properties": properties, "geometry": {"type": "Polygon", "coordinates": [_ring(name, i, item)]}})
+        collection = {"type": "FeatureCollection", "features": features}
+    path = job_dir / (name + ".geojson")
+    path.write_text(json.dumps(collection, allow_nan=False), encoding="utf-8")
+    return {"type": "shapes", "name": name, "path": str(path), "n": len(collection["features"]), **display}
 
 
 def _plain(value):

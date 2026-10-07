@@ -19,6 +19,7 @@ A tool declares itself with Python types and a few markers; hosts (Napari, Fiji,
 | `Scalars` | return a dict of numbers or text | the values shown to the person |
 | `MessageOut` | return a short text | a message block, dialog or label |
 | `PointsOut` | return a table with columns `y`, `x` (+ properties) | a points layer, point ROIs, point annotations |
+| `ShapesOut` | return `labels_to_shapes(labels)`, a GeoJSON FeatureCollection or a list of polygons | a shapes layer, polygon ROIs, annotations (planned in the hosts; until then it is listed as a file) |
 | `FileOut` | return a path | a file the host lists |
 | `Affine` (+ `ApplyTo`) | return a 3x3 matrix | an overlay of the moved image |
 

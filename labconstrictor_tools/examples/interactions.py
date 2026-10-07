@@ -19,6 +19,7 @@ from labconstrictor_tools import (
     Group,
     Image,
     ImageOut,
+    LabelsOut,
     Max,
     MessageOut,
     Min,
@@ -28,6 +29,7 @@ from labconstrictor_tools import (
     Widget,
     Replace,
     Scalars,
+    ShapesOut,
     TableOut,
     ToolError,
     tool,
@@ -99,6 +101,30 @@ def find_bright_spots(
     if len(ys) == 0:
         raise ToolError("no_result", "No spot above %.0f%% of the maximum." % (100 * threshold))
     return [{"y": float(y), "x": float(x), "intensity": float(image[y, x])} for y, x in zip(ys, xs)], "Found **%d** spot(s)." % len(ys)
+
+
+@tool("Outline the blobs")
+def outline_blobs(
+    image: Annotated[Image, Axes("YX"), Description("The image to segment")],
+    threshold: Annotated[float, Min(0), Max(1), Widget("slider"), Description("Fraction of the maximum above which a pixel belongs to a blob")] = 0.5,
+) -> tuple[
+    Annotated[LabelsOut, Name("blobs"), ApplyTo("image"), Replace()],
+    Annotated[ShapesOut, Name("outlines"), ApplyTo("image"), Replace()],  # the same objects as outlines: a shapes layer / polygon ROIs / annotations
+    Annotated[MessageOut, Name("summary")],
+]:
+    """Label the bright blobs and return their outlines: a minimal example of ShapesOut."""
+    import numpy as np
+    from scipy import ndimage
+
+    from labconstrictor_tools.shapes import labels_to_shapes
+
+    peak = float(image.max())
+    if peak <= 0:
+        raise ToolError("no_result", "The image is empty (its maximum is 0): nothing to outline.")
+    labels, n = ndimage.label(image >= threshold * peak)
+    if n == 0:
+        raise ToolError("no_result", "No pixel above %.0f%% of the maximum." % (100 * threshold))
+    return labels.astype(np.int32), labels_to_shapes(labels), "Outlined **%d** blob(s)." % n
 
 
 @tool("Mean of a channel")
