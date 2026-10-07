@@ -7,8 +7,8 @@
 { "protocol": 1, "application": str, "version": str,
   "tools": [ { "id", "label", "description"?,
                "inputs":  [ { "name", "label", "type", "required", "default"?, "description"?, "choices"?,
-                              "minimum"?, "maximum"?, "unit"?, "axes"?, "pixel_size_of"?, "nullable"?, "group"?, "advanced"?, "enabled_when"? } ],
-               "outputs": [ { "name", "type", "axes"?, "display"?: {"apply_to", "relative_to"?} } ] } ] }
+                              "minimum"?, "maximum"?, "unit"?, "axes"?, "pixel_size_of"?, "nullable"?, "group"?, "advanced"?, "enabled_when"?, "group_collapsed"?, "clear_after_run"?, "choices_from"? } ],
+               "outputs": [ { "name", "type", "axes"?, "display"?: {"apply_to", "relative_to"?}, "replace"? } ] } ] }
 ```
 Value rules (enforced by the worker, each violation is a `FAILURE` with code `invalid_parameter` or a declaration error at registration):
 * `boolean` must be a JSON `true`/`false` (never text or numbers); `choice` values must match a choice in type and value; a `float` is never a boolean.
@@ -22,6 +22,11 @@ Input `type`: `string integer float boolean choice image labels table file folde
 `nullable: true` (additive, protocol 1): the parameter is optional AND has no default value (`= None` / `Optional[...]`). A host must let the
 user leave it unset and then omit it from the request (the tool receives `None`); showing 0 or an empty string instead is a bug.
 `group` (heading), `advanced: true` (listed under collapsed "Advanced settings") and `enabled_when: {"param", "equals"?}` (the parameter only applies when `param` is set/true, or equals one of the listed values) are presentation hints, additive within protocol 1: a host that ignores them shows the flat form, so a tool must accept every parameter whether or not it is "enabled". Group names are shown where they first appear.
+Interaction hints (additive within protocol 1; a host that ignores them shows a plain form, so the tool must work either way):
+* `group_collapsed: true` (with `group`): the group is an accordion section that starts folded.
+* `clear_after_run: true`: after a successful run, hosts that keep form values between runs put the parameter back to its default (or unset). Fiji opens a fresh dialog each run and needs nothing.
+* `choices_from: {"tool", "depends", "field"}` (string parameters): the options come from another tool of the app. The host runs `tool` with the current values of the parameters named in `depends` and reads the list under `field` of its `values` result; it shows a dropdown, and falls back to a text field when the call cannot be answered. The value stays a free string for the tool. Fiji builds its dialog before the user types anything, so it asks with the values used by the previous run of the same app (kept in `<LC_HOME>/state`) and falls back to the text field the first time.
+* output `replace: true` (image, labels, table): a new run replaces the previous result of the same output (same layer / window name) instead of adding "name [1]".
 `folder` is a directory path (the worker checks it exists); hosts show a folder chooser. Output `type`: `image labels table values affine file`.
 Hosts must skip (and report) a schema whose `protocol` they do not support.
 

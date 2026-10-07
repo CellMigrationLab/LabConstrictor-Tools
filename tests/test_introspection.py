@@ -9,16 +9,21 @@ from labconstrictor_tools import (
     Affine,
     ApplyTo,
     Axes,
+    ChoicesFrom,
+    ClearAfterRun,
+    Collapsed,
     Description,
     File,
     Image,
     ImageOut,
     Label,
     Labels,
+    Group,
     Max,
     Min,
     Name,
     PixelSizeOf,
+    Replace,
     Scalars,
     Table,
     TableOut,
@@ -235,6 +240,114 @@ class IntrospectionTests(unittest.TestCase):
 
         describe_tools()
         self.assertEqual(called, [])
+
+
+
+class InteractionHintTests(unittest.TestCase):
+    def setUp(self):
+        decorators.clear()
+
+    def tearDown(self):
+        decorators.clear()
+
+    def _app(self):
+        @tool
+        def conditions(folder: str, user: str = "me") -> Scalars:
+            return {"choices": ["a", "b"]}
+
+        @tool
+        def play(
+            folder: str,
+            user: str = "me",
+            guess: Annotated[str, ChoicesFrom("conditions", depends=["folder", "user"]), ClearAfterRun()] = "",
+            extra: Annotated[int, Group("More"), Collapsed()] = 1,
+        ) -> Annotated[ImageOut, Name("view"), Replace()]:
+            return None
+
+        return describe_tools()
+
+    def test_schema_keys(self):
+        play = {t["id"]: t for t in self._app()["tools"]}["play"]
+        inputs = {i["name"]: i for i in play["inputs"]}
+        self.assertEqual(inputs["guess"]["choices_from"], {"tool": "conditions", "depends": ["folder", "user"], "field": "choices"})
+        self.assertTrue(inputs["guess"]["clear_after_run"])
+        self.assertTrue(inputs["extra"]["group_collapsed"])
+        self.assertTrue(play["outputs"][0]["replace"])
+        json.dumps(play)
+
+    def test_plain_parameters_carry_no_hint_keys(self):
+        play = {t["id"]: t for t in self._app()["tools"]}["play"]
+        folder = {i["name"]: i for i in play["inputs"]}["folder"]
+        for key in ("choices_from", "clear_after_run", "group_collapsed"):
+            self.assertNotIn(key, folder)
+
+    def test_unknown_source_tool_refused(self):
+        @tool
+        def play(g: Annotated[str, ChoicesFrom("nope")] = "") -> Scalars:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "names no tool"):
+            describe_tools()
+
+    def test_source_must_be_callable_from_depends(self):
+        @tool
+        def conditions(folder: str) -> Scalars:
+            return {"choices": []}
+
+        @tool
+        def play(g: Annotated[str, ChoicesFrom("conditions")] = "") -> Scalars:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "required parameter 'folder'"):
+            describe_tools()
+
+    def test_depends_must_exist_in_both(self):
+        @tool
+        def conditions(folder: str) -> Scalars:
+            return {"choices": []}
+
+        @tool
+        def play(folder: str, g: Annotated[str, ChoicesFrom("conditions", depends=["folder", "ghost"])] = "") -> Scalars:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "ghost"):
+            describe_tools()
+
+    def test_source_must_return_scalars(self):
+        @tool
+        def conditions() -> ImageOut:
+            return None
+
+        @tool
+        def play(g: Annotated[str, ChoicesFrom("conditions")] = "") -> Scalars:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "must return Scalars"):
+            describe_tools()
+
+    def test_choices_only_for_strings_collapsed_needs_group_replace_only_for_data(self):
+        @tool
+        def a(n: Annotated[int, ChoicesFrom("a")] = 1) -> Scalars:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "only applies to a string"):
+            describe_tools()
+        decorators.clear()
+
+        @tool
+        def b(n: Annotated[int, Collapsed()] = 1) -> Scalars:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "needs a Group"):
+            describe_tools()
+        decorators.clear()
+
+        @tool
+        def c(n: int = 1) -> Annotated[Scalars, Replace()]:
+            return {}
+
+        with self.assertRaisesRegex(DeclarationError, "Replace applies"):
+            describe_tools()
 
 
 if __name__ == "__main__":

@@ -147,6 +147,17 @@ def _param(name, p, hint, argdoc):
         d["group"] = _m(meta, T.Group).value
     if _m(meta, T.Advanced) and _m(meta, T.Advanced).value:
         d["advanced"] = True
+    if _m(meta, T.Collapsed) and _m(meta, T.Collapsed).value:
+        if "group" not in d:
+            raise DeclarationError("parameter %r: Collapsed needs a Group" % name)
+        d["group_collapsed"] = True
+    if _m(meta, T.ClearAfterRun) and _m(meta, T.ClearAfterRun).value:
+        d["clear_after_run"] = True
+    src = _m(meta, T.ChoicesFrom)
+    if src:
+        if d["type"] != "string":
+            raise DeclarationError("parameter %r: ChoicesFrom only applies to a string parameter" % name)
+        d["choices_from"] = {"tool": src.tool, "depends": src.depends, "field": src.field}
     when = _m(meta, T.EnabledWhen)
     if when:
         d["enabled_when"] = {"param": when.param, **({"equals": when.equals} if when.equals else {})}
@@ -169,6 +180,10 @@ def _outputs(ret, tool_id):
         if b not in T.OUTPUT_TYPES:
             raise DeclarationError("tool %r output %d: unsupported return annotation %r" % (tool_id, i, it))
         o = {"name": _m(m, T.Name).value if _m(m, T.Name) else T.OUTPUT_TYPES[b], "type": T.OUTPUT_TYPES[b]}
+        if _m(m, T.Replace) and _m(m, T.Replace).value:
+            if o["type"] not in ("image", "labels", "table"):
+                raise DeclarationError("tool %r output %d: Replace applies to an image, labels or table output" % (tool_id, i))
+            o["replace"] = True
         if _m(m, T.Axes):
             o["axes"] = _m(m, T.Axes).value
         a = _m(m, T.ApplyTo)
@@ -231,8 +246,35 @@ def describe_tools(
     """Deterministic JSON-compatible schema for all tools declared by `module_name`."""
     ts = sorted(tools_in(module_name), key=lambda t: t.id)
     out: AppSchema = {"protocol": PROTOCOL, "tools": [describe_tool(t) for t in ts]}
+    _check_choice_sources(out["tools"])
     if application:
         out["application"] = application
     if version:
         out["version"] = version
     return out
+
+
+def _check_choice_sources(tools):
+    """ChoicesFrom must point at a tool of the app that can be called with the declared `depends` alone."""
+    by_id = {t["id"]: t for t in tools}
+    for t in tools:
+        for p in t["inputs"]:
+            src = p.get("choices_from")
+            if not src:
+                continue
+            where = "tool %r parameter %r: ChoicesFrom(%r)" % (t["id"], p["name"], src["tool"])
+            source = by_id.get(src["tool"])
+            if source is None:
+                raise DeclarationError("%s names no tool of this app" % where)
+            if source["id"] == t["id"]:
+                raise DeclarationError("%s cannot be the tool itself" % where)
+            if not any(o["type"] == "values" for o in source["outputs"]):
+                raise DeclarationError("%s: the source tool must return Scalars" % where)
+            mine = {i["name"] for i in t["inputs"]}
+            theirs = {i["name"]: i for i in source["inputs"]}
+            for name in src["depends"]:
+                if name not in mine or name not in theirs:
+                    raise DeclarationError("%s: depends %r must be a parameter of both tools" % (where, name))
+            for name, i in theirs.items():
+                if name not in src["depends"] and i["required"]:
+                    raise DeclarationError("%s: the source tool's required parameter %r is not in depends" % (where, name))

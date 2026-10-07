@@ -42,6 +42,9 @@ class ParamSchema(_ParamRequired, total=False):
     group: str
     advanced: bool
     enabled_when: dict[str, Any]
+    group_collapsed: bool
+    clear_after_run: bool
+    choices_from: dict[str, Any]
 
 
 class _OutputRequired(TypedDict):
@@ -54,6 +57,7 @@ class OutputSchema(_OutputRequired, total=False):
 
     axes: str
     display: dict[str, str]
+    replace: bool
 
 
 class _ToolRequired(TypedDict):
