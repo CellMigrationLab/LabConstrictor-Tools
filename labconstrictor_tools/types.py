@@ -105,6 +105,18 @@ class Group(_Marker):
     "heading the parameter is listed under in the form (parameters keep their order; a group is shown where it first appears)"
 
 
+WIDGETS = ("slider", "radio")
+
+
+class Widget(_Marker):
+    "how a parameter is shown: Widget('slider') for a bounded number (needs Min and Max), Widget('radio') for 2 to 5 choices; hosts that do not know it show the plain field"
+
+    def __init__(self, value: str) -> None:
+        if value not in WIDGETS:
+            raise ValueError("Widget(%r): use one of %s" % (value, ", ".join(repr(w) for w in WIDGETS)))
+        super().__init__(value)
+
+
 class Advanced(_Marker):
     "listed under 'Advanced settings' (collapsed by default in hosts that can); use Advanced() without an argument"
 

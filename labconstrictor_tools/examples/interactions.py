@@ -7,7 +7,7 @@ A "pick the odd one out" game: `start` makes a round, `answer` takes the guess f
 numpy and pandas are only imported inside the functions: hosts import this file just to list the tools.
 """
 
-from typing import Annotated, Optional
+from typing import Annotated, Literal, Optional
 
 from labconstrictor_tools import (
     ApplyTo,
@@ -25,6 +25,7 @@ from labconstrictor_tools import (
     Name,
     PickChannel,
     PointsOut,
+    Widget,
     Replace,
     Scalars,
     TableOut,
@@ -78,7 +79,8 @@ def show_shape(
 @tool("Find bright spots")
 def find_bright_spots(
     image: Annotated[Image, Axes("YX"), Description("The image to search")],
-    threshold: Annotated[float, Min(0), Max(1), Description("Fraction of the maximum above which a pixel counts as a spot")] = 0.8,
+    threshold: Annotated[float, Min(0), Max(1), Widget("slider"), Description("Fraction of the maximum above which a pixel counts as a spot")] = 0.8,
+    look_for: Annotated[Literal["bright", "dark"], Widget("radio"), Description("Mark bright spots, or dark ones (the image is inverted first)")] = "bright",
 ) -> tuple[
     Annotated[PointsOut, Name("spots"), ApplyTo("image"), Replace()],  # ApplyTo: the pixels these y, x belong to
     Annotated[MessageOut, Name("summary")],
@@ -87,6 +89,8 @@ def find_bright_spots(
     import numpy as np
     from scipy.ndimage import maximum_filter
 
+    if look_for == "dark":
+        image = image.max() - image
     peak = float(image.max())
     if peak <= 0:
         raise ToolError("no_result", "The image is empty (its maximum is 0): nothing to find.")

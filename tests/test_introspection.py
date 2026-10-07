@@ -404,3 +404,56 @@ class PickChannelTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+# ---- Widget hint (slider / radio)
+def _desc(fn):
+    from labconstrictor_tools.introspection import describe_tool
+
+    return describe_tool(fn.__lc_tool__)["inputs"]
+
+
+def test_widget_slider_and_radio_reach_the_schema():
+    from typing import Annotated, Literal
+
+    from labconstrictor_tools import Max, Min, Scalars, Widget, tool
+
+    @tool("W")
+    def w(
+        x: Annotated[float, Min(0), Max(1), Widget("slider")] = 0.5,
+        mode: Annotated[Literal["a", "b", "c"], Widget("radio")] = "a",
+    ) -> Scalars:
+        return {}
+
+    ins = {i["name"]: i for i in _desc(w)}
+    assert ins["x"]["widget"] == "slider" and ins["mode"]["widget"] == "radio"
+
+
+def test_widget_declaration_errors_are_readable():
+    import pytest
+    from typing import Annotated, Literal
+
+    from labconstrictor_tools import Max, Min, Scalars, Widget, tool
+    from labconstrictor_tools.introspection import DeclarationError
+
+    @tool("S1")
+    def s1(x: Annotated[float, Widget("slider")] = 0.5) -> Scalars:  # no Min / Max
+        return {}
+
+    @tool("S2")
+    def s2(x: Annotated[str, Widget("slider")] = "a") -> Scalars:  # not a number
+        return {}
+
+    @tool("R1")
+    def r1(x: Annotated[Literal["a"], Widget("radio")] = "a") -> Scalars:  # one option
+        return {}
+
+    @tool("R2")
+    def r2(x: Annotated[Literal["a", "b", "c", "d", "e", "f"], Widget("radio")] = "a") -> Scalars:  # six options
+        return {}
+
+    for fn, word in ((s1, "Min and Max"), (s2, "Min and Max"), (r1, "2 to 5"), (r2, "2 to 5")):
+        with pytest.raises(DeclarationError, match=word):
+            _desc(fn)
+    with pytest.raises(ValueError, match="slider"):
+        Widget("dial")
