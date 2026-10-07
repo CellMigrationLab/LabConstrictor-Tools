@@ -342,6 +342,8 @@ def summary(checks: list[Check]) -> str:
                 lines.append("- %s %s: %s" % (_SYMBOL[c.status], c.name, c.detail))
                 if c.fix:
                     lines.append("  Fix: %s" % c.fix)
+            else:  # what was found, in one short line each: a person can see what the green ticks stand for
+                lines.append("- %s: %s" % (c.name, c.detail if len(c.detail) <= 90 else c.detail[:87] + "..."))
     count = {s: sum(1 for c in checks if c.status == s) for s in (OK, WARN, FAIL)}
     head = "%s checks: %d ok, %d warning(s), %d failure(s)" % (len(checks), count[OK], count[WARN], count[FAIL])
     return head + "\n\n" + "\n".join(lines)

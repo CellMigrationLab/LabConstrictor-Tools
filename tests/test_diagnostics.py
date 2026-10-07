@@ -72,6 +72,11 @@ class IsolationAndSummary(unittest.TestCase):
         self.assertIn("✖ **gpu**", text)
         self.assertIn("✔ **machine**", text)
 
+    def test_what_was_found_is_listed_under_the_tick(self):
+        text = d.summary([d.Check("machine", "cpu", d.INFO, "8 logical cores"), d.Check("machine", "memory", d.OK, "16.0 GB")])
+        self.assertIn("- cpu: 8 logical cores", text)
+        self.assertIn("- memory: 16.0 GB", text)
+
     def test_a_layer_with_a_warning_is_marked_as_one(self):
         text = d.summary([d.Check("machine", "disk", d.WARN, "low", "free space"), d.Check("machine", "cpu", d.OK, "8")])
         self.assertIn("⚠ **machine**", text)
