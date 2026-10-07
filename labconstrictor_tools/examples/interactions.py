@@ -46,7 +46,7 @@ def show_shape(
     size: Annotated[int, Group("Options"), Collapsed(), Description("Size in pixels (this group starts folded)")] = 32,
 ) -> tuple[
     Annotated[ImageOut, Name("picture"), Replace()],  # each run replaces the previous picture (one layer / window)
-    Annotated[PointsOut, Name("corners")],  # y, x (+ properties) -> points layer / point ROIs / point annotations
+    Annotated[PointsOut, Name("corners"), Replace()],  # y, x (+ properties) -> points layer / point ROIs / point annotations
     Annotated[MessageOut, Name("note")],  # a short message for the user
 ]:
     """Draw a shape, mark its corners and say what was drawn."""
