@@ -1,5 +1,7 @@
 # Writing tools for LabConstrictor apps (10 minutes)
 
+> The whole manifest on one page: [MANIFEST.md](MANIFEST.md). What each host does with each feature: [HOST_FEATURES.md](HOST_FEATURES.md).
+
 A *tool* is a normal Python function with type hints. Napari, Fiji, notebooks and the command line all build their
 forms from the signature - you write no GUI code and no JSON.
 
