@@ -45,6 +45,9 @@ app lists in `construct.yaml` under `extra_files` like the rest of `src/`). Any 
 | `Annotated[float, PixelSizeOf("image")]` | hosts prefill this from the image's calibration (converted to um) |
 | `Annotated[..., Group("Segmentation")]` | the parameter is listed under that heading; the parameters of a group are shown together |
 | `Annotated[..., Advanced()]` | listed last, behind "Show advanced settings" (Napari) / under "Advanced settings" (Fiji) |
+| `Annotated[..., Group("Advanced options"), Collapsed()]` | the group is an accordion section that starts folded (Napari); Fiji shows the heading and the fields |
+| `Annotated[str, ChoicesFrom("list_conditions", depends=["results_folder", "user_name"])]` | a dropdown filled by another tool (which returns `Scalars` with a `choices` list); a text field when it cannot be answered, so the tool accepts any string |
+| `Annotated[str, ClearAfterRun()]` | Napari empties/resets the field after a successful run (a stale answer cannot be sent twice) |
 | `Annotated[..., EnabledWhen("other")]` or `EnabledWhen("other", "a", "b")` | greyed out in Napari unless `other` is set/true or equals one of the values; **Fiji ignores it** (all fields stay editable) |
 | docstring `Args:` section | tooltips |
 
@@ -57,6 +60,7 @@ Return one value or a tuple. Annotate the return type with what it is:
 | `Scalars` | dict of numbers/strings shown to the user |
 | `Affine` + `ApplyTo("query", "reference")` | 3x3 matrix mapping *query pixels -> reference pixels* (y, x order); hosts apply it for you |
 | `FileOut` | a file path |
+| `Annotated[ImageOut, Name("view"), Replace()]` | each run replaces the previous result named `view` (Napari layer / Fiji window) instead of adding "view [1]" |
 | `Annotated[ImageOut, Name("aligned"), Axes("YX")]` | name the output / say what its axes are |
 
 ## Rules that keep it fast and pleasant
