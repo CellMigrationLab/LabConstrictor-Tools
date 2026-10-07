@@ -8,6 +8,7 @@ Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar)
 | `Optional` / "set" box | yes | yes ("Set <name>") | yes |
 | `Group` headings, `Advanced` section | yes (checkbox toggles it) | headings in the dialog | heading, folded section |
 | `Collapsed` (accordion) | yes (click the heading) | plain heading (SciJava cannot fold) | yes (titled pane) |
+| `Widget("slider")` / `Widget("radio")` | planned | planned | planned |
 | `EnabledWhen` | greys out | ignored: every field stays editable | greys out |
 | `PixelSizeOf` | prefilled from the layer | prefilled from the calibration | prefilled from the image |
 | `ChoicesFrom` (dropdown) | yes, updates when its inputs change | yes, from the previous run's values; text field the first time | yes, updates when its inputs change |

@@ -48,6 +48,7 @@ app lists in `construct.yaml` under `extra_files` like the rest of `src/`). Any 
 | `Annotated[..., Group("Segmentation")]` | the parameter is listed under that heading; the parameters of a group are shown together |
 | `Annotated[..., Advanced()]` | listed last, behind "Show advanced settings" (Napari) / under "Advanced settings" (Fiji) |
 | `Annotated[Image, Axes("YX"), PickChannel()]` | the person chooses a channel of a multi-channel image in the host (QuPath: the channel names; Fiji: the channel number) and your function receives only that channel as a 2D array. Napari layers are one channel each, so it only offers R/G/B for an RGB layer or the channels of a TIFF file given as "or file"; the command line and notebooks pass the image as it is |
+| `Annotated[float, Min(0), Max(1), Widget("slider")]` / `Annotated[Literal[...], Widget("radio")]` | a slider (with a typed box) for a bounded number; radio buttons for 2 to 5 choices |
 | `Annotated[..., Group("Advanced options"), Collapsed()]` | the group is an accordion section that starts folded (Napari); Fiji shows the heading and the fields |
 | `Annotated[str, ChoicesFrom("list_conditions", depends=["results_folder", "user_name"])]` | a dropdown filled by another tool (which returns `Scalars` with a `choices` list); a text field when it cannot be answered, so the tool accepts any string |
 | `Annotated[str, ClearAfterRun()]` | Napari empties/resets the field after a successful run (a stale answer cannot be sent twice) |

@@ -41,6 +41,7 @@ A tool declares itself with Python types and a few markers; hosts (Napari, Fiji,
 | `Axes("YX")`, `Name("...")` | what the dimensions are, what the output is called |
 | `Group("...")` | parameters of a group are shown together under a heading |
 | `Collapsed()` | the group starts folded (an accordion section) |
+| `Widget("slider")`, `Widget("radio")` | a bounded number as a slider (needs `Min` and `Max`), 2 to 5 choices as radio buttons; other hosts show the plain field |
 | `Advanced()` | listed last, behind "Show advanced settings" |
 
 ## 4. Behaviour: what the host does around a run

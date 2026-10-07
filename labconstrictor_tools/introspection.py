@@ -157,6 +157,14 @@ def _param(name, p, hint, argdoc):
         if "group" not in d:
             raise DeclarationError("parameter %r: Collapsed needs a Group" % name)
         d["group_collapsed"] = True
+    wid = _m(meta, T.Widget)
+    if wid:
+        if wid.value == "slider":
+            if d["type"] not in ("integer", "float") or "minimum" not in d or "maximum" not in d:
+                raise DeclarationError("parameter %r: Widget('slider') needs a number with both Min and Max" % name)
+        elif not (d["type"] == "choice" and 2 <= len(d["choices"]) <= 5):
+            raise DeclarationError("parameter %r: Widget('radio') needs a Literal or Enum with 2 to 5 options" % name)
+        d["widget"] = wid.value
     if _m(meta, T.ClearAfterRun) and _m(meta, T.ClearAfterRun).value:
         d["clear_after_run"] = True
     if _m(meta, T.PickChannel) and _m(meta, T.PickChannel).value and "pick_channel" not in d:

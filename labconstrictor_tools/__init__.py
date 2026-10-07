@@ -35,6 +35,7 @@ from .types import (
     TableOut,
     ToolError,
     Unit,
+    Widget,
 )
 
 __all__ = [
@@ -46,6 +47,7 @@ __all__ = [
     "ChoicesFrom",
     "ClearAfterRun",
     "Collapsed",
+    "Widget",
     "Description",
     "EnabledWhen",
     "File",

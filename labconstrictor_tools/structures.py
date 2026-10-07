@@ -46,6 +46,7 @@ class ParamSchema(_ParamRequired, total=False):
     clear_after_run: bool
     choices_from: dict[str, Any]
     pick_channel: bool
+    widget: str
 
 
 class _OutputRequired(TypedDict):
