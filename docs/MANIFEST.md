@@ -32,6 +32,7 @@ A tool declares itself with Python types and a few markers; hosts (Napari, Fiji,
 | `EnabledWhen("other", ...)` | only meaningful when another parameter is set or has a value |
 | `ChoicesFrom("tool", depends=[...])` | a text parameter whose options another tool provides (dropdown) |
 | `PickChannel()` | the person chooses a channel of a multi-channel image; the tool gets only that channel |
+| `RegionOf("image")` | on an optional `Labels` input: the host fills it from the current selection (labels 1..N, 0 outside), behind a "use the selection" box; the tool treats `None` as the whole image and can use `region.bbox(mask, image)` to crop |
 
 ## 3. Look: how it is shown
 

@@ -157,6 +157,11 @@ def _param(name, p, hint, argdoc):
         if "group" not in d:
             raise DeclarationError("parameter %r: Collapsed needs a Group" % name)
         d["group_collapsed"] = True
+    region = _m(meta, T.RegionOf)
+    if region:
+        if d["type"] != "labels" or d["required"]:
+            raise DeclarationError("parameter %r: RegionOf applies to an optional Labels input (Optional[Labels] = None)" % name)
+        d["region_of"] = region.value
     wid = _m(meta, T.Widget)
     if wid:
         if wid.value == "slider":
@@ -234,6 +239,12 @@ def describe_tool(t: Tool) -> ToolSchema:
     for i in ins:
         if "pixel_size_of" in i and i["pixel_size_of"] not in names:
             raise DeclarationError("tool %r: PixelSizeOf(%r) names no parameter" % (t.id, i["pixel_size_of"]))
+    kinds = {i["name"]: i["type"] for i in ins}
+    for i in ins:
+        if "region_of" in i and kinds.get(i["region_of"]) != "image":
+            raise DeclarationError(
+                "tool %r: RegionOf(%r) on %r must name an Image parameter of the same tool" % (t.id, i["region_of"], i["name"])
+            )
     for i in ins:
         rule = i.get("enabled_when")
         if rule and rule["param"] not in names:

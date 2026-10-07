@@ -47,6 +47,7 @@ class ParamSchema(_ParamRequired, total=False):
     choices_from: dict[str, Any]
     pick_channel: bool
     widget: str
+    region_of: str
 
 
 class _OutputRequired(TypedDict):
