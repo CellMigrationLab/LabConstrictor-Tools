@@ -9,14 +9,14 @@ Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar)
 | `Group` headings, `Advanced` section | yes (checkbox toggles it) | headings in the dialog | heading, folded section |
 | `Collapsed` (accordion) | yes (click the heading) | plain heading (SciJava cannot fold) | yes (titled pane) |
 | `Widget("slider")` / `Widget("radio")` | `FloatSlider`, `Slider`, radio buttons | slider and radio styles | slider beside the box, radio buttons |
-| `Copy as command` (host feature, no manifest change) | planned | planned | planned |
+| `Copy as command` (host feature, no manifest change) | button with a menu: terminal line or Python snippet | the Log after each run; menu entry "Copy last run as command" | menu button: terminal line or Python snippet |
 | `EnabledWhen` | greys out | ignored: every field stays editable | greys out |
 | `PixelSizeOf` | prefilled from the layer | prefilled from the calibration | prefilled from the image |
 | `ChoicesFrom` (dropdown) | yes, updates when its inputs change | yes, from the previous run's values; text field the first time | yes, updates when its inputs change |
 | `ClearAfterRun` | yes | not needed (a fresh dialog every run) | yes |
 | `Replace` | updates the layer or dock in place | closes the previous window, overlay or ROIs | reuses the results window, replaces the annotation |
 | `PickChannel` | RGB colours, channels of a TIFF file | a channel number | channel names |
-| `RegionOf` (run on the selection) | planned | planned | planned |
+| `RegionOf` (run on the selection) | "use the selection" box: the selected Shapes layer (labels 1..N) | "Use the selection" box: ROI Manager selection, else the image ROI (labels 1..N) | "use the selection" box: selected annotations (labels 1..N) |
 | `ImageOut`, `LabelsOut` | layer | window | preview and "Open in QuPath" |
 | `TableOut` | table dock | Results table | table in the results window |
 | `Scalars` | in the status line | in the Log | in the results window and status |
