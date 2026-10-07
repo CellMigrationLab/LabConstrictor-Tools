@@ -55,7 +55,7 @@ class _OutputRequired(TypedDict):
 
 
 class OutputSchema(_OutputRequired, total=False):
-    """One output of a tool. `type` is one of: image labels table values affine file message points."""
+    """One output of a tool. `type` is one of: image labels table values affine file message points shapes."""
 
     axes: str
     display: dict[str, str]

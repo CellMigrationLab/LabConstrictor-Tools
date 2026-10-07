@@ -147,6 +147,8 @@ class ToolForm:
                     from IPython.display import display
 
                     display(pd.read_csv(result["path"]))
+                elif kind == "shapes":
+                    print(result["name"], "%d outline(s):" % result["n"], result["path"])
                 elif kind == "affine":
                     print(
                         result["name"],

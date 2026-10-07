@@ -66,6 +66,7 @@ Return one value or a tuple. Annotate the return type with what it is:
 | `FileOut` | a file path |
 | `MessageOut` | a short text for the user (plain; `**bold**` is fine): instructions, a readout, a warning. Shown in a dialog / the status line, never in the log |
 | `Annotated[PointsOut, ApplyTo("image")]` | a DataFrame / list of dicts with columns `y` and `x` (pixels of that image; other columns become properties) -> Napari points layer, Fiji point ROIs, QuPath point annotations |
+| `Annotated[ShapesOut, ApplyTo("image")]` | `labels_to_shapes(labels)` from `labconstrictor_tools.shapes` (needs scikit-image), a GeoJSON FeatureCollection, or a list of polygons (arrays of `(y, x)` vertices, or dicts with `polygon` plus properties) -> Napari shapes layer, Fiji polygon ROIs, QuPath annotations |
 | `Annotated[ImageOut, Name("view"), Replace()]` | each run replaces the previous result named `view` (Napari layer / Fiji window) instead of adding "view [1]" |
 | `Annotated[ImageOut, Name("aligned"), Axes("YX")]` | name the output / say what its axes are |
 
@@ -177,6 +178,7 @@ A copy-and-adapt example that uses every hint lives in `labconstrictor_tools/exa
 | to work on one channel of a multi-channel image | `Annotated[Image, Axes("YX"), PickChannel()]` (without it a multi-channel image reaches a 2D tool as 3D and is refused) |
 | a long form with optional sections | `Group("...")` and `Collapsed()` (or `Advanced()` for the rarely used) |
 | to mark objects found in an image | return `PointsOut` (columns `y`, `x`, then any properties) |
+| to give the outlines of segmented objects | return `LabelsOut` and `ShapesOut` (`labels_to_shapes(labels)`) |
 | to tell the user something | return `MessageOut` |
 
 Every hint is optional and additive: a host that does not know it shows a plain, still working form, so the tool never depends on a hint to be correct.

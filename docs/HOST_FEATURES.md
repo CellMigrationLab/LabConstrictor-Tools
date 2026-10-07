@@ -21,6 +21,7 @@ Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar)
 | `Scalars` | in the status line | in the Log | in the results window and status |
 | `MessageOut` | quoted block under the status | Log and a dialog | label under the status and in the results |
 | `PointsOut` | points layer (scaled like its image) | point ROIs, ROI Manager, table | point annotation on the open image, else a table |
+| `ShapesOut` | planned | planned | planned |
 | `Affine` | overlay layer | overlay window | matrix shown |
 | Progress, Cancel, kept worker, run details | yes | progress and Esc | yes |
 | Macro / command recording | no | yes (macro recorder, replay) | no |

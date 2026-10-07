@@ -33,6 +33,7 @@ RESULT_KEYS = {  # what may be asserted about a result of each type ("values": a
     "affine": {"matrix"},
     "message": {"contains"},
     "points": {"rows", "columns"},
+    "shapes": {"features"},
     "file": set(),
 }
 
@@ -152,6 +153,8 @@ def _result_problems(result: Result) -> list[str]:
         return [] if isinstance(result.get("text"), str) and result["text"].strip() else ["%s: the message is empty" % name]
     if kind == "points":
         return _points_problems(name, result)
+    if kind == "shapes":
+        return _shapes_problems(name, result)
     if kind == "affine":
         matrix = result.get("matrix_yx")
         ok = (
@@ -160,6 +163,19 @@ def _result_problems(result: Result) -> list[str]:
             and all(len(row) == 3 and all(math.isfinite(v) for v in row) for row in matrix)
         )
         return [] if ok else ["%s: affine is not a finite 3x3 matrix" % name]
+    return []
+
+
+def _shapes_problems(name: str, result: Result) -> list[str]:
+    path = Path(result["path"])
+    if not path.is_file():
+        return ["%s: file %s does not exist" % (name, path)]
+    try:
+        collection = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as error:
+        return ["%s: not valid GeoJSON (%s)" % (name, error)]
+    if collection.get("type") != "FeatureCollection" or len(collection.get("features", [])) != result.get("n"):
+        return ["%s: not a FeatureCollection with %s features" % (name, result.get("n"))]
     return []
 
 
@@ -290,6 +306,9 @@ def _compare(name: str, result: Result, wanted: dict[str, Any]) -> list[str]:
     elif kind == "message" and "contains" in wanted:
         if wanted["contains"] not in result["text"]:
             problems.append("%s: the message lacks %r" % (name, wanted["contains"]))
+    elif kind == "shapes":
+        if "features" in wanted and result["n"] != wanted["features"]:
+            problems.append("%s: %d outlines, expected %d" % (name, result["n"], wanted["features"]))
     elif kind == "points":
         import pandas as pd
 

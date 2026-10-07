@@ -55,6 +55,14 @@ class PointsOut:
     column is kept as a property of each point (for example `label` or `score`)."""
 
 
+class ShapesOut:
+    """Outlines of objects (polygons, with holes allowed) in the pixel frame of the image named by ApplyTo, or of the first image
+    input -> a Napari shapes layer, Fiji polygon ROIs, QuPath annotations. Return a GeoJSON FeatureCollection (dict), or a list of
+    polygons: each an array of (y, x) vertices, or a dict with `polygon` (that array) plus properties. `labconstrictor_tools.shapes
+    .labels_to_shapes(labels)` makes outlines from a label image. Coordinates are written as GeoJSON [x, y] with pixel centres at
+    integers, like PointsOut."""
+
+
 class Affine:
     "3x3 homogeneous matrix in (y,x) pixel coordinates mapping SOURCE pixels -> TARGET pixels"
 
@@ -69,6 +77,7 @@ OUTPUT_TYPES = {
     Affine: "affine",
     MessageOut: "message",
     PointsOut: "points",
+    ShapesOut: "shapes",
 }
 
 
