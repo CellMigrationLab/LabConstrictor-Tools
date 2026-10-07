@@ -26,7 +26,7 @@ Interaction hints (additive within protocol 1; a host that ignores them shows a 
 * `group_collapsed: true` (with `group`): the group is an accordion section that starts folded.
 * `clear_after_run: true`: after a successful run, hosts that keep form values between runs put the parameter back to its default (or unset). Fiji opens a fresh dialog each run and needs nothing.
 * `choices_from: {"tool", "depends", "field"}` (string parameters): the options come from another tool of the app. The host runs `tool` with the current values of the parameters named in `depends` and reads the list under `field` of its `values` result; it shows a dropdown, and falls back to a text field when the call cannot be answered. The value stays a free string for the tool. Fiji builds its dialog before the user types anything, so it asks with the values used by the previous run of the same app (kept in `<LC_HOME>/state`) and falls back to the text field the first time.
-* output `replace: true` (image, labels, table): a new run replaces the previous result of the same output (same layer / window name) instead of adding "name [1]".
+* output `replace: true` (image, labels, table, affine: the overlay): a new run replaces the previous result of the same output (same layer / window name) instead of adding "name [1]".
 `folder` is a directory path (the worker checks it exists); hosts show a folder chooser. Output `type`: `image labels table values affine file`.
 Hosts must skip (and report) a schema whose `protocol` they do not support.
 
