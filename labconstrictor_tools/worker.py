@@ -6,9 +6,11 @@ Unlike `appose.python_worker`, it never executes host-supplied code: an EXECUTE 
 
 import importlib
 import importlib.util
+import math
 import os
 import queue
 import shutil
+import signal
 import sys
 import tempfile
 import threading
@@ -29,7 +31,15 @@ Outcome = tuple[str, dict[str, Any]]
 
 SCRIPT_PREVIEW_CHARS = 40  # how much of a refused script is echoed back in the error
 PROGRESS_MAXIMUM = 100  # progress is reported to hosts as current/maximum on this scale
+PROGRESS_HALF = 0.5  # added before flooring: a tie rounds up
 ORPHAN_GRACE_S = 10.0  # after the host disappears, how long a running tool gets to notice and stop
+
+
+def _whole_percent(fraction: float) -> int:
+    """The whole percent nearest to `fraction` (0..1), a tie going up: 0.295 -> 30 (a plain int() lost a percent whenever
+    100 * fraction fell just below the integer: 0.29 was shown as 28 %). Every host that rounds a fraction itself must
+    do the same (Java's Math.round is half-up already)."""
+    return math.floor(PROGRESS_MAXIMUM * fraction + PROGRESS_HALF)
 
 
 class Worker:
@@ -80,6 +90,7 @@ class Worker:
         while True:
             item = pending.get()
             if item is None:  # stdin closed: exit once the current task has stopped
+                self._end_process_group()
                 return
             self._run_task(*item)
 
@@ -142,7 +153,25 @@ class Worker:
         """The host is gone and the tool ignored the cancel request: leave, but not without removing our temp folders."""
         for path in list(self._owned_dirs):
             shutil.rmtree(path, ignore_errors=True)
+        self._end_process_group()
         os._exit(1)
+
+    @staticmethod
+    def _end_process_group() -> None:
+        """POSIX: the host is gone, so nothing a tool started may outlive the worker (Windows: the job object of _winjob).
+
+        The client starts the worker as the leader of its own process group, and the subprocesses of a tool inherit it, so one
+        SIGKILL to the group ends them all - and the worker itself, which is why its output is flushed first. A worker that does
+        not lead a group (started by hand from a terminal, or inside a test) shares it with its parent: never signal that.
+        """
+        if os.name != "posix" or os.getpgrp() != os.getpid():
+            return
+        for stream in (sys.stdout, sys.stderr):
+            try:
+                stream.flush()
+            except (OSError, ValueError) as error:  # the pipe is already closed: nobody is listening
+                log.logger().debug("worker: flushing %s failed (%s: %s)", stream, type(error).__name__, error)
+        os.killpg(os.getpid(), signal.SIGKILL)
 
     def _remove_job_dir(self, path: Path) -> None:
         shutil.rmtree(path, ignore_errors=True)
@@ -262,5 +291,5 @@ class Worker:
             return  # the task is over
         fields: dict[str, Any] = {"message": str(message)}
         if fraction is not None:
-            fields.update(current=int(PROGRESS_MAXIMUM * fraction), maximum=PROGRESS_MAXIMUM)
+            fields.update(current=_whole_percent(fraction), maximum=PROGRESS_MAXIMUM)
         self.channel.send(task, "UPDATE", **fields)

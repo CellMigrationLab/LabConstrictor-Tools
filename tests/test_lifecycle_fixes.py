@@ -1,0 +1,181 @@
+"""Worker and client lifecycle: guards for the fixes of F13, F17, F18, F19 and F21 that the matrix does not already cover
+(docs/REGRESSION_LEDGER.md names the main guard of each; these test the edges)."""
+
+import logging
+import os
+import subprocess
+import sys
+import unittest
+from multiprocessing import shared_memory
+from pathlib import Path
+from unittest import mock
+
+import _paths  # noqa: F401  (must come first)
+from test_roundtrip_failures import APP_DIR, MODULE, start
+
+from labconstrictor_tools import registry, worker
+
+SUBPROCESS_TIMEOUT_S = 60
+EXIT_AFTER_ATTACH = (
+    "import sys; sys.path.insert(0, %r)\n"
+    "from labconstrictor_tools import convert\n"
+    "shm = convert._attach_shared_memory(sys.argv[1])\n"
+    "print(bytes(shm.buf[:3]).hex())\n"
+    "shm.close()\n"
+)
+
+
+class SharedMemoryAttach(unittest.TestCase):
+    @unittest.skipUnless(os.name == "posix", "POSIX shared memory is named, and tracked per process")
+    def test_a_process_that_only_attached_leaves_the_block_and_its_stderr_alone(self):
+        block = shared_memory.SharedMemory(create=True, size=8)
+        try:
+            block.buf[:3] = bytes([1, 2, 3])
+            done = subprocess.run(
+                [sys.executable, "-c", EXIT_AFTER_ATTACH % str(_paths.ROOT), block.name],
+                capture_output=True, text=True, timeout=SUBPROCESS_TIMEOUT_S, encoding="utf-8",
+            )  # fmt: skip
+            self.assertEqual((done.returncode, done.stdout.strip()), (0, "010203"), done.stderr)
+            self.assertEqual(done.stderr, "", "the attaching process must not complain about leaked blocks")
+            again = shared_memory.SharedMemory(
+                name=block.name
+            )  # raises FileNotFoundError when it was unlinked
+            again.close()
+        finally:
+            block.close()
+            block.unlink()  # the host-side owner still cleans up its own block
+
+
+class DeadWorker(unittest.TestCase):
+    def test_a_task_on_a_crashed_worker_is_crashed_with_the_exit_code_and_is_not_kept(self):
+        worker_ = start()
+        try:
+            worker_.task("crash_mid_task", {"how": "exit"}).wait(30)
+            worker_.proc.wait(30)
+            task = worker_.task("echo", {})
+            self.assertTrue(task.done.is_set())
+            self.assertEqual(task.status, "CRASHED")
+            self.assertIn("code 7", task.error)
+            self.assertNotIn(task.id, worker_.tasks)
+            self.assertEqual(worker_.tasks, {})
+        finally:
+            worker_.close()
+
+    def test_a_task_on_a_worker_the_host_already_closed_is_crashed_too(self):
+        worker_ = start()
+        worker_.close()
+        task = worker_.task("echo", {})
+        self.assertEqual(task.status, "CRASHED")
+        self.assertTrue(task.error)
+        self.assertEqual(worker_.tasks, {})
+
+
+class ProcessGroup(unittest.TestCase):
+    @unittest.skipUnless(os.name == "posix", "process groups")
+    def test_a_worker_that_does_not_lead_a_group_leaves_by_itself_and_signals_nobody(self):
+        """Started by hand (same process group as its parent) the worker must not kill the group it shares with its parent."""
+        proc = subprocess.Popen(
+            [sys.executable, "-m", "labconstrictor_tools", "serve", "--module", MODULE],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8",
+            env={**os.environ, "PYTHONPATH": os.pathsep.join([str(_paths.ROOT), str(APP_DIR)])},
+        )  # fmt: skip
+        self.assertEqual(
+            os.getpgid(proc.pid), os.getpgid(0), "the test needs a worker in the test's own group"
+        )
+        proc.stdin.close()
+        self.assertEqual(proc.wait(SUBPROCESS_TIMEOUT_S), 0, proc.stderr.read())
+        proc.stdout.close()
+        proc.stderr.close()
+
+
+class Progress(unittest.TestCase):
+    def test_every_whole_percent_and_the_documented_ties(self):
+        for k in range(101):
+            self.assertEqual(worker._whole_percent(k / 100), k, k)
+        self.assertEqual(worker._whole_percent(0.294), 29)
+        self.assertEqual(worker._whole_percent(0.296), 30)
+        self.assertEqual(worker._whole_percent(0.5), 50)
+        self.assertEqual(worker._whole_percent(0.125 / 5), 3, "a tie (2.5 %) rounds up")
+        self.assertEqual(worker._whole_percent(0.0), 0)
+        self.assertEqual(worker._whole_percent(1.0), 100)
+
+
+class ReplaceRetry(unittest.TestCase):
+    """The one place for a mock of an OS call: it tests OUR retry logic (Windows refusals cannot be produced on demand)."""
+
+    def refused(self):
+        return PermissionError(5, "Access is denied")
+
+    def test_a_refusal_is_retried_logged_and_the_file_ends_up_written(self):
+        calls = []
+
+        def replace(source, target):
+            calls.append(1)
+            if len(calls) < 3:
+                raise self.refused()
+
+        with (
+            mock.patch.object(registry, "_is_windows", return_value=True),
+            mock.patch.object(registry.os, "replace", side_effect=replace),
+            mock.patch.object(registry.time, "sleep") as sleep,
+        ):
+            with self.assertLogs("labconstrictor", logging.WARNING) as logged:
+                registry._replace(Path("a.tmp"), Path("a.json"))
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(sleep.call_count, 2)
+        sleep.assert_called_with(registry.REPLACE_PAUSE_S)
+        self.assertEqual(len(logged.records), 2, "each retry is logged")
+        self.assertIn("attempt 1 of %d" % registry.REPLACE_ATTEMPTS, logged.output[0])
+
+    def test_a_refusal_that_never_ends_is_raised_with_the_reason_and_what_to_do(self):
+        with (
+            mock.patch.object(registry, "_is_windows", return_value=True),
+            mock.patch.object(registry.os, "replace", side_effect=self.refused()) as replace,
+            mock.patch.object(registry.time, "sleep"),
+        ):
+            with self.assertLogs("labconstrictor", logging.WARNING):
+                with self.assertRaises(PermissionError) as caught:
+                    registry._replace(Path("a.tmp"), Path("a.json"))
+        self.assertEqual(replace.call_count, registry.REPLACE_ATTEMPTS)
+        text = str(caught.exception)
+        self.assertIn("a.json", text)
+        self.assertIn("antivirus", text)
+        self.assertIn("run the command again", text)
+
+    def test_a_refusal_is_not_retried_off_windows(self):
+        with (
+            mock.patch.object(registry, "_is_windows", return_value=False),
+            mock.patch.object(registry.os, "replace", side_effect=self.refused()) as replace,
+            mock.patch.object(registry.time, "sleep") as sleep,
+        ):
+            with self.assertRaises(PermissionError):
+                registry._replace(Path("a.tmp"), Path("a.json"))
+        self.assertEqual((replace.call_count, sleep.call_count), (1, 0))
+
+    def test_write_atomic_goes_through_the_retry_and_leaves_no_temporary_file(self):
+        import tempfile
+
+        real = os.replace
+        seen = []
+
+        def flaky(source, target):
+            seen.append(1)
+            if len(seen) == 1:
+                raise self.refused()
+            real(source, target)
+
+        with tempfile.TemporaryDirectory() as folder:
+            target = Path(folder) / "x.json"
+            with (
+                mock.patch.object(registry, "_is_windows", return_value=True),
+                mock.patch.object(registry.os, "replace", side_effect=flaky),
+                mock.patch.object(registry.time, "sleep"),
+                self.assertLogs("labconstrictor", logging.WARNING),
+            ):
+                registry._write_atomic(target, "hello")
+            self.assertEqual(target.read_text(encoding="utf-8"), "hello")
+            self.assertEqual(sorted(p.name for p in Path(folder).iterdir()), ["x.json"])
+
+
+if __name__ == "__main__":
+    unittest.main()

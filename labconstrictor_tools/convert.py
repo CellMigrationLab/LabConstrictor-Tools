@@ -8,6 +8,8 @@ numpy/pandas/tifffile are imported lazily, only when a tool actually uses those 
 
 import logging
 import math
+import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +20,7 @@ UINT16_MAX = (
     65535  # integer images within the 16-bit ranges are narrowed to uint16 / int16, which every host opens
 )
 INT16_MIN, INT16_MAX = -32768, 32767
+SHARED_MEMORY_TRACK_PARAMETER_FROM = (3, 13)  # SharedMemory(track=False) exists from this Python version on
 DEFAULT_AXES = {2: "YX", 3: "ZYX", 4: "CZYX"}
 
 
@@ -155,12 +158,27 @@ def _read_other_format(path: Path) -> Any:
     return iio.imread(path)
 
 
-def _ndarray_from_shared_memory(descriptor: dict[str, Any]) -> Any:
-    from multiprocessing import shared_memory
+def _attach_shared_memory(name: str) -> Any:
+    """Map a block the HOST created, without taking over its life: the worker only reads it, the host unlinks it.
 
+    Python's resource tracker unlinks every block a process registered when that process exits. Attaching registers the block
+    before Python 3.13 (3.13 has `track=False`), so a worker leaving would destroy a block the host still owns (and print a
+    "leaked shared_memory" warning into crash messages). Tracking is a POSIX mechanism: Windows has none to undo.
+    """
+    from multiprocessing import resource_tracker, shared_memory
+
+    if sys.version_info >= SHARED_MEMORY_TRACK_PARAMETER_FROM:
+        return shared_memory.SharedMemory(name=name, track=False)  # type: ignore[call-arg,unused-ignore]  # older stubs lack `track`
+    shm = shared_memory.SharedMemory(name=name)
+    if os.name == "posix":
+        resource_tracker.unregister(shm._name, "shared_memory")  # type: ignore[attr-defined]  # the registered (prefixed) name
+    return shm
+
+
+def _ndarray_from_shared_memory(descriptor: dict[str, Any]) -> Any:
     import numpy as np
 
-    shm = shared_memory.SharedMemory(name=descriptor["shm"]["name"])
+    shm = _attach_shared_memory(descriptor["shm"]["name"])
     try:
         view = np.ndarray(tuple(descriptor["shape"]), dtype=descriptor["dtype"], buffer=shm.buf)
         return view.copy()

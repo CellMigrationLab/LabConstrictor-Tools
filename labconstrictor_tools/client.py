@@ -208,8 +208,44 @@ class WorkerProcess:
         log.info(
             "task %s start tool=%s worker=%s inputs=%s", task.id[:8], tool_id, self.proc.pid, _brief(inputs)
         )
-        self._send({"task": task.id, "requestType": "EXECUTE", "script": "lc:" + tool_id, "inputs": inputs})
+        try:
+            self._send(
+                {"task": task.id, "requestType": "EXECUTE", "script": "lc:" + tool_id, "inputs": inputs}
+            )
+        except (
+            OSError,
+            ValueError,
+        ) as error:  # broken pipe: the worker is gone; ValueError: we closed its stdin ourselves
+            self._fail_task_on_dead_worker(task, error)
         return task
+
+    def _fail_task_on_dead_worker(self, task: "Task", error: Exception) -> None:
+        """The request could not be written because the worker has exited: end the task as CRASHED with the worker's last words
+        (the same outcome as a worker that dies while the task runs), so a host handles one case and no Task stays registered.
+        """
+        try:
+            returncode = self.proc.wait(timeout=CLOSE_TIMEOUT_S)
+        except (
+            subprocess.TimeoutExpired
+        ):  # a worker that cannot take a request but is not dead: stop it, then report
+            log.warning(
+                "worker pid=%s refused a request (%s: %s) but is still running; killing it",
+                self.proc.pid,
+                type(error).__name__,
+                error,
+            )
+            self.kill()
+            returncode = self.proc.returncode
+        self._stderr_thread.join(STDERR_JOIN_S)
+        message = self._exit_message(returncode)
+        log.error(
+            "task %s: the worker is gone (%s: %s) | %s",
+            task.id[:8],
+            type(error).__name__,
+            error,
+            message.replace("\n", " | "),
+        )
+        task.handle({"responseType": "CRASH", "error": message})
 
     def close(self, timeout: float = CLOSE_TIMEOUT_S) -> None:
         """Ask the worker to exit (close stdin); kill it if it does not."""
@@ -329,7 +365,6 @@ class WorkerProcess:
         """stdout closed: the worker is gone. Unfinished tasks crashed - say why, with the worker's own last words."""
         returncode = self.proc.wait()
         self._stderr_thread.join(STDERR_JOIN_S)
-        tail = "".join(self.stderr)[-CRASH_REPORT_TAIL_CHARS:].strip()
         pending = [t for t in list(self.tasks.values()) if not t.done.is_set()]
         cancelled = any(t.cancel_requested for t in pending)
         log.info(
@@ -342,17 +377,23 @@ class WorkerProcess:
             )
             log.info("%s", message)
         elif pending:
-            hint = log.hint_for_exit(returncode, tail)
-            message = "worker exited unexpectedly (code %s)" % returncode
-            if hint:
-                message += ": " + hint
-            if tail:
-                message += "\n--- worker output ---\n" + tail
+            message = self._exit_message(returncode)
             log.error("%s", message.replace("\n", " | "))
         else:
             message = "worker exited"
         for task in pending:
             task.handle({"responseType": "CRASH", "error": message})
+
+    def _exit_message(self, returncode: int | None) -> str:
+        """What a person is told when the worker is gone: the exit code, a hint for it, and the worker's last output."""
+        tail = "".join(self.stderr)[-CRASH_REPORT_TAIL_CHARS:].strip()
+        hint = log.hint_for_exit(returncode, tail)
+        message = "worker exited unexpectedly (code %s)" % returncode
+        if hint:
+            message += ": " + hint
+        if tail:
+            message += "\n--- worker output ---\n" + tail
+        return message
 
     def _read_stderr(self) -> None:
         for line in _pipe(self.proc.stderr):
