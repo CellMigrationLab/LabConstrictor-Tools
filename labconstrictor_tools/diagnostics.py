@@ -24,9 +24,10 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Callable
 
 # Standard library only: no dependency on the host's log file. Inside a host the "labconstrictor" logger writes to the shared
 # log; in a worker (no handler) warnings and errors reach stderr, which the host copies into that log.
@@ -60,47 +61,112 @@ def _ram_gb() -> float | None:
             import ctypes
 
             class Status(ctypes.Structure):
-                _fields_ = [("length", ctypes.c_ulong), ("load", ctypes.c_ulong), ("total", ctypes.c_ulonglong)] + [
-                    (n, ctypes.c_ulonglong) for n in ("avail", "ptotal", "pavail", "vtotal", "vavail")
-                ] + [("ext", ctypes.c_ulonglong)]
+                _fields_ = (
+                    [("length", ctypes.c_ulong), ("load", ctypes.c_ulong), ("total", ctypes.c_ulonglong)]
+                    + [(n, ctypes.c_ulonglong) for n in ("avail", "ptotal", "pavail", "vtotal", "vavail")]
+                    + [("ext", ctypes.c_ulonglong)]
+                )
 
             status = Status()
             status.length = ctypes.sizeof(Status)
             ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status))  # type: ignore[attr-defined]
             return status.total / 1024**3
-        except (OSError, AttributeError, ValueError) as error:  # no ctypes.windll / call refused: memory is then not reported
-            log.warning("memory: GlobalMemoryStatusEx failed (%s: %s); the memory check is skipped", type(error).__name__, error)
+        except (
+            OSError,
+            AttributeError,
+            ValueError,
+        ) as error:  # no ctypes.windll / call refused: memory is then not reported
+            log.warning(
+                "memory: GlobalMemoryStatusEx failed (%s: %s); the memory check is skipped",
+                type(error).__name__,
+                error,
+            )
             return None
     return None
 
 
 def probe_machine() -> list[Check]:
-    out = [Check("machine", "system", INFO, "%s %s, %s, Python %s" % (platform.system(), platform.release(), platform.machine(), platform.python_version()))]
+    out = [
+        Check(
+            "machine",
+            "system",
+            INFO,
+            "%s %s, %s, Python %s"
+            % (platform.system(), platform.release(), platform.machine(), platform.python_version()),
+        )
+    ]
     out.append(Check("machine", "cpu", INFO, "%s logical cores" % (os.cpu_count() or "?")))
     ram = _ram_gb()
     if ram is not None:
         out.append(
-            Check("machine", "memory", OK if ram >= 8 else WARN, "%.1f GB" % ram, "" if ram >= 8 else "Less than 8 GB: large images and models may not fit.")
+            Check(
+                "machine",
+                "memory",
+                OK if ram >= 8 else WARN,
+                "%.1f GB" % ram,
+                "" if ram >= 8 else "Less than 8 GB: large images and models may not fit.",
+            )
         )
     for label, path in (("temporary folder", tempfile.gettempdir()), ("home folder", str(Path.home()))):
         try:
             free = shutil.disk_usage(path).free / 1024**3
-            out.append(Check("machine", "free disk (%s)" % label, OK if free >= 5 else WARN, "%.1f GB free in %s" % (free, path), "" if free >= 5 else "Free some space: results and model downloads need several GB."))
+            out.append(
+                Check(
+                    "machine",
+                    "free disk (%s)" % label,
+                    OK if free >= 5 else WARN,
+                    "%.1f GB free in %s" % (free, path),
+                    "" if free >= 5 else "Free some space: results and model downloads need several GB.",
+                )
+            )
         except OSError as error:
             out.append(Check("machine", "free disk (%s)" % label, WARN, "cannot read: %s" % error))
     try:
         with tempfile.TemporaryDirectory(prefix="lc_check_") as folder:
             probe = Path(folder, "t\u00e9st.txt")
             probe.write_text("x", encoding="utf-8")
-            out.append(Check("machine", "writing files", OK, "wrote and read a file with a non-ASCII name in %s" % folder))
-    except Exception as error:  # noqa: BLE001 - probe boundary: any failure here IS the finding (returned below, and logged)
+            out.append(
+                Check(
+                    "machine",
+                    "writing files",
+                    OK,
+                    "wrote and read a file with a non-ASCII name in %s" % folder,
+                )
+            )
+    except (
+        Exception
+    ) as error:  # noqa: BLE001 - probe boundary: any failure here IS the finding (returned below, and logged)
         log.error("probe 'writing files' failed: %s: %s", type(error).__name__, error, exc_info=True)
-        out.append(Check("machine", "writing files", FAIL, str(error), "The temporary folder is not writable or the file name is refused: set TMP or TEMP to a folder you can write."))
+        out.append(
+            Check(
+                "machine",
+                "writing files",
+                FAIL,
+                str(error),
+                "The temporary folder is not writable or the file name is refused: set TMP or TEMP to a folder you can write.",
+            )
+        )
     path = tempfile.gettempdir()
     if any(ord(c) > 127 for c in path):
-        out.append(Check("machine", "path characters", WARN, "the temporary folder has non-ASCII characters: %s" % path, "Some tools cannot open such paths: set TMP or TEMP to a plain folder."))
+        out.append(
+            Check(
+                "machine",
+                "path characters",
+                WARN,
+                "the temporary folder has non-ASCII characters: %s" % path,
+                "Some tools cannot open such paths: set TMP or TEMP to a plain folder.",
+            )
+        )
     if sys.platform == "win32" and len(path) > 60:
-        out.append(Check("machine", "path length", WARN, "the temporary folder path is long (%d characters)" % len(path), "Windows limits whole paths to 260 characters: set TMP or TEMP to a short folder such as C:\\tmp."))
+        out.append(
+            Check(
+                "machine",
+                "path length",
+                WARN,
+                "the temporary folder path is long (%d characters)" % len(path),
+                "Windows limits whole paths to 260 characters: set TMP or TEMP to a short folder such as C:\\tmp.",
+            )
+        )
     return out
 
 
@@ -112,7 +178,9 @@ def probe_worker() -> list[Check]:
     try:
         out.append(Check("worker", "labconstrictor-tools", INFO, metadata.version("labconstrictor-tools")))
     except metadata.PackageNotFoundError:  # intended fallback: run from a source tree
-        log.info("labconstrictor-tools is not installed as a package: reporting 'running from a source folder'")
+        log.info(
+            "labconstrictor-tools is not installed as a package: reporting 'running from a source folder'"
+        )
         out.append(Check("worker", "labconstrictor-tools", INFO, "running from a source folder"))
     for module in ("numpy", "pandas", "scipy", "tifffile", "matplotlib"):
         try:
@@ -125,7 +193,9 @@ def probe_worker() -> list[Check]:
 # ---------------------------------------------------------------------------------------------------- GPU tools
 def _run(command: list[str], timeout: float = 10.0) -> tuple[int, str]:
     try:
-        done = subprocess.run(command, capture_output=True, text=True, timeout=timeout)  # noqa: S603 - fixed argument lists only
+        done = subprocess.run(
+            command, capture_output=True, text=True, timeout=timeout
+        )  # noqa: S603 - fixed argument lists only
         return done.returncode, (done.stdout or "") + (done.stderr or "")
     except FileNotFoundError:
         return 127, ""
@@ -147,20 +217,53 @@ def parse_nvidia_smi(text: str) -> list[dict]:
 
 def probe_gpu_tools() -> list[Check]:
     out = []
-    code, text = _run(["nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader,nounits"])
+    code, text = _run(
+        ["nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader,nounits"]
+    )
     if code == 127:
-        out.append(Check("gpu tools", "nvidia-smi", INFO, "not found (no NVIDIA driver on this machine, or it is not on the path)"))
+        out.append(
+            Check(
+                "gpu tools",
+                "nvidia-smi",
+                INFO,
+                "not found (no NVIDIA driver on this machine, or it is not on the path)",
+            )
+        )
     elif code != 0:
-        out.append(Check("gpu tools", "nvidia-smi", FAIL, text.strip()[:200] or "exit code %d" % code, "The NVIDIA driver does not answer: reinstall or update it, then restart."))
+        out.append(
+            Check(
+                "gpu tools",
+                "nvidia-smi",
+                FAIL,
+                text.strip()[:200] or "exit code %d" % code,
+                "The NVIDIA driver does not answer: reinstall or update it, then restart.",
+            )
+        )
     else:
         for index, gpu in enumerate(parse_nvidia_smi(text)):
-            out.append(Check("gpu tools", "NVIDIA GPU %d" % index, OK, "%s, driver %s, %.1f GB" % (gpu["name"], gpu["driver"], gpu["memory_mb"] / 1024)))
+            out.append(
+                Check(
+                    "gpu tools",
+                    "NVIDIA GPU %d" % index,
+                    OK,
+                    "%s, driver %s, %.1f GB" % (gpu["name"], gpu["driver"], gpu["memory_mb"] / 1024),
+                )
+            )
     if sys.platform == "darwin" and platform.machine() == "arm64":
-        out.append(Check("gpu tools", "Apple chip", OK, "Apple Silicon (Metal is available to PyTorch as 'mps')"))
+        out.append(
+            Check("gpu tools", "Apple chip", OK, "Apple Silicon (Metal is available to PyTorch as 'mps')")
+        )
     elif sys.platform == "darwin":
         out.append(Check("gpu tools", "Apple chip", WARN, "an Intel Mac", "Intel Macs are not supported."))
     if shutil.which("rocm-smi"):
-        out.append(Check("gpu tools", "ROCm", INFO, "rocm-smi found (AMD GPUs are used through the ROCm build of PyTorch, Linux only)"))
+        out.append(
+            Check(
+                "gpu tools",
+                "ROCm",
+                INFO,
+                "rocm-smi found (AMD GPUs are used through the ROCm build of PyTorch, Linux only)",
+            )
+        )
     return out
 
 
@@ -179,29 +282,72 @@ def _torch_module():
 def probe_torch() -> list[Check]:
     try:
         torch = _torch_module()
-    except Exception as error:  # noqa: BLE001 - a broken install is a finding: importing can raise anything (returned below, and logged)
+    except (
+        Exception
+    ) as error:  # noqa: BLE001 - a broken install is a finding: importing can raise anything (returned below, and logged)
         log.error("probe PyTorch: import failed: %s: %s", type(error).__name__, error, exc_info=True)
-        return [Check("gpu libraries", "PyTorch", FAIL, "installed but cannot be imported: %s" % error, "Reinstall PyTorch in this application.")]
+        return [
+            Check(
+                "gpu libraries",
+                "PyTorch",
+                FAIL,
+                "installed but cannot be imported: %s" % error,
+                "Reinstall PyTorch in this application.",
+            )
+        ]
     if torch is None:
         return [Check("gpu libraries", "PyTorch", INFO, "not installed in this application")]
     out = [Check("gpu libraries", "PyTorch", OK, "version %s" % getattr(torch, "__version__", "?"))]
-    has_nvidia = any(c.layer == "gpu tools" and c.name.startswith("NVIDIA GPU") and c.status == OK for c in probe_gpu_tools())
+    has_nvidia = any(
+        c.layer == "gpu tools" and c.name.startswith("NVIDIA GPU") and c.status == OK
+        for c in probe_gpu_tools()
+    )
     cuda_build = getattr(getattr(torch, "version", None), "cuda", None)
     try:
         cuda_ok = bool(torch.cuda.is_available())
-    except Exception as error:  # noqa: BLE001 - driver calls can raise anything: reported as the CUDA finding below
-        log.error("probe PyTorch: torch.cuda.is_available() failed: %s: %s", type(error).__name__, error, exc_info=True)
+    except (
+        Exception
+    ) as error:  # noqa: BLE001 - driver calls can raise anything: reported as the CUDA finding below
+        log.error(
+            "probe PyTorch: torch.cuda.is_available() failed: %s: %s",
+            type(error).__name__,
+            error,
+            exc_info=True,
+        )
         cuda_ok = False
         out.append(Check("gpu libraries", "CUDA", FAIL, str(error), "Update the NVIDIA driver."))
     if cuda_ok:
         for index in range(torch.cuda.device_count()):
             props = torch.cuda.get_device_properties(index)
-            out.append(Check("gpu libraries", "CUDA device %d" % index, OK, "%s, %.1f GB, CUDA %s" % (props.name, props.total_memory / 1024**3, cuda_build)))
+            out.append(
+                Check(
+                    "gpu libraries",
+                    "CUDA device %d" % index,
+                    OK,
+                    "%s, %.1f GB, CUDA %s" % (props.name, props.total_memory / 1024**3, cuda_build),
+                )
+            )
     elif has_nvidia:
         if cuda_build is None:
-            out.append(Check("gpu libraries", "CUDA", FAIL, "an NVIDIA GPU is present but this PyTorch was built without CUDA", "Reinstall the CUDA build of PyTorch (the installer picks it when it finds nvidia-smi; the install log says what it chose)."))
+            out.append(
+                Check(
+                    "gpu libraries",
+                    "CUDA",
+                    FAIL,
+                    "an NVIDIA GPU is present but this PyTorch was built without CUDA",
+                    "Reinstall the CUDA build of PyTorch (the installer picks it when it finds nvidia-smi; the install log says what it chose).",
+                )
+            )
         else:
-            out.append(Check("gpu libraries", "CUDA", FAIL, "an NVIDIA GPU is present and PyTorch has CUDA %s, but cannot use it" % cuda_build, "The driver is probably too old for this CUDA build: update the NVIDIA driver."))
+            out.append(
+                Check(
+                    "gpu libraries",
+                    "CUDA",
+                    FAIL,
+                    "an NVIDIA GPU is present and PyTorch has CUDA %s, but cannot use it" % cuda_build,
+                    "The driver is probably too old for this CUDA build: update the NVIDIA driver.",
+                )
+            )
     else:
         out.append(Check("gpu libraries", "CUDA", INFO, "no CUDA device"))
     mps = getattr(getattr(torch, "backends", None), "mps", None)
@@ -210,13 +356,31 @@ def probe_torch() -> list[Check]:
             if mps.is_available():
                 out.append(Check("gpu libraries", "MPS (Apple Metal)", OK, "available"))
             elif sys.platform == "darwin" and platform.machine() == "arm64":
-                out.append(Check("gpu libraries", "MPS (Apple Metal)", WARN, "built=%s, not available" % mps.is_built(), "Update macOS (12.3 or newer) and use a PyTorch built for Apple Silicon."))
-        except Exception as error:  # noqa: BLE001 - driver calls can raise anything: reported as the MPS finding
+                out.append(
+                    Check(
+                        "gpu libraries",
+                        "MPS (Apple Metal)",
+                        WARN,
+                        "built=%s, not available" % mps.is_built(),
+                        "Update macOS (12.3 or newer) and use a PyTorch built for Apple Silicon.",
+                    )
+                )
+        except (
+            Exception
+        ) as error:  # noqa: BLE001 - driver calls can raise anything: reported as the MPS finding
             log.error("probe PyTorch: MPS query failed: %s: %s", type(error).__name__, error, exc_info=True)
             out.append(Check("gpu libraries", "MPS (Apple Metal)", WARN, str(error)))
     hip = getattr(getattr(torch, "version", None), "hip", None)
     if hip:
-        out.append(Check("gpu libraries", "ROCm", OK if cuda_ok else WARN, "PyTorch built for ROCm %s" % hip, "" if cuda_ok else "No AMD GPU is usable: check the ROCm driver."))
+        out.append(
+            Check(
+                "gpu libraries",
+                "ROCm",
+                OK if cuda_ok else WARN,
+                "PyTorch built for ROCm %s" % hip,
+                "" if cuda_ok else "No AMD GPU is usable: check the ROCm driver.",
+            )
+        )
     return out
 
 
@@ -224,7 +388,9 @@ def torch_devices() -> list[str]:
     """Device names a PyTorch tool can use here: 'cpu', 'cuda:0', ..., 'mps'. [] when PyTorch is not installed."""
     try:
         torch = _torch_module()
-    except Exception:  # noqa: BLE001 - a broken PyTorch import: probe_torch reports it as a finding; here we only list devices
+    except (
+        Exception
+    ):  # noqa: BLE001 - a broken PyTorch import: probe_torch reports it as a finding; here we only list devices
         log.error("torch_devices: PyTorch cannot be imported, no devices listed", exc_info=True)
         return []
     if torch is None:
@@ -233,12 +399,16 @@ def torch_devices() -> list[str]:
     try:
         if torch.cuda.is_available():
             names += ["cuda:%d" % i for i in range(torch.cuda.device_count())]
-    except Exception:  # noqa: BLE001 - driver query can raise anything; probe_torch reports CUDA problems as findings
+    except (
+        Exception
+    ):  # noqa: BLE001 - driver query can raise anything; probe_torch reports CUDA problems as findings
         log.error("torch_devices: the CUDA query failed, no CUDA device listed", exc_info=True)
     try:
         if getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
             names.append("mps")
-    except Exception:  # noqa: BLE001 - driver query can raise anything; probe_torch reports MPS problems as findings
+    except (
+        Exception
+    ):  # noqa: BLE001 - driver query can raise anything; probe_torch reports MPS problems as findings
         log.error("torch_devices: the MPS query failed, no MPS device listed", exc_info=True)
     return names
 
@@ -248,7 +418,9 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
     """The same small convolution and matrix product on every device: the results must agree (a broken driver does not), and the timings show the real speed-up."""
     try:
         torch = _torch_module()
-    except Exception:  # noqa: BLE001 - a broken PyTorch import: probe_torch reports it as a finding; there is nothing to benchmark
+    except (
+        Exception
+    ):  # noqa: BLE001 - a broken PyTorch import: probe_torch reports it as a finding; there is nothing to benchmark
         log.error("probe benchmark: PyTorch cannot be imported, nothing benchmarked", exc_info=True)
         return []
     if torch is None:
@@ -264,7 +436,9 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
             device = torch.device(name)
             image, kernel, matrix = image.to(device), kernel.to(device), matrix.to(device)
 
-            def work():
+            def work(
+                image=image, kernel=kernel, matrix=matrix
+            ):  # bound now: the loop moves on to the next device
                 return torch.nn.functional.conv2d(image, kernel, padding=2).sum() + (matrix @ matrix).sum()
 
             work()  # warm-up (kernels are compiled on first use)
@@ -284,14 +458,33 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
             agrees = abs(result - reference) <= 1e-3 * max(1.0, abs(reference))
             out.append(
                 Check(
-                    "benchmark", name, OK if agrees else FAIL,
-                    "%.1f ms per run (conv + matmul, %dx%d)%s" % (seconds * 1000, size, size, "" if agrees else "; the result differs from the CPU's"),
-                    "" if agrees else "This device gives a different result than the CPU: do not use it; update or reinstall its driver.",
+                    "benchmark",
+                    name,
+                    OK if agrees else FAIL,
+                    "%.1f ms per run (conv + matmul, %dx%d)%s"
+                    % (seconds * 1000, size, size, "" if agrees else "; the result differs from the CPU's"),
+                    (
+                        ""
+                        if agrees
+                        else "This device gives a different result than the CPU: do not use it; update or reinstall its driver."
+                    ),
                 )
             )
-        except Exception as error:  # noqa: BLE001 - a device test can fail in any way: that is the finding (returned, and logged)
-            log.error("probe benchmark: device %s failed: %s: %s", name, type(error).__name__, error, exc_info=True)
-            out.append(Check("benchmark", name, FAIL, "%s: %s" % (type(error).__name__, error), "This device could not run a small test: check its driver, or use the CPU."))
+        except (
+            Exception
+        ) as error:  # noqa: BLE001 - a device test can fail in any way: that is the finding (returned, and logged)
+            log.error(
+                "probe benchmark: device %s failed: %s: %s", name, type(error).__name__, error, exc_info=True
+            )
+            out.append(
+                Check(
+                    "benchmark",
+                    name,
+                    FAIL,
+                    "%s: %s" % (type(error).__name__, error),
+                    "This device could not run a small test: check its driver, or use the CPU.",
+                )
+            )
     return out
 
 
@@ -313,9 +506,19 @@ def probe_network(hosts: Iterable[str] = ("pypi.org", "huggingface.co", "github.
         try:
             with socket.create_connection((host, 443), timeout=5):
                 pass
-            out.append(Check("network", host, OK, "reachable in %.0f ms" % ((time.perf_counter() - started) * 1000)))
+            out.append(
+                Check("network", host, OK, "reachable in %.0f ms" % ((time.perf_counter() - started) * 1000))
+            )
         except OSError as error:
-            out.append(Check("network", host, WARN, "not reachable (%s)" % error, "Models and packages cannot be downloaded from here: check the proxy or firewall, or install from a local copy."))
+            out.append(
+                Check(
+                    "network",
+                    host,
+                    WARN,
+                    "not reachable (%s)" % error,
+                    "Models and packages cannot be downloaded from here: check the proxy or firewall, or install from a local copy.",
+                )
+            )
     return out
 
 
@@ -335,9 +538,25 @@ def run_checks(*, benchmark: bool = True, network: bool = False, extra: Iterable
     for probe in probes:
         try:
             checks.extend(probe())
-        except Exception as error:  # noqa: BLE001 - isolation boundary: one broken probe must not stop the others (returned, and logged)
-            log.error("probe %s raised: %s: %s", getattr(probe, "__name__", "probe"), type(error).__name__, error, exc_info=True)
-            checks.append(Check("probe", getattr(probe, "__name__", "probe"), FAIL, "%s: %s" % (type(error).__name__, error), "This is a bug in the check itself: please report it."))
+        except (
+            Exception
+        ) as error:  # noqa: BLE001 - isolation boundary: one broken probe must not stop the others (returned, and logged)
+            log.error(
+                "probe %s raised: %s: %s",
+                getattr(probe, "__name__", "probe"),
+                type(error).__name__,
+                error,
+                exc_info=True,
+            )
+            checks.append(
+                Check(
+                    "probe",
+                    getattr(probe, "__name__", "probe"),
+                    FAIL,
+                    "%s: %s" % (type(error).__name__, error),
+                    "This is a bug in the check itself: please report it.",
+                )
+            )
     return checks
 
 
@@ -348,7 +567,11 @@ def summary(checks: list[Check]) -> str:
         layers.setdefault(check.layer, []).append(check)
     lines = []
     for layer, items in layers.items():
-        worst = FAIL if any(c.status == FAIL for c in items) else WARN if any(c.status == WARN for c in items) else OK
+        worst = (
+            FAIL
+            if any(c.status == FAIL for c in items)
+            else WARN if any(c.status == WARN for c in items) else OK
+        )
         lines.append("%s **%s**" % (_SYMBOL[worst], layer))
         for c in items:
             if c.status in (WARN, FAIL):
@@ -356,9 +579,16 @@ def summary(checks: list[Check]) -> str:
                 if c.fix:
                     lines.append("  Fix: %s" % c.fix)
             else:  # what was found, in one short line each: a person can see what the green ticks stand for
-                lines.append("- %s: %s" % (c.name, c.detail if len(c.detail) <= 90 else c.detail[:87] + "..."))
+                lines.append(
+                    "- %s: %s" % (c.name, c.detail if len(c.detail) <= 90 else c.detail[:87] + "...")
+                )
     count = {s: sum(1 for c in checks if c.status == s) for s in (OK, WARN, FAIL)}
-    head = "%s checks: %d ok, %d warning(s), %d failure(s)" % (len(checks), count[OK], count[WARN], count[FAIL])
+    head = "%s checks: %d ok, %d warning(s), %d failure(s)" % (
+        len(checks),
+        count[OK],
+        count[WARN],
+        count[FAIL],
+    )
     return head + "\n\n" + "\n".join(lines)
 
 
@@ -367,4 +597,8 @@ def rows(checks: list[Check]) -> list[dict]:
 
 
 def as_json(checks: list[Check]) -> str:
-    return json.dumps({"platform": platform.platform(), "python": sys.version, "checks": rows(checks)}, indent=2, ensure_ascii=False)
+    return json.dumps(
+        {"platform": platform.platform(), "python": sys.version, "checks": rows(checks)},
+        indent=2,
+        ensure_ascii=False,
+    )

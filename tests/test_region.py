@@ -43,7 +43,12 @@ class Declaration(unittest.TestCase):
         def not_image(count: int, region: Annotated[Optional[Labels], RegionOf("count")] = None) -> Scalars:
             return {}
 
-        for fn, word in ((required, "optional Labels"), (not_labels, "optional Labels"), (unknown, "Image parameter"), (not_image, "Image parameter")):
+        for fn, word in (
+            (required, "optional Labels"),
+            (not_labels, "optional Labels"),
+            (unknown, "Image parameter"),
+            (not_image, "Image parameter"),
+        ):
             with self.subTest(fn.__name__):
                 with self.assertRaisesRegex(DeclarationError, word):
                     schema(fn)
@@ -61,7 +66,9 @@ class Box(unittest.TestCase):
     def test_the_image_size_is_checked(self):
         mask = np.ones((5, 5), int)
         self.assertEqual(bbox(mask, np.zeros((5, 5))), (slice(0, 5), slice(0, 5)))
-        self.assertEqual(bbox(mask, np.zeros((3, 5, 5))), (slice(0, 5), slice(0, 5)))  # leading axes are ignored
+        self.assertEqual(
+            bbox(mask, np.zeros((3, 5, 5))), (slice(0, 5), slice(0, 5))
+        )  # leading axes are ignored
         with self.assertRaisesRegex(ToolError, "size of the image"):
             bbox(mask, np.zeros((6, 5)))
 

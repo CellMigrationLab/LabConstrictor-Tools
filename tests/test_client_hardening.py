@@ -105,8 +105,11 @@ class ClientHardening(PrivateHome):
             self.assertRaises(RuntimeError),
         ):
             self.worker()
-        self.assertEqual(len(started), 1)
-        self.assertIsNotNone(started[0].poll())  # already stopped, not orphaned
+        workers = [
+            proc for proc in started if "taskkill" not in str(proc.args[0])
+        ]  # Windows stops it with taskkill
+        self.assertEqual(len(workers), 1)
+        workers[0].wait(timeout=10)  # stopped, not orphaned (raises TimeoutExpired otherwise)
 
     def test_requests_from_several_threads_are_written_one_at_a_time(self):
         class Slow:

@@ -10,11 +10,16 @@ from __future__ import annotations
 
 import os
 import shlex
-import sys
 from typing import Any
 
 FILE_TYPES = ("image", "labels", "table", "file", "folder")
-PLACEHOLDER = {"image": "image.tif", "labels": "labels.tif", "table": "table.csv", "file": "file", "folder": "folder"}
+PLACEHOLDER = {
+    "image": "image.tif",
+    "labels": "labels.tif",
+    "table": "table.csv",
+    "file": "file",
+    "folder": "folder",
+}
 
 
 def _text(value: Any) -> str:
@@ -47,10 +52,16 @@ def _given(tool: dict, values: dict) -> list[tuple[dict, Any]]:
 
 def placeholders(tool: dict, values: dict) -> list[str]:
     """Names of the required file-like inputs that have no path in `values` (the person must fill these in)."""
-    return [p["name"] for p in tool["inputs"] if p["type"] in FILE_TYPES and p.get("required") and values.get(p["name"]) is None]
+    return [
+        p["name"]
+        for p in tool["inputs"]
+        if p["type"] in FILE_TYPES and p.get("required") and values.get(p["name"]) is None
+    ]
 
 
-def command_line(app: str, tool: dict, values: dict, python: str = "python", windows: bool | None = None) -> str:
+def command_line(
+    app: str, tool: dict, values: dict, python: str = "python", windows: bool | None = None
+) -> str:
     """`python -m labconstrictor_tools run App tool name=value ...`, quoted for the shell."""
     windows = (os.name == "nt") if windows is None else windows
     parts = [python, "-m", "labconstrictor_tools", "run", app, tool["id"]]

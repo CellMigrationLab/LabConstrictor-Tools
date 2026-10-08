@@ -126,7 +126,10 @@ def _add_type_fields(d, name, p, hint, base, meta, has_default):
             if d["type"] != "image":
                 raise DeclarationError("parameter %r: PickChannel applies to an Image input" % name)
             if d.get("axes") not in (None, "YX"):
-                raise DeclarationError("parameter %r: PickChannel gives the tool a 2D channel, so Axes must be YX (or absent)" % name)
+                raise DeclarationError(
+                    "parameter %r: PickChannel gives the tool a 2D channel, so Axes must be YX (or absent)"
+                    % name
+                )
             d["pick_channel"] = True
     elif get_origin(base) is Literal:
         ch = list(get_args(base))
@@ -158,9 +161,7 @@ def _add_number_fields(d, name, meta):
             and "default" in d
             and ((k == "minimum" and d["default"] < d[k]) or (k == "maximum" and d["default"] > d[k]))
         ):
-            raise DeclarationError(
-                "parameter %r: default %r violates %s %r" % (name, d["default"], k, d[k])
-            )
+            raise DeclarationError("parameter %r: default %r violates %s %r" % (name, d["default"], k, d[k]))
     if _m(meta, T.Unit):
         d["unit"] = _m(meta, T.Unit).value
     if _m(meta, T.PixelSizeOf):
@@ -187,15 +188,21 @@ def _add_widget_fields(d, name, meta):
     region = _m(meta, T.RegionOf)
     if region:
         if d["type"] != "labels" or d["required"]:
-            raise DeclarationError("parameter %r: RegionOf applies to an optional Labels input (Optional[Labels] = None)" % name)
+            raise DeclarationError(
+                "parameter %r: RegionOf applies to an optional Labels input (Optional[Labels] = None)" % name
+            )
         d["region_of"] = region.value
     wid = _m(meta, T.Widget)
     if wid:
         if wid.value == "slider":
             if d["type"] not in ("integer", "float") or "minimum" not in d or "maximum" not in d:
-                raise DeclarationError("parameter %r: Widget('slider') needs a number with both Min and Max" % name)
+                raise DeclarationError(
+                    "parameter %r: Widget('slider') needs a number with both Min and Max" % name
+                )
         elif not (d["type"] == "choice" and 2 <= len(d["choices"]) <= 5):
-            raise DeclarationError("parameter %r: Widget('radio') needs a Literal or Enum with 2 to 5 options" % name)
+            raise DeclarationError(
+                "parameter %r: Widget('radio') needs a Literal or Enum with 2 to 5 options" % name
+            )
         d["widget"] = wid.value
     if _m(meta, T.ClearAfterRun) and _m(meta, T.ClearAfterRun).value:
         d["clear_after_run"] = True
@@ -228,7 +235,10 @@ def _outputs(ret, tool_id):
         o = {"name": _m(m, T.Name).value if _m(m, T.Name) else T.OUTPUT_TYPES[b], "type": T.OUTPUT_TYPES[b]}
         if _m(m, T.Replace) and _m(m, T.Replace).value:
             if o["type"] not in ("image", "labels", "table", "affine", "points", "shapes"):
-                raise DeclarationError("tool %r output %d: Replace applies to an image, labels, table, points, shapes or affine output" % (tool_id, i))
+                raise DeclarationError(
+                    "tool %r output %d: Replace applies to an image, labels, table, points, shapes or affine output"
+                    % (tool_id, i)
+                )
             o["replace"] = True
         if _m(m, T.Axes):
             o["axes"] = _m(m, T.Axes).value
@@ -275,12 +285,15 @@ def _check_input_references(tool_id, ins):
     names = {i["name"] for i in ins}
     for i in ins:
         if "pixel_size_of" in i and i["pixel_size_of"] not in names:
-            raise DeclarationError("tool %r: PixelSizeOf(%r) names no parameter" % (tool_id, i["pixel_size_of"]))
+            raise DeclarationError(
+                "tool %r: PixelSizeOf(%r) names no parameter" % (tool_id, i["pixel_size_of"])
+            )
     kinds = {i["name"]: i["type"] for i in ins}
     for i in ins:
         if "region_of" in i and kinds.get(i["region_of"]) != "image":
             raise DeclarationError(
-                "tool %r: RegionOf(%r) on %r must name an Image parameter of the same tool" % (tool_id, i["region_of"], i["name"])
+                "tool %r: RegionOf(%r) on %r must name an Image parameter of the same tool"
+                % (tool_id, i["region_of"], i["name"])
             )
     for i in ins:
         rule = i.get("enabled_when")
@@ -299,7 +312,8 @@ def _check_output_references(tool_id, ins, outs):
         for k in ("apply_to", "relative_to"):
             if k in o.get("display", {}) and o["display"][k] not in names:
                 raise DeclarationError(
-                    "tool %r: output %r refers to unknown parameter %r" % (tool_id, o["name"], o["display"][k])
+                    "tool %r: output %r refers to unknown parameter %r"
+                    % (tool_id, o["name"], o["display"][k])
                 )
 
 
@@ -340,4 +354,6 @@ def _check_choice_sources(tools):
                     raise DeclarationError("%s: depends %r must be a parameter of both tools" % (where, name))
             for name, i in theirs.items():
                 if name not in src["depends"] and i["required"]:
-                    raise DeclarationError("%s: the source tool's required parameter %r is not in depends" % (where, name))
+                    raise DeclarationError(
+                        "%s: the source tool's required parameter %r is not in depends" % (where, name)
+                    )

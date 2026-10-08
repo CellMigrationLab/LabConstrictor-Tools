@@ -17,8 +17,17 @@ CLI = [sys.executable, "-m", "labconstrictor_tools"]
 
 
 def cli(*args, home, extra_env=None, input_dir=None):
-    env = {**os.environ, "LC_HOME": str(home), "LC_APPS_PATH": "", "PYTHONPATH": str(V3), **(extra_env or {})}
-    return subprocess.run([*CLI, *args], capture_output=True, text=True, env=env, cwd=input_dir)
+    env = {
+        **os.environ,
+        "LC_HOME": str(home),
+        "LC_APPS_PATH": "",
+        "PYTHONPATH": str(V3),
+        "PYTHONUTF8": "1",
+        **(extra_env or {}),
+    }  # utf-8: the CLI prints marks that Windows' cp1252 cannot
+    return subprocess.run(
+        [*CLI, *args], capture_output=True, text=True, encoding="utf-8", env=env, cwd=input_dir
+    )
 
 
 def register(home, name, *extra):
@@ -117,6 +126,9 @@ class CliAndRegistry(unittest.TestCase):
         self.assertEqual(broken.returncode, 1)
         self.assertIn("not available on this machine", broken.stdout)
 
+    @unittest.skipUnless(
+        os.name == "posix", "file ownership and permission checks are POSIX-only (see docs/OPERATIONS.md)"
+    )
     def test_entries_pointing_outside_their_prefix_or_writable_by_others_are_ignored(self):
         register(self.home, "synthetic")
         entry_path = self.home / "apps" / "synthetic.json"

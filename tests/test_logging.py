@@ -35,6 +35,7 @@ class FailureDiagnostics(unittest.TestCase):
         self.assertIn("ModuleNotFoundError", task.error)
         self.assertIn("package is missing", task.error)  # hint
 
+    @unittest.skipUnless(os.name == "posix", "a SIGKILL exit code (-9) does not exist on Windows")
     def test_killed_worker_is_explained(self):
         task, _ = run_tool("crashy_app", "killed")
         self.assertEqual(task.status, "CRASHED")

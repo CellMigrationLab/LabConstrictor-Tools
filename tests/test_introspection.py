@@ -14,11 +14,11 @@ from labconstrictor_tools import (
     Collapsed,
     Description,
     File,
+    Group,
     Image,
     ImageOut,
     Label,
     Labels,
-    Group,
     Max,
     Min,
     Name,
@@ -243,7 +243,6 @@ class IntrospectionTests(unittest.TestCase):
         self.assertEqual(called, [])
 
 
-
 class InteractionHintTests(unittest.TestCase):
     def setUp(self):
         decorators.clear()
@@ -260,7 +259,9 @@ class InteractionHintTests(unittest.TestCase):
         def play(
             folder: str,
             user: str = "me",
-            guess: Annotated[str, ChoicesFrom("conditions", depends=["folder", "user"]), ClearAfterRun()] = "",
+            guess: Annotated[
+                str, ChoicesFrom("conditions", depends=["folder", "user"]), ClearAfterRun()
+            ] = "",
             extra: Annotated[int, Group("More"), Collapsed()] = 1,
         ) -> Annotated[ImageOut, Name("view"), Replace()]:
             return None
@@ -270,7 +271,10 @@ class InteractionHintTests(unittest.TestCase):
     def test_schema_keys(self):
         play = {t["id"]: t for t in self._app()["tools"]}["play"]
         inputs = {i["name"]: i for i in play["inputs"]}
-        self.assertEqual(inputs["guess"]["choices_from"], {"tool": "conditions", "depends": ["folder", "user"], "field": "choices"})
+        self.assertEqual(
+            inputs["guess"]["choices_from"],
+            {"tool": "conditions", "depends": ["folder", "user"], "field": "choices"},
+        )
         self.assertTrue(inputs["guess"]["clear_after_run"])
         self.assertTrue(inputs["extra"]["group_collapsed"])
         self.assertTrue(play["outputs"][0]["replace"])
@@ -308,7 +312,9 @@ class InteractionHintTests(unittest.TestCase):
             return {"choices": []}
 
         @tool
-        def play(folder: str, g: Annotated[str, ChoicesFrom("conditions", depends=["folder", "ghost"])] = "") -> Scalars:
+        def play(
+            folder: str, g: Annotated[str, ChoicesFrom("conditions", depends=["folder", "ghost"])] = ""
+        ) -> Scalars:
             return {}
 
         with self.assertRaisesRegex(DeclarationError, "ghost"):
@@ -349,7 +355,6 @@ class InteractionHintTests(unittest.TestCase):
 
         with self.assertRaisesRegex(DeclarationError, "Replace applies"):
             describe_tools()
-
 
     def test_replace_applies_to_an_affine_output(self):
         import numpy as np
@@ -430,10 +435,11 @@ def test_widget_slider_and_radio_reach_the_schema():
 
 
 def test_widget_declaration_errors_are_readable():
-    import pytest
     from typing import Annotated, Literal
 
-    from labconstrictor_tools import Max, Min, Scalars, Widget, tool
+    import pytest
+
+    from labconstrictor_tools import Scalars, Widget, tool
     from labconstrictor_tools.introspection import DeclarationError
 
     @tool("S1")
@@ -449,7 +455,9 @@ def test_widget_declaration_errors_are_readable():
         return {}
 
     @tool("R2")
-    def r2(x: Annotated[Literal["a", "b", "c", "d", "e", "f"], Widget("radio")] = "a") -> Scalars:  # six options
+    def r2(
+        x: Annotated[Literal["a", "b", "c", "d", "e", "f"], Widget("radio")] = "a",
+    ) -> Scalars:  # six options
         return {}
 
     for fn, word in ((s1, "Min and Max"), (s2, "Min and Max"), (r1, "2 to 5"), (r2, "2 to 5")):

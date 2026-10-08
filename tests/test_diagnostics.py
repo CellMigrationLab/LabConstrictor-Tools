@@ -20,9 +20,14 @@ def fake_torch(*, cuda=False, cuda_build="12.4", mps=False, hip=None, devices=1)
     torch.version = types.SimpleNamespace(cuda=cuda_build, hip=hip)
     props = types.SimpleNamespace(name="Fake GPU", total_memory=8 * 1024**3)
     torch.cuda = types.SimpleNamespace(
-        is_available=lambda: cuda, device_count=lambda: devices, get_device_properties=lambda i: props, synchronize=lambda: None
+        is_available=lambda: cuda,
+        device_count=lambda: devices,
+        get_device_properties=lambda i: props,
+        synchronize=lambda: None,
     )
-    torch.backends = types.SimpleNamespace(mps=types.SimpleNamespace(is_available=lambda: mps, is_built=lambda: True))
+    torch.backends = types.SimpleNamespace(
+        mps=types.SimpleNamespace(is_available=lambda: mps, is_built=lambda: True)
+    )
     return torch
 
 
@@ -50,7 +55,12 @@ class ParsingAndShape(unittest.TestCase):
         import subprocess
 
         code = "import sys, labconstrictor_tools.diagnostics\nheavy=[m for m in ('torch','numpy','pandas','tensorflow') if m in sys.modules]\nassert not heavy, heavy"
-        done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env={**__import__("os").environ, "PYTHONPATH": str(_paths.ROOT)})
+        done = subprocess.run(
+            [sys.executable, "-c", code],
+            capture_output=True,
+            text=True,
+            env={**__import__("os").environ, "PYTHONPATH": str(_paths.ROOT)},
+        )
         self.assertEqual(done.returncode, 0, done.stderr)
 
 
@@ -66,32 +76,50 @@ class IsolationAndSummary(unittest.TestCase):
         self.assertTrue(any(c.layer == "machine" for c in checks))
 
     def test_summary_lists_the_fix_beside_every_failure(self):
-        text = d.summary([d.Check("gpu", "CUDA", d.FAIL, "cannot be used", "update the driver"), d.Check("machine", "memory", d.OK, "16 GB")])
+        text = d.summary(
+            [
+                d.Check("gpu", "CUDA", d.FAIL, "cannot be used", "update the driver"),
+                d.Check("machine", "memory", d.OK, "16 GB"),
+            ]
+        )
         self.assertIn("1 failure", text)
         self.assertIn("Fix: update the driver", text)
         self.assertIn("✖ **gpu**", text)
         self.assertIn("✔ **machine**", text)
 
     def test_what_was_found_is_listed_under_the_tick(self):
-        text = d.summary([d.Check("machine", "cpu", d.INFO, "8 logical cores"), d.Check("machine", "memory", d.OK, "16.0 GB")])
+        text = d.summary(
+            [
+                d.Check("machine", "cpu", d.INFO, "8 logical cores"),
+                d.Check("machine", "memory", d.OK, "16.0 GB"),
+            ]
+        )
         self.assertIn("- cpu: 8 logical cores", text)
         self.assertIn("- memory: 16.0 GB", text)
 
     def test_a_layer_with_a_warning_is_marked_as_one(self):
-        text = d.summary([d.Check("machine", "disk", d.WARN, "low", "free space"), d.Check("machine", "cpu", d.OK, "8")])
+        text = d.summary(
+            [d.Check("machine", "disk", d.WARN, "low", "free space"), d.Check("machine", "cpu", d.OK, "8")]
+        )
         self.assertIn("⚠ **machine**", text)
 
 
 class TorchProbes(unittest.TestCase):
     def run_probe(self, torch, gpu_tools=()):
-        with mock.patch.dict(sys.modules, {"torch": torch}), mock.patch.object(d, "probe_gpu_tools", return_value=list(gpu_tools)):
+        with (
+            mock.patch.dict(sys.modules, {"torch": torch}),
+            mock.patch.object(d, "probe_gpu_tools", return_value=list(gpu_tools)),
+        ):
             return d.probe_torch()
 
     def status(self, checks, name):
         return next(c for c in checks if c.name == name).status
 
     def test_not_installed_is_information_not_a_failure(self):
-        with mock.patch.dict(sys.modules, {"torch": None}), mock.patch("importlib.util.find_spec", return_value=None):
+        with (
+            mock.patch.dict(sys.modules, {"torch": None}),
+            mock.patch("importlib.util.find_spec", return_value=None),
+        ):
             checks = d.probe_torch()
         self.assertEqual([(c.name, c.status) for c in checks], [("PyTorch", d.INFO)])
 
@@ -110,7 +138,9 @@ class TorchProbes(unittest.TestCase):
 
     def test_working_cuda_lists_each_device(self):
         checks = self.run_probe(fake_torch(cuda=True, devices=2), NVIDIA_PRESENT)
-        self.assertEqual([c.name for c in checks if c.name.startswith("CUDA device")], ["CUDA device 0", "CUDA device 1"])
+        self.assertEqual(
+            [c.name for c in checks if c.name.startswith("CUDA device")], ["CUDA device 0", "CUDA device 1"]
+        )
 
     def test_no_nvidia_and_no_cuda_is_just_information(self):
         checks = self.run_probe(fake_torch(cuda=False))
@@ -138,7 +168,10 @@ class TorchProbes(unittest.TestCase):
 
 class Benchmark(unittest.TestCase):
     def test_timings_are_extracted_for_a_figure(self):
-        checks = [d.Check("benchmark", "cpu", d.OK, "12.5 ms per run (conv + matmul, 512x512)"), d.Check("benchmark", "cuda:0", d.FAIL, "boom")]
+        checks = [
+            d.Check("benchmark", "cpu", d.OK, "12.5 ms per run (conv + matmul, 512x512)"),
+            d.Check("benchmark", "cuda:0", d.FAIL, "boom"),
+        ]
         self.assertEqual(d.benchmark_timings(checks), {"cpu": 12.5})
 
     def test_without_pytorch_the_benchmark_is_empty(self):
@@ -151,7 +184,9 @@ class Benchmark(unittest.TestCase):
         except ImportError:
             self.skipTest("PyTorch is not installed here")
         checks = d.probe_benchmark(size=64, repeats=1)
-        self.assertTrue(checks and all(c.status == d.OK for c in checks), [c for c in checks if c.status != d.OK])
+        self.assertTrue(
+            checks and all(c.status == d.OK for c in checks), [c for c in checks if c.status != d.OK]
+        )
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 """Working with the region a person selected in the host (a parameter declared with `RegionOf("image")`).
 
-    def segment(image, region: Annotated[Optional[Labels], RegionOf("image")] = None):
-        box = bbox(region, image) if region is not None else (slice(None), slice(None))
-        crop = image[box]          # work on the crop, then put the result back at box
+def segment(image, region: Annotated[Optional[Labels], RegionOf("image")] = None):
+    box = bbox(region, image) if region is not None else (slice(None), slice(None))
+    crop = image[box]          # work on the crop, then put the result back at box
 """
 
 from __future__ import annotations
@@ -25,9 +25,13 @@ def bbox(mask: Any, image: Any = None) -> tuple[slice, slice]:
         raise ToolError("bad_input", "the region must be a 2D label image, got %d dimensions" % array.ndim)
     if image is not None and tuple(array.shape) != tuple(np.asarray(image).shape[-2:]):
         raise ToolError(
-            "bad_input", "the region (%d x %d) does not have the size of the image (%d x %d)" % (*array.shape, *np.asarray(image).shape[-2:])
+            "bad_input",
+            "the region (%d x %d) does not have the size of the image (%d x %d)"
+            % (*array.shape, *np.asarray(image).shape[-2:]),
         )
     rows, columns = np.nonzero(array)
     if rows.size == 0:
-        raise ToolError("empty_region", "The selected region is empty: select an object, or untick 'use the selection'.")
+        raise ToolError(
+            "empty_region", "The selected region is empty: select an object, or untick 'use the selection'."
+        )
     return slice(int(rows.min()), int(rows.max()) + 1), slice(int(columns.min()), int(columns.max()) + 1)

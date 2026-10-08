@@ -349,6 +349,9 @@ class CancelThatHadToKill(unittest.TestCase):
             with client.WorkerProcess("synthetic") as worker:
                 task = worker.task("stubborn", {"seconds": 60})
                 task.launched.wait(10)
+                time.sleep(
+                    1.0
+                )  # LAUNCH only says the request arrived: let the tool start sleeping, or Cancel wins before it runs (CANCELED)
                 task.cancel()
                 threading.Timer(1.0, worker.kill).start()
                 task.wait(20)
@@ -464,6 +467,7 @@ class RegistryHardening(unittest.TestCase):
         self.assertEqual(schemas, {})
         self.assertEqual(problems, [("good", "schema is not a JSON object")])
 
+    @unittest.skipUnless(os.name == "posix", "the schema-folder check belongs to the POSIX trust checks")
     def test_a_schema_outside_the_entry_folder_is_refused(self):
         elsewhere = Path(tempfile.mkdtemp(prefix="elsewhere_"))
         (elsewhere / "s.json").write_text("{}")

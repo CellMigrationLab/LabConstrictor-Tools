@@ -28,12 +28,12 @@ from labconstrictor_tools import (
     PickChannel,
     PointsOut,
     RegionOf,
-    Widget,
     Replace,
     Scalars,
     ShapesOut,
     TableOut,
     ToolError,
+    Widget,
     tool,
 )
 
@@ -51,14 +51,22 @@ def show_shape(
     shape: Annotated[
         Optional[str],
         Group("Play"),
-        ChoicesFrom("list_shapes"),  # a dropdown where the host can, a text field where it cannot: accept any string
+        ChoicesFrom(
+            "list_shapes"
+        ),  # a dropdown where the host can, a text field where it cannot: accept any string
         ClearAfterRun(),  # Napari empties it after a successful run, so a stale answer is never sent twice
         Description("Pick a shape to draw; leave unset to draw the default one"),
     ] = None,
-    size: Annotated[int, Group("Options"), Collapsed(), Description("Size in pixels (this group starts folded)")] = 32,
+    size: Annotated[
+        int, Group("Options"), Collapsed(), Description("Size in pixels (this group starts folded)")
+    ] = 32,
 ) -> tuple[
-    Annotated[ImageOut, Name("picture"), Replace()],  # each run replaces the previous picture (one layer / window)
-    Annotated[PointsOut, Name("corners"), Replace()],  # y, x (+ properties) -> points layer / point ROIs / point annotations
+    Annotated[
+        ImageOut, Name("picture"), Replace()
+    ],  # each run replaces the previous picture (one layer / window)
+    Annotated[
+        PointsOut, Name("corners"), Replace()
+    ],  # y, x (+ properties) -> points layer / point ROIs / point annotations
     Annotated[MessageOut, Name("note")],  # a short message for the user
 ]:
     """Draw a shape, mark its corners and say what was drawn."""
@@ -66,7 +74,9 @@ def show_shape(
 
     shape = shape or SHAPES[0]
     if shape not in SHAPES:
-        raise ToolError("unknown_shape", "Unknown shape '%s'. Choose one of: %s." % (shape, ", ".join(SHAPES)))
+        raise ToolError(
+            "unknown_shape", "Unknown shape '%s'. Choose one of: %s." % (shape, ", ".join(SHAPES))
+        )
     image = np.zeros((size, size), np.uint8)
     q = size // 4
     if shape == "square":
@@ -76,18 +86,38 @@ def show_shape(
     else:
         image[size // 2 - 2 : size // 2 + 2, size // 2 - 2 : size // 2 + 2] = 255
     ys, xs = np.nonzero(image)
-    corners = [{"y": float(ys.min()), "x": float(xs.min()), "corner": "top-left"}, {"y": float(ys.max()), "x": float(xs.max()), "corner": "bottom-right"}]
+    corners = [
+        {"y": float(ys.min()), "x": float(xs.min()), "corner": "top-left"},
+        {"y": float(ys.max()), "x": float(xs.max()), "corner": "bottom-right"},
+    ]
     return image, corners, "Drew a **%s** of %d px." % (shape, size)
 
 
 @tool("Find bright spots")
 def find_bright_spots(
     image: Annotated[Image, Axes("YX"), Description("The image to search")],
-    threshold: Annotated[float, Min(0), Max(1), Widget("slider"), Description("Fraction of the maximum above which a pixel counts as a spot")] = 0.8,
-    look_for: Annotated[Literal["bright", "dark"], Widget("radio"), Description("Mark bright spots, or dark ones (the image is inverted first)")] = "bright",
-    region: Annotated[Optional[Labels], Axes("YX"), RegionOf("image"), Description("Only look inside this region (the host fills it from the selection)")] = None,
+    threshold: Annotated[
+        float,
+        Min(0),
+        Max(1),
+        Widget("slider"),
+        Description("Fraction of the maximum above which a pixel counts as a spot"),
+    ] = 0.8,
+    look_for: Annotated[
+        Literal["bright", "dark"],
+        Widget("radio"),
+        Description("Mark bright spots, or dark ones (the image is inverted first)"),
+    ] = "bright",
+    region: Annotated[
+        Optional[Labels],
+        Axes("YX"),
+        RegionOf("image"),
+        Description("Only look inside this region (the host fills it from the selection)"),
+    ] = None,
 ) -> tuple[
-    Annotated[PointsOut, Name("spots"), ApplyTo("image"), Replace()],  # ApplyTo: the pixels these y, x belong to
+    Annotated[
+        PointsOut, Name("spots"), ApplyTo("image"), Replace()
+    ],  # ApplyTo: the pixels these y, x belong to
     Annotated[MessageOut, Name("summary")],
 ]:
     """Mark the local maxima above a threshold: a minimal example of returning objects found in an image."""
@@ -97,7 +127,7 @@ def find_bright_spots(
     if look_for == "dark":
         image = image.max() - image
     inside = np.ones(image.shape, bool)
-    if region is not None:                                 # RegionOf: only the selected objects count (an empty selection is an error)
+    if region is not None:  # RegionOf: only the selected objects count (an empty selection is an error)
         from labconstrictor_tools.region import bbox
 
         bbox(region, image)
@@ -109,16 +139,26 @@ def find_bright_spots(
     ys, xs = np.nonzero(is_peak)
     if len(ys) == 0:
         raise ToolError("no_result", "No spot above %.0f%% of the maximum." % (100 * threshold))
-    return [{"y": float(y), "x": float(x), "intensity": float(image[y, x])} for y, x in zip(ys, xs)], "Found **%d** spot(s)." % len(ys)
+    return [
+        {"y": float(y), "x": float(x), "intensity": float(image[y, x])} for y, x in zip(ys, xs)
+    ], "Found **%d** spot(s)." % len(ys)
 
 
 @tool("Outline the blobs")
 def outline_blobs(
     image: Annotated[Image, Axes("YX"), Description("The image to segment")],
-    threshold: Annotated[float, Min(0), Max(1), Widget("slider"), Description("Fraction of the maximum above which a pixel belongs to a blob")] = 0.5,
+    threshold: Annotated[
+        float,
+        Min(0),
+        Max(1),
+        Widget("slider"),
+        Description("Fraction of the maximum above which a pixel belongs to a blob"),
+    ] = 0.5,
 ) -> tuple[
     Annotated[LabelsOut, Name("blobs"), ApplyTo("image"), Replace()],
-    Annotated[ShapesOut, Name("outlines"), ApplyTo("image"), Replace()],  # the same objects as outlines: a shapes layer / polygon ROIs / annotations
+    Annotated[
+        ShapesOut, Name("outlines"), ApplyTo("image"), Replace()
+    ],  # the same objects as outlines: a shapes layer / polygon ROIs / annotations
     Annotated[MessageOut, Name("summary")],
 ]:
     """Label the bright blobs and return their outlines: a minimal example of ShapesOut."""
@@ -138,14 +178,18 @@ def outline_blobs(
 
 @tool("Mean of a channel")
 def channel_mean(
-    image: Annotated[Image, Axes("YX"), PickChannel(), Description("A multi-channel image: choose the channel in the host")],
+    image: Annotated[
+        Image, Axes("YX"), PickChannel(), Description("A multi-channel image: choose the channel in the host")
+    ],
 ) -> Scalars:
     """A 2D tool that works on one channel of a multi-channel image: with PickChannel the host sends only the chosen channel."""
     return {"mean": round(float(image.mean()), 4), "shape": "%d x %d" % image.shape}
 
 
 @tool("Check this installation")
-def check_installation() -> tuple[Annotated[MessageOut, Name("readout")], Annotated[TableOut, Name("details")]]:
+def check_installation() -> (
+    tuple[Annotated[MessageOut, Name("readout")], Annotated[TableOut, Name("details")]]
+):
     """What a person can run to see whether the machine, the worker and the GPU libraries are in order (the same three lines work in any app)."""
     from labconstrictor_tools import diagnostics
 

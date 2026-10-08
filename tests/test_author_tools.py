@@ -15,9 +15,20 @@ SYNTHETIC = SYNTHETIC_MODULE
 
 
 def lc(python, *args, cwd=None):
-    env = {**os.environ, "PYTHONPATH": str(V3), "PYTHONNOUSERSITE": "1", "MPLBACKEND": "Agg"}
-    run = subprocess.run(
-        [str(python), "-m", "labconstrictor_tools", *args], capture_output=True, text=True, env=env, cwd=cwd
+    env = {
+        **os.environ,
+        "PYTHONPATH": str(V3),
+        "PYTHONNOUSERSITE": "1",
+        "MPLBACKEND": "Agg",
+        "PYTHONUTF8": "1",
+    }
+    run = subprocess.run(  # utf-8 both ways: the CLI prints marks (check, cross) that Windows' cp1252 cannot
+        [str(python), "-m", "labconstrictor_tools", *args],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=env,
+        cwd=cwd,
     )
     return run.returncode, run.stdout + run.stderr
 
@@ -137,7 +148,12 @@ def notebook(path, cells):
 
 class TestNotebookHelper(unittest.TestCase):
     def magic(self, tmp, cells):
-        env = {**os.environ, "PYTHONPATH": str(V3), "PYTHONNOUSERSITE": "1"}
+        env = {
+            **os.environ,
+            "PYTHONPATH": str(V3),
+            "PYTHONNOUSERSITE": "1",
+            "PYTHONUTF8": "1",
+        }  # utf-8 stdout: the marks the tools print are not in cp1252
         run = subprocess.run(
             [str(NUCLEISKY), "-c", DRIVER, tmp, json.dumps(cells)], capture_output=True, text=True, env=env
         )

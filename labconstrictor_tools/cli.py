@@ -281,7 +281,12 @@ def cmd_check(args: argparse.Namespace) -> int:
         for p in tool["inputs"]:
             print(
                 "      in  %-24s %-8s %s%s"
-                % (p["name"], p["type"], "required" if p["required"] else "default %r" % (p.get("default"),), _hints(p))
+                % (
+                    p["name"],
+                    p["type"],
+                    "required" if p["required"] else "default %r" % (p.get("default"),),
+                    _hints(p),
+                )
             )
         for o in tool["outputs"]:
             print("      out %-24s %-8s%s" % (o["name"], o["type"], _hints(o)))
@@ -416,7 +421,8 @@ def _diagnose_app(name: str, entry) -> tuple[str, str, str]:
     return (
         name,
         "ok",
-        "%d tool(s), schema current, interpreter %s (%.2f s)" % (len(cached["tools"]), entry["python"], seconds),
+        "%d tool(s), schema current, interpreter %s (%.2f s)"
+        % (len(cached["tools"]), entry["python"], seconds),
     )
 
 
@@ -519,8 +525,13 @@ def _environment_report():
         try:
             result = subprocess.run([entry["python"], "-VV"], capture_output=True, text=True, timeout=20)
             version = (result.stdout or result.stderr).strip()
-        except (OSError, subprocess.SubprocessError) as error:  # cannot start, or timed out: the report says so
-            log.warning("environment report: %s -VV failed (%s: %s)", entry["python"], type(error).__name__, error)
+        except (
+            OSError,
+            subprocess.SubprocessError,
+        ) as error:  # cannot start, or timed out: the report says so
+            log.warning(
+                "environment report: %s -VV failed (%s: %s)", entry["python"], type(error).__name__, error
+            )
             version = "cannot run: %s" % error
         lines.append("  %s %s: %s | %s" % (name, entry.get("version", ""), entry["python"], version))
     lines += ["  skipped: %s: %s" % p for p in problems]

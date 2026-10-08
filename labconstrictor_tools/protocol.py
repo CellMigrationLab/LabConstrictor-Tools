@@ -83,7 +83,9 @@ class Channel:
             try:
                 self._out.write(line + "\n")
                 self._out.flush()
-            except OSError as error:  # BrokenPipeError included: the host is gone, nobody to tell; stderr is what is left
+            except (
+                OSError
+            ) as error:  # BrokenPipeError included: the host is gone, nobody to tell; stderr is what is left
                 if not self._reported_closed:
                     self._reported_closed = True
                     print(
@@ -130,6 +132,8 @@ def _oversized(size: int) -> None:
 
 def _stdin_lines():
     if os.name != "nt":
+        # a line that is not valid UTF-8 must not kill the reader (strict decoding does on macOS and on UTF-8 locales)
+        sys.stdin.reconfigure(errors="replace")
         yield from _bounded_lines(sys.stdin.readline)
         return
     yield from _stdin_lines_without_pending_read()

@@ -27,7 +27,9 @@ def tool_schema(tool_id):
 class Text(unittest.TestCase):
     def test_unset_values_are_left_out_and_files_get_a_placeholder(self):
         tool = tool_schema("kitchen_sink")
-        line = command.command_line("App", tool, {"required_string": "hi", "optional_string": None, "count": 4}, windows=False)
+        line = command.command_line(
+            "App", tool, {"required_string": "hi", "optional_string": None, "count": 4}, windows=False
+        )
         self.assertIn("run App kitchen_sink", line)
         self.assertIn("image=image.tif", line)  # required image: a placeholder, and the line says so
         self.assertIn("# replace the file for: image", line)
@@ -47,7 +49,9 @@ class Text(unittest.TestCase):
 
     def test_the_snippet_is_valid_python_with_real_booleans(self):
         tool = tool_schema("kitchen_sink")
-        text = command.python_snippet("App", tool, {"required_string": 'q"uote', "image": "x.tif", "flag": True})
+        text = command.python_snippet(
+            "App", tool, {"required_string": 'q"uote', "image": "x.tif", "flag": True}
+        )
         compile(text, "snippet", "exec")
         self.assertIn("'flag': True", text)
 
@@ -67,10 +71,16 @@ class RunForReal(unittest.TestCase):
 
     def test_terminal_line_gives_the_same_values(self):
         tool = tool_schema("unicode_echo")
-        line = command.command_line("synthetic", tool, {"text": "µm → ok 'q'"}, python=sys.executable, windows=False)
-        done = subprocess.run(shlex.split(line), capture_output=True, text=True, env=self.env, encoding="utf-8")
+        line = command.command_line(
+            "synthetic", tool, {"text": "µm → ok 'q'"}, python=sys.executable, windows=False
+        )
+        done = subprocess.run(
+            shlex.split(line), capture_output=True, text=True, env=self.env, encoding="utf-8"
+        )
         self.assertEqual(done.returncode, 0, done.stderr)
-        report = json.loads(done.stdout[: done.stdout.index("\n(results")] if "\n(results" in done.stdout else done.stdout)
+        report = json.loads(
+            done.stdout[: done.stdout.index("\n(results")] if "\n(results" in done.stdout else done.stdout
+        )
         self.assertEqual(report["status"], "COMPLETE")
         self.assertEqual(json.dumps(report["results"], ensure_ascii=False).count("µm → ok 'q'"), 1)
 

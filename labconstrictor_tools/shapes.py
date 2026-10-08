@@ -47,7 +47,9 @@ def _rings_of(mask, simplify: float):
             contour = approximate_polygon(contour, simplify)
         if len(contour) < 4:  # a closed ring of fewer than 3 distinct vertices is no polygon
             continue
-        ring = [[float(c) - 1.0, float(r) - 1.0] for r, c in contour]  # undo the padding; (row, col) -> [x, y]
+        ring = [
+            [float(c) - 1.0, float(r) - 1.0] for r, c in contour
+        ]  # undo the padding; (row, col) -> [x, y]
         if ring[0] != ring[-1]:
             ring.append(ring[0])
         rings.append(ring)
@@ -82,7 +84,9 @@ def labels_to_shapes(labels: Any, simplify: float = 0.5, min_area: int = 1) -> d
 
     array = np.asarray(labels)
     if array.ndim != 2:
-        raise ToolError("bad_input", "labels_to_shapes needs a 2D label image, got %d dimensions" % array.ndim)
+        raise ToolError(
+            "bad_input", "labels_to_shapes needs a 2D label image, got %d dimensions" % array.ndim
+        )
     features = []
     for index, region in enumerate(ndimage.find_objects(array.astype(np.int64, copy=False)), start=1):
         if region is None:
@@ -101,5 +105,7 @@ def labels_to_shapes(labels: Any, simplify: float = 0.5, min_area: int = 1) -> d
             if len(shifted) == 1
             else {"type": "MultiPolygon", "coordinates": shifted}
         )
-        features.append({"type": "Feature", "properties": {"label": index, "area": area}, "geometry": geometry})
+        features.append(
+            {"type": "Feature", "properties": {"label": index, "area": area}, "geometry": geometry}
+        )
     return {"type": "FeatureCollection", "features": features}

@@ -115,8 +115,12 @@ class ToolForm:
             self._show(self.results)
         except T.ToolError as error:
             self.status.value = "✖ <b>%s</b>: %s" % (error.code, error.message)
-        except Exception as error:  # noqa: BLE001 - UI boundary: any tool failure is shown in the form, and logged with its traceback
-            logging.getLogger("labconstrictor.notebook").error("tool run failed in the notebook form", exc_info=True)
+        except (
+            Exception
+        ) as error:  # noqa: BLE001 - UI boundary: any tool failure is shown in the form, and logged with its traceback
+            logging.getLogger("labconstrictor.notebook").error(
+                "tool run failed in the notebook form", exc_info=True
+            )
             self.status.value = "✖ <b>%s</b>: %s" % (type(error).__name__, error)
         finally:
             runtime.install()

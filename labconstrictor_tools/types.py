@@ -1,6 +1,7 @@
 """Semantic types + metadata markers for tool declarations. Pure stdlib; no scientific imports."""
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 
 # ---- semantic input types (what the tool function RECEIVES: Image->ndarray, Table->DataFrame, File->Path)

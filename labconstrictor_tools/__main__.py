@@ -6,6 +6,7 @@ Used by people     : list | run | check | test | doctor     (see cli.py)
 """
 
 import argparse
+import errno
 import importlib
 import json
 import logging
@@ -143,20 +144,36 @@ def _tolerant_streams():
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.reconfigure(errors="replace")
-        except (AttributeError, ValueError) as error:  # a stream without reconfigure (replaced by a host/test): keep it as it is
-            logging.getLogger("labconstrictor").debug("cannot make %r tolerant of encoding errors: %s", stream, error)
+        except (
+            AttributeError,
+            ValueError,
+        ) as error:  # a stream without reconfigure (replaced by a host/test): keep it as it is
+            logging.getLogger("labconstrictor").debug(
+                "cannot make %r tolerant of encoding errors: %s", stream, error
+            )
+
+
+def _reader_went_away(error: OSError) -> bool:
+    """A write to a closed pipe: EPIPE everywhere, but Windows reports EINVAL for it."""
+    return isinstance(error, BrokenPipeError) or (os.name == "nt" and error.errno == errno.EINVAL)
 
 
 def main(argv: list[str] | None = None) -> int:
     try:
-        return _main(argv)
-    except BrokenPipeError:
+        code = _main(argv)
+        sys.stdout.flush()  # buffered output that nobody reads fails here, where it is handled, not at interpreter exit
+        return code
+    except OSError as error:
+        if not _reader_went_away(error):
+            raise
         # whoever reads our output (`| head`, a pager that was quit) went away: that is not an error worth a traceback.
         # stdout is pointed at the null device so that the flush at interpreter exit cannot fail a second time.
         try:
             os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
         except (OSError, ValueError, AttributeError) as error:  # best effort; the exit code stays 0
-            logging.getLogger("labconstrictor").debug("cannot redirect stdout after a broken pipe: %s: %s", type(error).__name__, error)
+            logging.getLogger("labconstrictor").debug(
+                "cannot redirect stdout after a broken pipe: %s: %s", type(error).__name__, error
+            )
         return 0
 
 
