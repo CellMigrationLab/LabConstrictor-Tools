@@ -84,15 +84,6 @@ FINDINGS: dict[str, Finding] = {
         "documented in docs/PROTOCOL.md",
         "silent loss of the cell's content (a gene called NA, a status 'None')",
     ),
-    "F10": Finding(
-        "command.quote(windows=True) breaks texts with backslashes before a quote",
-        'command.quote(\'x y\\\\"z\', windows=True) and command.quote("C:\\\\My Data\\\\", windows=True): parse the result with '
-        "CommandLineToArgvW / the MSVC rules (tests/test_roundtrip_command.py has the parser)",
-        "the copied Windows command line gives the program exactly the text: backslashes in front of a quote (or of the closing "
-        "quote) are doubled",
-        "a folder path with a space that ends in a backslash, or a text with backslashes before a double quote, comes out "
-        "changed (the closing quote is swallowed)",
-    ),
     "F11": Finding(
         "A malformed or stale shared-memory image descriptor raises a raw exception",
         'convert.load_inputs(schema, {"image": {"appose_type": "ndarray"}}) -> KeyError; an unknown "shm" name -> FileNotFoundError',
@@ -226,13 +217,6 @@ _add(
     "worker:echo_table/text-that-pandas-calls-missing",
 )
 _add(
-    "F10",
-    "winquote:quote-after-backslashes",
-    "winquote:spaced-trailing-backslash",
-    "winquote:spaced-quote-after-backslash",
-    "property:windows_quoting_keeps_a_text_one_argument",
-)
-_add(
     "F11",
     "property:only_toolerror_image_shared_memory",
 )
@@ -250,12 +234,6 @@ _add(
     "terminal:echo_image/uint64/beyond-float32",
     "snippet:echo_image/uint64/beyond-float32",
     "notebook:echo_image/uint64/beyond-float32",
-)
-_add(
-    "F10",
-    "winproc:quote-after-backslashes",
-    "winproc:spaced-trailing-backslash",
-    "winproc:spaced-quote-after-backslash",
 )
 _add(
     "F12",
