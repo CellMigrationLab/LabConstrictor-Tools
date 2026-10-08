@@ -82,6 +82,18 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                     continue
                 self.fail("property %s now PASSES: delete it from roundtrip_known_failures.py" % name)
 
+    def test_hint_entries_are_still_accepted(self):
+        import test_roundtrip_hints as hints
+
+        by_id = {c.id: c for c in hints.invalid_cells()}
+        for key in KNOWN:
+            if key.startswith("hint:") and is_known(key):
+                with self.subTest(key):
+                    self.assertIn(key.split(":", 1)[1], by_id)
+                    self.assertIsNone(
+                        hints.refused(by_id[key.split(":", 1)[1]]), "now REFUSED: delete the entry"
+                    )
+
     def test_unit_test_entries_still_fail(self):
         import io
 

@@ -134,6 +134,17 @@ FINDINGS: dict[str, Finding] = {
         "empty and complex arrays are written (the empty one as a nonconformant TIFF that the bridge itself refuses to read back); "
         "object and text arrays fail with [KeyError] 'O' / 'U'",
     ),
+    "F16": Finding(
+        "Hints on the wrong kind of parameter, or with an impossible value, are accepted and silently ignored",
+        "Annotated[str, Min(0)], Annotated[int, Min(5), Max(1)], Annotated[str, Axes('YX')], Annotated[int, PixelSizeOf('image')], "
+        "Annotated[str, Replace()] (an output marker on an input), two outputs both named with Name('same'): "
+        "describe_tool accepts every one of them (tests/test_roundtrip_hints.py generates the full list)",
+        "a clear DeclarationError that names the parameter and what to change: docs/MANIFEST.md asks for 'a clear declaration "
+        "error for misuse' for every marker; an author who wrote Min on a text parameter or Min(5), Max(1) has made a mistake",
+        "the hint disappears from the schema (or an empty range / a renamed output is published): the app registers and the "
+        "mistake is found by a person, if at all. (Duplicate explicit output names become 'same' and 'same2': the "
+        "'duplicate output names' DeclarationError in introspection._outputs can never be raised)",
+    ),
     "F13": Finding(
         "The worker destroys the host's shared-memory block when it exits",
         "the host creates a block, sends it as an image input, the task completes, the worker is closed: the block is gone, and the "
@@ -270,6 +281,35 @@ _add(
     "F12",
     "property:only_toolerror_file_value",
     "property:only_toolerror_folder_value",
+)
+_add(
+    "F16",
+    "hint:ApplyTo-on-the-input-image",
+    "hint:ApplyTo-on-the-input-str",
+    "hint:Axes-on-file",
+    "hint:Axes-on-int",
+    "hint:Axes-on-str",
+    "hint:Axes-on-table",
+    "hint:Max-on-bool",
+    "hint:Max-on-file",
+    "hint:Max-on-image",
+    "hint:Max-on-literal3",
+    "hint:Max-on-str",
+    "hint:Min-above-Max",
+    "hint:Min-is-not-a-number",
+    "hint:Min-on-bool",
+    "hint:Min-on-file",
+    "hint:Min-on-image",
+    "hint:Min-on-literal3",
+    "hint:Min-on-str",
+    "hint:Name-on-the-input-image",
+    "hint:Name-on-the-input-str",
+    "hint:PixelSizeOf-on-bool",
+    "hint:PixelSizeOf-on-int",
+    "hint:PixelSizeOf-on-str",
+    "hint:Replace-on-the-input-image",
+    "hint:Replace-on-the-input-str",
+    "hint:duplicate-output-names",
 )
 
 
