@@ -28,9 +28,8 @@ import subprocess
 import sys
 import tempfile
 import threading
-import time
 from dataclasses import dataclass, field
-from multiprocessing import resource_tracker, shared_memory
+from multiprocessing import shared_memory
 from pathlib import Path
 from typing import Any
 
@@ -63,7 +62,6 @@ from labconstrictor_tools.client import WorkerProcess
 
 APP = "roundtrip"
 TASK_TIMEOUT_S = 120
-REGISTER_ATTEMPTS = 5  # see register_app
 SUBPROCESS_TIMEOUT_S = 180
 TOOLERROR_CODE = re.compile(r"^[a-z][a-z0-9_]*$")  # ToolError codes; a Python exception class is CamelCase
 TRANSPORTS = ("worker", "cli", "snippet", "terminal", "notebook")
@@ -118,17 +116,11 @@ class Session:
         if self._registered:
             return
         env = {**os.environ, "PYTHONPATH": str(_paths.ROOT), "LC_HOME": str(self.home)}
-        for _attempt in range(REGISTER_ATTEMPTS):
-            done = subprocess.run(
-                [sys.executable, "-m", "labconstrictor_tools", "register", "--name", APP, "--prefix", str(_paths.GENERIC_PREFIX),
-                 "--module", APP_MODULE, "--version", "0"],
-                capture_output=True, text=True, env=env, timeout=SUBPROCESS_TIMEOUT_S, encoding="utf-8",
-            )  # fmt: skip
-            # F21 (docs/REGRESSION_LEDGER.md): on Windows os.replace in registry._write_atomic is sometimes refused
-            # (WinError 5, a scanner or indexer holds the new file for a moment); retry only for that, the production fix is pending
-            if not (done.returncode and "PermissionError" in done.stderr):
-                break
-            time.sleep(0.5)
+        done = subprocess.run(
+            [sys.executable, "-m", "labconstrictor_tools", "register", "--name", APP, "--prefix", str(_paths.GENERIC_PREFIX),
+             "--module", APP_MODULE, "--version", "0"],
+            capture_output=True, text=True, env=env, timeout=SUBPROCESS_TIMEOUT_S, encoding="utf-8",
+        )  # fmt: skip
         if done.returncode:
             raise RuntimeError("cannot register the example app: %s" % done.stderr[-2000:])
         self._registered = True
@@ -247,11 +239,7 @@ def _release(block: shared_memory.SharedMemory) -> None:
         block.close()
     except BufferError:
         pass  # a view is still alive; the mapping goes with the process
-    try:
-        block.unlink()
-    except FileNotFoundError:
-        # the worker's resource tracker already removed it (F13): tell ours, or it complains about a "leak" at exit
-        resource_tracker.unregister(block._name, "shared_memory")  # type: ignore[attr-defined]
+    block.unlink()  # the worker only maps the block (F13): it is still here
 
 
 # ------------------------------------------------------------------------------------------------ transports

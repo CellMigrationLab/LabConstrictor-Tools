@@ -237,11 +237,9 @@ BREAKS = [
     Break(
         "worker: progress is off by one percent",
         "worker.py",
-        "current=int(PROGRESS_MAXIMUM * fraction)",
-        "current=int(PROGRESS_MAXIMUM * fraction) + 1",
-        unittest_slice(
-            "test_roundtrip_failures.WhatAToolReturns.test_many_progress_messages_all_arrive_and_the_task_still_ends"
-        ),
+        "math.floor(PROGRESS_MAXIMUM * fraction + PROGRESS_HALF)",
+        "math.floor(PROGRESS_MAXIMUM * fraction + PROGRESS_HALF) + 1",
+        unittest_slice("test_roundtrip_failures.WhatAToolReturns.test_every_whole_percent_arrives_as_itself"),
     ),
     Break(
         "worker: the inputs are not passed to the tool",

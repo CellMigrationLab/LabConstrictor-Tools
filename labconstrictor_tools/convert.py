@@ -9,6 +9,7 @@ numpy/pandas/tifffile are imported lazily, only when a tool actually uses those 
 import logging
 import math
 import os
+import sys
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,7 @@ UINT16_MAX = (
     65535  # integer images within the 16-bit ranges are narrowed to uint16 / int16, which every host opens
 )
 INT16_MIN, INT16_MAX = -32768, 32767
+SHARED_MEMORY_TRACK_PARAMETER_FROM = (3, 13)  # SharedMemory(track=False) exists from this Python version on
 DEFAULT_AXES = {2: "YX", 3: "ZYX", 4: "CZYX"}
 IMAGE_DTYPE_KINDS = (
     "biuf"  # bool, signed/unsigned integer, float: the only element kinds a TIFF that hosts can open holds
@@ -208,12 +210,33 @@ def _read_other_format(path: Path) -> Any:
     return iio.imread(path)
 
 
+def _attach_shared_memory(name: str) -> Any:
+    """Map a block the HOST created, without taking over its life: the worker only reads it, the host unlinks it.
+
+    Python's resource tracker unlinks every block a process registered when that process exits. Attaching registers the block
+    before Python 3.13 (3.13 has `track=False`), so a worker leaving would destroy a block the host still owns (and print a
+    "leaked shared_memory" warning into crash messages). Tracking is a POSIX mechanism: Windows has none to avoid.
+    """
+    from multiprocessing import resource_tracker, shared_memory
+
+    if sys.version_info >= SHARED_MEMORY_TRACK_PARAMETER_FROM:
+        return shared_memory.SharedMemory(name=name, track=False)  # type: ignore[call-arg,unused-ignore]  # older stubs lack `track`
+    if os.name != "posix":
+        return shared_memory.SharedMemory(name=name)
+    # Before 3.13 the constructor registers every attach: skip that one call (unregistering afterwards would also cancel the
+    # registration of a creator living in THIS process, e.g. a test or a notebook that calls the converter directly)
+    register = resource_tracker.register
+    resource_tracker.register = lambda *_args, **_kwargs: None
+    try:
+        return shared_memory.SharedMemory(name=name)
+    finally:
+        resource_tracker.register = register
+
+
 def _ndarray_from_shared_memory(descriptor: dict[str, Any], label: str = "image") -> Any:
     """Copy the image out of the host's shared-memory block. A block that is gone (the host freed it, a stale descriptor) or a
     descriptor that is incomplete or inconsistent is `unreadable_image` with a message that says what the host must send.
     """
-    from multiprocessing import shared_memory
-
     import numpy as np
 
     try:
@@ -222,7 +245,7 @@ def _ndarray_from_shared_memory(descriptor: dict[str, Any], label: str = "image"
         if dtype.kind not in SHARED_MEMORY_DTYPE_KINDS:
             raise ValueError("dtype %s is not a number type" % dtype)
         shape = tuple(descriptor["shape"])
-        shm = shared_memory.SharedMemory(name=name)
+        shm = _attach_shared_memory(name)
     except (KeyError, TypeError, ValueError, OSError) as error:
         logging.getLogger("labconstrictor.convert").error(
             "unusable shared-memory descriptor for %s", label, exc_info=True

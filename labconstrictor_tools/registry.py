@@ -18,6 +18,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
@@ -26,6 +27,10 @@ from .structures import AppSchema, RegistryEntry
 
 SUPPORTED_PROTOCOLS = (1,)
 PROBE_TIMEOUT_S = 60  # asking an interpreter whether it already has labconstrictor_tools
+REPLACE_ATTEMPTS = (
+    6  # Windows: how many times os.replace is tried when it is refused (a scanner holds the new file)
+)
+REPLACE_PAUSE_S = 0.2  # Windows: pause between those attempts
 REGISTER_TIMEOUT_S = 120  # generating the schema = importing the app's tool module
 
 
@@ -197,10 +202,48 @@ def _write_atomic(path: Path, text: str) -> None:
             os.chmod(
                 temporary, 0o644
             )  # not the umask's choice: with 0002 (Ubuntu's default) readers would reject our own entry as group-writable
-        os.replace(temporary, path)
+        _replace(temporary, path)
     except BaseException:
         temporary.unlink(missing_ok=True)
         raise
+
+
+def _is_windows() -> bool:
+    """Its own function so that a test can stand in for Windows (os.name itself cannot be changed without breaking pathlib)."""
+    return os.name == "nt"
+
+
+def _replace(source: Path, target: Path) -> None:
+    """os.replace that survives Windows' transient refusals. Windows answers PermissionError (WinError 5) while another process
+    (antivirus, indexer) briefly holds the freshly written file; the same call succeeds a moment later. POSIX never refuses
+    for that reason, so a PermissionError there is real and raised at once.
+    """
+    from . import log
+
+    for attempt in range(1, REPLACE_ATTEMPTS + 1):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError as error:
+            if not _is_windows():
+                raise
+            if attempt == REPLACE_ATTEMPTS:
+                raise PermissionError(
+                    error.errno,
+                    "cannot write %s: Windows refused to replace it %d times in a row (%s); another program (antivirus, "
+                    "file indexer, a viewer) is probably holding the file. Close it and run the command again"
+                    % (target, REPLACE_ATTEMPTS, error.strerror),
+                    str(target),
+                ) from error
+            log.warning(
+                "replacing %s was refused (attempt %d of %d: %s); trying again in %.1f s",
+                target,
+                attempt,
+                REPLACE_ATTEMPTS,
+                error,
+                REPLACE_PAUSE_S,
+            )
+            time.sleep(REPLACE_PAUSE_S)
 
 
 def unregister(name: str, directory: str | Path | None = None, prefix: str | Path | None = None) -> bool:
