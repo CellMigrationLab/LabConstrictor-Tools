@@ -22,7 +22,6 @@ import roundtrip_profiles  # noqa: F401  (registers and loads the hypothesis pro
 from hypothesis import given
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as hnp
-from roundtrip_known_failures import known_failure
 
 from labconstrictor_tools import region, shapes
 from labconstrictor_tools.types import ToolError
@@ -196,7 +195,6 @@ class Outlines(unittest.TestCase):
         self.assertFalse(harness.rasterise(found[1], labels.shape)[4, 4])
         self.assertTrue(harness.rasterise(found[2], labels.shape)[4, 4])
 
-    @known_failure("test:test_roundtrip_geometry.Outlines.test_default_simplification_never_drops_a_label")
     def test_default_simplification_never_drops_a_label(self):
         for height, width in ((1, 1), (1, 2), (2, 1), (2, 2), (1, 3), (3, 1)):
             labels = np.zeros((7, 7), np.uint8)
