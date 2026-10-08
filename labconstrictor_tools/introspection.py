@@ -101,6 +101,23 @@ def _param(name, p, hint, argdoc):
     d["required"] = not (has_default or optional)
     if has_default and p.default is not None:
         d["default"] = p.default.value if isinstance(p.default, enum.Enum) else p.default
+    _add_type_fields(d, name, p, hint, base, meta, has_default)
+    _check_default(name, d)
+    if d["type"] in ("integer", "float"):
+        _add_number_fields(d, name, meta)
+    _add_display_fields(d, name, meta, argdoc)
+    _add_widget_fields(d, name, meta)
+    _add_dependency_fields(d, name, meta)
+    if not d["required"] and "default" not in d:
+        # "unset" is a real value (default None / Optional[...]): hosts must be able to leave it unset and then omit it
+        d["nullable"] = True
+    if d["type"] == "choice" and "default" not in d and d["required"]:
+        d["default"] = d["choices"][0]
+    return d
+
+
+def _add_type_fields(d, name, p, hint, base, meta, has_default):
+    """The parameter's `type` (and its image/choice specifics), from the annotation."""
     if base in T.INPUT_TYPES:
         d["type"] = T.INPUT_TYPES[base]
         if _m(meta, T.Axes):
@@ -128,24 +145,30 @@ def _param(name, p, hint, argdoc):
         d["type"] = "file"
     else:
         raise DeclarationError("parameter %r: unsupported annotation %r" % (name, hint))
-    _check_default(name, d)
-    if d["type"] in ("integer", "float"):
-        for key, cls in (("minimum", T.Min), ("maximum", T.Max)):
-            if _m(meta, cls):
-                d[key] = _m(meta, cls).value
-        for k in ("minimum", "maximum"):
-            if (
-                k in d
-                and "default" in d
-                and ((k == "minimum" and d["default"] < d[k]) or (k == "maximum" and d["default"] > d[k]))
-            ):
-                raise DeclarationError(
-                    "parameter %r: default %r violates %s %r" % (name, d["default"], k, d[k])
-                )
-        if _m(meta, T.Unit):
-            d["unit"] = _m(meta, T.Unit).value
-        if _m(meta, T.PixelSizeOf):
-            d["pixel_size_of"] = _m(meta, T.PixelSizeOf).value
+
+
+def _add_number_fields(d, name, meta):
+    """Min / Max / Unit / PixelSizeOf of a numeric parameter, checking the default against the bounds."""
+    for key, cls in (("minimum", T.Min), ("maximum", T.Max)):
+        if _m(meta, cls):
+            d[key] = _m(meta, cls).value
+    for k in ("minimum", "maximum"):
+        if (
+            k in d
+            and "default" in d
+            and ((k == "minimum" and d["default"] < d[k]) or (k == "maximum" and d["default"] > d[k]))
+        ):
+            raise DeclarationError(
+                "parameter %r: default %r violates %s %r" % (name, d["default"], k, d[k])
+            )
+    if _m(meta, T.Unit):
+        d["unit"] = _m(meta, T.Unit).value
+    if _m(meta, T.PixelSizeOf):
+        d["pixel_size_of"] = _m(meta, T.PixelSizeOf).value
+
+
+def _add_display_fields(d, name, meta, argdoc):
+    """Description and grouping hints: description, group, advanced, group_collapsed."""
     desc = _m(meta, T.Description).value if _m(meta, T.Description) else argdoc.get(name)
     if desc:
         d["description"] = desc
@@ -157,6 +180,10 @@ def _param(name, p, hint, argdoc):
         if "group" not in d:
             raise DeclarationError("parameter %r: Collapsed needs a Group" % name)
         d["group_collapsed"] = True
+
+
+def _add_widget_fields(d, name, meta):
+    """region_of, widget and clear_after_run, each validated against the parameter's type."""
     region = _m(meta, T.RegionOf)
     if region:
         if d["type"] != "labels" or d["required"]:
@@ -174,6 +201,10 @@ def _param(name, p, hint, argdoc):
         d["clear_after_run"] = True
     if _m(meta, T.PickChannel) and _m(meta, T.PickChannel).value and "pick_channel" not in d:
         raise DeclarationError("parameter %r: PickChannel applies to an Image input" % name)
+
+
+def _add_dependency_fields(d, name, meta):
+    """choices_from and enabled_when: how this parameter depends on a tool or another parameter."""
     src = _m(meta, T.ChoicesFrom)
     if src:
         if d["type"] != "string":
@@ -182,12 +213,6 @@ def _param(name, p, hint, argdoc):
     when = _m(meta, T.EnabledWhen)
     if when:
         d["enabled_when"] = {"param": when.param, **({"equals": when.equals} if when.equals else {})}
-    if not d["required"] and "default" not in d:
-        # "unset" is a real value (default None / Optional[...]): hosts must be able to leave it unset and then omit it
-        d["nullable"] = True
-    if d["type"] == "choice" and "default" not in d and d["required"]:
-        d["default"] = d["choices"][0]
-    return d
 
 
 def _outputs(ret, tool_id):
@@ -235,36 +260,47 @@ def describe_tool(t: Tool) -> ToolSchema:
         if name not in hints:
             raise DeclarationError("tool %r: parameter %r has no type annotation" % (t.id, name))
         ins.append(_param(name, p, hints[name], argdoc))
-    names = {i["name"] for i in ins}
-    for i in ins:
-        if "pixel_size_of" in i and i["pixel_size_of"] not in names:
-            raise DeclarationError("tool %r: PixelSizeOf(%r) names no parameter" % (t.id, i["pixel_size_of"]))
-    kinds = {i["name"]: i["type"] for i in ins}
-    for i in ins:
-        if "region_of" in i and kinds.get(i["region_of"]) != "image":
-            raise DeclarationError(
-                "tool %r: RegionOf(%r) on %r must name an Image parameter of the same tool" % (t.id, i["region_of"], i["name"])
-            )
-    for i in ins:
-        rule = i.get("enabled_when")
-        if rule and rule["param"] not in names:
-            raise DeclarationError(
-                "tool %r: EnabledWhen(%r) on %r names no parameter" % (t.id, rule["param"], i["name"])
-            )
-        if rule and rule["param"] == i["name"]:
-            raise DeclarationError("tool %r: parameter %r cannot be enabled by itself" % (t.id, i["name"]))
+    _check_input_references(t.id, ins)
     outs = _outputs(hints.get("return", inspect.Signature.empty), t.id)
-    for o in outs:
-        for k in ("apply_to", "relative_to"):
-            if k in o.get("display", {}) and o["display"][k] not in names:
-                raise DeclarationError(
-                    "tool %r: output %r refers to unknown parameter %r" % (t.id, o["name"], o["display"][k])
-                )
+    _check_output_references(t.id, ins, outs)
     desc = (inspect.getdoc(fn) or "").split("\n\n")[0].replace("\n", " ").strip()
     schema: ToolSchema = {"id": t.id, "label": t.label, "inputs": ins, "outputs": outs}
     if desc:
         schema["description"] = desc
     return schema
+
+
+def _check_input_references(tool_id, ins):
+    """PixelSizeOf, RegionOf and EnabledWhen must name a suitable parameter of the same tool."""
+    names = {i["name"] for i in ins}
+    for i in ins:
+        if "pixel_size_of" in i and i["pixel_size_of"] not in names:
+            raise DeclarationError("tool %r: PixelSizeOf(%r) names no parameter" % (tool_id, i["pixel_size_of"]))
+    kinds = {i["name"]: i["type"] for i in ins}
+    for i in ins:
+        if "region_of" in i and kinds.get(i["region_of"]) != "image":
+            raise DeclarationError(
+                "tool %r: RegionOf(%r) on %r must name an Image parameter of the same tool" % (tool_id, i["region_of"], i["name"])
+            )
+    for i in ins:
+        rule = i.get("enabled_when")
+        if rule and rule["param"] not in names:
+            raise DeclarationError(
+                "tool %r: EnabledWhen(%r) on %r names no parameter" % (tool_id, rule["param"], i["name"])
+            )
+        if rule and rule["param"] == i["name"]:
+            raise DeclarationError("tool %r: parameter %r cannot be enabled by itself" % (tool_id, i["name"]))
+
+
+def _check_output_references(tool_id, ins, outs):
+    """An output's apply_to / relative_to must name a parameter of the same tool."""
+    names = {i["name"] for i in ins}
+    for o in outs:
+        for k in ("apply_to", "relative_to"):
+            if k in o.get("display", {}) and o["display"][k] not in names:
+                raise DeclarationError(
+                    "tool %r: output %r refers to unknown parameter %r" % (tool_id, o["name"], o["display"][k])
+                )
 
 
 def describe_tools(
