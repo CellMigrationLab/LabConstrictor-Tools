@@ -55,6 +55,25 @@ ignore_errors = true   # data of temporary copies of the package (test_sabotage.
 skip_empty = true
 exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]
 
+[tool.mutmut]
+# nightly mutation testing (see docs/TESTING.md): the converters, the introspection, the geometry and the copied text, judged by the round-trip tests
+source_paths = ["labconstrictor_tools"]
+only_mutate = [
+    "labconstrictor_tools/convert.py",
+    "labconstrictor_tools/introspection.py",
+    "labconstrictor_tools/shapes.py",
+    "labconstrictor_tools/region.py",
+    "labconstrictor_tools/command.py",
+]
+pytest_add_cli_args = ["-p", "no:cacheprovider", "-q"]
+pytest_add_cli_args_test_selection = [
+    "tests/test_roundtrip_matrix.py",
+    "tests/test_roundtrip_properties.py",
+    "tests/test_roundtrip_geometry.py",
+    "tests/test_roundtrip_hints.py",
+    "tests/test_roundtrip_command.py",
+]
+
 [tool.mypy]
 # the example app uses the semantic marker types (Image, ...) as annotations on purpose
 ignore_missing_imports = true
