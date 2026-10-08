@@ -53,9 +53,9 @@ Rules the worker enforces (each violation is written to the worker log/stderr):
 * `COMPLETION.outputs = {results: [...], job_dir, timings, diagnostics}`. A result is `{type, name, ...}`:
   `image/labels {path, axes}`, `table {path}`, `values {values}`, `affine {matrix_yx, apply_to, relative_to}`, `file {path}`.
 * Closing stdin means "the host is gone": running tools are asked to cancel and the worker exits within 10 s. On every platform nothing a
-  tool started outlives the worker: Windows puts them in a kill-on-close job object; on POSIX the host starts the worker as the leader of
-  its own process group and the worker sends SIGKILL to that group as its last act (so its exit status is then -9, and a worker started by
-  hand, not leading a group, signals nobody). A host that starts the worker itself must do the same (`start_new_session` / `setsid`).
+  tool started outlives the worker: Windows puts them in a kill-on-close job object; on POSIX the worker makes itself the leader of its own
+  process group at start (`setsid`, whoever started it, so no host has to) and sends SIGKILL to that group as its last act (its exit
+  status is then -9).
 * `UPDATE {message, current, maximum}`: `maximum` is 100 and `current` is the whole percent nearest to the fraction the tool reported
   (`progress(0.29)` -> 29); a tie goes up (0.295 -> 30), as Java's `Math.round` does. A host that shows or converts the fraction itself rounds
   the same way and never truncates.

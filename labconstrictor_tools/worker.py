@@ -50,6 +50,7 @@ class Worker:
             sys.path.insert(0, path)
         self.channel = Channel()
         _winjob.kill_children_with_me()  # Windows: processes a tool starts end with the worker
+        self._lead_own_process_group()  # POSIX: the same, whoever started us (see _end_process_group)
         self._preload_numpy()
         try:
             importlib.import_module(module)
@@ -157,12 +158,23 @@ class Worker:
         os._exit(1)
 
     @staticmethod
+    def _lead_own_process_group() -> None:
+        """POSIX: become the leader of a process group of our own, so that _end_process_group can end everything a tool starts.
+
+        The Python client starts the worker that way (start_new_session), but the Java hosts (Fiji's Appose Service, QuPath's
+        ProcessBuilder) cannot, so the worker does it itself: no host has to do anything. setsid() fails only for a process that
+        already leads a group, which is the case we skip.
+        """
+        if os.name == "posix" and os.getpgrp() != os.getpid():
+            os.setsid()
+
+    @staticmethod
     def _end_process_group() -> None:
         """POSIX: the host is gone, so nothing a tool started may outlive the worker (Windows: the job object of _winjob).
 
-        The client starts the worker as the leader of its own process group, and the subprocesses of a tool inherit it, so one
-        SIGKILL to the group ends them all - and the worker itself, which is why its output is flushed first. A worker that does
-        not lead a group (started by hand from a terminal, or inside a test) shares it with its parent: never signal that.
+        The worker leads a process group of its own (the client asks for one, and `_lead_own_process_group` makes it so for
+        every other host), and the subprocesses of a tool inherit it, so one SIGKILL to the group ends them all - and the worker
+        itself, which is why its output is flushed first. The guard is a safety net: never signal a group that is not ours.
         """
         if os.name != "posix" or os.getpgrp() != os.getpid():
             return

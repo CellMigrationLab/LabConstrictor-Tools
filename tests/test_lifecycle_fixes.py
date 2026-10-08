@@ -5,15 +5,17 @@ import logging
 import os
 import subprocess
 import sys
+import tempfile
 import unittest
 from multiprocessing import shared_memory
 from pathlib import Path
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
-from test_roundtrip_failures import APP_DIR, MODULE, start
+from test_roundtrip_failures import alive, child_pid, start, wait_for
 
 from labconstrictor_tools import registry, worker
+from labconstrictor_tools.client import WorkerProcess
 
 SUBPROCESS_TIMEOUT_S = 60
 EXIT_AFTER_ATTACH = (
@@ -72,20 +74,39 @@ class DeadWorker(unittest.TestCase):
 
 class ProcessGroup(unittest.TestCase):
     @unittest.skipUnless(os.name == "posix", "process groups")
-    def test_a_worker_that_does_not_lead_a_group_leaves_by_itself_and_signals_nobody(self):
-        """Started by hand (same process group as its parent) the worker must not kill the group it shares with its parent."""
-        proc = subprocess.Popen(
-            [sys.executable, "-m", "labconstrictor_tools", "serve", "--module", MODULE],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8",
-            env={**os.environ, "PYTHONPATH": os.pathsep.join([str(_paths.ROOT), str(APP_DIR)])},
-        )  # fmt: skip
-        self.assertEqual(
-            os.getpgid(proc.pid), os.getpgid(0), "the test needs a worker in the test's own group"
-        )
-        proc.stdin.close()
-        self.assertEqual(proc.wait(SUBPROCESS_TIMEOUT_S), 0, proc.stderr.read())
-        proc.stdout.close()
-        proc.stderr.close()
+    def test_a_worker_started_without_its_own_group_still_ends_what_its_tool_started(self):
+        """The Java hosts (Fiji's Appose Service, QuPath's ProcessBuilder) cannot start a process in a new session: the worker
+        puts itself in one, so the children of its tool die with it all the same."""
+
+        def spawn_like_a_java_host(command, env):
+            return subprocess.Popen(  # same pipes as the client, but NO start_new_session
+                command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                encoding="utf-8", env=env,
+            )  # fmt: skip
+
+        with (
+            tempfile.TemporaryDirectory() as folder,
+            mock.patch.object(WorkerProcess, "_spawn", staticmethod(spawn_like_a_java_host)),
+        ):
+            pid_file = str(Path(folder) / "c.pid")
+            worker_ = start()
+            try:
+                self.assertEqual(
+                    os.getpgid(worker_.proc.pid), os.getpgid(0), "the test needs a worker in our group"
+                )
+                task = worker_.task("hang", {"child_pid_file": pid_file})
+                task.launched.wait(30)
+                child = child_pid(pid_file)
+                self.assertEqual(
+                    os.getpgid(worker_.proc.pid), worker_.proc.pid, "the worker leads its own group now"
+                )
+                worker_.proc.stdin.close()
+                worker_.proc.wait(30)
+                self.assertTrue(
+                    wait_for(lambda: not alive(child), 5.0), "the tool's child survived the worker"
+                )
+            finally:
+                worker_.kill()
 
 
 class Progress(unittest.TestCase):

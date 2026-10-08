@@ -326,7 +326,9 @@ class WhatAToolReturns(unittest.TestCase):
             self.assertEqual(task.status, "COMPLETE")
             self.assertEqual(len(count), 20000)
             self.assertEqual(count, sorted(count), "progress never goes backwards")
-            self.assertEqual((count[0], max(count)), (0.0, 0.99))
+            # the last report, 19999/20000 = 99.995 %, is shown as 100 %: whole percents are ROUNDED (F19); this used to expect 0.99,
+            # which only held because the percent was truncated
+            self.assertEqual((count[0], max(count)), (0.0, 1.0))
         finally:
             worker.close()
 
