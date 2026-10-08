@@ -124,8 +124,33 @@ def register(
         "PYTHONNOUSERSITE": "1",
         "PYTHONSAFEPATH": "1",
     }
+    schema_text = _generate_schema(name, interpreter, module, env, display_name or name, version)
+    target = Path(directory) if directory else apps_dir()
+    target.mkdir(parents=True, exist_ok=True)
+    schema_path = target / (name + ".schema.json")
+    _write_atomic(schema_path, schema_text)
+    entry: RegistryEntry = {
+        "schema": 1,
+        "name": name,
+        "display_name": display_name or name,
+        "version": version,
+        "prefix": str(prefix),
+        "python": str(interpreter),
+        "module": module,
+        "pythonpath": [str(x) for x in pythonpath],
+        "runtime_path": runtime,
+        "schema_path": str(schema_path),
+    }
+    _write_atomic(
+        target / (name + ".json"), json.dumps(entry, indent=2)
+    )  # entry last: it is what makes the app visible
+    return entry
+
+
+def _generate_schema(name, interpreter, module, env, application, version) -> str:
+    """Run `describe` in the app's own interpreter -> the schema JSON text; a hang or failure is a RuntimeError."""
     command = [str(interpreter), "-m", "labconstrictor_tools", "describe", "--module", module]
-    command += ["--application", display_name or name, "--version", version]
+    command += ["--application", application, "--version", version]
     from . import log
 
     try:
@@ -148,26 +173,7 @@ def register(
             "schema generation failed for %s (interpreter %s, module %s):\n%s"
             % (name, interpreter, module, result.stderr)
         )
-    target = Path(directory) if directory else apps_dir()
-    target.mkdir(parents=True, exist_ok=True)
-    schema_path = target / (name + ".schema.json")
-    _write_atomic(schema_path, result.stdout)
-    entry: RegistryEntry = {
-        "schema": 1,
-        "name": name,
-        "display_name": display_name or name,
-        "version": version,
-        "prefix": str(prefix),
-        "python": str(interpreter),
-        "module": module,
-        "pythonpath": [str(x) for x in pythonpath],
-        "runtime_path": runtime,
-        "schema_path": str(schema_path),
-    }
-    _write_atomic(
-        target / (name + ".json"), json.dumps(entry, indent=2)
-    )  # entry last: it is what makes the app visible
-    return entry
+    return result.stdout
 
 
 def _write_atomic(path: Path, text: str) -> None:
