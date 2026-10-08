@@ -2,7 +2,7 @@
 
 **Write an analysis in Python. Use it in Napari, Fiji, QuPath or from the command line.**
 
-Microscopy work rarely stays in one program. You might inspect a time-lapse in Fiji, work with annotations in QuPath, explore segmented cells in Napari and process another hundred images in a script. LabConstrictor Tools connects those workflows without requiring a separate implementation of the analysis for each program.
+LabConstrictor Tools exposes Python analysis functions to Fiji, Napari, QuPath and the command line. The application runs in its own Python environment; each host handles the inputs and results.
 
 An application exposes ordinary Python functions with declared inputs and outputs. The host builds a form, passes the data to the application, and shows what comes back. **The scientific code runs in the application's own Python environment**, not inside Fiji, QuPath or Napari.
 
@@ -10,7 +10,7 @@ This repository provides the Python declaration API, schema, application registr
 
 ## See it working
 
-The [LabConstrictor Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground) is a good first stop. Its **Feature tour** can generate its own small image, find objects, and return a label image, outlines, points, a measurements table and a short report. You can use it to check how your chosen host handles each result without needing microscopy data of your own.
+To try the bridge, install [LabConstrictor Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground). Its **Feature tour** can generate its own small image, find objects, and return a label image, outlines, points, a measurements table and a short report. You can use it to check how your chosen host handles each result without needing microscopy data of your own.
 
 With an installed and registered LabConstrictor application, you can also:
 
@@ -32,7 +32,7 @@ The worker uses a restricted, Appose-compatible protocol: it runs **declared too
 
 ## Write a tool
 
-For example, a small image-processing tool can look like this:
+A simple image-processing tool:
 
 ```python
 from typing import Annotated
@@ -41,7 +41,7 @@ from labconstrictor_tools import Image, ImageOut, Min, tool
 @tool("Gaussian blur")
 def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
     from skimage.filters import gaussian
-    return gaussian(image, sigma)
+    return gaussian(image, sigma, preserve_range=True)
 ```
 
 The declaration describes a required image and a non-negative blur radius. The host can build its controls from that information. The import of `skimage` stays inside the function so that listing available tools does not have to load the scientific stack.
@@ -79,7 +79,7 @@ labconstrictor-tools check --module myapp_lc_tools --pythonpath .
 labconstrictor-tools test --module myapp_lc_tools --pythonpath .
 ```
 
-The `check` command validates declarations; `test` runs smoke tests on the declared tools. For custom fixtures and expected results, use `--cases lc_tests/cases.json`. The toolkit also supports `%%lc_tool` notebook cells and `export-notebook`; see the [authoring guide](docs/AUTHORING.md).
+The `check` command validates declarations; `test` runs declared tools with samples and reports problems. For custom fixtures and expected results, use `--cases lc_tests/cases.json`. The toolkit also supports `%%lc_tool` notebook cells and `export-notebook`; see the [authoring guide](docs/AUTHORING.md).
 
 ## Documentation
 
@@ -91,6 +91,16 @@ The `check` command validates declarations; `test` runs smoke tests on the decla
 - [Python tests](tests/README.md) — test suites and development checks
 
 All front-ends write to the shared LabConstrictor log under `~/.labconstrictor/logs/` by default. `labconstrictor-tools logs` and `labconstrictor-tools support-bundle` help collect details when something fails.
+
+## Development
+
+```bash
+python -m pip install -e ".[test]" black ruff mypy
+black --check .
+ruff check .
+mypy labconstrictor_tools
+cd tests && python -m unittest discover -p "test_*.py"
+```
 
 ## Status
 
