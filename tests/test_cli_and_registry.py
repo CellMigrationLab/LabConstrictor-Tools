@@ -117,6 +117,9 @@ class CliAndRegistry(unittest.TestCase):
         self.assertEqual(broken.returncode, 1)
         self.assertIn("not available on this machine", broken.stdout)
 
+    @unittest.skipUnless(
+        os.name == "posix", "file ownership and permission checks are POSIX-only (see docs/OPERATIONS.md)"
+    )
     def test_entries_pointing_outside_their_prefix_or_writable_by_others_are_ignored(self):
         register(self.home, "synthetic")
         entry_path = self.home / "apps" / "synthetic.json"

@@ -137,7 +137,12 @@ def notebook(path, cells):
 
 class TestNotebookHelper(unittest.TestCase):
     def magic(self, tmp, cells):
-        env = {**os.environ, "PYTHONPATH": str(V3), "PYTHONNOUSERSITE": "1"}
+        env = {
+            **os.environ,
+            "PYTHONPATH": str(V3),
+            "PYTHONNOUSERSITE": "1",
+            "PYTHONUTF8": "1",
+        }  # utf-8 stdout: the marks the tools print are not in cp1252
         run = subprocess.run(
             [str(NUCLEISKY), "-c", DRIVER, tmp, json.dumps(cells)], capture_output=True, text=True, env=env
         )

@@ -464,6 +464,7 @@ class RegistryHardening(unittest.TestCase):
         self.assertEqual(schemas, {})
         self.assertEqual(problems, [("good", "schema is not a JSON object")])
 
+    @unittest.skipUnless(os.name == "posix", "the schema-folder check belongs to the POSIX trust checks")
     def test_a_schema_outside_the_entry_folder_is_refused(self):
         elsewhere = Path(tempfile.mkdtemp(prefix="elsewhere_"))
         (elsewhere / "s.json").write_text("{}")
