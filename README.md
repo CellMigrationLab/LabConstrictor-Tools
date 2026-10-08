@@ -1,12 +1,12 @@
 # LabConstrictor Tools
 
-**Write an analysis in Python. Use it in Napari, Fiji, QuPath or from the command line.**
+**Expose a Python analysis once; use it in Napari, Fiji, QuPath or from the command line.**
 
-LabConstrictor Tools exposes Python analysis functions to Fiji, Napari, QuPath and the command line. The application runs in its own Python environment; each host handles the inputs and results.
+LabConstrictor Tools turns declared Python functions into a tool manifest: a machine-readable description of inputs, outputs and interface hints. Each host reads that description to build a form and handle results. The analysis runs in the application's own Python environment.
 
-An application exposes ordinary Python functions with declared inputs and outputs. The host builds a form, passes the data to the application, and shows what comes back. **The scientific code runs in the application's own Python environment**, not inside Fiji, QuPath or Napari.
+**The bridge is application-independent.** An application with valid, registered tool declarations can be discovered by the hosts without a dedicated plugin for that application. Whether its tools are useful in Fiji, Napari or QuPath depends on the work being done there, not on a list of approved applications.
 
-This repository provides the Python declaration API, schema, application registry, worker, command-line tools and tests. The graphical interfaces live in separate repositories.
+This repository provides the declaration API, schema, registry, worker, CLI and tests. The graphical hosts are separate repositories.
 
 ## See it working
 
@@ -24,7 +24,7 @@ The hosts do not yet support every input, output and interaction hint in exactly
 ## How it works
 
 1. **Declare a tool.** A Python function specifies its inputs and outputs using types and optional annotations.
-2. **Register the application.** The installer records its Python interpreter, tool module and a cached description of the available tools. Hosts can list them without importing the application's scientific packages.
+2. **Register the application.** LabConstrictor installers can register an accompanying `<package>_lc_tools` module automatically; other installations can register tools explicitly. The registry records the application's interpreter and a cached tool schema, so hosts can list its tools without importing scientific packages.
 3. **Run from a host.** Napari, Fiji, QuPath or the CLI passes inputs to a worker running in the application's own environment.
 4. **Use the results.** Images, labels, tables, points, outlines, transforms, files and messages are returned in formats the host can handle.
 
@@ -46,7 +46,7 @@ def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
 
 The declaration describes a required image and a non-negative blur radius. The host can build its controls from that information. The import of `skimage` stays inside the function so that listing available tools does not have to load the scientific stack.
 
-The application still needs to install its dependencies, package the declaration module and register itself. The [authoring guide](docs/AUTHORING.md) covers those steps, including the expected `<package>_lc_tools` module layout, richer types, selections, outputs and tests.
+The function must be available in an installed tool module and registered before hosts can discover it. See [authoring](docs/AUTHORING.md) for packaging and registration, [manifest reference](docs/MANIFEST.md) for supported declarations, and [host features](docs/HOST_FEATURES.md) for differences in their presentation.
 
 ## Install and inspect
 
@@ -91,11 +91,13 @@ The bridge lists tools registered by installed applications. The following repos
 - [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) ([releases](https://github.com/CellMigrationLab/NucleiSky/releases)): image registration from nuclei landmarks. The Fiji bridge includes NucleiSky integration tests.
 - [CellTracksColab desktop](https://github.com/CellMigrationLab/CellTracksColab_LabConstrictor) ([releases](https://github.com/CellMigrationLab/CellTracksColab_LabConstrictor/releases)): tracking-data analysis. Check which tools are available in the installed version.
 
-A desktop installer does not guarantee that a particular tool works in every host. Run `labconstrictor-tools list` to see what your installation registers. QuPath compatibility should be checked independently.
+**These are examples, not an allowlist.** The same registered tool manifest is available to each host that supports its protocol version. The practical question is whether the tool's inputs and outputs make sense in that host: a slide-region analysis may suit QuPath, an image-registration tool may suit Fiji, and a layer-based analysis may suit Napari. Host-specific presentation differs; check [host features](docs/HOST_FEATURES.md) when it matters. Run `labconstrictor-tools list` to inspect your installed tools.
 
 ## Documentation
 
-- [Authoring tools](docs/AUTHORING.md) — declarations, input and output types, notebook integration, tests
+- [Authoring tools](docs/AUTHORING.md) — declarations, registration, notebook integration, tests
+- [Manifest reference](docs/MANIFEST.md) — types, input relationships and interface hints
+- [Host features](docs/HOST_FEATURES.md) — what Fiji, Napari and QuPath do with those declarations
 - [Operations](docs/OPERATIONS.md) — registration, shared installs, diagnostics, logs and security boundaries
 - [Protocol](docs/PROTOCOL.md) — schema, data formats and worker messages
 - [Repository map](docs/REPOSITORIES.md) — where the toolkit, hosts and example application fit
