@@ -488,6 +488,9 @@ def labels_cases() -> list[Case]:
 
 
 # ------------------------------------------------------------------------------------------------------ scalars
+MAX_FORM_INTEGER = (
+    2**53 - 1
+)  # oracle: the largest integer the notebook form holds exactly (a JSON number); beyond it the form refuses
 INT_OK = [
     0,
     1,
@@ -625,7 +628,7 @@ def _scalar_cases() -> list[Case]:
             v,
             v,
             "int",
-            all_paths if abs(v) <= 2**31 else ("worker", "cli", "snippet"),
+            all_paths if abs(v) <= MAX_FORM_INTEGER else ("worker", "cli", "snippet"),
         )
     for v in (3.0, -2.0, 1000.0, 0.0, -0.0):
         ok("integral-float/%r" % v, "echo_int", v, int(v), "int", ("worker", "snippet"))
@@ -678,7 +681,7 @@ def _scalar_cases() -> list[Case]:
             v,
             v,
             "float",
-            all_paths if (abs(v) < 1e9 or v == 1e15) else ("worker", "cli", "snippet"),
+            all_paths,
         )
     for v in (3, -7, 0, 10**20, 2**53 + 1, 10**300):
         ok(
