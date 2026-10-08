@@ -119,16 +119,6 @@ FINDINGS: dict[str, Finding] = {
         "ToolError('invalid_parameter', 'must be a path (text)')",
         "FAILURE code TypeError",
     ),
-    "F14": Finding(
-        "labels_to_shapes drops objects that the simplification collapses (a single pixel with the default settings)",
-        "import numpy as np; from labconstrictor_tools.shapes import labels_to_shapes\n"
-        "a = np.zeros((5, 5), np.uint8); a[2, 2] = 1\nlabels_to_shapes(a)['features']   # [] (default simplify=0.5, min_area=1); "
-        "a 1x3 bar is dropped with simplify=1.0",
-        "every label with at least min_area pixels has a feature: when the simplified outline degenerates, keep the "
-        "unsimplified one (or the simplification is clamped so that it cannot collapse the object)",
-        "an empty FeatureCollection for an image of single-pixel objects: the objects exist (count_labels sees them) but nothing "
-        "is drawn and nothing says why",
-    ),
     "F15": Finding(
         "An image output that no host can open is written (or crashes with KeyError) instead of being refused",
         "a tool declared -> ImageOut returns np.zeros((0, 3), np.uint8) or np.zeros((2, 2), np.complex64) or "
@@ -296,11 +286,6 @@ _add(
     "winproc:quote-after-backslashes",
     "winproc:spaced-trailing-backslash",
     "winproc:spaced-quote-after-backslash",
-)
-_add(
-    "F14",
-    "test:test_roundtrip_geometry.Outlines.test_default_simplification_never_drops_a_label",
-    "worker:outline_labels/single-pixel-default-simplify",
 )
 _add(
     "F12",
