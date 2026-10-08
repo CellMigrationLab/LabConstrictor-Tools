@@ -21,6 +21,10 @@ Value rules (enforced by the worker, each violation is a `FAILURE` with code `in
 Input `type`: `string integer float boolean choice image labels table file folder`.
 `nullable: true` (additive, protocol 1): the parameter is optional AND has no default value (`= None` / `Optional[...]`). A host must let the
 user leave it unset and then omit it from the request (the tool receives `None`); showing 0 or an empty string instead is a bug.
+The notebook form does this with a "set" check box beside each nullable number, text, choice or yes/no (unchecked = greyed out and left out).
+Number limits: the protocol, the command line and snippets carry integers of any size and floats up to the double range. A number box
+never clamps silently. The notebook form has no made-up bound; because the page exchanges JSON numbers, an integer beyond +-(2**53 - 1)
+(`notebook.MAX_FORM_INTEGER`) is refused with an `invalid_parameter` message, and the limit is in the control's tooltip. Declared `Min`/`Max` are enforced.
 `group` (heading), `advanced: true` (listed under collapsed "Advanced settings") and `enabled_when: {"param", "equals"?}` (the parameter only applies when `param` is set/true, or equals one of the listed values) are presentation hints, additive within protocol 1: a host that ignores them shows the flat form, so a tool must accept every parameter whether or not it is "enabled". Group names are shown where they first appear.
 Interaction hints (additive within protocol 1; a host that ignores them shows a plain form, so the tool must work either way):
 * `group_collapsed: true` (with `group`): the group is an accordion section that starts folded.

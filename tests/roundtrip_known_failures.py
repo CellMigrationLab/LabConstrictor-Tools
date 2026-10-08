@@ -84,20 +84,6 @@ FINDINGS: dict[str, Finding] = {
         "documented in docs/PROTOCOL.md",
         "silent loss of the cell's content (a gene called NA, a status 'None')",
     ),
-    "F8": Finding(
-        "The notebook form clamps integers and floats beyond 10**9 without telling the person",
-        "labconstrictor_tools.notebook.ToolForm(echo_int).controls['value'].value = 2**31; form.run() reports 1000000000",
-        "the value is kept (a text box for unbounded numbers) or the form refuses it with a message",
-        "BoundedIntText/BoundedFloatText with the made-up limits UNBOUNDED_INT / UNBOUNDED_FLOAT silently change the value",
-    ),
-    "F9": Finding(
-        "The notebook form cannot leave an optional parameter unset",
-        "ToolForm(echo_optional_int): run() without touching the control sends 0; the string sends ''; the bool False; the "
-        "choice its first option",
-        "an unset optional parameter is omitted from the inputs so the tool receives None (docs/PROTOCOL.md: 'showing 0 or an "
-        "empty string instead is a bug')",
-        "the tool receives 0 / '' / False / the first option: 'unset' cannot be expressed in the notebook",
-    ),
     "F10": Finding(
         "command.quote(windows=True) breaks texts with backslashes before a quote",
         'command.quote(\'x y\\\\"z\', windows=True) and command.quote("C:\\\\My Data\\\\", windows=True): parse the result with '
@@ -279,22 +265,6 @@ _add(
     "snippet:echo_table/text-that-pandas-calls-missing",
     "terminal:echo_table/text-that-pandas-calls-missing",
     "worker:echo_table/text-that-pandas-calls-missing",
-)
-_add(
-    "F8",
-    "notebook:echo_float/ok/0x1.c6bf526340000p+49",
-    "notebook:echo_int/ok/-2147483648",
-    "notebook:echo_int/ok/2147483647",
-    "notebook:echo_int/ok/2147483648",
-    "notebook:echo_optional_int/set/1099511627776",
-)
-_add(
-    "F9",
-    "notebook:echo_optional_bool/omitted",
-    "notebook:echo_optional_choice/omitted",
-    "notebook:echo_optional_float/omitted",
-    "notebook:echo_optional_int/omitted",
-    "notebook:echo_optional_string/omitted",
 )
 _add(
     "F10",

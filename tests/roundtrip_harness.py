@@ -365,6 +365,8 @@ def run_notebook(session: Session, case: Case, wire: dict[str, Any], folder: Pat
     form = ToolForm(getattr(module, case.tool))
     for name, value in wire.items():
         form.controls[name].value = value
+        if name in form.set_toggles:  # an optional parameter the case sets: tick its "set" box
+            form.set_toggles[name].value = True
     old = tempfile.tempdir
     tempfile.tempdir = str(
         folder
