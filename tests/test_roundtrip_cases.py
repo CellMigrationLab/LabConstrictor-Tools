@@ -78,7 +78,7 @@ class CaseList(unittest.TestCase):
             self.assertGreater(len(picked), 20, path)
             self.assertLess(len(picked), 300, path)
             self.assertEqual(len({c.id for c in picked}), len(picked))
-            self.assertTrue(all(path in c.paths for c in picked))
+            self.assertTrue(all(("cli" if path == "terminal" else path) in c.paths for c in picked))
         self.assertEqual(len(rc.selected("worker")), len([c for c in rc.all_cases() if not c.heavy]))
 
 

@@ -1,0 +1,208 @@
+"""Real defects the round-trip tests found in the production code. NOT fixed in the test PR: each finding gets its own fix PR.
+
+`FINDINGS` describes each defect (minimal reproduction, expected correct behaviour, what happens today). `KNOWN` lists the test
+ids that fail because of it. Keys are `<transport>:<case id>` for the matrix, `property:<name>` for the hypothesis properties and
+`winquote:<label>` for the Windows quoting oracle. The runners skip exactly these ids; test_roundtrip_known_failures.py runs them
+again and FAILS when one starts passing, so the PR that fixes a finding has to delete its entries (the list cannot rot).
+"""
+
+import os
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Finding:
+    title: str
+    repro: str  # minimal reproduction
+    expected: str  # the correct behaviour
+    observed: str  # what happens today
+    platforms: tuple[str, ...] = ("posix", "nt")  # os.name values on which the defect shows
+
+
+SCHEMA = '{"id": "t", "label": "t", "outputs": [], "inputs": [{"name": "n", "label": "N", "type": "%s", "required": True}]}'
+
+FINDINGS: dict[str, Finding] = {
+    "F1": Finding(
+        "A number parameter given something that is not a number raises a raw Python exception",
+        'from labconstrictor_tools import convert\nschema = %s\nconvert.load_inputs(schema, {"n": "abc"})   # ValueError; [1] -> TypeError;'
+        ' float("inf") -> OverflowError (type "float": 10**400 -> OverflowError)' % (SCHEMA % "integer"),
+        "ToolError('invalid_parameter', \"'N' must be an integer\") (or a number): the host is told FAILURE code invalid_parameter, "
+        "as docs/PROTOCOL.md promises for every value-rule violation",
+        "FAILURE with the Python exception class as code, e.g. [ValueError] invalid literal for int() with base 10: 'abc'",
+    ),
+    "F2": Finding(
+        "A table input does not read floating point cells exactly",
+        'a CSV file "f\\n0.30000000000000004\\n" given to a Table parameter: convert.load_inputs(schema, {"t": path})["t"]["f"][0]'
+        " is 0.3 (and 6.4575963826141304e+16 is read as 6.45759638261413e+16)",
+        "the cell equals float('0.30000000000000004'): pd.read_csv(path, float_precision='round_trip') in convert._load_one",
+        "pandas' default C parser rounds the last digit; the tool computes with a different number than the host wrote, and a "
+        "TableOut echo then writes the rounded value back",
+    ),
+    "F3": Finding(
+        "Duplicate and empty column names of a table input are renamed silently",
+        'a CSV whose header is "a,a" (or ",b"): the tool receives the columns ["a", "a.1"] (["Unnamed: 0", "b"])',
+        "the tool sees the names the host wrote, or the call fails with a message that names the problem",
+        "pd.read_csv mangles the header; nothing tells the person",
+    ),
+    "F4": Finding(
+        "A table that cannot be read raises a raw pandas/OS exception instead of a ToolError",
+        "a missing file, an empty file or binary garbage given to a Table parameter: FileNotFoundError / EmptyDataError / "
+        "UnicodeDecodeError",
+        "ToolError('file_not_found', ...) for a missing file (like image: file_not_found) and ToolError('unreadable_table', ...) "
+        "for content that is not a CSV, so the host shows a readable message",
+        "FAILURE with code FileNotFoundError / EmptyDataError / UnicodeDecodeError",
+    ),
+    "F5": Finding(
+        "An Affine output that is not a numeric 3x3/2x3 matrix raises ValueError",
+        "a tool returns [[1, 0, 0], [0, 1], [0, 0, 1]] (ragged) or [['a', 0, 0], [0, 1, 0], [0, 0, 1]] as its Affine output",
+        "ToolError('bad_return', 'affine must be 3x3 ...') as for a matrix of the wrong shape",
+        "FAILURE code ValueError (numpy's message about inhomogeneous shape / could not convert string to float)",
+    ),
+    "F6": Finding(
+        "An Affine output with NaN or infinity is delivered as null instead of being refused",
+        "a tool returns [[1, 0, float('nan')], [0, 1, 0], [0, 0, 1]] as its Affine output",
+        "ToolError('bad_return', ...) like PointsOut and ShapesOut, and like the author test harness's contract check "
+        "('affines are finite 3x3')",
+        "COMPLETE with matrix_yx containing null; a host that applies it moves the image to nowhere",
+    ),
+    "F7": Finding(
+        "Text cells that pandas treats as missing (NA, null, None, N/A, nan, ...) arrive as NaN",
+        'a CSV column holding the texts "NA", "null", "None": the tool receives NaN for every one of them',
+        "a text cell stays text (pd.read_csv(..., keep_default_na=False) and an empty cell as missing), or the behaviour is "
+        "documented in docs/PROTOCOL.md",
+        "silent loss of the cell's content (a gene called NA, a status 'None')",
+    ),
+    "F8": Finding(
+        "The notebook form clamps integers and floats beyond 10**9 without telling the person",
+        "labconstrictor_tools.notebook.ToolForm(echo_int).controls['value'].value = 2**31; form.run() reports 1000000000",
+        "the value is kept (a text box for unbounded numbers) or the form refuses it with a message",
+        "BoundedIntText/BoundedFloatText with the made-up limits UNBOUNDED_INT / UNBOUNDED_FLOAT silently change the value",
+    ),
+    "F9": Finding(
+        "The notebook form cannot leave an optional parameter unset",
+        "ToolForm(echo_optional_int): run() without touching the control sends 0; the string sends ''; the bool False; the "
+        "choice its first option",
+        "an unset optional parameter is omitted from the inputs so the tool receives None (docs/PROTOCOL.md: 'showing 0 or an "
+        "empty string instead is a bug')",
+        "the tool receives 0 / '' / False / the first option: 'unset' cannot be expressed in the notebook",
+    ),
+    "F10": Finding(
+        "command.quote(windows=True) breaks texts with backslashes before a quote",
+        'command.quote(\'x y\\\\"z\', windows=True) and command.quote("C:\\\\My Data\\\\", windows=True): parse the result with '
+        "CommandLineToArgvW / the MSVC rules (tests/test_roundtrip_command.py has the parser)",
+        "the copied Windows command line gives the program exactly the text: backslashes in front of a quote (or of the closing "
+        "quote) are doubled",
+        "a folder path with a space that ends in a backslash, or a text with backslashes before a double quote, comes out "
+        "changed (the closing quote is swallowed)",
+    ),
+    "F13": Finding(
+        "The worker destroys the host's shared-memory block when it exits",
+        "the host creates a block, sends it as an image input, the task completes, the worker is closed: the block is gone, and the "
+        "worker's stderr holds 'resource_tracker: There appear to be 1 leaked shared_memory objects' (tests/test_roundtrip_shared_memory.py)",
+        "the worker only maps the block: the host that created it unlinks it when it is done "
+        "(unregister it from the worker's resource tracker after attaching, or SharedMemory(track=False) on Python 3.13+)",
+        "Python's resource tracker in the worker unlinks every block it attached to when the worker exits, so a host that "
+        "keeps a block between tasks (or reuses it after a worker restart) finds it gone, and the warning ends up in crash messages",
+        ("posix",),
+    ),
+}
+
+KNOWN: dict[str, str] = {}
+
+
+def _add(finding: str, *keys: str) -> None:
+    for key in keys:
+        KNOWN[key] = finding
+
+
+_add(
+    "F1",
+    "worker:echo_float/dict",
+    "worker:echo_float/empty-text",
+    "worker:echo_float/huge-int",
+    "worker:echo_float/list",
+    "worker:echo_float/word",
+    "worker:echo_int/decimal-text",
+    "worker:echo_int/dict",
+    "worker:echo_int/empty-text",
+    "worker:echo_int/inf",
+    "worker:echo_int/list",
+    "worker:echo_int/minus-inf",
+    "worker:echo_int/nan",
+    "worker:echo_int/word",
+)
+_add(
+    "F2",
+    "cli:echo_table/float-digits",
+    "cli:echo_table/random-floats",
+    "notebook:echo_table/float-digits",
+    "notebook:echo_table/random-floats",
+    "snippet:echo_table/float-digits",
+    "snippet:echo_table/random-floats",
+    "terminal:echo_table/float-digits",
+    "terminal:echo_table/random-floats",
+    "worker:echo_table/float-digits",
+    "worker:echo_table/random-floats",
+)
+_add(
+    "F3",
+    "worker:echo_table/duplicate-column-names",
+    "worker:echo_table/empty-column-name",
+)
+_add(
+    "F4",
+    "cli:echo_table/missing-file",
+    "cli:echo_table/no-header-no-rows",
+    "terminal:echo_table/missing-file",
+    "terminal:echo_table/no-header-no-rows",
+    "worker:echo_table/binary-garbage",
+    "worker:echo_table/missing-file",
+    "worker:echo_table/no-header-no-rows",
+)
+_add(
+    "F5",
+    "worker:echo_affine/invalid/ragged",
+    "worker:echo_affine/invalid/text-cell",
+)
+_add(
+    "F6",
+    "worker:echo_affine/invalid/inf-cell",
+    "worker:echo_affine/invalid/nan-cell",
+)
+_add(
+    "F7",
+    "cli:echo_table/text-that-pandas-calls-missing",
+    "notebook:echo_table/text-that-pandas-calls-missing",
+    "snippet:echo_table/text-that-pandas-calls-missing",
+    "terminal:echo_table/text-that-pandas-calls-missing",
+    "worker:echo_table/text-that-pandas-calls-missing",
+)
+_add(
+    "F8",
+    "notebook:echo_float/ok/0x1.c6bf526340000p+49",
+    "notebook:echo_int/ok/-2147483648",
+    "notebook:echo_int/ok/2147483647",
+    "notebook:echo_int/ok/2147483648",
+    "notebook:echo_optional_int/set/1099511627776",
+)
+_add(
+    "F9",
+    "notebook:echo_optional_bool/omitted",
+    "notebook:echo_optional_choice/omitted",
+    "notebook:echo_optional_float/omitted",
+    "notebook:echo_optional_int/omitted",
+    "notebook:echo_optional_string/omitted",
+)
+_add(
+    "F10",
+    "winquote:quote-after-backslashes",
+    "winquote:spaced-trailing-backslash",
+    "winquote:spaced-quote-after-backslash",
+)
+_add("F13", "lifecycle:shared_memory_survives_the_worker")
+
+
+def is_known(key: str) -> bool:
+    """True when `key` is a listed failure on this platform (the runners skip it)."""
+    finding = KNOWN.get(key)
+    return finding is not None and os.name in FINDINGS[finding].platforms

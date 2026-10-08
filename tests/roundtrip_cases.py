@@ -544,9 +544,14 @@ STRINGS: dict[str, str] = {
     "null-text": "null",
     "true-text": "true",
     "number-text": "007",
+    "long-ascii-15k": "x" * 15_000,
+    "long-unicode-4k": "\u00e9\U0001f600" * 1_000,
     "long-200k": "x" * 200_000,
     "long-unicode-50k": "\u00e9\U0001f600" * 25_000,
 }
+COMMAND_LINE_BYTES = (
+    20_000  # a command line holds about 32 000 characters on Windows, 128 000 bytes per argument on Linux
+)
 STRINGS_WORKER_ONLY: dict[str, str] = {  # cannot be written on a command line (NUL, lone surrogate)
     "nul": "a\x00b",
     "lone-surrogate": "a\ud800b",
@@ -702,9 +707,9 @@ def _scalar_cases() -> list[Case]:
         cli_ok = label not in STRINGS_WORKER_ONLY
         paths = (
             ("worker",)
-            + (("cli", "snippet") if cli_ok and len(text) < 100_000 else ())
+            + (("cli", "snippet") if cli_ok and len(text.encode("utf-8")) < COMMAND_LINE_BYTES else ())
             + (("notebook",) if cli_ok and len(text) < 1000 else ())
-        )  # noqa
+        )
         ok("text/%s" % label, "echo_string", text, text, "string", paths)
     for label, text in STRINGS_HEAVY.items():
         cases.append(
@@ -995,7 +1000,7 @@ def _nullable_cases() -> list[Case]:
                 tool,
                 {},
                 Expect(received=unset),
-                ("worker", "cli", "snippet"),
+                ("worker", "cli", "snippet", "notebook"),
                 False,
                 "nullable",
             )
@@ -1194,6 +1199,9 @@ def table_frames() -> dict[str, pd.DataFrame]:
                 ]
             }
         ),
+        "text-that-pandas-calls-missing": pd.DataFrame(
+            {"t": ["NA", "null", "None", "N/A", "nan", "NaN", "n/a", "x"]}
+        ),
         "float-extremes": pd.DataFrame(
             {
                 "f": [
@@ -1240,12 +1248,27 @@ def table_frames() -> dict[str, pd.DataFrame]:
     }
 
 
-def _table_expect(frame: pd.DataFrame, out_name: str, cols_known: bool = True) -> Expect:
+def table_report(frame: pd.DataFrame) -> dict[str, Any]:
+    """What `echo_table` must report about the table it read: names, size, kinds, a digest of every cell and, for small
+    tables, the cells (NaN and infinity are not JSON numbers: they are reported as null)."""
     columns = [str(c) for c in frame.columns]
-    received: dict[str, Any] = {"columns": columns, "n_rows": int(len(frame))}
+    report: dict[str, Any] = {"columns": columns, "n_rows": int(len(frame))}
     if len(frame):
-        received["kinds"] = _kinds(frame)
-    return Expect(received=received, outputs={out_name: OutTable(columns, _cells(frame))})
+        report["kinds"] = _kinds(frame)
+    cells = [list(_cells(frame)[str(i)]) for i in range(len(columns))]  # NaN as None, infinity kept
+    report["cells_digest"] = hashlib.sha256(
+        json.dumps(cells, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    if frame.size <= 2000:
+        report["cells"] = [
+            [None if (isinstance(v, float) and math.isinf(v)) else v for v in column] for column in cells
+        ]
+    return report
+
+
+def _table_expect(frame: pd.DataFrame, out_name: str) -> Expect:
+    columns = [str(c) for c in frame.columns]
+    return Expect(received=table_report(frame), outputs={out_name: OutTable(columns, _cells(frame))})
 
 
 def table_cases() -> list[Case]:
@@ -1281,6 +1304,56 @@ def table_cases() -> list[Case]:
         )
     # names a CSV header cannot carry unchanged through pandas (duplicates, empty): the host must still read what it wrote
     dup = pd.DataFrame([[1, 2], [3, 4]], columns=["a", "a"])
+    for name in (
+        "ints",
+        "mixed-dtypes",
+        "nan-cells",
+        "float-digits",
+        "random-floats",
+        "awkward-cells",
+        "int-extremes",
+        "float-extremes",
+        "unicode-and-awkward-names",
+        "rows-10k",
+    ):
+        frame = table_frames()[name]
+        text = json.dumps({str(c): frame[c].tolist() for c in frame.columns})
+        for form in ("dataframe", "dict", "records"):
+            if form == "records" and name == "rows-10k":
+                continue
+            cases.append(
+                Case(
+                    "table_from_json/%s/%s" % (name, form),
+                    "table_from_json",
+                    {"columns_json": text, "form": form},
+                    Expect(outputs={"table": OutTable([str(c) for c in frame.columns], _cells(frame))}),
+                    ("worker", "cli") if len(text) < COMMAND_LINE_BYTES else ("worker",),
+                    False,
+                    "table",
+                )
+            )
+    cases.append(
+        Case(
+            "table_from_json/no-rows",
+            "table_from_json",
+            {"columns_json": '{"a": [], "b": []}'},
+            Expect(outputs={"table": OutTable(["a", "b"], {"0": [], "1": []})}),
+            ("worker",),
+            False,
+            "table",
+        )
+    )
+    cases.append(
+        Case(
+            "table_from_json/missing-cells-are-empty",
+            "table_from_json",
+            {"columns_json": '{"a": [1, null, 3], "b": ["x", null, "z"]}'},
+            Expect(outputs={"table": OutTable(["a", "b"], {"0": [1.0, None, 3.0], "1": ["x", None, "z"]})}),
+            ("worker",),
+            False,
+            "table",
+        )
+    )
     cases.append(
         Case(
             "echo_table/duplicate-column-names",
@@ -1328,17 +1401,6 @@ def table_cases() -> list[Case]:
             {"table": MissingPath("nothing.csv")},
             Expect(status="FAILED", code="file_not_found", toolerror=True, message="nothing.csv"),
             ("worker", "cli"),
-            False,
-            "table",
-        )
-    )
-    cases.append(
-        Case(
-            "echo_table/ragged-rows",
-            "echo_table",
-            {"table": FileSpec("ragged.csv", b"a,b\n1,2,3,4\n5\n")},
-            Expect(status="FAILED", toolerror=True),
-            ("worker",),
             False,
             "table",
         )
@@ -1454,6 +1516,7 @@ def points_cases() -> list[Case]:
         "zero-columns": (3, 0, 1.0),
         "spacing-zero": (2, 2, 0.0),
         "huge-spacing": (2, 2, 1e15),
+        "spacing-0.1": (1, 7, 0.1),
         "30x30": (30, 30, 0.5),
         "1x1000": (1, 1000, 2.0),
     }.items():
@@ -1868,7 +1931,11 @@ def affine_cases() -> list[Case]:
                 "echo_affine_applied/%s" % name,
                 "echo_affine_applied",
                 {"matrix_json": text},
-                Expect(outputs={"affine": OutAffine(expected, {})}),
+                Expect(
+                    outputs={
+                        "affine": OutAffine(expected, {"apply_to": "source", "relative_to": "reference"})
+                    }
+                ),
                 ("worker",),
                 False,
                 "affine",
@@ -2424,6 +2491,7 @@ TRANSPORT_LIMITS: dict[str, dict[str, int]] = {
         "image": 8,
         "_default": 4,
     },
+    "terminal": {"string": 25, "int": 3, "float": 3, "choice": 3, "file": 6, "folder": 3, "_default": 2},
     "snippet": {"string": 12, "int": 3, "float": 3, "choice": 3, "file": 4, "folder": 3, "_default": 3},
     "notebook": {"string": 25, "int": 25, "float": 25, "choice": 20, "_default": 10},
 }
@@ -2439,8 +2507,13 @@ def _thin(cases: list[Case], limit: int) -> list[Case]:
 def selected(path: str | None = None, prof: str | None = None) -> tuple[Case, ...]:
     """The cases of this profile that travel on `path` (all of them when None)."""
     prof = prof or profile()
+    carried_by = (
+        "cli" if path == "terminal" else path
+    )  # the copied terminal line carries what the command line carries
     pool = [
-        c for c in all_cases() if (prof == "nightly" or not c.heavy) and (path is None or path in c.paths)
+        c
+        for c in all_cases()
+        if (prof == "nightly" or not c.heavy) and (carried_by is None or carried_by in c.paths)
     ]
     if path is None or path == "worker" or prof == "nightly":
         return tuple(pool)

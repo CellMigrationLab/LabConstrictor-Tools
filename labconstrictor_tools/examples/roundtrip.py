@@ -96,13 +96,36 @@ def echo_labels(
 def echo_table(
     table: Table,
 ) -> tuple[Annotated[TableOut, Name("table")], Annotated[Scalars, Name("received")]]:
-    """Returns the table it received and its column names, row count and the kind of each column."""
+    """Returns the table it received, its column names, row count, the kind of each column and its cells."""
+    cells = [[None if _is_nan(v) else v for v in table.iloc[:, i].tolist()] for i in range(table.shape[1])]
     report = {
         "columns": [str(c) for c in table.columns],
         "n_rows": int(len(table)),
         "kinds": [t.kind for t in table.dtypes],  # b, i, u, f or O (text): stable across pandas versions
+        "cells_digest": hashlib.sha256(json.dumps(cells, separators=(",", ":")).encode("utf-8")).hexdigest(),
     }
+    if table.size <= 2000:
+        report["cells"] = cells  # small tables are reported in full so that a difference can be read
     return table, report
+
+
+def _is_nan(value: object) -> bool:
+    return isinstance(value, float) and value != value
+
+
+@tool("Table from JSON")
+def table_from_json(
+    columns_json: str, form: Literal["dataframe", "dict", "records"] = "dataframe"
+) -> Annotated[TableOut, Name("table")]:
+    """Builds a table from JSON text {"column": [cells...]} and returns it in one of the three forms a tool may return."""
+    import pandas as pd
+
+    data = json.loads(columns_json)
+    if form == "dataframe":
+        return pd.DataFrame(data)
+    if form == "dict":
+        return data
+    return [dict(zip(data, row)) for row in zip(*data.values())]
 
 
 @tool("Echo file")
