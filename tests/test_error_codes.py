@@ -171,6 +171,29 @@ class WrongReturns(unittest.TestCase):
                     self.assertEqual(refused(result, kind, value).code, "bad_return")
         self.assertIn("different lengths", refused(result, "table", {"a": [1, 2], "b": [1]}).message)
 
+    def test_a_nul_or_a_surrogate_in_a_csv_result_is_refused_the_same_on_every_python(self):
+        import pandas as pd
+
+        for kind, base in (("table", {}), ("points", {"y": [1.0], "x": [2.0]})):
+            cases = {
+                "nul-in-a-cell": ({**base, "t": ["a\x00b"]}, "a NUL character in a cell of column 't'"),
+                "nul-in-a-name": ({**base, "t\x00": ["a"]}, "a NUL character in the name of column 't\\x00'"),
+                "nul-alone": ({**base, "": ["\x00"]}, "a NUL character in a cell of column ''"),
+                "surrogate-in-a-cell": ({**base, "t": ["\ud800"]}, "cannot be written as a UTF-8 CSV"),
+                "surrogate-in-a-name": ({**base, "\ud800": ["a"]}, "cannot be written as a UTF-8 CSV"),
+            }
+            for label, (value, fragment) in cases.items():
+                with self.subTest(kind=kind, case=label):
+                    error = refused(result, kind, value)
+                    self.assertEqual(error.code, "bad_return")
+                    self.assertIn(fragment, error.message)
+            twin = pd.DataFrame([["a", "b\x00"]], columns=["d", "d"])
+            twin_error = refused(result, kind, twin) if kind == "table" else None
+            if twin_error:
+                self.assertIn("a NUL character in a cell of column 'd'", twin_error.message)
+            ok = {**base, "t": ["x\r\ny", 'q"uote', "c,omma"]} if kind == "table" else {**base}
+            self.assertEqual(result(kind, pd.DataFrame(ok if kind == "table" else base))[0]["type"], kind)
+
     def test_affine_that_is_ragged_text_or_not_a_matrix(self):
         for value in ([[1, 0, 0], [0, 1], [0, 0, 1]], [["a", 0, 0], [0, 1, 0], [0, 0, 1]], {}):
             with self.subTest(value=value):

@@ -6,6 +6,7 @@ Outputs: ndarray -> TIFF, DataFrame/dict/list -> CSV, matrices -> JSON, dict -> 
 numpy/pandas/tifffile are imported lazily, only when a tool actually uses those types.
 """
 
+import csv
 import logging
 import math
 import os
@@ -424,6 +425,39 @@ def _as_frame(kind: str, name: str, value: Any) -> Any:
         ) from error
 
 
+NUL = "\x00"  # the CSV writer of Python 3.10 cannot write it and 3.11+ writes it silently: refused identically everywhere
+
+
+def _write_csv(kind: str, name: str, frame: Any, path: Path) -> None:
+    """Write a table or points result as UTF-8 CSV after refusing what some Python versions cannot write and others would write
+    wrongly: a NUL character in a column name or a text cell (checked per column, vectorised), and a lone surrogate (not UTF-8).
+    """
+    for column in frame.columns:
+        if NUL in str(column):
+            raise ToolError(
+                "bad_return",
+                "the %s output '%s' has a NUL character in the name of column %r: remove it"
+                % (kind, name, str(column)),
+            )
+    for position, column in enumerate(frame.columns):
+        cells = frame.iloc[:, position]  # by position: duplicate column names are allowed
+        if cells.dtype.kind in "OUS" or str(cells.dtype) in ("string", "str"):
+            if cells.dropna().astype(str).str.contains(NUL, regex=False).any():
+                raise ToolError(
+                    "bad_return",
+                    "the %s output '%s' has a NUL character in a cell of column %r: remove it"
+                    % (kind, name, str(column)),
+                )
+    try:
+        frame.to_csv(path, index=False, encoding="utf-8")
+    except (UnicodeEncodeError, csv.Error) as error:
+        raise ToolError(
+            "bad_return",
+            "the %s output '%s' cannot be written as a UTF-8 CSV (%s): remove the character it names (a lone surrogate or control "
+            "character) from the column names and cells" % (kind, name, error),
+        ) from error
+
+
 def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
     kind, name = out["type"], out["name"]
     if kind in ("image", "labels"):
@@ -437,7 +471,7 @@ def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
     if kind == "table":
         frame = _as_frame("table", name, value)
         path = job_dir / (name + ".csv")
-        frame.to_csv(path, index=False)
+        _write_csv("table", name, frame, path)
         return {"type": "table", "name": name, "path": str(path)}
     if kind == "file":
         if not isinstance(value, (str, os.PathLike)):
@@ -486,7 +520,7 @@ def _write_points(name: str, value: Any, job_dir: Path, display: dict[str, str])
     others = [c for c in frame.columns if c not in ("y", "x")]
     frame = frame[["y", "x"] + others]
     path = job_dir / (name + ".csv")
-    frame.to_csv(path, index=False)
+    _write_csv("points", name, frame, path)
     return {
         "type": "points",
         "name": name,
