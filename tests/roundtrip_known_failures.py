@@ -8,6 +8,8 @@ again and FAILS when one starts passing, so the PR that fixes a finding has to d
 
 import functools
 import os
+import platform
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -22,6 +24,8 @@ class Finding:
     expected: str  # the correct behaviour
     observed: str  # what happens today
     platforms: tuple[str, ...] = ("posix", "nt")  # os.name values on which the defect shows
+    min_python: tuple[int, ...] = (0,)  # the defect shows from this Python version on
+    machines: tuple[str, ...] = ()  # platform.machine() values on which it shows (empty: every machine)
 
 
 SCHEMA = '{"id": "t", "label": "t", "outputs": [], "inputs": [{"name": "n", "label": "N", "type": "%s", "required": True}]}'
@@ -166,6 +170,18 @@ FINDINGS: dict[str, Finding] = {
         "the whole percent nearest to the fraction (round(100 * fraction)), as the tool reported it",
         "int(100 * fraction) in worker._send_progress loses a percent whenever 100 * fraction is just below the integer",
     ),
+    "F20": Finding(
+        "Integer images are checked for float32 exactness with an out-of-range cast: uint64 2**64-1 is stored as 2**64 on ARM",
+        "from labconstrictor_tools.convert import portable_dtype; import numpy as np\n"
+        "portable_dtype(np.array([[2**64 - 1, 1]], np.uint64))   # x86: ToolError unsupported_dtype; arm64 (Apple silicon): a float32 array holding 2**64",
+        "ToolError('unsupported_dtype', ...) on every machine: 2**64-1 is not exactly representable as float32 (docs/PROTOCOL.md: integers never change in value)",
+        "convert.portable_dtype tests exactness with np.array_equal(widened.astype(array.dtype), array); casting the float32 2**64 back to uint64 is "
+        "undefined: x86 gives 0 (not equal, refused), ARM saturates to 2**64-1 (equal, accepted) so the value is silently changed by 1. "
+        "Seen on GitHub's macOS runners (arm64); not reproducible on x86 Linux",
+        ("posix", "nt"),
+        (0,),
+        ("arm64", "aarch64"),
+    ),
     "F13": Finding(
         "The worker destroys the host's shared-memory block when it exits",
         "the host creates a block, sends it as an image input, the task completes, the worker is closed: the block is gone, and the "
@@ -175,6 +191,10 @@ FINDINGS: dict[str, Finding] = {
         "Python's resource tracker in the worker unlinks every block it attached to when the worker exits, so a host that "
         "keeps a block between tasks (or reuses it after a worker restart) finds it gone, and the warning ends up in crash messages",
         ("posix",),
+        (
+            3,
+            11,
+        ),  # absent on Python 3.10 (CI: Ubuntu and macOS 3.10 pass the check), present on 3.11 (sandbox) and 3.12 (CI: Ubuntu, macOS)
     ),
 }
 
@@ -298,6 +318,20 @@ _add(
     "worker:make_array/object",
     "worker:make_array/text",
 )
+_add(
+    "F20",
+    "worker:echo_image/uint64/beyond-float32",
+    "cli:echo_image/uint64/beyond-float32",
+    "terminal:echo_image/uint64/beyond-float32",
+    "snippet:echo_image/uint64/beyond-float32",
+    "notebook:echo_image/uint64/beyond-float32",
+)
+_add(
+    "F10",
+    "winproc:quote-after-backslashes",
+    "winproc:spaced-trailing-backslash",
+    "winproc:spaced-quote-after-backslash",
+)
 _add("F13", "lifecycle:shared_memory_survives_the_worker")
 _add("F17", "lifecycle:task_on_a_dead_worker")
 _add("F18", "lifecycle:children_die_when_the_host_goes_away")
@@ -346,7 +380,14 @@ _add(
 def is_known(key: str) -> bool:
     """True when `key` is a listed failure on this platform (the runners skip it)."""
     finding = KNOWN.get(key)
-    return finding is not None and os.name in FINDINGS[finding].platforms
+    if finding is None:
+        return False
+    f = FINDINGS[finding]
+    return (
+        os.name in f.platforms
+        and sys.version_info[: len(f.min_python)] >= f.min_python
+        and (not f.machines or platform.machine().lower() in f.machines)
+    )
 
 
 def known_failure(key: str) -> Callable[[Any], Any]:

@@ -62,7 +62,7 @@ A defect the matrix finds is not fixed in the same PR. Its test ids go into `tes
 (minimal reproduction, expected behaviour, observed behaviour). The runners skip exactly those ids; `test_roundtrip_known_failures.py`
 runs them again and **fails when one starts to pass**, so the fix PR must delete the entries, and the list cannot rot. Keys:
 `<transport>:<case id>`, `property:<name>`, `hint:<id>`, `failure:<tool>`, `lifecycle:<name>`, `test:<module.Class.method>`,
-`winquote:<label>`.
+`winquote:<label>`, `winproc:<label>` (the real Windows process start). A finding can be limited to a Python version (`min_python`) or machine type (`machines`): F13 shows from Python 3.11, F20 only on ARM.
 
 ## The ledger
 

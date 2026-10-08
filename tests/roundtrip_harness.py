@@ -88,6 +88,7 @@ class Session:
         self._shm: list[shared_memory.SharedMemory] = []
         self._count = 0
         self._lock = threading.Lock()
+        self.home = self.root / "registry_home"  # where this session registers the example app
         self.tools = roundtrip_app.schemas(APP_MODULE)
 
     # ---- lifecycle
@@ -114,7 +115,7 @@ class Session:
         """Register the example app in the private LC_HOME, as an installer would (the CLI and the copied text need it)."""
         if self._registered:
             return
-        env = {**os.environ, "PYTHONPATH": str(_paths.ROOT)}
+        env = {**os.environ, "PYTHONPATH": str(_paths.ROOT), "LC_HOME": str(self.home)}
         done = subprocess.run(
             [sys.executable, "-m", "labconstrictor_tools", "register", "--name", APP, "--prefix", str(_paths.GENERIC_PREFIX),
              "--module", APP_MODULE, "--version", "0"],
@@ -123,6 +124,16 @@ class Session:
         if done.returncode:
             raise RuntimeError("cannot register the example app: %s" % done.stderr[-2000:])
         self._registered = True
+
+    def case_env(self, folder: Path) -> dict[str, str]:
+        """The environment of a command-line run: the app is found in this session's registry, and the run keeps its results in a
+        home of its own (a shared results folder is pruned to the newest 20 runs, which can remove a folder that is still being read).
+        """
+        return {
+            **self.subprocess_env(),
+            "LC_HOME": str(folder / "home"),
+            "LC_APPS_PATH": str(self.home / "apps"),
+        }
 
     def subprocess_env(self) -> dict[str, str]:
         return {
@@ -242,9 +253,10 @@ def run_worker(session: Session, case: Case, wire: dict[str, Any], folder: Path)
     task.wait(TASK_TIMEOUT_S)
     if not task.done.is_set():
         worker.kill()
+        worker.close()
         return Observed("TIMEOUT", error="no answer after %s s" % TASK_TIMEOUT_S)
     if task.status == "CRASHED":
-        worker.kill()  # the next case gets a fresh worker
+        worker.close()  # the next case gets a fresh worker; closing (not just killing) releases the pipes
     return Observed(
         task.status, task.outputs.get("results", []), task.code, task.error, task.outputs.get("job_dir")
     )
@@ -290,7 +302,7 @@ def run_cli(session: Session, case: Case, wire: dict[str, Any], folder: Path) ->
     command_words += cli_arguments(session.tools[case.tool], wire)
     command_words += ["--out", str(folder / "out"), "--no-record", "--timeout", str(TASK_TIMEOUT_S)]
     done = subprocess.run(
-        command_words, capture_output=True, env=session.subprocess_env(), timeout=SUBPROCESS_TIMEOUT_S
+        command_words, capture_output=True, env=session.case_env(folder), timeout=SUBPROCESS_TIMEOUT_S
     )
     stdout = done.stdout.decode("utf-8", errors="replace")
     if "{" not in stdout:
@@ -304,7 +316,7 @@ def run_snippet(session: Session, case: Case, wire: dict[str, Any], folder: Path
     done = subprocess.run(
         [sys.executable, "-c", text],
         capture_output=True,
-        env=session.subprocess_env(),
+        env=session.case_env(folder),
         timeout=SUBPROCESS_TIMEOUT_S,
     )
     stdout = done.stdout.decode("utf-8", errors="replace").strip()
@@ -329,7 +341,7 @@ def run_terminal(session: Session, case: Case, wire: dict[str, Any], folder: Pat
         line,
         shell=(os.name != "nt"),
         capture_output=True,
-        env=session.subprocess_env(),
+        env=session.case_env(folder),
         timeout=SUBPROCESS_TIMEOUT_S,
     )
     stdout = done.stdout.decode("utf-8", errors="replace")

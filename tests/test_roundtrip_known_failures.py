@@ -158,11 +158,29 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                         "now passes: delete the entry",
                     )
 
+    @unittest.skipUnless(os.name == "nt", "the real Windows process start")
+    def test_windows_process_entries_still_fail(self):
+        from test_roundtrip_command import TEXTS, windows_process_problems
+
+        for key in KNOWN:
+            if key.startswith("winproc:") and is_known(key):
+                label = key.split(":", 1)[1]
+                with self.subTest(key):
+                    self.assertTrue(windows_process_problems(TEXTS[label]), "now passes: delete the entry")
+
     def test_the_skip_is_exactly_the_list(self):
         self.assertFalse(is_known("worker:echo_int/ok/0"))
         self.assertTrue(is_known("worker:echo_int/word"))
         if os.name in ("posix", "nt"):
             self.assertTrue(is_known("cli:echo_table/missing-file"))
+
+
+def tearDownModule():
+    """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
+    raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
+    import gc
+
+    gc.collect()
 
 
 if __name__ == "__main__":

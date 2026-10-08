@@ -353,5 +353,13 @@ class RegionBox(unittest.TestCase):
         self.assertEqual(caught.exception.code, "bad_input")
 
 
+def tearDownModule():
+    """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
+    raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
+    import gc
+
+    gc.collect()
+
+
 if __name__ == "__main__":
     unittest.main()

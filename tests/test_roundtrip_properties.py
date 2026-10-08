@@ -64,6 +64,11 @@ def tool_error_or_value(tool_id, name, value):
         return error
 
 
+def read_rows(path):
+    with open(path, newline="", encoding="utf-8") as handle:
+        return list(csv.reader(handle))
+
+
 def arrays_equal(got, want):
     if got.dtype != want.dtype or got.shape != want.shape:
         return False
@@ -348,7 +353,7 @@ def table_of_integers_texts_booleans_round_trips(ints, texts, flags):
             and got["b"].tolist() == flags[:n]
         )
         results = convert.build_results(TOOLS["echo_table"], (got, {}), folder)
-        rows = list(csv.reader(open(results[0]["path"], newline="", encoding="utf-8")))
+        rows = read_rows(results[0]["path"])
         assert rows[0] == ["i", "s", "b"]
         assert [r[0] for r in rows[1:]] == [str(v) for v in ints[:n]]
         assert [r[1] for r in rows[1:]] == texts[:n]
@@ -371,7 +376,7 @@ def table_floats_are_written_exactly(values):
         results = convert.build_results(
             {"outputs": [{"name": "table", "type": "table"}]}, {"f": values}, folder
         )
-        rows = list(csv.reader(open(results[0]["path"], newline="", encoding="utf-8")))[1:]
+        rows = read_rows(results[0]["path"])[1:]
         assert all(same(float(r[0]), v) for r, v in zip(rows, values)) and len(rows) == len(values)
 
 
@@ -387,7 +392,7 @@ def points_round_trip(ys, xs):
             {"y": ys[:n], "x": xs[:n], "label": list(range(n))},
             folder,
         )
-        rows = list(csv.reader(open(results[0]["path"], newline="", encoding="utf-8")))
+        rows = read_rows(results[0]["path"])
         assert rows[0] == ["y", "x", "label"] and results[0]["n"] == n
         assert all(same(float(r[0]), y) and same(float(r[1]), x) for r, y, x in zip(rows[1:], ys, xs))
 
@@ -629,6 +634,14 @@ def _make_test(name, function):
 
 for _name, _function in PROPERTIES.items():
     setattr(Properties, "test_" + _name, _make_test(_name, _function))
+
+
+def tearDownModule():
+    """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
+    raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
+    import gc
+
+    gc.collect()
 
 
 if __name__ == "__main__":
