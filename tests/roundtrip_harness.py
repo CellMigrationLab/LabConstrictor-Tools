@@ -35,6 +35,7 @@ from typing import Any
 
 import _paths
 import numpy as np
+import roundtrip_app
 import tifffile
 from roundtrip_cases import (
     APP_MODULE,
@@ -58,7 +59,6 @@ from roundtrip_cases import (
 
 from labconstrictor_tools import command
 from labconstrictor_tools.client import WorkerProcess
-from labconstrictor_tools.introspection import describe_tools
 
 APP = "roundtrip"
 TASK_TIMEOUT_S = 120
@@ -88,7 +88,7 @@ class Session:
         self._shm: list[shared_memory.SharedMemory] = []
         self._count = 0
         self._lock = threading.Lock()
-        self.tools = {t["id"]: t for t in describe_tools(APP_MODULE)["tools"]} if _import_app() else {}
+        self.tools = roundtrip_app.schemas(APP_MODULE)
 
     # ---- lifecycle
     def close(self) -> None:
@@ -233,11 +233,6 @@ def _release(block: shared_memory.SharedMemory) -> None:
     except FileNotFoundError:
         # the worker's resource tracker already removed it (F13): tell ours, or it complains about a "leak" at exit
         resource_tracker.unregister(block._name, "shared_memory")  # type: ignore[attr-defined]
-
-
-def _import_app() -> bool:
-    __import__(APP_MODULE)
-    return True
 
 
 # ------------------------------------------------------------------------------------------------ transports

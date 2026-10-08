@@ -20,6 +20,7 @@ import importlib.util
 import json
 import math
 import os
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -2543,6 +2544,11 @@ def selected(path: str | None = None, prof: str | None = None) -> tuple[Case, ..
         for c in all_cases()
         if (prof == "nightly" or not c.heavy) and (carried_by is None or carried_by in c.paths)
     ]
+    only = os.environ.get(
+        "LC_ROUNDTRIP_FILTER"
+    )  # a regular expression on case ids: run a slice (the sabotage test does)
+    if only:
+        return tuple(c for c in pool if re.search(only, c.id))
     if path is None or path == "worker" or prof == "nightly":
         return tuple(pool)
     limits = TRANSPORT_LIMITS[path]

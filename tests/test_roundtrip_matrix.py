@@ -2,6 +2,7 @@
 line, notebook form). Values that a transport cannot carry are not sent on it; the cases in roundtrip_known_failures.py are
 skipped here and watched by test_roundtrip_known_failures.py."""
 
+import os
 import traceback
 import unittest
 from concurrent.futures import ThreadPoolExecutor
@@ -39,7 +40,9 @@ class Matrix(unittest.TestCase):
 
     def walk(self, transport, parallel=1):
         todo = [c for c in rc.selected(transport) if not is_known(key(transport, c))]
-        self.assertGreater(len(todo), 10)
+        self.assertGreater(
+            len(todo), 0 if os.environ.get("LC_ROUNDTRIP_FILTER") else 10
+        )  # a slice must not be empty
         if parallel > 1:
             with ThreadPoolExecutor(max_workers=parallel) as pool:
                 outcomes = list(pool.map(lambda c: self.attempt(transport, c), todo))

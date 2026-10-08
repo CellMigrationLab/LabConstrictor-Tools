@@ -119,6 +119,39 @@ class QuotingHelper(unittest.TestCase):
                 self.assertEqual(json.loads(done.stdout), [text])
 
 
+class CopiedText(unittest.TestCase):
+    """The text a host puts on the clipboard has a documented format (docs/HOST_FEATURES.md): the same in every host."""
+
+    def tool(self, tool_id):
+        return harness.roundtrip_app.schemas(rc.APP_MODULE)[tool_id]
+
+    def test_booleans_are_lower_case_in_the_terminal_line_and_real_booleans_in_the_snippet(self):
+        for flag, word in ((True, "true"), (False, "false")):
+            line = command.command_line("app", self.tool("echo_bool"), {"value": flag}, windows=False)
+            self.assertEqual(shlex.split(line)[-1], "value=" + word)
+            self.assertIn(
+                "'value': %s," % flag, command.python_snippet("app", self.tool("echo_bool"), {"value": flag})
+            )
+
+    def test_numbers_and_text_are_written_as_they_are_and_unset_values_are_left_out(self):
+        tool = self.tool("echo_defaults")
+        values = {"number": 12, "ratio": 0.1, "text": "two words", "flag": None, "mode": "a"}
+        words = shlex.split(command.command_line("app", tool, values, windows=False))
+        self.assertEqual(words[-4:], ["number=12", "ratio=0.1", "text=two words", "mode=a"])
+        self.assertEqual(words[:6], ["python", "-m", "labconstrictor_tools", "run", "app", "echo_defaults"])
+        self.assertNotIn("flag", " ".join(words))
+
+    def test_a_missing_file_gets_a_placeholder_and_a_note_in_both_forms(self):
+        tool = self.tool("echo_image")
+        line = command.command_line("app", tool, {}, windows=False)
+        self.assertTrue(line.startswith("# replace the file for: image\n"))
+        self.assertIn("image=image.tif", line)
+        snippet = command.python_snippet("app", tool, {})
+        self.assertTrue(snippet.startswith("# replace the file for: image"))
+        self.assertEqual(command.placeholders(tool, {"image": "x.tif"}), [])
+        self.assertEqual(command.placeholders(tool, {}), ["image"])
+
+
 class AppNameWithSpacesAndQuotes(unittest.TestCase):
     """A copied command names the app: a name with spaces or quotes must still be one argument and still find the app."""
 

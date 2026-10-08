@@ -206,7 +206,7 @@ class Crashes(unittest.TestCase):
         self.assertEqual(task_on_dead_worker_problems(), [])
 
 
-class WhatATooolRaises(unittest.TestCase):
+class WhatAToolRaises(unittest.TestCase):
     def test_a_tool_error_arrives_with_its_code_and_text(self):
         task, _ = run_tool("raise_tool_error")
         self.assertEqual(task.status, "FAILED")

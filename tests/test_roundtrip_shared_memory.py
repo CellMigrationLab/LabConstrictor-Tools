@@ -13,6 +13,19 @@ from roundtrip_known_failures import is_known
 KEY = "lifecycle:shared_memory_survives_the_worker"
 
 
+def wait_for_destruction(name, seconds=10.0):
+    """True when the block is gone within `seconds` (the worker's resource tracker acts a moment after the worker is gone)."""
+    end = time.time() + seconds
+    while time.time() < end:
+        try:
+            block = shared_memory.SharedMemory(name=name)
+        except FileNotFoundError:
+            return True
+        block.close()
+        time.sleep(0.2)
+    return False
+
+
 def shared_memory_problems():
     """Read an image from a host-owned block through a real worker, close the worker, and look at what is left."""
     session = harness.Session()
@@ -27,13 +40,9 @@ def shared_memory_problems():
                 return ["the task did not complete: %s" % task.error]
         finally:
             worker.close()
-        time.sleep(1.0)  # the resource tracker of the worker acts after the worker is gone
-        try:
-            block = shared_memory.SharedMemory(name=descriptor["shm"]["name"])
-        except FileNotFoundError:
+        destroyed = wait_for_destruction(descriptor["shm"]["name"])
+        if destroyed:
             problems.append("the host's shared-memory block was destroyed when the worker exited")
-        else:
-            block.close()
         noise = "".join(worker.stderr)
         if "resource_tracker" in noise:
             problems.append(

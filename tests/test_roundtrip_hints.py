@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Annotated, Any, Literal
 
 import _paths  # noqa: F401  (must come first)
+import roundtrip_app
 import roundtrip_cases as rc
 from roundtrip_known_failures import KNOWN, is_known
 
@@ -229,11 +230,10 @@ def companions():
 
 def under_test(base, optional, markers):
     annotation = BASES[base][0]
-    if optional:
+    default = REQUIRED
+    if optional:  # True: `T | None = None`; "bare": `T | None` with no default (optional all the same)
         annotation = annotation | None  # type: ignore[operator]
-        default = None
-    else:
-        default = REQUIRED
+        default = None if optional is True else REQUIRED
     if markers:
         annotation = Annotated[(annotation, *markers)]
     return ("p", annotation, default)
@@ -385,7 +385,7 @@ def with_needs(names):
 def valid_combinations():
     """Every pair of applicable markers (companions added), every single one, and all of them together, for every base."""
     for base in ALL:
-        for optional in (False, True):
+        for optional in (False, True, "bare"):
             pool = valid_marker_pool(base, optional)
             subsets = (
                 [()]
@@ -401,14 +401,18 @@ class ValidCombinations(unittest.TestCase):
     def test_every_accepted_combination_obeys_the_manifest(self):
         count = 0
         for base, optional, names in valid_combinations():
-            label = "%s%s+%s" % (base, "?" if optional else "", "+".join(names) or "none")
+            label = "%s%s+%s" % (
+                base,
+                {False: "", True: "?", "bare": "?(no default)"}[optional],
+                "+".join(names) or "none",
+            )
             with self.subTest(label):
                 tool, _ = schema_for(base, optional, names)
                 self.assertEqual(manifest_problems(tool), [], label)
                 param = {i["name"]: i for i in tool["inputs"]}["p"]
                 self.assertEqual(param["type"], BASES[base][1])
                 self.assertEqual(param["required"], not optional)
-                self.assertEqual(bool(param.get("nullable")), optional)
+                self.assertEqual(bool(param.get("nullable")), bool(optional))
                 if optional:
                     self.assertNotIn("default", param)
                 for n in names:
@@ -507,15 +511,14 @@ class ValidCombinations(unittest.TestCase):
         self.assertEqual(set(T.WIDGETS), {"slider", "radio"})
 
     def test_example_apps_conform_to_the_manifest(self):
-        import importlib
-
         for module in (
             "labconstrictor_tools.examples.synthetic",
             "labconstrictor_tools.examples.interactions",
             rc.APP_MODULE,
         ):
-            importlib.import_module(module)
-            for tool in describe_tools(module)["tools"]:
+            tools = roundtrip_app.schemas(module)
+            self.assertGreater(len(tools), 3, module)
+            for tool in tools.values():
                 with self.subTest("%s %s" % (module, tool["id"])):
                     self.assertEqual(manifest_problems(tool), [])
 

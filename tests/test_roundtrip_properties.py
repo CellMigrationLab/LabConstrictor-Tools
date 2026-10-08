@@ -19,6 +19,7 @@ from pathlib import Path
 import _paths  # noqa: F401  (must come first)
 import numpy as np
 import pandas as pd
+import roundtrip_app
 import roundtrip_cases as rc
 import roundtrip_harness as harness
 import roundtrip_profiles  # noqa: F401  (registers and loads the hypothesis profile)
@@ -26,16 +27,14 @@ import tifffile
 from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as hnp
-from roundtrip_known_failures import is_known
+from roundtrip_known_failures import KNOWN, is_known
 
 from labconstrictor_tools import cli, command, convert, protocol, testing
-from labconstrictor_tools.decorators import tools_in
-from labconstrictor_tools.introspection import describe_tools
 from labconstrictor_tools.types import ToolError
 
-__import__(rc.APP_MODULE)
-TOOLS = {t["id"]: t for t in describe_tools(rc.APP_MODULE)["tools"]}
-FUNCTIONS = {t.id: t.fn for t in tools_in(rc.APP_MODULE)}
+_DECLARED = roundtrip_app.declared(rc.APP_MODULE)
+TOOLS = {tool_id: schema for tool_id, (schema, _) in _DECLARED.items()}
+FUNCTIONS = {tool_id: function for tool_id, (_, function) in _DECLARED.items()}
 same = harness.same
 
 # ------------------------------------------------------------------------------------------------ strategies
@@ -477,6 +476,10 @@ SCALAR_VALUES = st.recursive(
 )
 
 
+def _refuse_constant(constant):
+    raise AssertionError("the constant %s is not JSON" % constant)
+
+
 def expected_json(value):
     """The value as strict JSON carries it: numpy scalars as Python numbers, NaN and infinity as null, tuples as lists."""
     if isinstance(value, np.generic):
@@ -513,8 +516,7 @@ def wire_messages_with_non_finite_numbers_are_strict_json(fields):
     line = protocol._encode(
         {"task": "t", "responseType": "UPDATE", **{"f_" + k: v for k, v in fields.items()}}
     )
-    assert "NaN" not in line and "Infinity" not in line
-    json.loads(line)
+    json.loads(line, parse_constant=_refuse_constant)
 
 
 @given(st.sets(st.integers(), min_size=1, max_size=3))
@@ -602,18 +604,31 @@ PROPERTIES = {
 
 
 class Properties(unittest.TestCase):
-    def test_every_property(self):
-        self.assertGreater(len(PROPERTIES), 30)
-        for name, function in PROPERTIES.items():
-            if is_known("property:" + name):
-                continue
-            with self.subTest(name):
-                function()
+    """One test per property (test_<name>), so that a failure, a sabotage slice or a mutation run names exactly one."""
+
+    def test_there_are_many_properties(self):
+        self.assertGreater(len(PROPERTIES), 40)
 
     def test_profile_is_deterministic_in_ci(self):
         if os.environ.get("LC_HYPOTHESIS_PROFILE", "ci") == "ci":
             self.assertTrue(settings.default.derandomize)
             self.assertEqual(settings.default.max_examples, 200)
+
+
+def _make_test(name, function):
+    def test(self):
+        if is_known("property:" + name):
+            self.skipTest(
+                "known failure %s, watched by test_roundtrip_known_failures" % KNOWN[("property:" + name)]
+            )
+        function()
+
+    test.__name__ = "test_" + name
+    return test
+
+
+for _name, _function in PROPERTIES.items():
+    setattr(Properties, "test_" + _name, _make_test(_name, _function))
 
 
 if __name__ == "__main__":

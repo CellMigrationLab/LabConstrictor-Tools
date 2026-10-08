@@ -11,15 +11,14 @@ import unittest
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
+import roundtrip_app
 import roundtrip_cases as rc
 
 from labconstrictor_tools import types as T
-from labconstrictor_tools.introspection import describe_tools
 
 
 def schema_of_app():
-    __import__(rc.APP_MODULE)
-    return {t["id"]: t for t in describe_tools(rc.APP_MODULE)["tools"]}
+    return roundtrip_app.schemas(rc.APP_MODULE)
 
 
 def fingerprint(case):

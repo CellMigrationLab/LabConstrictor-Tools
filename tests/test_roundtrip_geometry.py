@@ -323,6 +323,27 @@ class RegionBox(unittest.TestCase):
             (rows.stop - rows.start, columns.stop - columns.start),
         )
 
+    def test_the_messages_a_person_reads_say_what_is_wrong_in_numbers(self):
+        with self.assertRaises(ToolError) as caught:
+            region.bbox(np.zeros((2, 3, 3), np.uint8))
+        self.assertEqual(
+            (caught.exception.code, caught.exception.message),
+            ("bad_input", "the region must be a 2D label image, got 3 dimensions"),
+        )
+        with self.assertRaises(ToolError) as caught:
+            region.bbox(np.ones((4, 5), np.uint8), np.zeros((2, 6, 7)))
+        self.assertEqual(
+            (caught.exception.code, caught.exception.message),
+            ("bad_input", "the region (4 x 5) does not have the size of the image (6 x 7)"),
+        )
+        with self.assertRaises(ToolError) as caught:
+            region.bbox(np.zeros((2, 2), np.uint8))
+        self.assertEqual(caught.exception.code, "empty_region")
+        self.assertEqual(
+            caught.exception.message,
+            "The selected region is empty: select an object, or untick 'use the selection'.",
+        )
+
     def test_a_mask_the_size_of_a_3d_image_plane_is_accepted_and_other_sizes_are_refused(self):
         mask = np.zeros((7, 9), np.uint8)
         mask[2, 3] = 1
