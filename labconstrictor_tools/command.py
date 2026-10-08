@@ -28,16 +28,46 @@ def _text(value: Any) -> str:
     return str(value)
 
 
+# Characters that need no quoting for the Microsoft C runtime parser (and so for cmd.exe).
+WINDOWS_SAFE = frozenset("-_.:/\\=+,")
+BACKSLASH = "\\"
+DOUBLE_QUOTE = '"'
+
+
+def _quote_windows(text: str) -> str:
+    """One argument for a Windows command line, by the documented rules of the C runtime / CommandLineToArgvW.
+
+    Backslashes are literal, except that a run of them in front of a `"` is doubled (and the `"` escaped), and so is a run at
+    the end of the text, which sits in front of the closing quote we add (`"C:\\My Data\\"` would otherwise swallow it).
+    """
+    if text and all(c.isalnum() or c in WINDOWS_SAFE for c in text):
+        return text
+    out = [DOUBLE_QUOTE]
+    run = 0  # backslashes seen since the last other character
+    for c in text:
+        if c == BACKSLASH:
+            run += 1
+            continue
+        out.append(BACKSLASH * (2 * run + 1) if c == DOUBLE_QUOTE else BACKSLASH * run)
+        out.append(c)
+        run = 0
+    out.append(BACKSLASH * (2 * run) + DOUBLE_QUOTE)
+    return "".join(out)
+
+
 def quote(text: str, windows: bool | None = None) -> str:
     """Quote one argument for the shell of this machine (or of `windows`). The only place in the package that turns
     strings into shell text: a person pastes the result, so a name with a space or a quote must stay one argument.
+
+    POSIX: `shlex.quote`. Windows: the C runtime rules (`_quote_windows`), for a line pasted into **cmd.exe** (PowerShell
+    reads quotes by its own rules: use the Python snippet there). What cmd.exe does to the quoted text: `^ & | < >` are literal
+    inside the quotes, so they need nothing; `%NAME%` is expanded by cmd.exe even inside quotes when NAME is a defined variable
+    (not escapable without breaking the C runtime rules, so documented, see docs/HOST_FEATURES.md); every `"` flips cmd.exe's
+    notion of "inside quotes", so a text with an odd number of `"` followed by an operator in a later argument is misread; a
+    line break cannot be pasted at all. The expected outputs shared by every host are tests/quote_vectors.json.
     """
     windows = (os.name == "nt") if windows is None else windows
-    if windows:
-        if text and all(c.isalnum() or c in "-_.:/\\=+," for c in text):
-            return text
-        return '"' + text.replace('"', '\\"') + '"'
-    return shlex.quote(text)
+    return _quote_windows(text) if windows else shlex.quote(text)
 
 
 def _given(tool: dict, values: dict) -> list[tuple[dict, Any]]:
