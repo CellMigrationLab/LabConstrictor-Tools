@@ -102,7 +102,9 @@ class TheLedgerIsTrue(unittest.TestCase):
         rows = [r for r in LEDGER.read_text(encoding="utf-8").splitlines() if r.startswith("| 20")]
         self.assertGreaterEqual(len(rows), 4)
         for row in rows:
-            self.assertEqual(len([c for c in row.strip("|").split("|") if c.strip()]), 5, row)
+            self.assertEqual(
+                len([c for c in re.split(r"(?<!\\)\|", row.strip().strip("|")) if c.strip()]), 5, row
+            )
 
 
 if __name__ == "__main__":
