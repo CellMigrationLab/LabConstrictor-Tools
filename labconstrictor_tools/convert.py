@@ -135,12 +135,16 @@ PANDAS_NA_WORDS = [
     "N/A",
     "NA",
     "NULL",
+    "NAN",
     "NaN",
     "None",
     "n/a",
     "nan",
     "null",
 ]
+NAN_SPELLINGS = frozenset(
+    {"NaN", "nan", "NAN"}
+)  # what Fiji, QuPath, numpy and pandas write for an unavailable number
 EMPTY_CELL = ""
 
 
@@ -161,11 +165,20 @@ def _read_table(param: ParamSchema, value: Any) -> Any:
         columns = list(range(len(names)))
         options: dict[str, Any] = {"header": 0, "names": columns, "float_precision": "round_trip"}
         frame = pd.read_csv(path, keep_default_na=False, na_values=[EMPTY_CELL], **options)
+
+        def is_text(column: int) -> bool:
+            return bool(pd.api.types.is_string_dtype(frame[column]))
+
         words = [
-            column
-            for column in columns
-            if pd.api.types.is_string_dtype(frame[column]) and frame[column].isin(PANDAS_NA_WORDS).any()
+            column for column in columns if is_text(column) and frame[column].isin(PANDAS_NA_WORDS).any()
         ]
+        for column in words:
+            cells = frame[column].dropna()
+            if cells.isin(
+                NAN_SPELLINGS
+            ).all():  # only NaN spellings (and empty cells): an unavailable measurement
+                frame[column] = pd.Series(float("nan"), index=frame.index, dtype=float)
+        words = [column for column in words if is_text(column)]
         if words:  # a column of numbers with some "NA" cells is numeric, with those cells missing
             numeric = pd.read_csv(
                 path,

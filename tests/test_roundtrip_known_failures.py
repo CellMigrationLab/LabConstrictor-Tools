@@ -171,7 +171,9 @@ class KnownFailuresDoNotRot(unittest.TestCase):
     def test_the_skip_is_exactly_the_list(self):
         self.assertFalse(is_known("worker:echo_int/ok/0"))
         self.assertTrue(is_known("worker:echo_int/word"))
-        self.assertFalse(is_known("cli:echo_table/missing-file"))  # F4 is fixed: its ids are no longer skipped
+        self.assertFalse(
+            is_known("cli:echo_table/missing-file")
+        )  # F4 is fixed: its ids are no longer skipped
 
 
 def tearDownModule():

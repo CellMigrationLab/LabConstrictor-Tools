@@ -60,6 +60,27 @@ class TableInput(unittest.TestCase):
         self.assertEqual(frame["n"].dropna().tolist(), [1.5, 3.0])
         self.assertTrue(frame["s"].isna().tolist()[1])  # an empty cell is missing
 
+    def test_nan_spellings_are_missing_numbers(self):
+        for spelling in ("NaN", "nan", "NAN"):
+            frame = self.read("a,b\n%s,1\n%s,2\n" % (spelling, spelling))
+            self.assertEqual(frame["a"].dtype.kind, "f", spelling)
+            self.assertTrue(frame["a"].isna().all())
+        frame = self.read("a,b\nNaN,1\n,2\nnan,3\n")
+        self.assertEqual(frame["a"].dtype.kind, "f")
+        self.assertTrue(frame["a"].isna().all())
+        frame = self.read("a\nNaN\n2.5\nnan\n")
+        self.assertEqual(frame["a"].dtype.kind, "f")
+        self.assertEqual(frame["a"].isna().tolist(), [True, False, True])
+
+    def test_nan_word_in_a_text_column_stays_text(self):
+        frame = self.read("a\nnan\nNA\nhello\nNaN\n")
+        self.assertEqual(frame["a"].tolist(), ["nan", "NA", "hello", "NaN"])
+
+    def test_infinity_columns_are_floats(self):
+        frame = self.read("a\ninf\n-inf\nInfinity\n1\n")
+        self.assertEqual(frame["a"].dtype.kind, "f")
+        self.assertEqual(frame["a"].tolist(), [float("inf"), float("-inf"), float("inf"), 1.0])
+
     def test_header_only_table_has_its_columns(self):
         frame = self.read("a,b\n")
         self.assertEqual(list(frame.columns), ["a", "b"])
