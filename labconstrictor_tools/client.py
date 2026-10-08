@@ -338,7 +338,10 @@ class WorkerProcess:
         """The reader threads own the read ends: close them at EOF, or each run leaks two file descriptors until GC."""
         try:
             pipe.close()
-        except (OSError, ValueError) as error:  # already closed, or the pipe is broken: nothing left to release
+        except (
+            OSError,
+            ValueError,
+        ) as error:  # already closed, or the pipe is broken: nothing left to release
             log.logger().debug("closing a worker pipe failed (%s: %s)", type(error).__name__, error)
 
 

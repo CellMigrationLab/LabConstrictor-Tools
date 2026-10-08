@@ -132,7 +132,9 @@ def _read_image(value):
         return array
     except ToolError:
         raise
-    except Exception as error:  # noqa: BLE001 - readers raise anything for a bad file: becomes a ToolError for the person, traceback logged
+    except (
+        Exception
+    ) as error:  # noqa: BLE001 - readers raise anything for a bad file: becomes a ToolError for the person, traceback logged
         logging.getLogger("labconstrictor.convert").error("cannot read image %s", path, exc_info=True)
         raise ToolError("unreadable_image", "cannot read %s: %s" % (path.name, error)) from error
 
@@ -217,17 +219,30 @@ def _write_points(name, value, job_dir, display):
     frame = value if isinstance(value, pd.DataFrame) else pd.DataFrame(value)
     missing = [c for c in ("y", "x") if c not in frame.columns]
     if missing:
-        raise ToolError("bad_return", "the points output '%s' needs the columns y and x (missing: %s)" % (name, ", ".join(missing)))
+        raise ToolError(
+            "bad_return",
+            "the points output '%s' needs the columns y and x (missing: %s)" % (name, ", ".join(missing)),
+        )
     for column in ("y", "x"):
         numbers = pd.to_numeric(frame[column], errors="coerce").to_numpy(dtype=float)
         if not np.isfinite(numbers).all():
-            raise ToolError("bad_return", "the points output '%s' has a %s coordinate that is not a finite number" % (name, column))
+            raise ToolError(
+                "bad_return",
+                "the points output '%s' has a %s coordinate that is not a finite number" % (name, column),
+            )
         frame[column] = numbers
     others = [c for c in frame.columns if c not in ("y", "x")]
     frame = frame[["y", "x"] + others]
     path = job_dir / (name + ".csv")
     frame.to_csv(path, index=False)
-    return {"type": "points", "name": name, "path": str(path), "n": int(len(frame)), "columns": list(frame.columns), **display}
+    return {
+        "type": "points",
+        "name": name,
+        "path": str(path),
+        "n": int(len(frame)),
+        "columns": list(frame.columns),
+        **display,
+    }
 
 
 def _ring(name, number, vertices, ring_name="polygon"):
@@ -237,15 +252,29 @@ def _ring(name, number, vertices, ring_name="polygon"):
     try:
         array = np.asarray(vertices, dtype=float)
     except (TypeError, ValueError):
-        raise ToolError("bad_return", "the shapes output '%s': %s %d is not a list of (y, x) vertices" % (name, ring_name, number)) from None
+        raise ToolError(
+            "bad_return",
+            "the shapes output '%s': %s %d is not a list of (y, x) vertices" % (name, ring_name, number),
+        ) from None
     if array.ndim != 2 or array.shape[1] != 2:
-        raise ToolError("bad_return", "the shapes output '%s': %s %d must be an array of (y, x) vertices, got shape %s" % (name, ring_name, number, array.shape))
+        raise ToolError(
+            "bad_return",
+            "the shapes output '%s': %s %d must be an array of (y, x) vertices, got shape %s"
+            % (name, ring_name, number, array.shape),
+        )
     if not np.isfinite(array).all():
-        raise ToolError("bad_return", "the shapes output '%s': %s %d has a vertex that is not a finite number" % (name, ring_name, number))
+        raise ToolError(
+            "bad_return",
+            "the shapes output '%s': %s %d has a vertex that is not a finite number"
+            % (name, ring_name, number),
+        )
     if len(array) > 1 and (array[0] == array[-1]).all():
         array = array[:-1]
     if len(np.unique(array, axis=0)) < 3:
-        raise ToolError("bad_return", "the shapes output '%s': %s %d has fewer than 3 distinct vertices" % (name, ring_name, number))
+        raise ToolError(
+            "bad_return",
+            "the shapes output '%s': %s %d has fewer than 3 distinct vertices" % (name, ring_name, number),
+        )
     ring = [[float(x), float(y)] for y, x in array]
     return ring + [ring[0]]
 
@@ -254,8 +283,16 @@ def _check_geojson(name, collection):
     """A GeoJSON FeatureCollection of Polygon / MultiPolygon features with finite coordinates; anything else is refused."""
     import math
 
-    if not isinstance(collection, dict) or collection.get("type") != "FeatureCollection" or not isinstance(collection.get("features"), list):
-        raise ToolError("bad_return", "the shapes output '%s': a GeoJSON dict must be a FeatureCollection with a list of features" % name)
+    if (
+        not isinstance(collection, dict)
+        or collection.get("type") != "FeatureCollection"
+        or not isinstance(collection.get("features"), list)
+    ):
+        raise ToolError(
+            "bad_return",
+            "the shapes output '%s': a GeoJSON dict must be a FeatureCollection with a list of features"
+            % name,
+        )
 
     def finite(node):
         if isinstance(node, (int, float)) and not isinstance(node, bool):
@@ -266,9 +303,16 @@ def _check_geojson(name, collection):
         geometry = feature.get("geometry") if isinstance(feature, dict) else None
         kind = geometry.get("type") if isinstance(geometry, dict) else None
         if kind not in ("Polygon", "MultiPolygon"):
-            raise ToolError("bad_return", "the shapes output '%s': feature %d is a %s; only Polygon and MultiPolygon are supported" % (name, i, kind or "geometry-less feature"))
+            raise ToolError(
+                "bad_return",
+                "the shapes output '%s': feature %d is a %s; only Polygon and MultiPolygon are supported"
+                % (name, i, kind or "geometry-less feature"),
+            )
         if not finite(geometry.get("coordinates")):
-            raise ToolError("bad_return", "the shapes output '%s': feature %d has a coordinate that is not a finite number" % (name, i))
+            raise ToolError(
+                "bad_return",
+                "the shapes output '%s': feature %d has a coordinate that is not a finite number" % (name, i),
+            )
 
 
 def _write_shapes(name, value, job_dir, display):
@@ -283,7 +327,9 @@ def _write_shapes(name, value, job_dir, display):
         try:
             items = list(value)
         except TypeError:
-            raise ToolError("bad_return", "the shapes output '%s' must be a GeoJSON dict or a list of polygons" % name) from None
+            raise ToolError(
+                "bad_return", "the shapes output '%s' must be a GeoJSON dict or a list of polygons" % name
+            ) from None
         features = []
         for i, item in enumerate(items):
             properties = {}
@@ -291,8 +337,17 @@ def _write_shapes(name, value, job_dir, display):
                 properties = {str(k): _plain(v) for k, v in item.items() if k != "polygon"}
                 item = item.get("polygon")
                 if item is None:
-                    raise ToolError("bad_return", "the shapes output '%s': polygon %d is a dict without the key 'polygon'" % (name, i))
-            features.append({"type": "Feature", "properties": properties, "geometry": {"type": "Polygon", "coordinates": [_ring(name, i, item)]}})
+                    raise ToolError(
+                        "bad_return",
+                        "the shapes output '%s': polygon %d is a dict without the key 'polygon'" % (name, i),
+                    )
+            features.append(
+                {
+                    "type": "Feature",
+                    "properties": properties,
+                    "geometry": {"type": "Polygon", "coordinates": [_ring(name, i, item)]},
+                }
+            )
         collection = {"type": "FeatureCollection", "features": features}
     path = job_dir / (name + ".geojson")
     path.write_text(json.dumps(collection, allow_nan=False), encoding="utf-8")

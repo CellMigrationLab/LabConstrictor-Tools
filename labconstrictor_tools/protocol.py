@@ -83,7 +83,9 @@ class Channel:
             try:
                 self._out.write(line + "\n")
                 self._out.flush()
-            except OSError as error:  # BrokenPipeError included: the host is gone, nobody to tell; stderr is what is left
+            except (
+                OSError
+            ) as error:  # BrokenPipeError included: the host is gone, nobody to tell; stderr is what is left
                 if not self._reported_closed:
                     self._reported_closed = True
                     print(

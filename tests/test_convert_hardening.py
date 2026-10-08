@@ -191,7 +191,9 @@ class MessageAndPointsOutputs(unittest.TestCase):
         def say() -> MessageOut:
             return "  hello **world**  "
 
-        self.assertEqual(self._results(say), [{"type": "message", "name": "message", "text": "hello **world**"}])
+        self.assertEqual(
+            self._results(say), [{"type": "message", "name": "message", "text": "hello **world**"}]
+        )
 
         @tool
         def silent() -> MessageOut:

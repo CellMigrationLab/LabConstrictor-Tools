@@ -11,9 +11,9 @@ import ast
 import builtins
 import dis
 import json
+import logging
 import os
 import re
-import logging
 import tempfile
 from pathlib import Path
 
@@ -131,8 +131,12 @@ def check(prepared):
         )
     except DeclarationError as error:
         prepared.problems.append("invalid declaration: %s" % error)
-    except Exception as error:  # noqa: BLE001 - whatever the cell raises is the finding (reported as a problem, and logged with its traceback)
-        logging.getLogger("labconstrictor.exporter").error("tool cell %r fails on its own", prepared.name, exc_info=True)
+    except (
+        Exception
+    ) as error:  # noqa: BLE001 - whatever the cell raises is the finding (reported as a problem, and logged with its traceback)
+        logging.getLogger("labconstrictor.exporter").error(
+            "tool cell %r fails on its own", prepared.name, exc_info=True
+        )
         prepared.problems.append("the cell fails on its own: %s: %s" % (type(error).__name__, error))
     finally:
         forget_module(modname)

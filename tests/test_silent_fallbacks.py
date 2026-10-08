@@ -2,8 +2,6 @@
 each test asserts the log line or the stderr line that was missing before."""
 
 import io
-import logging
-import sys
 import tempfile
 import threading
 import unittest
@@ -14,7 +12,8 @@ from unittest import mock
 import _paths  # noqa: F401  (must come first)
 from test_diagnostics import fake_torch
 
-from labconstrictor_tools import client, convert, diagnostics as d, exporter, log, protocol
+from labconstrictor_tools import client, convert, exporter, log, protocol
+from labconstrictor_tools import diagnostics as d
 from labconstrictor_tools import types as T
 
 
@@ -28,7 +27,9 @@ class Diagnostics(unittest.TestCase):
         failed = [c for c in checks if c.layer == "probe" and c.status == d.FAIL]
         self.assertEqual(len(failed), 1)
         self.assertIn("probe exploded", failed[0].detail)
-        self.assertIn("RuntimeError: probe exploded", "\n".join(logs.output))  # the traceback is in the record
+        self.assertIn(
+            "RuntimeError: probe exploded", "\n".join(logs.output)
+        )  # the traceback is in the record
 
     def test_torch_devices_logs_a_failing_cuda_query_instead_of_hiding_it(self):
         torch = fake_torch(cuda=True)

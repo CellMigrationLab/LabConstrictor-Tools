@@ -9,9 +9,9 @@ Two layers of checks:
 
 import importlib
 import json
+import logging
 import math
 import sys
-import logging
 import tempfile
 import time
 from collections.abc import Sequence
@@ -151,7 +151,11 @@ def _result_problems(result: Result) -> list[str]:
         except (TypeError, ValueError) as error:
             return ["%s: values are not plain JSON (%s)" % (name, error)]
     if kind == "message":
-        return [] if isinstance(result.get("text"), str) and result["text"].strip() else ["%s: the message is empty" % name]
+        return (
+            []
+            if isinstance(result.get("text"), str) and result["text"].strip()
+            else ["%s: the message is empty" % name]
+        )
     if kind == "points":
         return _points_problems(name, result)
     if kind == "shapes":
@@ -175,7 +179,9 @@ def _shapes_problems(name: str, result: Result) -> list[str]:
         collection = json.loads(path.read_text(encoding="utf-8"))
     except ValueError as error:
         return ["%s: not valid GeoJSON (%s)" % (name, error)]
-    if collection.get("type") != "FeatureCollection" or len(collection.get("features", [])) != result.get("n"):
+    if collection.get("type") != "FeatureCollection" or len(collection.get("features", [])) != result.get(
+        "n"
+    ):
         return ["%s: not a FeatureCollection with %s features" % (name, result.get("n"))]
     return []
 
@@ -189,7 +195,9 @@ def _points_problems(name: str, result: Result) -> list[str]:
     frame = pd.read_csv(path)
     problems = []
     if list(frame.columns[:2]) != ["y", "x"]:
-        problems.append("%s: the first two columns must be y and x (got %s)" % (name, list(frame.columns[:2])))
+        problems.append(
+            "%s: the first two columns must be y and x (got %s)" % (name, list(frame.columns[:2]))
+        )
     elif not frame[["y", "x"]].apply(lambda c: c.map(math.isfinite)).all().all():
         problems.append("%s: y and x must be finite numbers" % name)
     if result.get("n") != len(frame):
@@ -219,8 +227,13 @@ def _table_problems(name: str, result: Result) -> list[str]:
 
     try:
         frame = pd.read_csv(result["path"])
-    except (ValueError, OSError) as error:  # unparsable or unreadable CSV (pandas parse errors are ValueErrors): the finding
-        logging.getLogger("labconstrictor.testing").warning("table %s does not parse: %s: %s", name, type(error).__name__, error)
+    except (
+        ValueError,
+        OSError,
+    ) as error:  # unparsable or unreadable CSV (pandas parse errors are ValueErrors): the finding
+        logging.getLogger("labconstrictor.testing").warning(
+            "table %s does not parse: %s: %s", name, type(error).__name__, error
+        )
         return ["%s: table does not parse (%s)" % (name, error)]
     return ["%s: table has no columns" % name] if frame.shape[1] == 0 else []
 
@@ -329,9 +342,7 @@ def _compare_values(name: str, result: Result, wanted: dict[str, Any]) -> list[s
     for key, value in wanted.get("equals", wanted).items():
         actual = result["values"].get(key)
         if isinstance(value, dict) and "approx" in value:  # {"approx": 12.0, "tol": 0.5}
-            ok = isinstance(actual, (int, float)) and abs(actual - value["approx"]) <= value.get(
-                "tol", 1e-6
-            )
+            ok = isinstance(actual, (int, float)) and abs(actual - value["approx"]) <= value.get("tol", 1e-6)
         else:
             ok = key in result["values"] and _close(actual, value)
         if not ok:
@@ -347,7 +358,9 @@ def _compare_points(name: str, result: Result, wanted: dict[str, Any]) -> list[s
     if "rows" in wanted and len(frame) != wanted["rows"]:
         problems.append("%s: %d points, expected %d" % (name, len(frame), wanted["rows"]))
     if "columns" in wanted and not set(wanted["columns"]) <= set(frame.columns):
-        problems.append("%s: missing columns %s" % (name, sorted(set(wanted["columns"]) - set(frame.columns))))
+        problems.append(
+            "%s: missing columns %s" % (name, sorted(set(wanted["columns"]) - set(frame.columns)))
+        )
     return problems
 
 
@@ -360,9 +373,7 @@ def _compare_affine(name: str, result: Result, wanted: dict[str, Any]) -> list[s
     ):
         return ["%s: the expected matrix must be 3x3 (a list of three rows of three numbers)" % name]
     flat = [v for row in result["matrix_yx"] for v in row]
-    if len(flat) != 9 or not all(
-        _close(a, b) for a, b in zip(flat, [v for row in expected for v in row])
-    ):
+    if len(flat) != 9 or not all(_close(a, b) for a, b in zip(flat, [v for row in expected for v in row])):
         return ["%s: matrix %s, expected %s" % (name, result["matrix_yx"], expected)]
     return []
 
@@ -467,9 +478,7 @@ def _judge_outcome(
         if "code" in expect and task.code != expect["code"]:
             report["problems"].append("error code %r, expected %r" % (task.code, expect["code"]))
         if "message_contains" in expect and expect["message_contains"] not in (task.error or ""):
-            report["problems"].append(
-                "error message %r lacks %r" % (task.error, expect["message_contains"])
-            )
+            report["problems"].append("error message %r lacks %r" % (task.error, expect["message_contains"]))
 
 
 def _cancel_check(

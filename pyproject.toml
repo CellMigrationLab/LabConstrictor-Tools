@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 dependencies = []   # standard library only: it has to live in every LabConstrictor app environment
 
 [project.optional-dependencies]
-test = ["numpy", "pandas", "tifffile", "scipy", "ipywidgets", "ipython"]   # what the test suites and the example app need
+test = ["numpy", "pandas", "tifffile", "scipy", "ipywidgets", "ipython", "psutil"]   # what the test suites and the example app need
 
 [project.urls]
 Repository = "https://github.com/CellMigrationLab/LabConstrictor-Tools"

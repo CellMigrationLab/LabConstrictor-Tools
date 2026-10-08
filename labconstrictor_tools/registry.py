@@ -269,8 +269,9 @@ def _untrusted_reason(entry_file: Path, entry: RegistryEntry) -> str | None:
         if reason:
             return reason
         schema_file = Path(entry["schema_path"])
-        if os.path.normcase(os.path.abspath(schema_file.parent)) != os.path.normcase(
-            os.path.abspath(entry_file.parent)
+        # realpath, not abspath: on Windows the same folder can be spelled with 8.3 short names (RUNNER~1)
+        if os.path.normcase(os.path.realpath(schema_file.parent)) != os.path.normcase(
+            os.path.realpath(entry_file.parent)
         ):
             return "schema file %s is not in the same folder as the entry" % schema_file
         if schema_file.exists():  # a missing schema is reported later, with its own message

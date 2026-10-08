@@ -73,7 +73,9 @@ def version() -> str:
         global _version_fallback_logged
         if not _version_fallback_logged:
             _version_fallback_logged = True
-            logging.getLogger("labconstrictor").info("labconstrictor-tools is not installed as a package: version shown as 'unknown (checkout)'")
+            logging.getLogger("labconstrictor").info(
+                "labconstrictor-tools is not installed as a package: version shown as 'unknown (checkout)'"
+            )
         return "unknown (checkout)"
 
 
@@ -94,7 +96,9 @@ def tail(lines: int = 60) -> str:
     try:
         return "".join(log_path().read_text(encoding="utf-8", errors="replace").splitlines(True)[-lines:])
     except OSError as error:  # no log yet, or unreadable: an empty tail, and the reason in the debug log
-        logging.getLogger("labconstrictor").debug("cannot read the log file %s: %s: %s", log_path(), type(error).__name__, error)
+        logging.getLogger("labconstrictor").debug(
+            "cannot read the log file %s: %s: %s", log_path(), type(error).__name__, error
+        )
         return ""
 
 

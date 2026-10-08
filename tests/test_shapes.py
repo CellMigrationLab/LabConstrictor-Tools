@@ -13,6 +13,7 @@ from labconstrictor_tools.types import ToolError
 
 try:
     import numpy as np
+
     from labconstrictor_tools.shapes import _signed_area, labels_to_shapes
 
     HAVE_SKIMAGE = bool(__import__("skimage"))
@@ -27,13 +28,22 @@ def write(value):
 
 
 def area(feature):
-    polygons = [feature["geometry"]["coordinates"]] if feature["geometry"]["type"] == "Polygon" else feature["geometry"]["coordinates"]
+    polygons = (
+        [feature["geometry"]["coordinates"]]
+        if feature["geometry"]["type"] == "Polygon"
+        else feature["geometry"]["coordinates"]
+    )
     return sum(abs(_signed_area(p[0])) - sum(abs(_signed_area(h)) for h in p[1:]) for p in polygons)
 
 
 class Writing(unittest.TestCase):
     def test_polygons_given_as_y_x_become_geojson_x_y(self):
-        result, collection = write([[(0, 0), (0, 4), (3, 4), (3, 0)], {"polygon": [(10, 10), (10, 20), (20, 20)], "label": 7, "score": 0.5}])
+        result, collection = write(
+            [
+                [(0, 0), (0, 4), (3, 4), (3, 0)],
+                {"polygon": [(10, 10), (10, 20), (20, 20)], "label": 7, "score": 0.5},
+            ]
+        )
         self.assertEqual((result["type"], result["n"], result["apply_to"]), ("shapes", 2, "image"))
         first = collection["features"][0]["geometry"]["coordinates"][0]
         self.assertEqual(first[1], [4.0, 0.0])  # (y=0, x=4) -> [x=4, y=0]
@@ -41,7 +51,16 @@ class Writing(unittest.TestCase):
         self.assertEqual(collection["features"][1]["properties"], {"label": 7, "score": 0.5})
 
     def test_a_feature_collection_passes_through(self):
-        fc = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"a": 1}, "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [4, 0], [4, 4], [0, 0]]]}}]}
+        fc = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {"a": 1},
+                    "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [4, 0], [4, 4], [0, 0]]]},
+                }
+            ],
+        }
         result, collection = write(fc)
         self.assertEqual(result["n"], 1)
         self.assertEqual(collection, fc)
@@ -57,7 +76,10 @@ class Writing(unittest.TestCase):
             "shape": [[1, 2, 3]],
             "key 'polygon'": [{"label": 1}],
             "FeatureCollection": {"type": "Feature"},
-            "Point": {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [1, 2]}}]},
+            "Point": {
+                "type": "FeatureCollection",
+                "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [1, 2]}}],
+            },
             "must be a GeoJSON dict or a list": 5,
         }
         for word, value in cases.items():
@@ -67,7 +89,15 @@ class Writing(unittest.TestCase):
                 self.assertIn(word, str(caught.exception))
 
     def test_non_finite_geojson_coordinates_are_refused(self):
-        fc = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [math.inf, 0], [4, 4], [0, 0]]]}}]}
+        fc = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [math.inf, 0], [4, 4], [0, 0]]]},
+                }
+            ],
+        }
         with self.assertRaises(ToolError):
             write(fc)
 
@@ -102,9 +132,19 @@ class Helper(unittest.TestCase):
     def test_pixel_centres_are_at_integers(self):
         labels = np.zeros((10, 10), int)
         labels[3:6, 4:8] = 1  # rows 3..5, columns 4..7
-        xs = [x for ring in labels_to_shapes(labels, simplify=0)["features"][0]["geometry"]["coordinates"] for x, _ in ring]
-        ys = [y for ring in labels_to_shapes(labels, simplify=0)["features"][0]["geometry"]["coordinates"] for _, y in ring]
-        self.assertAlmostEqual(min(xs), 3.5)  # the outline lies half a pixel outside the first pixel centre (4)
+        xs = [
+            x
+            for ring in labels_to_shapes(labels, simplify=0)["features"][0]["geometry"]["coordinates"]
+            for x, _ in ring
+        ]
+        ys = [
+            y
+            for ring in labels_to_shapes(labels, simplify=0)["features"][0]["geometry"]["coordinates"]
+            for _, y in ring
+        ]
+        self.assertAlmostEqual(
+            min(xs), 3.5
+        )  # the outline lies half a pixel outside the first pixel centre (4)
         self.assertAlmostEqual(max(xs), 7.5)
         self.assertAlmostEqual(min(ys), 2.5)
         self.assertAlmostEqual(max(ys), 5.5)

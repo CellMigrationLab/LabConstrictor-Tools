@@ -169,7 +169,10 @@ class Worker:
             final = ("CANCELATION", {})
         except T.ToolError as error:
             final = ("FAILURE", {"error": "[%s] %s" % (error.code, error.message), "code": error.code})
-        except (SystemExit, KeyboardInterrupt) as error:  # a tool leaving the interpreter must still get an answer
+        except (
+            SystemExit,
+            KeyboardInterrupt,
+        ) as error:  # a tool leaving the interpreter must still get an answer
             final = self._tool_exit_outcome(script, error)
         except Exception as error:  # noqa: BLE001 - any tool failure becomes a structured FAILURE
             final = self._tool_crash_outcome(script, error)
@@ -184,11 +187,14 @@ class Worker:
 
     def _tool_exit_outcome(self, script, error):
         """A tool called sys.exit() or was interrupted: complain on stderr, answer with a FAILURE."""
-        self._complain("tool %r tried to stop the worker with %s(%r)", script, type(error).__name__, error.args)
+        self._complain(
+            "tool %r tried to stop the worker with %s(%r)", script, type(error).__name__, error.args
+        )
         return (
             "FAILURE",
             {
-                "error": "[%s] the tool called sys.exit() or was interrupted (%r)" % (type(error).__name__, error.args),
+                "error": "[%s] the tool called sys.exit() or was interrupted (%r)"
+                % (type(error).__name__, error.args),
                 "code": type(error).__name__,
             },
         )
