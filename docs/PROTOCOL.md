@@ -56,7 +56,16 @@ Rules the worker enforces (each violation is written to the worker log/stderr):
   scalars are JSON values; `_job_dir` (reserved) names the host-owned directory for outputs.
 * `COMPLETION.outputs = {results: [...], job_dir, timings, diagnostics}`. A result is `{type, name, ...}`:
   `image/labels {path, axes}`, `table {path}`, `values {values}`, `affine {matrix_yx, apply_to, relative_to}`, `file {path}`.
-* Closing stdin means "the host is gone": running tools are asked to cancel and the worker exits within 10 s.
+* Closing stdin means "the host is gone": running tools are asked to cancel and the worker exits within 10 s. On every platform nothing a
+  tool started outlives the worker: Windows puts them in a kill-on-close job object; on POSIX the worker makes itself the leader of its own
+  process group at start (`setsid`, whoever started it, so no host has to) and sends SIGKILL to every other process of that group as its last act (found with `ps`; if that fails it kills the whole group, itself included).
+* `UPDATE {message, current, maximum}`: `maximum` is 100 and `current` is the whole percent nearest to the fraction the tool reported
+  (`progress(0.29)` -> 29); a tie goes up (0.295 -> 30), as Java's `Math.round` does. A host that shows or converts the fraction itself rounds
+  the same way and never truncates.
+* Shared-memory images: the host creates the block and unlinks it when it is done; the worker only maps and copies it and never unlinks it
+  (it attaches without registering the block with its resource tracker).
+* A request written to a worker that has already exited ends as `CRASHED` with the worker's last words (client side: `WorkerProcess.task`
+  returns that task; it is not kept in `worker.tasks` and no exception reaches the host).
 * Tools run on the worker's main thread; stdin is read on a helper thread (on Windows by polling, never a blocking read -
   native libraries touch the stdin handle during initialisation and a pending read would deadlock them).
 
