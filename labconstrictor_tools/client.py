@@ -49,6 +49,13 @@ def _brief(inputs: dict[str, Any], limit: int = BRIEF_LIMIT_CHARS) -> str:
     return text if len(text) <= limit else text[:limit] + "...(%d chars)" % len(text)
 
 
+def _pipe(stream: IO[str] | None) -> IO[str]:
+    """A worker pipe that was requested with PIPE; None would mean the process was started differently."""
+    if stream is None:
+        raise RuntimeError("the worker process has no such pipe")
+    return stream
+
+
 class _Tail:
     """The last ~1 MB of the worker's stderr. A chatty tool (progress bars, debug output) must not grow the host's memory without limit."""
 
@@ -123,7 +130,7 @@ class WorkerProcess:
             self._stderr_thread = threading.Thread(target=self._read_stderr, daemon=True)
             reader.start()
             self._stderr_thread.start()
-        except BaseException:  # noqa: BLE001 - nobody holds this object yet: do not leave its process behind
+        except BaseException:  # nobody holds this object yet: do not leave its process behind
             log.error(
                 "worker pid=%s: initialisation failed after the process started; stopping it", self.proc.pid
             )
@@ -133,7 +140,7 @@ class WorkerProcess:
     @staticmethod
     def _spawn(command: list[str], env: dict[str, str]) -> "subprocess.Popen[str]":
         try:
-            return subprocess.Popen(
+            return subprocess.Popen(  # noqa: S603 - argument list (the app's own interpreter), no shell
                 command,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
@@ -236,8 +243,14 @@ class WorkerProcess:
         if os.name != "nt" or self.proc.poll() is not None:
             return
         try:
-            result = subprocess.run(
-                ["taskkill", "/PID", str(self.proc.pid), "/T", "/F"],
+            result = subprocess.run(  # noqa: S603 - fixed argument list, no shell
+                [  # noqa: S607 - taskkill is a Windows system tool, found on PATH by design
+                    "taskkill",
+                    "/PID",
+                    str(self.proc.pid),
+                    "/T",
+                    "/F",
+                ],
                 capture_output=True,
                 text=True,
                 timeout=15,
@@ -277,11 +290,12 @@ class WorkerProcess:
         with (
             self._send_lock
         ):  # task() and cancel() may be called from different threads: one request line at a time
-            self.proc.stdin.write(json.dumps(message) + "\n")
-            self.proc.stdin.flush()
+            stdin = _pipe(self.proc.stdin)
+            stdin.write(json.dumps(message) + "\n")
+            stdin.flush()
 
     def _read_responses(self) -> None:
-        for line in self.proc.stdout:
+        for line in _pipe(self.proc.stdout):
             try:
                 message = json.loads(line)
             except ValueError:
@@ -293,13 +307,14 @@ class WorkerProcess:
                     "worker pid=%s sent a line that is not a protocol message: %.200r", self.proc.pid, line
                 )
                 continue
-            task = self.tasks.get(message.get("task"))
+            task_id = message.get("task")
+            task = self.tasks.get(task_id) if isinstance(task_id, str) else None
             if task:
                 try:
                     task.handle(message)
                 except (
-                    Exception
-                ) as error:  # noqa: BLE001 - this thread is the only reader: it must keep reading
+                    Exception  # noqa: BLE001 - this thread is the only reader: it must keep reading
+                ) as error:
                     log.error(
                         "task %s: handling a %r message failed (%s: %s); continuing",
                         task.id[:8],
@@ -308,7 +323,7 @@ class WorkerProcess:
                         error,
                     )
         self._on_exit()
-        self._close_pipe(self.proc.stdout)
+        self._close_pipe(_pipe(self.proc.stdout))
 
     def _on_exit(self) -> None:
         """stdout closed: the worker is gone. Unfinished tasks crashed - say why, with the worker's own last words."""
@@ -340,10 +355,10 @@ class WorkerProcess:
             task.handle({"responseType": "CRASH", "error": message})
 
     def _read_stderr(self) -> None:
-        for line in self.proc.stderr:
+        for line in _pipe(self.proc.stderr):
             self.stderr.append(line)
             log.logger().debug("worker[%s] %s", self.proc.pid, line.rstrip())
-        self._close_pipe(self.proc.stderr)
+        self._close_pipe(_pipe(self.proc.stderr))
 
     @staticmethod
     def _close_pipe(pipe: IO[str]) -> None:

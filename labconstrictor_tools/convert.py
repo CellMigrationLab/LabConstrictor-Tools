@@ -138,7 +138,7 @@ def _read_image(value: Any) -> Any:
         raise
     except (
         Exception
-    ) as error:  # noqa: BLE001 - readers raise anything for a bad file: becomes a ToolError for the person, traceback logged
+    ) as error:  # readers raise anything for a bad file: becomes a ToolError for the person, traceback logged
         logging.getLogger("labconstrictor.convert").error("cannot read image %s", path, exc_info=True)
         raise ToolError("unreadable_image", "cannot read %s: %s" % (path.name, error)) from error
 

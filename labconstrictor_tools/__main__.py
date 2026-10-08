@@ -8,11 +8,12 @@ Used by people     : list | run | check | test | doctor     (see cli.py)
 import argparse
 import errno
 import importlib
+import io
 import json
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:  # the class is private in argparse: needed only to say what `sub` is
     Subparsers = argparse._SubParsersAction[argparse.ArgumentParser]
@@ -149,7 +150,7 @@ def _tolerant_streams() -> None:
     """Windows consoles/pipes often use cp1252/cp437: printing the status symbols (check, cross, warning) must never crash a command."""
     for stream in (sys.stdout, sys.stderr):
         try:
-            stream.reconfigure(errors="replace")
+            cast(io.TextIOWrapper, stream).reconfigure(errors="replace")
         except (
             AttributeError,
             ValueError,

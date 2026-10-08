@@ -43,9 +43,8 @@ class Worker:
         self._preload_numpy()
         try:
             importlib.import_module(module)
-        except (
-            BaseException
-        ):  # noqa: BLE001 - report everything an author needs, then exit with a recognisable code
+        # report everything an author needs, then exit with a recognisable code
+        except BaseException:  # noqa: BLE001 - see above
             print(
                 "LabConstrictor worker context:\n  python:    %s (%s)\n  cwd:       %s\n  sys.path:  %s\n%s"
                 "LabConstrictor worker: cannot import tool module %r (details above)"
@@ -92,9 +91,8 @@ class Worker:
         try:
             for request in self.channel.read_requests():
                 self._dispatch(request, pending)
-        except (
-            BaseException
-        ):  # noqa: BLE001 - the reader must never die silently: the main thread would wait for ever
+        # the reader must never die silently: the main thread would wait for ever
+        except BaseException:  # noqa: BLE001 - see above
             self._complain("the request reader failed, shutting down:\n%s", traceback.format_exc())
         # stdin closed: with a task still running the host is gone (crash, kill) - nobody is listening any more.
         for event in list(self._cancel_events.values()):

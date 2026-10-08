@@ -127,7 +127,7 @@ class ToolForm:
             self.status.value = "✖ <b>%s</b>: %s" % (error.code, error.message)
         except (
             Exception
-        ) as error:  # noqa: BLE001 - UI boundary: any tool failure is shown in the form, and logged with its traceback
+        ) as error:  # UI boundary: any tool failure is shown in the form, and logged with its traceback
             logging.getLogger("labconstrictor.notebook").error(
                 "tool run failed in the notebook form", exc_info=True
             )

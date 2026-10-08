@@ -59,7 +59,9 @@ def kill_children_with_me() -> bool:
     global _keep_alive
     if os.name != "nt":
         return False
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32 = ctypes.WinDLL(  # type: ignore[attr-defined]  # Windows-only: the stubs of other platforms lack it
+        "kernel32", use_last_error=True
+    )
     # explicit signatures: without them ctypes passes handles as C ints and the pseudo-handle -1 of this process overflows
     kernel32.CreateJobObjectW.argtypes = [wintypes.LPVOID, wintypes.LPCWSTR]
     kernel32.CreateJobObjectW.restype = wintypes.HANDLE
@@ -85,7 +87,7 @@ def kill_children_with_me() -> bool:
         log.warning(
             "worker: could not join a kill-on-close job object (Windows error %s); processes a tool starts may "
             "outlive the worker",
-            ctypes.get_last_error(),
+            ctypes.get_last_error(),  # type: ignore[attr-defined]  # Windows-only: absent from other platforms' stubs
         )
         return False
     _keep_alive = job

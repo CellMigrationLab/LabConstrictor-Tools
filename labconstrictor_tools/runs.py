@@ -56,8 +56,8 @@ def record(
         _prune()
         return folder
     except (
-        Exception
-    ) as error:  # noqa: BLE001 - a record must never break a run, but its absence must be visible
+        Exception  # noqa: BLE001 - a record must never break a run, but its absence must be visible
+    ) as error:
         log.warning(
             "could not write the run record for %s %s: %s: %s", app, tool_id, type(error).__name__, error
         )

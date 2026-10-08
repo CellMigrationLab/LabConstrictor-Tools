@@ -1,7 +1,7 @@
 """@tool registration. Registration only records the function; nothing scientific runs or is imported."""
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 _REGISTRY: dict[str, "Tool"] = {}
 
@@ -20,7 +20,8 @@ def tool(label: str | Callable[..., Any] | None = None, *, id: str | None = None
         return _register(fn, None, None)
 
     def deco(fn: Callable[..., Any]) -> Callable[..., Any]:
-        return _register(fn, label, id)
+        # `label` is text here: a callable label took the bare-@tool branch above
+        return _register(fn, cast("str | None", label), id)
 
     return deco
 
@@ -34,7 +35,7 @@ def _register(fn: Callable[..., Any], label: str | None, id: str | None) -> Call
     ):
         raise ValueError("duplicate tool id %r (already declared in %s)" % (tid, _REGISTRY[tid].module))
     _REGISTRY[tid] = Tool(fn, tid, label or fn.__name__.replace("_", " ").capitalize())
-    fn.__lc_tool__ = _REGISTRY[tid]
+    fn.__lc_tool__ = _REGISTRY[tid]  # type: ignore[attr-defined]  # functions accept new attributes; notebook.ToolForm reads it back
     return fn
 
 

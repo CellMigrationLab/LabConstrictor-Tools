@@ -7,13 +7,14 @@ Anything on the worker's real stdout other than these lines would corrupt the st
 takes the real stdout for itself and redirects the process-wide stdout to stderr.
 """
 
+import io
 import json
 import math
 import os
 import sys
 import threading
 from collections.abc import Callable, Iterator
-from typing import Any
+from typing import Any, cast
 
 TOOL_PREFIX = "lc:"
 JOB_DIR_KEY = "_job_dir"  # reserved input: host-owned directory for outputs
@@ -133,7 +134,7 @@ def _oversized(size: int) -> None:
 def _stdin_lines() -> Iterator[str]:
     if os.name != "nt":
         # a line that is not valid UTF-8 must not kill the reader (strict decoding does on macOS and on UTF-8 locales)
-        sys.stdin.reconfigure(errors="replace")
+        cast(io.TextIOWrapper, sys.stdin).reconfigure(errors="replace")
         yield from _bounded_lines(sys.stdin.readline)
         return
     yield from _stdin_lines_without_pending_read()
@@ -193,7 +194,9 @@ def _stdin_lines_without_pending_read(poll_seconds: float = 0.02) -> Iterator[st
     import time
     from ctypes import wintypes
 
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32 = ctypes.WinDLL(  # type: ignore[attr-defined]  # Windows-only: the stubs of other platforms lack it
+        "kernel32", use_last_error=True
+    )
     kernel32.PeekNamedPipe.argtypes = [
         wintypes.HANDLE,
         ctypes.c_void_p,
@@ -202,7 +205,7 @@ def _stdin_lines_without_pending_read(poll_seconds: float = 0.02) -> Iterator[st
         ctypes.POINTER(wintypes.DWORD),
         ctypes.c_void_p,
     ]
-    handle = wintypes.HANDLE(msvcrt.get_osfhandle(0))
+    handle = wintypes.HANDLE(msvcrt.get_osfhandle(0))  # type: ignore[attr-defined]  # Windows-only: absent from other platforms' stubs
     splitter = LineSplitter()
     while True:
         available = wintypes.DWORD(0)

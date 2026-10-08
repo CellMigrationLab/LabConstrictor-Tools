@@ -88,7 +88,7 @@ def _runtime_needed(interpreter: str | Path) -> bool:
     If the probe itself fails (cannot start, times out) we cannot tell: assume the runtime is needed, and say so in the log.
     """
     try:
-        done = subprocess.run(
+        done = subprocess.run(  # noqa: S603 - argument list (the app's own interpreter), no shell
             [str(interpreter), "-I", "-c", "import labconstrictor_tools"],
             capture_output=True,
             timeout=PROBE_TIMEOUT_S,
@@ -162,7 +162,7 @@ def _generate_schema(
     from . import log
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 - argument list (the app's own interpreter), no shell
             command, capture_output=True, text=True, env=env, encoding="utf-8", timeout=REGISTER_TIMEOUT_S
         )
     except subprocess.TimeoutExpired as error:

@@ -140,7 +140,7 @@ def check(prepared: Prepared) -> Prepared:
         prepared.problems.append("invalid declaration: %s" % error)
     except (
         Exception
-    ) as error:  # noqa: BLE001 - whatever the cell raises is the finding (reported as a problem, and logged with its traceback)
+    ) as error:  # whatever the cell raises is the finding (reported as a problem, and logged with its traceback)
         logging.getLogger("labconstrictor.exporter").error(
             "tool cell %r fails on its own", prepared.name, exc_info=True
         )

@@ -372,7 +372,7 @@ def _live_schema(entry: RegistryEntry) -> tuple[subprocess.CompletedProcess[str]
     }
     command = [entry["python"], "-m", "labconstrictor_tools", "describe", "--module", entry["module"]]
     started = time.perf_counter()
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 - argument list (the app's own interpreter), no shell
         command, capture_output=True, text=True, env=env, encoding="utf-8", timeout=LIVE_SCHEMA_TIMEOUT_S
     )
     return result, time.perf_counter() - started
@@ -536,7 +536,7 @@ def _environment_report() -> str:
     lines += ["", "apps:"]
     for name, entry in sorted(entries.items()):
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 - argument list (the app's own interpreter), no shell
                 [entry["python"], "-VV"], capture_output=True, text=True, timeout=VERSION_PROBE_TIMEOUT_S
             )
             version = (result.stdout or result.stderr).strip()
