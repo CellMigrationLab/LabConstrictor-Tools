@@ -17,6 +17,7 @@ from . import registry
 LOG_NAME = "labconstrictor.log"
 _FORMAT = "%(asctime)s.%(msecs)03d %(levelname)-7s pid=%(process)d %(message)s"
 _logger = None
+_version_fallback_logged = False
 
 
 def log_dir() -> Path:
@@ -64,10 +65,15 @@ def environment_summary() -> str:
 
 def version() -> str:
     try:
+        from importlib.metadata import PackageNotFoundError
         from importlib.metadata import version as package_version
 
         return package_version("labconstrictor-tools")
-    except Exception:  # noqa: BLE001 - running from a checkout
+    except PackageNotFoundError:  # intended fallback: running from a checkout
+        global _version_fallback_logged
+        if not _version_fallback_logged:
+            _version_fallback_logged = True
+            logging.getLogger("labconstrictor").info("labconstrictor-tools is not installed as a package: version shown as 'unknown (checkout)'")
         return "unknown (checkout)"
 
 
@@ -87,7 +93,8 @@ def tail(lines: int = 60) -> str:
     """Last `lines` lines of the log, newest last (for 'Details' windows and `labconstrictor-tools logs`)."""
     try:
         return "".join(log_path().read_text(encoding="utf-8", errors="replace").splitlines(True)[-lines:])
-    except OSError:
+    except OSError as error:  # no log yet, or unreadable: an empty tail, and the reason in the debug log
+        logging.getLogger("labconstrictor").debug("cannot read the log file %s: %s: %s", log_path(), type(error).__name__, error)
         return ""
 
 

@@ -14,6 +14,7 @@ To add a probe, write a function returning a list of `Check` and give it to `run
 from __future__ import annotations
 
 import json
+import logging
 import os
 import platform
 import re
@@ -26,6 +27,10 @@ import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable, Iterable
+
+# Standard library only: no dependency on the host's log file. Inside a host the "labconstrictor" logger writes to the shared
+# log; in a worker (no handler) warnings and errors reach stderr, which the host copies into that log.
+log = logging.getLogger("labconstrictor.diagnostics")
 
 OK, WARN, FAIL, INFO = "ok", "warn", "fail", "info"
 _SYMBOL = {OK: "\u2714", WARN: "\u26a0", FAIL: "\u2716", INFO: "\u2022"}
@@ -48,8 +53,8 @@ def _ram_gb() -> float | None:
     try:
         if hasattr(os, "sysconf") and "SC_PHYS_PAGES" in os.sysconf_names:
             return os.sysconf("SC_PHYS_PAGES") * os.sysconf("SC_PAGE_SIZE") / 1024**3
-    except (ValueError, OSError):
-        pass
+    except (ValueError, OSError) as error:  # no sysconf value on this platform: try the next method
+        log.debug("memory: os.sysconf failed (%s: %s)", type(error).__name__, error)
     if sys.platform == "win32":
         try:
             import ctypes
@@ -63,7 +68,8 @@ def _ram_gb() -> float | None:
             status.length = ctypes.sizeof(Status)
             ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status))  # type: ignore[attr-defined]
             return status.total / 1024**3
-        except Exception:  # noqa: BLE001
+        except (OSError, AttributeError, ValueError) as error:  # no ctypes.windll / call refused: memory is then not reported
+            log.warning("memory: GlobalMemoryStatusEx failed (%s: %s); the memory check is skipped", type(error).__name__, error)
             return None
     return None
 
@@ -87,7 +93,8 @@ def probe_machine() -> list[Check]:
             probe = Path(folder, "t\u00e9st.txt")
             probe.write_text("x", encoding="utf-8")
             out.append(Check("machine", "writing files", OK, "wrote and read a file with a non-ASCII name in %s" % folder))
-    except Exception as error:  # noqa: BLE001
+    except Exception as error:  # noqa: BLE001 - probe boundary: any failure here IS the finding (returned below, and logged)
+        log.error("probe 'writing files' failed: %s: %s", type(error).__name__, error, exc_info=True)
         out.append(Check("machine", "writing files", FAIL, str(error), "The temporary folder is not writable or the file name is refused: set TMP or TEMP to a folder you can write."))
     path = tempfile.gettempdir()
     if any(ord(c) > 127 for c in path):
@@ -100,19 +107,18 @@ def probe_machine() -> list[Check]:
 # ---------------------------------------------------------------------------------------------------- worker
 def probe_worker() -> list[Check]:
     out = [Check("worker", "python", INFO, "%s (%s)" % (sys.executable, platform.python_version()))]
-    try:
-        from importlib import metadata
+    from importlib import metadata
 
+    try:
         out.append(Check("worker", "labconstrictor-tools", INFO, metadata.version("labconstrictor-tools")))
-    except Exception:  # noqa: BLE001 - run from a source tree
+    except metadata.PackageNotFoundError:  # intended fallback: run from a source tree
+        log.info("labconstrictor-tools is not installed as a package: reporting 'running from a source folder'")
         out.append(Check("worker", "labconstrictor-tools", INFO, "running from a source folder"))
     for module in ("numpy", "pandas", "scipy", "tifffile", "matplotlib"):
         try:
-            from importlib import metadata
-
             out.append(Check("worker", module, INFO, metadata.version(module)))
-        except Exception:  # noqa: BLE001
-            pass
+        except metadata.PackageNotFoundError:  # optional: only the libraries that are installed are listed
+            log.debug("worker: %s is not installed, not listed", module)
     return out
 
 
@@ -173,7 +179,8 @@ def _torch_module():
 def probe_torch() -> list[Check]:
     try:
         torch = _torch_module()
-    except Exception as error:  # noqa: BLE001 - a broken install is a finding
+    except Exception as error:  # noqa: BLE001 - a broken install is a finding: importing can raise anything (returned below, and logged)
+        log.error("probe PyTorch: import failed: %s: %s", type(error).__name__, error, exc_info=True)
         return [Check("gpu libraries", "PyTorch", FAIL, "installed but cannot be imported: %s" % error, "Reinstall PyTorch in this application.")]
     if torch is None:
         return [Check("gpu libraries", "PyTorch", INFO, "not installed in this application")]
@@ -182,7 +189,8 @@ def probe_torch() -> list[Check]:
     cuda_build = getattr(getattr(torch, "version", None), "cuda", None)
     try:
         cuda_ok = bool(torch.cuda.is_available())
-    except Exception as error:  # noqa: BLE001
+    except Exception as error:  # noqa: BLE001 - driver calls can raise anything: reported as the CUDA finding below
+        log.error("probe PyTorch: torch.cuda.is_available() failed: %s: %s", type(error).__name__, error, exc_info=True)
         cuda_ok = False
         out.append(Check("gpu libraries", "CUDA", FAIL, str(error), "Update the NVIDIA driver."))
     if cuda_ok:
@@ -203,7 +211,8 @@ def probe_torch() -> list[Check]:
                 out.append(Check("gpu libraries", "MPS (Apple Metal)", OK, "available"))
             elif sys.platform == "darwin" and platform.machine() == "arm64":
                 out.append(Check("gpu libraries", "MPS (Apple Metal)", WARN, "built=%s, not available" % mps.is_built(), "Update macOS (12.3 or newer) and use a PyTorch built for Apple Silicon."))
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:  # noqa: BLE001 - driver calls can raise anything: reported as the MPS finding
+            log.error("probe PyTorch: MPS query failed: %s: %s", type(error).__name__, error, exc_info=True)
             out.append(Check("gpu libraries", "MPS (Apple Metal)", WARN, str(error)))
     hip = getattr(getattr(torch, "version", None), "hip", None)
     if hip:
@@ -215,7 +224,8 @@ def torch_devices() -> list[str]:
     """Device names a PyTorch tool can use here: 'cpu', 'cuda:0', ..., 'mps'. [] when PyTorch is not installed."""
     try:
         torch = _torch_module()
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001 - a broken PyTorch import: probe_torch reports it as a finding; here we only list devices
+        log.error("torch_devices: PyTorch cannot be imported, no devices listed", exc_info=True)
         return []
     if torch is None:
         return []
@@ -223,13 +233,13 @@ def torch_devices() -> list[str]:
     try:
         if torch.cuda.is_available():
             names += ["cuda:%d" % i for i in range(torch.cuda.device_count())]
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception:  # noqa: BLE001 - driver query can raise anything; probe_torch reports CUDA problems as findings
+        log.error("torch_devices: the CUDA query failed, no CUDA device listed", exc_info=True)
     try:
         if getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
             names.append("mps")
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception:  # noqa: BLE001 - driver query can raise anything; probe_torch reports MPS problems as findings
+        log.error("torch_devices: the MPS query failed, no MPS device listed", exc_info=True)
     return names
 
 
@@ -238,7 +248,8 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
     """The same small convolution and matrix product on every device: the results must agree (a broken driver does not), and the timings show the real speed-up."""
     try:
         torch = _torch_module()
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001 - a broken PyTorch import: probe_torch reports it as a finding; there is nothing to benchmark
+        log.error("probe benchmark: PyTorch cannot be imported, nothing benchmarked", exc_info=True)
         return []
     if torch is None:
         return []
@@ -278,7 +289,8 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
                     "" if agrees else "This device gives a different result than the CPU: do not use it; update or reinstall its driver.",
                 )
             )
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:  # noqa: BLE001 - a device test can fail in any way: that is the finding (returned, and logged)
+            log.error("probe benchmark: device %s failed: %s: %s", name, type(error).__name__, error, exc_info=True)
             out.append(Check("benchmark", name, FAIL, "%s: %s" % (type(error).__name__, error), "This device could not run a small test: check its driver, or use the CPU."))
     return out
 
@@ -323,7 +335,8 @@ def run_checks(*, benchmark: bool = True, network: bool = False, extra: Iterable
     for probe in probes:
         try:
             checks.extend(probe())
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:  # noqa: BLE001 - isolation boundary: one broken probe must not stop the others (returned, and logged)
+            log.error("probe %s raised: %s: %s", getattr(probe, "__name__", "probe"), type(error).__name__, error, exc_info=True)
             checks.append(Check("probe", getattr(probe, "__name__", "probe"), FAIL, "%s: %s" % (type(error).__name__, error), "This is a bug in the check itself: please report it."))
     return checks
 

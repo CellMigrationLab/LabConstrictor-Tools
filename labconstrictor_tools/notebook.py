@@ -7,6 +7,7 @@ The form is generated from the same schema as the Napari and Fiji GUIs, and goes
 result conversion, so a tool behaves identically in all four front-ends (notebook, Napari, Fiji, command line).
 """
 
+import logging
 import tempfile
 
 from . import convert, runtime
@@ -114,7 +115,8 @@ class ToolForm:
             self._show(self.results)
         except T.ToolError as error:
             self.status.value = "✖ <b>%s</b>: %s" % (error.code, error.message)
-        except Exception as error:  # noqa: BLE001 - show any failure in the form instead of a raw traceback
+        except Exception as error:  # noqa: BLE001 - UI boundary: any tool failure is shown in the form, and logged with its traceback
+            logging.getLogger("labconstrictor.notebook").error("tool run failed in the notebook form", exc_info=True)
             self.status.value = "✖ <b>%s</b>: %s" % (type(error).__name__, error)
         finally:
             runtime.install()
