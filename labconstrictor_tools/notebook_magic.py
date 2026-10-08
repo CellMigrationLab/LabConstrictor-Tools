@@ -12,15 +12,17 @@ module, shown as the same form the Napari/Fiji hosts will generate, and - with -
 `labconstrictor-tools check` and `register` accept. From a terminal: `labconstrictor-tools export-notebook nb.ipynb`.
 """
 
+from typing import Any
+
 from . import exporter
 
 
-def load_ipython_extension(ip):
+def load_ipython_extension(ip: Any) -> None:
     ip.register_magic_function(lc_tool, magic_kind="cell", magic_name="lc_tool")
     exec(exporter.PRELUDE, ip.user_ns)  # noqa: S102 - makes the declaration names available without imports
 
 
-def lc_tool(line, cell):
+def lc_tool(line: str, cell: str) -> None:
     from IPython import get_ipython
 
     ip = get_ipython()

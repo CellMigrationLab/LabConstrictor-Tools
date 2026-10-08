@@ -17,11 +17,13 @@ import shutil
 import subprocess
 import sys
 import time
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
 from . import log, registry
-from .structures import ParamSchema, ToolSchema
+from .client import Task
+from .structures import AppSchema, ParamSchema, RegistryEntry, ToolSchema
 
 HEAVY_MODULES = (
     "numpy",
@@ -52,7 +54,7 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 
 # ---------------------------------------------------------------- run
-def _find_tool(schema, wanted):
+def _find_tool(schema: AppSchema, wanted: str) -> ToolSchema:
     for tool in schema["tools"]:
         if wanted in (tool["id"], tool["label"]):
             return tool
@@ -145,10 +147,10 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0 if task.status == "COMPLETE" else 1
 
 
-def _parse_params(app: str, tool, pairs) -> dict:
+def _parse_params(app: str, tool: ToolSchema, pairs: Iterable[str]) -> dict[str, Any]:
     """`name=value` arguments -> typed inputs; a bad, unknown or repeated name exits with the usage."""
     by_name = {p["name"]: p for p in tool["inputs"]}
-    inputs = {}
+    inputs: dict[str, Any] = {}
     for pair in pairs:
         name, sep, text = pair.partition("=")
         if not sep or name not in by_name:
@@ -166,9 +168,9 @@ def _remove_empty_job_dir(job_dir: str) -> None:
         log.logger().debug("job folder %s was not removed: %s: %s", job_dir, type(error).__name__, error)
 
 
-def _run_report(task, seconds: float) -> dict:
+def _run_report(task: Task, seconds: float) -> dict[str, Any]:
     """The JSON a finished `run` prints; a traceback of a failed task goes to stderr."""
-    report = {"status": task.status, "seconds": seconds}
+    report: dict[str, Any] = {"status": task.status, "seconds": seconds}
     if task.record_dir:
         report["run_record"] = str(task.record_dir / "run.json")
     if task.status == "COMPLETE":
@@ -189,11 +191,11 @@ _RUN_FOLDER = re.compile(
 )  # what _new_results_dir creates: nothing else in results/ is ever pruned
 
 
-def _slug(text):
+def _slug(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", text).lstrip(".") or "x"
 
 
-def _new_results_dir(app, tool_id):
+def _new_results_dir(app: str, tool_id: str) -> Path:
     """<LC_HOME>/results/<time>_<id>_<app>_<tool>, created here (two runs in the same second never share a folder).
     Older run folders beyond RESULTS_KEPT are removed; only folders this command created (by name) are ever touched.
     """
@@ -227,7 +229,7 @@ def _new_results_dir(app, tool_id):
     raise SystemExit("could not create a results folder in %s" % base)
 
 
-def _print_progress(message, fraction):
+def _print_progress(message: str, fraction: float | None) -> None:
     shown = (
         "[ ?%]" if fraction is None else "[%3d%%]" % round(100 * fraction)
     )  # None = indeterminate, not 0 %
@@ -235,9 +237,9 @@ def _print_progress(message, fraction):
 
 
 # ---------------------------------------------------------------- check (for authors)
-def _hints(item: dict) -> str:
+def _hints(item: Mapping[str, Any]) -> str:
     """The interaction hints of a parameter or output, so an author sees what hosts will do with it."""
-    found = []
+    found: list[str] = []
     if item.get("choices_from"):
         found.append("dropdown from %s" % item["choices_from"]["tool"])
     if item.get("clear_after_run"):
@@ -353,7 +355,7 @@ def cmd_export_notebook(args: argparse.Namespace) -> int:
 
 
 # ---------------------------------------------------------------- doctor (for users and administrators)
-def _live_schema(entry):
+def _live_schema(entry: RegistryEntry) -> tuple[subprocess.CompletedProcess[str], float]:
     env = {
         **os.environ,
         "PYTHONNOUSERSITE": "1",
@@ -366,7 +368,7 @@ def _live_schema(entry):
     return result, time.perf_counter() - started
 
 
-def _strip(schema):
+def _strip(schema: Mapping[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in schema.items() if k not in ("application", "version")}
 
 
@@ -383,7 +385,7 @@ def diagnose() -> list[tuple[str, str, str]]:
     return findings
 
 
-def _diagnose_app(name: str, entry) -> tuple[str, str, str]:
+def _diagnose_app(name: str, entry: RegistryEntry) -> tuple[str, str, str]:
     """One registered app -> (app, level, message): is its cached schema what its own interpreter says now?"""
     try:
         cached = registry.schema(name)
@@ -492,7 +494,7 @@ def cmd_support_bundle(args: argparse.Namespace) -> int:
     return 0
 
 
-def _bundle_files(folder, pattern, skipped):
+def _bundle_files(folder: Path, pattern: str, skipped: list[str]) -> Iterator[Path]:
     """Regular files of the expected kind directly inside `folder`. A symlink would make the zip contain whatever it points
     to (a private key, say): leave those out and say so."""
     if not folder.is_dir() or folder.is_symlink():
@@ -511,7 +513,7 @@ def _bundle_files(folder, pattern, skipped):
         yield path
 
 
-def _environment_report():
+def _environment_report() -> str:
     import platform
     from importlib import metadata
 

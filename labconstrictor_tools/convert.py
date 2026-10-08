@@ -11,7 +11,7 @@ import math
 from pathlib import Path
 from typing import Any
 
-from .structures import Result, ToolSchema
+from .structures import OutputSchema, ParamSchema, Result, ToolSchema
 from .types import ToolError
 
 DEFAULT_AXES = {2: "YX", 3: "ZYX", 4: "CZYX"}
@@ -20,7 +20,7 @@ DEFAULT_AXES = {2: "YX", 3: "ZYX", 4: "CZYX"}
 def load_inputs(schema: ToolSchema, inputs: dict[str, Any], fn: Any = None) -> dict[str, Any]:
     """Validate `inputs` against the tool schema and return keyword arguments for the tool function.
     With `fn`, a `choice` parameter annotated with an Enum arrives as that Enum member (not as its value)."""
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     for param in schema["inputs"]:
         name, value = param["name"], inputs.get(param["name"])
         if value is None:
@@ -48,7 +48,7 @@ def _restore_enums(fn: Any, kwargs: dict[str, Any]) -> dict[str, Any]:
     return kwargs
 
 
-def _load_one(param, value):
+def _load_one(param: ParamSchema, value: Any) -> Any:
     kind, name = param["type"], param["name"]
     if kind in ("image", "labels"):
         array = _read_image(value)
@@ -94,7 +94,7 @@ def _load_one(param, value):
     return str(value)
 
 
-def _check_range(param, value):
+def _check_range(param: ParamSchema, value: Any) -> Any:
     if "minimum" in param and value < param["minimum"]:
         raise ToolError("invalid_parameter", "'%s' must be >= %s" % (param["label"], param["minimum"]))
     if "maximum" in param and value > param["maximum"]:
@@ -102,7 +102,7 @@ def _check_range(param, value):
     return value
 
 
-def _check_dimensions(param, array):
+def _check_dimensions(param: ParamSchema, array: Any) -> Any:
     """A declared `Axes("YX")` means the tool wants exactly that many dimensions: say so clearly instead of failing deep inside."""
     axes = param.get("axes")
     if axes and array.ndim != len(axes):
@@ -114,7 +114,7 @@ def _check_dimensions(param, array):
     return array
 
 
-def _read_image(value):
+def _read_image(value: Any) -> Any:
     if isinstance(value, dict) and value.get("appose_type") == "ndarray":
         return _ndarray_from_shared_memory(value)
     path = Path(value)
@@ -139,7 +139,7 @@ def _read_image(value):
         raise ToolError("unreadable_image", "cannot read %s: %s" % (path.name, error)) from error
 
 
-def _read_other_format(path):
+def _read_other_format(path: Path) -> Any:
     """PNG/JPEG/BMP/... through imageio when the app has it; otherwise say what to do."""
     try:
         import imageio.v3 as iio
@@ -151,7 +151,7 @@ def _read_other_format(path):
     return iio.imread(path)
 
 
-def _ndarray_from_shared_memory(descriptor):
+def _ndarray_from_shared_memory(descriptor: dict[str, Any]) -> Any:
     from multiprocessing import shared_memory
 
     import numpy as np
@@ -175,7 +175,7 @@ def build_results(schema: ToolSchema, returned: Any, job_dir: str | Path) -> lis
     ]  # lengths checked just above (strict= needs 3.10)
 
 
-def _write_one(out, value, job_dir):
+def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
     kind, name = out["type"], out["name"]
     if kind in ("image", "labels"):
         import numpy as np
@@ -211,7 +211,7 @@ def _write_one(out, value, job_dir):
     raise ToolError("bad_return", "unsupported output type %r" % kind)
 
 
-def _write_points(name, value, job_dir, display):
+def _write_points(name: str, value: Any, job_dir: Path, display: dict[str, str]) -> Result:
     """Points as a CSV with the columns y and x (finite pixel coordinates) plus any properties."""
     import numpy as np
     import pandas as pd
@@ -245,7 +245,7 @@ def _write_points(name, value, job_dir, display):
     }
 
 
-def _ring(name, number, vertices, ring_name="polygon"):
+def _ring(name: str, number: int, vertices: Any, ring_name: str = "polygon") -> list[list[float]]:
     """One ring of (y, x) vertices -> a closed GeoJSON ring of [x, y] (finite, at least 3 distinct vertices)."""
     import numpy as np
 
@@ -279,7 +279,7 @@ def _ring(name, number, vertices, ring_name="polygon"):
     return ring + [ring[0]]
 
 
-def _check_geojson(name, collection):
+def _check_geojson(name: str, collection: Any) -> None:
     """A GeoJSON FeatureCollection of Polygon / MultiPolygon features with finite coordinates; anything else is refused."""
     import math
 
@@ -294,13 +294,13 @@ def _check_geojson(name, collection):
             % name,
         )
 
-    def finite(node):
+    def finite(node: Any) -> bool:
         if isinstance(node, (int, float)) and not isinstance(node, bool):
             return math.isfinite(node)
         return isinstance(node, (list, tuple)) and all(finite(x) for x in node)
 
     for i, feature in enumerate(collection["features"]):
-        geometry = feature.get("geometry") if isinstance(feature, dict) else None
+        geometry: Any = feature.get("geometry") if isinstance(feature, dict) else None
         kind = geometry.get("type") if isinstance(geometry, dict) else None
         if kind not in ("Polygon", "MultiPolygon"):
             raise ToolError(
@@ -315,7 +315,7 @@ def _check_geojson(name, collection):
             )
 
 
-def _write_shapes(name, value, job_dir, display):
+def _write_shapes(name: str, value: Any, job_dir: Path, display: dict[str, str]) -> Result:
     """Outlines as a GeoJSON FeatureCollection ([x, y], pixel centres at integers). Accepts a FeatureCollection, or a list of
     polygons: each an array of (y, x) vertices, or a dict with `polygon` (that array) and properties."""
     import json
@@ -354,7 +354,7 @@ def _write_shapes(name, value, job_dir, display):
     return {"type": "shapes", "name": name, "path": str(path), "n": len(collection["features"]), **display}
 
 
-def _plain(value):
+def _plain(value: Any) -> Any:
     """A value that survives strict JSON: numpy scalars become Python numbers (not strings), NaN/inf become null."""
     if hasattr(value, "item") and getattr(value, "ndim", None) == 0:  # numpy scalar or 0-d array
         value = value.item()
@@ -367,7 +367,7 @@ def _plain(value):
     return value
 
 
-def _as_3x3(matrix):
+def _as_3x3(matrix: Any) -> list[list[float]]:
     import numpy as np
 
     m = np.asarray(matrix, float)

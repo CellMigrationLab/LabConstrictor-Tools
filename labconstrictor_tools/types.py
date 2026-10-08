@@ -84,6 +84,8 @@ OUTPUT_TYPES = {
 
 # ---- metadata markers (use inside typing.Annotated[...])
 class _Marker:
+    """Base of the Annotated[...] metadata: one `value`, and a repr that shows it in schema errors."""
+
     def __init__(self, value: Any) -> None:
         self.value = value
 

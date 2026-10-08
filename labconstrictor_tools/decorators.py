@@ -7,6 +7,8 @@ _REGISTRY: dict[str, "Tool"] = {}
 
 
 class Tool:
+    """One registered function; `module` is kept so a module's tools can be dropped together (`forget_module`)."""
+
     def __init__(self, fn: Callable[..., Any], id: str, label: str) -> None:
         self.fn, self.id, self.label, self.module = fn, id, label, fn.__module__
 
@@ -17,13 +19,13 @@ def tool(label: str | Callable[..., Any] | None = None, *, id: str | None = None
         fn, label = label, None
         return _register(fn, None, None)
 
-    def deco(fn):
+    def deco(fn: Callable[..., Any]) -> Callable[..., Any]:
         return _register(fn, label, id)
 
     return deco
 
 
-def _register(fn, label, id):
+def _register(fn: Callable[..., Any], label: str | None, id: str | None) -> Callable[..., Any]:
     tid = id or fn.__name__
     if (
         tid in _REGISTRY

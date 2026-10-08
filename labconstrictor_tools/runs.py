@@ -64,11 +64,11 @@ def record(
         return None
 
 
-def _safe(text):
+def _safe(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", text)
 
 
-def _prune(keep=KEEP):
+def _prune(keep: int = KEEP) -> None:
     folders = sorted(p for p in runs_dir().iterdir() if p.is_dir())
     for old in folders[:-keep]:
         try:

@@ -27,7 +27,7 @@ import time
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 # Standard library only: no dependency on the host's log file. Inside a host the "labconstrictor" logger writes to the shared
 # log; in a worker (no handler) warnings and errors reach stderr, which the host copies into that log.
@@ -39,6 +39,8 @@ _SYMBOL = {OK: "\u2714", WARN: "\u26a0", FAIL: "\u2716", INFO: "\u2022"}
 
 @dataclass
 class Check:
+    """One line of the `doctor` report: what was looked at, how it went, and what to do about it."""
+
     layer: str  # "machine", "worker", "gpu tools", "gpu libraries", "benchmark", "network", ...
     name: str
     status: str  # ok | warn | fail | info
@@ -61,6 +63,8 @@ def _ram_gb() -> float | None:
             import ctypes
 
             class Status(ctypes.Structure):
+                """Windows MEMORYSTATUSEX: the layout GlobalMemoryStatusEx fills in."""
+
                 _fields_ = (
                     [("length", ctypes.c_ulong), ("load", ctypes.c_ulong), ("total", ctypes.c_ulonglong)]
                     + [(n, ctypes.c_ulonglong) for n in ("avail", "ptotal", "pavail", "vtotal", "vavail")]
@@ -268,7 +272,7 @@ def probe_gpu_tools() -> list[Check]:
 
 
 # ---------------------------------------------------------------------------------------------------- GPU libraries
-def _torch_module():
+def _torch_module() -> Any:
     """PyTorch only if the app already has it: a probe must not import something heavy that is not installed."""
     import importlib.util
 
@@ -437,8 +441,8 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
             image, kernel, matrix = image.to(device), kernel.to(device), matrix.to(device)
 
             def work(
-                image=image, kernel=kernel, matrix=matrix
-            ):  # bound now: the loop moves on to the next device
+                image: Any = image, kernel: Any = kernel, matrix: Any = matrix
+            ) -> Any:  # bound now: the loop moves on to the next device
                 return torch.nn.functional.conv2d(image, kernel, padding=2).sum() + (matrix @ matrix).sum()
 
             work()  # warm-up (kernels are compiled on first use)

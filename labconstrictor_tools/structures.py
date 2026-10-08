@@ -71,6 +71,8 @@ class _ToolRequired(TypedDict):
 
 
 class ToolSchema(_ToolRequired, total=False):
+    """One tool of a schema: what a host needs to build its form and to read its results."""
+
     description: str
 
 
@@ -114,6 +116,7 @@ class _ReportRequired(TypedDict):
 
 
 class CaseReport(_ReportRequired, total=False):
+    """What `test` reports for one case; the optional keys exist only when the run got that far."""
 
     status: str
     traceback: str

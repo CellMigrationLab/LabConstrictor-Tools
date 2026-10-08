@@ -18,13 +18,13 @@ from .types import ToolError
 MAX_LABELS_HINT = 50_000  # hosts show up to this many outlines and say how many were left out
 
 
-def _signed_area(ring) -> float:
+def _signed_area(ring: list[list[float]]) -> float:
     x = [p[0] for p in ring]
     y = [p[1] for p in ring]
     return 0.5 * sum(x[i] * y[i + 1] - x[i + 1] * y[i] for i in range(len(ring) - 1))
 
 
-def _inside(point, ring) -> bool:
+def _inside(point: list[float], ring: list[list[float]]) -> bool:
     """Ray casting: is `point` inside the closed `ring` of [x, y]?"""
     px, py = point
     inside = False
@@ -35,13 +35,13 @@ def _inside(point, ring) -> bool:
     return inside
 
 
-def _rings_of(mask, simplify: float):
+def _rings_of(mask: Any, simplify: float) -> list[list[list[float]]]:
     """Closed rings of [x, y] around the True pixels of `mask` (outer boundaries and holes), centres at integers."""
     import numpy as np
     from skimage.measure import approximate_polygon, find_contours
 
     padded = np.pad(mask.astype(np.uint8), 1)
-    rings = []
+    rings: list[list[list[float]]] = []
     for contour in find_contours(padded, 0.5):
         if simplify and simplify > 0:
             contour = approximate_polygon(contour, simplify)
@@ -56,7 +56,7 @@ def _rings_of(mask, simplify: float):
     return rings
 
 
-def _polygons(rings):
+def _polygons(rings: list[list[list[float]]]) -> list[list[list[list[float]]]]:
     """Group rings into polygons: a ring turning the way the biggest one does is an outer boundary, the others are holes of the
     outer boundary that contains them."""
     if not rings:
@@ -65,7 +65,7 @@ def _polygons(rings):
     outer_sign = 1 if _signed_area(biggest) > 0 else -1
     outers = [r for r in rings if (_signed_area(r) > 0) == (outer_sign > 0)]
     holes = [r for r in rings if (_signed_area(r) > 0) != (outer_sign > 0)]
-    polygons = [[outer] for outer in outers]
+    polygons: list[list[list[list[float]]]] = [[outer] for outer in outers]
     for hole in holes:
         owners = [i for i, outer in enumerate(outers) if _inside(hole[0], outer)]
         if owners:  # the smallest outer boundary that contains the hole
@@ -73,7 +73,7 @@ def _polygons(rings):
     return polygons
 
 
-def labels_to_shapes(labels: Any, simplify: float = 0.5, min_area: int = 1) -> dict:
+def labels_to_shapes(labels: Any, simplify: float = 0.5, min_area: int = 1) -> dict[str, Any]:
     """GeoJSON FeatureCollection of the outlines of a 2D label image.
 
     `simplify` is the largest distance in pixels an outline may move when it is simplified (0 keeps every pixel corner);

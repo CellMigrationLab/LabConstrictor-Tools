@@ -17,9 +17,10 @@ import time
 import uuid
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
-from typing import Any
+from typing import IO, Any
 
 from . import log, registry
+from .structures import RegistryEntry
 
 ProgressCallback = Callable[
     [str, float | None], None
@@ -35,7 +36,7 @@ _STATUS_BY_RESPONSE = {
 }
 
 
-def _brief(inputs, limit=300):
+def _brief(inputs: dict[str, Any], limit: int = 300) -> str:
     """Inputs for the log: paths and scalars as they are, bulky shared-memory descriptors shortened."""
     text = json.dumps(inputs, default=str)
     return text if len(text) <= limit else text[:limit] + "...(%d chars)" % len(text)
@@ -44,10 +45,11 @@ def _brief(inputs, limit=300):
 class _Tail:
     """The last ~1 MB of the worker's stderr. A chatty tool (progress bars, debug output) must not grow the host's memory without limit."""
 
-    LIMIT = 1_000_000
+    LIMIT: int = 1_000_000
 
-    def __init__(self):
-        self._lines, self._chars = collections.deque(), 0
+    def __init__(self) -> None:
+        self._lines: collections.deque[str] = collections.deque()
+        self._chars = 0
         self.total = 0  # characters ever received (the tail itself is bounded): lets a host keep only what came after a point in time
 
     def append(self, line: str) -> None:
@@ -77,8 +79,9 @@ class WorkerProcess:
         python: str | None = None,
     ) -> None:
         """`app`: a registered app. Without it, start `module` directly (authors testing before registering)."""
+        self.entry: dict[str, Any]
         if app is not None:
-            self.entry = self._entry_for(app)
+            self.entry = dict(self._entry_for(app))
         else:
             self.entry = {
                 "python": python or sys.executable,
@@ -121,7 +124,7 @@ class WorkerProcess:
             raise
 
     @staticmethod
-    def _spawn(command, env):
+    def _spawn(command: list[str], env: dict[str, str]) -> "subprocess.Popen[str]":
         try:
             return subprocess.Popen(
                 command,
@@ -142,7 +145,7 @@ class WorkerProcess:
             raise WorkerStartError(reason + " (details in %s)" % log.log_path()) from error
 
     @staticmethod
-    def _worker_env(entry):
+    def _worker_env(entry: dict[str, Any]) -> dict[str, str]:
         """The worker's environment: the host's, minus what must not leak in, with its own import paths."""
         env = {key: value for key, value in os.environ.items() if key not in _SCRUBBED_ENV}
         env.update(
@@ -161,7 +164,7 @@ class WorkerProcess:
         return env
 
     @staticmethod
-    def _entry_for(app):
+    def _entry_for(app: str) -> RegistryEntry:
         """The registry entry of `app`; if it is missing, say why (skipped entries carry a reason) instead of a bare KeyError."""
         entries, problems = registry.load_entries()
         if app in entries:
@@ -219,7 +222,7 @@ class WorkerProcess:
             self.proc.kill()
             self.proc.wait()
 
-    def _kill_tree_windows(self):
+    def _kill_tree_windows(self) -> None:
         """Windows has no process groups here: `taskkill /T` stops the worker AND the processes it started. (Not yet run on
         real Windows; if it fails the worker itself is still killed right after, and the log says what remains.)
         """
@@ -248,7 +251,7 @@ class WorkerProcess:
                 error,
             )
 
-    def _kill_group(self):
+    def _kill_group(self) -> None:
         """POSIX: stop everything the worker started (a tool's subprocesses or daemons would otherwise outlive it)."""
         if os.name == "posix":
             try:
@@ -263,14 +266,14 @@ class WorkerProcess:
                     error,
                 )
 
-    def _send(self, message):
+    def _send(self, message: dict[str, Any]) -> None:
         with (
             self._send_lock
         ):  # task() and cancel() may be called from different threads: one request line at a time
             self.proc.stdin.write(json.dumps(message) + "\n")
             self.proc.stdin.flush()
 
-    def _read_responses(self):
+    def _read_responses(self) -> None:
         for line in self.proc.stdout:
             try:
                 message = json.loads(line)
@@ -300,7 +303,7 @@ class WorkerProcess:
         self._on_exit()
         self._close_pipe(self.proc.stdout)
 
-    def _on_exit(self):
+    def _on_exit(self) -> None:
         """stdout closed: the worker is gone. Unfinished tasks crashed - say why, with the worker's own last words."""
         returncode = self.proc.wait()
         self._stderr_thread.join(2)
@@ -329,14 +332,14 @@ class WorkerProcess:
         for task in pending:
             task.handle({"responseType": "CRASH", "error": message})
 
-    def _read_stderr(self):
+    def _read_stderr(self) -> None:
         for line in self.proc.stderr:
             self.stderr.append(line)
             log.logger().debug("worker[%s] %s", self.proc.pid, line.rstrip())
         self._close_pipe(self.proc.stderr)
 
     @staticmethod
-    def _close_pipe(pipe):
+    def _close_pipe(pipe: IO[str]) -> None:
         """The reader threads own the read ends: close them at EOF, or each run leaks two file descriptors until GC."""
         try:
             pipe.close()
@@ -348,6 +351,8 @@ class WorkerProcess:
 
 
 class Task:
+    """One EXECUTE request in flight: collects the worker's responses until a terminal one, then `done` is set."""
+
     def __init__(self, worker: WorkerProcess, tool_id: str, on_update: ProgressCallback | None) -> None:
         self.worker, self.tool_id, self.on_update = worker, tool_id, on_update
         self.id = str(uuid.uuid4())
@@ -398,7 +403,7 @@ class Task:
             )
             self.on_update = None
 
-    def _log_outcome(self):
+    def _log_outcome(self) -> None:
         if self.status == "COMPLETE":
             log.info(
                 "task %s COMPLETE tool=%s timings=%s", self.id[:8], self.tool_id, self.outputs.get("timings")

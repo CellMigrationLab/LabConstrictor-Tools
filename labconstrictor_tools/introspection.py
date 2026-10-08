@@ -4,23 +4,24 @@ import enum
 import inspect
 import math
 import re
-from typing import Annotated, Literal, Union, get_args, get_origin, get_type_hints
+from typing import Annotated, Any, Literal, Union, cast, get_args, get_origin, get_type_hints
 
 from . import types as T
 from .decorators import Tool, tools_in
-from .structures import AppSchema, ToolSchema
+from .structures import AppSchema, OutputSchema, ParamSchema, ToolSchema
 
 PROTOCOL = 1
 SCALARS = {str: "string", int: "integer", float: "float", bool: "boolean"}
 
 
 class DeclarationError(Exception):
-    pass
+    """A tool's signature cannot be turned into a schema; the message names the parameter and what to change."""
 
 
-def _docstring_args(doc):
+def _docstring_args(doc: str | None) -> dict[str, str]:
     """Google-style 'Args:' section -> {name: text}."""
-    out, sec, cur, base = {}, False, None, None
+    out: dict[str, str] = {}
+    sec, cur, base = False, None, None
     for line in inspect.cleandoc(doc or "").splitlines():
         s = line.strip()
         ind = len(line) - len(line.lstrip())
@@ -43,9 +44,10 @@ def _docstring_args(doc):
     return out
 
 
-def _unwrap(ann):
+def _unwrap(ann: Any) -> tuple[Any, list[Any], bool]:
     """-> (base type, [metadata], optional?)"""
-    meta, optional = [], False
+    meta: list[Any] = []
+    optional = False
     while True:
         o = get_origin(ann)
         if o is Annotated:
@@ -60,14 +62,14 @@ def _unwrap(ann):
         return ann, meta, optional
 
 
-def _m(meta, cls):
+def _m(meta: list[Any], cls: type) -> Any:
     for x in meta:
         if isinstance(x, cls):
             return x
     return None
 
 
-def _check_default(name, d):
+def _check_default(name: str, d: dict[str, Any]) -> None:
     """A default is passed to the tool as it is: it must be valid for the declared type (a host cannot be expected to catch it)."""
     if "default" not in d:
         return
@@ -86,9 +88,9 @@ def _check_default(name, d):
         )
 
 
-def _param(name, p, hint, argdoc):
+def _param(name: str, p: inspect.Parameter, hint: Any, argdoc: dict[str, str]) -> ParamSchema:
     base, meta, optional = _unwrap(hint)
-    d = {
+    d: dict[str, Any] = {
         "name": name,
         "label": (_m(meta, T.Label).value if _m(meta, T.Label) else name.replace("_", " ").capitalize()),
     }
@@ -113,10 +115,18 @@ def _param(name, p, hint, argdoc):
         d["nullable"] = True
     if d["type"] == "choice" and "default" not in d and d["required"]:
         d["default"] = d["choices"][0]
-    return d
+    return cast(ParamSchema, d)  # built key by key above; the TypedDict documents the result
 
 
-def _add_type_fields(d, name, p, hint, base, meta, has_default):
+def _add_type_fields(
+    d: dict[str, Any],
+    name: str,
+    p: inspect.Parameter,
+    hint: Any,
+    base: Any,
+    meta: list[Any],
+    has_default: bool,
+) -> None:
     """The parameter's `type` (and its image/choice specifics), from the annotation."""
     if base in T.INPUT_TYPES:
         d["type"] = T.INPUT_TYPES[base]
@@ -150,7 +160,7 @@ def _add_type_fields(d, name, p, hint, base, meta, has_default):
         raise DeclarationError("parameter %r: unsupported annotation %r" % (name, hint))
 
 
-def _add_number_fields(d, name, meta):
+def _add_number_fields(d: dict[str, Any], name: str, meta: list[Any]) -> None:
     """Min / Max / Unit / PixelSizeOf of a numeric parameter, checking the default against the bounds."""
     for key, cls in (("minimum", T.Min), ("maximum", T.Max)):
         if _m(meta, cls):
@@ -168,7 +178,7 @@ def _add_number_fields(d, name, meta):
         d["pixel_size_of"] = _m(meta, T.PixelSizeOf).value
 
 
-def _add_display_fields(d, name, meta, argdoc):
+def _add_display_fields(d: dict[str, Any], name: str, meta: list[Any], argdoc: dict[str, str]) -> None:
     """Description and grouping hints: description, group, advanced, group_collapsed."""
     desc = _m(meta, T.Description).value if _m(meta, T.Description) else argdoc.get(name)
     if desc:
@@ -183,7 +193,7 @@ def _add_display_fields(d, name, meta, argdoc):
         d["group_collapsed"] = True
 
 
-def _add_widget_fields(d, name, meta):
+def _add_widget_fields(d: dict[str, Any], name: str, meta: list[Any]) -> None:
     """region_of, widget and clear_after_run, each validated against the parameter's type."""
     region = _m(meta, T.RegionOf)
     if region:
@@ -210,7 +220,7 @@ def _add_widget_fields(d, name, meta):
         raise DeclarationError("parameter %r: PickChannel applies to an Image input" % name)
 
 
-def _add_dependency_fields(d, name, meta):
+def _add_dependency_fields(d: dict[str, Any], name: str, meta: list[Any]) -> None:
     """choices_from and enabled_when: how this parameter depends on a tool or another parameter."""
     src = _m(meta, T.ChoicesFrom)
     if src:
@@ -222,12 +232,12 @@ def _add_dependency_fields(d, name, meta):
         d["enabled_when"] = {"param": when.param, **({"equals": when.equals} if when.equals else {})}
 
 
-def _outputs(ret, tool_id):
+def _outputs(ret: Any, tool_id: str) -> list[OutputSchema]:
     if ret in (inspect.Signature.empty, None, type(None)):
         return []
     base, meta, _ = _unwrap(ret)
     items = [ret] if get_origin(base) is not tuple else list(get_args(base))
-    outs = []
+    outs: list[dict[str, Any]] = []
     for i, it in enumerate(items):
         b, m, _ = _unwrap(it)
         if b not in T.OUTPUT_TYPES:
@@ -246,7 +256,7 @@ def _outputs(ret, tool_id):
         if a:
             o["display"] = {"apply_to": a.source, **({"relative_to": a.target} if a.target else {})}
         outs.append(o)
-    seen = {}
+    seen: dict[str, int] = {}
     for o in outs:  # unnamed outputs of the same type get a numeric suffix
         seen[o["name"]] = seen.get(o["name"], 0) + 1
         if seen[o["name"]] > 1:
@@ -254,10 +264,11 @@ def _outputs(ret, tool_id):
     names = [o["name"] for o in outs]
     if len(set(names)) != len(names):
         raise DeclarationError("tool %r: duplicate output names %s" % (tool_id, names))
-    return outs
+    return cast(list[OutputSchema], outs)
 
 
 def describe_tool(t: Tool) -> ToolSchema:
+    """Schema of one registered tool, or DeclarationError naming what is wrong with its signature."""
     fn = t.fn
     sig = inspect.signature(fn)
     try:
@@ -265,7 +276,7 @@ def describe_tool(t: Tool) -> ToolSchema:
     except Exception as e:
         raise DeclarationError("tool %r: cannot resolve annotations (%s)" % (t.id, e)) from e
     argdoc = _docstring_args(fn.__doc__)
-    ins = []
+    ins: list[ParamSchema] = []
     for name, p in sig.parameters.items():
         if name not in hints:
             raise DeclarationError("tool %r: parameter %r has no type annotation" % (t.id, name))
@@ -280,7 +291,7 @@ def describe_tool(t: Tool) -> ToolSchema:
     return schema
 
 
-def _check_input_references(tool_id, ins):
+def _check_input_references(tool_id: str, ins: list[ParamSchema]) -> None:
     """PixelSizeOf, RegionOf and EnabledWhen must name a suitable parameter of the same tool."""
     names = {i["name"] for i in ins}
     for i in ins:
@@ -305,7 +316,7 @@ def _check_input_references(tool_id, ins):
             raise DeclarationError("tool %r: parameter %r cannot be enabled by itself" % (tool_id, i["name"]))
 
 
-def _check_output_references(tool_id, ins, outs):
+def _check_output_references(tool_id: str, ins: list[ParamSchema], outs: list[OutputSchema]) -> None:
     """An output's apply_to / relative_to must name a parameter of the same tool."""
     names = {i["name"] for i in ins}
     for o in outs:
@@ -331,7 +342,7 @@ def describe_tools(
     return out
 
 
-def _check_choice_sources(tools):
+def _check_choice_sources(tools: list[ToolSchema]) -> None:
     """ChoicesFrom must point at a tool of the app that can be called with the declared `depends` alone."""
     by_id = {t["id"]: t for t in tools}
     for t in tools:

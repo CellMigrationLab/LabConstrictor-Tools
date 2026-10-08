@@ -18,7 +18,7 @@ import os
 import subprocess
 import sys
 import tempfile
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 from .structures import AppSchema, RegistryEntry
@@ -74,7 +74,7 @@ def runtime_path() -> str:
     return str(Path(__file__).resolve().parent.parent)
 
 
-def _check_name(name):
+def _check_name(name: str) -> str:
     """An app name becomes a file name in the registry: refuse anything that could point outside of it."""
     if not name or name in (".", "..") or any(c in name for c in "/\\\0") or name != name.strip():
         raise ValueError("invalid app name %r: it must be a plain name without path separators" % (name,))
@@ -147,7 +147,14 @@ def register(
     return entry
 
 
-def _generate_schema(name, interpreter, module, env, application, version) -> str:
+def _generate_schema(
+    name: str,
+    interpreter: str | Path,
+    module: str,
+    env: dict[str, str],
+    application: str,
+    version: str,
+) -> str:
     """Run `describe` in the app's own interpreter -> the schema JSON text; a hang or failure is a RuntimeError."""
     command = [str(interpreter), "-m", "labconstrictor_tools", "describe", "--module", module]
     command += ["--application", application, "--version", version]
@@ -368,7 +375,7 @@ def load_entries() -> tuple[dict[str, RegistryEntry], list[tuple[str, str]]]:
 _LOGGED_PROBLEMS: set[tuple[str, str]] = set()
 
 
-def _log_problems(problems):
+def _log_problems(problems: Iterable[tuple[str, str]]) -> None:
     """Each skipped app is logged once per session with the reason (not on every rescan)."""
     from . import log
 

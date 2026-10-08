@@ -24,10 +24,15 @@ from .decorators import tools_in
 from .introspection import describe_tool
 from .protocol import JOB_DIR_KEY, Channel, tool_id_from_script
 
+# a task's end as the host hears it: (terminal response type, its fields)
+Outcome = tuple[str, dict[str, Any]]
+
 ORPHAN_GRACE_S = 10.0  # after the host disappears, how long a running tool gets to notice and stop
 
 
 class Worker:
+    """Serves tool calls from one module: a reader thread takes requests so CANCEL arrives while the main thread runs a tool."""
+
     def __init__(self, module: str, pythonpath: Sequence[str] = ()) -> None:
         for path in pythonpath:
             sys.path.insert(0, path)
@@ -60,7 +65,7 @@ class Worker:
         self._owned_dirs: set[Path] = set()  # job folders this worker created and has not handed over yet
 
     @staticmethod
-    def _preload_numpy():
+    def _preload_numpy() -> None:
         # Windows: first importing numpy/scipy on a non-main thread while the main thread blocks on stdin can
         # deadlock (numpy issue 24290). Importing numpy here, and running tools on the main thread, avoids it.
         if importlib.util.find_spec("numpy") is not None:
@@ -78,10 +83,10 @@ class Worker:
             self._run_task(*item)
 
     @staticmethod
-    def _complain(text, *args):
+    def _complain(text: str, *args: object) -> None:
         print("LabConstrictor worker: " + text % args, file=sys.stderr, flush=True)
 
-    def _read_requests(self, pending):
+    def _read_requests(self, pending: queue.Queue[tuple[str, str, Any] | None]) -> None:
         try:
             for request in self.channel.read_requests():
                 self._dispatch(request, pending)
@@ -98,7 +103,7 @@ class Worker:
             timer.start()
         pending.put(None)
 
-    def _dispatch(self, request, pending):
+    def _dispatch(self, request: dict[str, Any], pending: queue.Queue[tuple[str, str, Any] | None]) -> None:
         task, kind = request.get("task"), request.get("requestType")
         if not isinstance(task, str) or not task:
             self._complain("ignoring a %r request without a text task id", kind)
@@ -133,25 +138,27 @@ class Worker:
         else:
             self._complain("ignoring a request of unknown type %r for task %r", kind, task)
 
-    def _orphan_exit(self):
+    def _orphan_exit(self) -> None:
         """The host is gone and the tool ignored the cancel request: leave, but not without removing our temp folders."""
         for path in list(self._owned_dirs):
             shutil.rmtree(path, ignore_errors=True)
         os._exit(1)
 
-    def _remove_job_dir(self, path):
+    def _remove_job_dir(self, path: Path) -> None:
         shutil.rmtree(path, ignore_errors=True)
         if path.exists():
             self._complain("could not remove the temporary folder %s completely", path)
 
     # ---- one task -----------------------------------------------------
-    def _run_task(self, task, script, inputs):
+    def _run_task(self, task: str, script: str, inputs: dict[str, Any]) -> None:
         cancel = self._cancel_events[task]
         runtime.install(
             cancelled=cancel.is_set,
             progress=lambda fraction, message: self._send_progress(task, fraction, message),
         )
-        job_dir, owns_job_dir = None, False
+        job_dir: Path | None = None
+        owns_job_dir = False
+        final: Outcome
         try:
             if cancel.is_set():  # cancelled before it even started (e.g. the host went away)
                 raise T.Cancelled()
@@ -186,7 +193,7 @@ class Worker:
         self._cancel_events.pop(task, None)
         self.channel.send(task, final[0], **final[1])
 
-    def _tool_exit_outcome(self, script, error):
+    def _tool_exit_outcome(self, script: str, error: BaseException) -> Outcome:
         """A tool called sys.exit() or was interrupted: complain on stderr, answer with a FAILURE."""
         self._complain(
             "tool %r tried to stop the worker with %s(%r)", script, type(error).__name__, error.args
@@ -201,7 +208,7 @@ class Worker:
         )
 
     @staticmethod
-    def _tool_crash_outcome(script, error):
+    def _tool_crash_outcome(script: str, error: BaseException) -> Outcome:
         """An unexpected exception in a tool (call from its `except` block): traceback to stderr and into the FAILURE."""
         print(
             "LabConstrictor worker: tool %r failed:\n%s" % (script, traceback.format_exc()),
@@ -217,7 +224,9 @@ class Worker:
             },
         )
 
-    def _execute(self, tool_id, inputs, job_dir, cancel):
+    def _execute(
+        self, tool_id: str, inputs: dict[str, Any], job_dir: Path, cancel: threading.Event
+    ) -> Outcome:
         schema = self.schemas[tool_id]
         t0 = time.perf_counter()
         kwargs = convert.load_inputs(schema, inputs, self.tools[tool_id].fn)
@@ -245,10 +254,10 @@ class Worker:
         }
         return ("COMPLETION", {"outputs": outputs})
 
-    def _send_progress(self, task, fraction, message):
+    def _send_progress(self, task: str, fraction: float | None, message: object) -> None:
         if task not in self._cancel_events:
             return  # the task is over
-        fields = {"message": str(message)}
+        fields: dict[str, Any] = {"message": str(message)}
         if fraction is not None:
             fields.update(current=int(100 * fraction), maximum=100)
         self.channel.send(task, "UPDATE", **fields)

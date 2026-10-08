@@ -20,6 +20,8 @@ _keep_alive = None  # the job handle must stay open for as long as the worker ru
 
 
 class _BasicLimits(ctypes.Structure):
+    """Win32 JOBOBJECT_BASIC_LIMIT_INFORMATION: field order and sizes must match the C struct exactly."""
+
     _fields_ = [
         ("PerProcessUserTimeLimit", ctypes.c_int64),
         ("PerJobUserTimeLimit", ctypes.c_int64),
@@ -34,10 +36,14 @@ class _BasicLimits(ctypes.Structure):
 
 
 class _IoCounters(ctypes.Structure):
+    """Win32 IO_COUNTERS: six counters we never read, present only so the struct below has the right size."""
+
     _fields_ = [(name, ctypes.c_uint64) for name in ("a", "b", "c", "d", "e", "f")]
 
 
 class _ExtendedLimits(ctypes.Structure):
+    """Win32 JOBOBJECT_EXTENDED_LIMIT_INFORMATION: the one SetInformationJobObject accepts for kill-on-close."""
+
     _fields_ = [
         ("BasicLimitInformation", _BasicLimits),
         ("IoInfo", _IoCounters),
