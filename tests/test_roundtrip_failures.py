@@ -201,8 +201,6 @@ class Crashes(unittest.TestCase):
             self.assertIsNotNone(worker.proc.poll())
 
     def test_asking_a_dead_worker_for_a_task_gives_a_crashed_task(self):
-        if is_known("lifecycle:task_on_a_dead_worker"):
-            self.skipTest("known failure F17, watched by test_roundtrip_known_failures")
         self.assertEqual(task_on_dead_worker_problems(), [])
 
 
@@ -316,8 +314,6 @@ class WhatAToolReturns(unittest.TestCase):
         self.assertEqual(set(values["text"][:1000] + values["text"][-1000:]), {"x"})
 
     def test_every_whole_percent_arrives_as_itself(self):
-        if is_known("lifecycle:progress_percent_is_rounded"):
-            self.skipTest("known failure F19, watched by test_roundtrip_known_failures")
         self.assertEqual(progress_problems(), [])
 
     def test_many_progress_messages_all_arrive_and_the_task_still_ends(self):
@@ -330,7 +326,9 @@ class WhatAToolReturns(unittest.TestCase):
             self.assertEqual(task.status, "COMPLETE")
             self.assertEqual(len(count), 20000)
             self.assertEqual(count, sorted(count), "progress never goes backwards")
-            self.assertEqual((count[0], max(count)), (0.0, 0.99))
+            # the last report, 19999/20000 = 99.995 %, is shown as 100 %: whole percents are ROUNDED (F19); this used to expect 0.99,
+            # which only held because the percent was truncated
+            self.assertEqual((count[0], max(count)), (0.0, 1.0))
         finally:
             worker.close()
 
@@ -472,8 +470,6 @@ class HangsAndCancel(unittest.TestCase):
         os.name == "posix", "the Windows worker ends its children with a job object (tests/windows)"
     )
     def test_children_die_when_the_host_goes_away(self):
-        if is_known("lifecycle:children_die_when_the_host_goes_away"):
-            self.skipTest("known failure F18, watched by test_roundtrip_known_failures")
         self.assertEqual(children_problems(), [])
 
 

@@ -6,9 +6,12 @@ Unlike `appose.python_worker`, it never executes host-supplied code: an EXECUTE 
 
 import importlib
 import importlib.util
+import math
 import os
 import queue
 import shutil
+import signal
+import subprocess
 import sys
 import tempfile
 import threading
@@ -29,7 +32,16 @@ Outcome = tuple[str, dict[str, Any]]
 
 SCRIPT_PREVIEW_CHARS = 40  # how much of a refused script is echoed back in the error
 PROGRESS_MAXIMUM = 100  # progress is reported to hosts as current/maximum on this scale
+PROGRESS_HALF = 0.5  # added before flooring: a tie rounds up
+PS_TIMEOUT_S = 10  # listing the worker's process group at exit
 ORPHAN_GRACE_S = 10.0  # after the host disappears, how long a running tool gets to notice and stop
+
+
+def _whole_percent(fraction: float) -> int:
+    """The whole percent nearest to `fraction` (0..1), a tie going up: 0.295 -> 30 (a plain int() lost a percent whenever
+    100 * fraction fell just below the integer: 0.29 was shown as 28 %). Every host that rounds a fraction itself must
+    do the same (Java's Math.round is half-up already)."""
+    return math.floor(PROGRESS_MAXIMUM * fraction + PROGRESS_HALF)
 
 
 class Worker:
@@ -40,6 +52,7 @@ class Worker:
             sys.path.insert(0, path)
         self.channel = Channel()
         _winjob.kill_children_with_me()  # Windows: processes a tool starts end with the worker
+        self._lead_own_process_group()  # POSIX: the same, whoever started us (see _end_process_group)
         self._preload_numpy()
         try:
             importlib.import_module(module)
@@ -80,6 +93,7 @@ class Worker:
         while True:
             item = pending.get()
             if item is None:  # stdin closed: exit once the current task has stopped
+                self._end_process_group()
                 return
             self._run_task(*item)
 
@@ -142,7 +156,70 @@ class Worker:
         """The host is gone and the tool ignored the cancel request: leave, but not without removing our temp folders."""
         for path in list(self._owned_dirs):
             shutil.rmtree(path, ignore_errors=True)
+        self._end_process_group()
         os._exit(1)
+
+    @staticmethod
+    def _lead_own_process_group() -> None:
+        """POSIX: become the leader of a process group of our own, so that _end_process_group can end everything a tool starts.
+
+        The Python client starts the worker that way (start_new_session), but the Java hosts (Fiji's Appose Service, QuPath's
+        ProcessBuilder) cannot, so the worker does it itself: no host has to do anything. setsid() fails only for a process that
+        already leads a group, which is the case we skip.
+        """
+        if os.name == "posix" and os.getpgrp() != os.getpid():
+            os.setsid()
+
+    @staticmethod
+    def _end_process_group() -> None:
+        """POSIX: the host is gone, so nothing a tool started may outlive the worker (Windows: the job object of _winjob).
+
+        The worker leads a process group of its own (the client asks for one, and `_lead_own_process_group` makes it so for
+        every other host), and the subprocesses of a tool inherit it. Every other member is sent SIGKILL and the worker then
+        leaves normally (exit status 0, coverage and logs written). Only when the members cannot be listed does the worker kill
+        the whole group including itself, after flushing its output: leaving a process behind is the worse outcome.
+        """
+        if (
+            os.name != "posix" or os.getpgrp() != os.getpid()
+        ):  # a safety net: never signal a group that is not ours
+            return
+        me = os.getpid()
+        try:
+            members = Worker._group_members(me)
+        except (OSError, subprocess.SubprocessError, ValueError) as error:
+            log.warning(
+                "worker: cannot list its process group (%s: %s); ending the whole group",
+                type(error).__name__,
+                error,
+            )
+            for stream in (sys.stdout, sys.stderr):
+                try:
+                    stream.flush()
+                except (
+                    OSError,
+                    ValueError,
+                ) as flush_error:  # the pipe is already closed: nobody is listening
+                    log.logger().debug(
+                        "worker: flushing failed (%s: %s)", type(flush_error).__name__, flush_error
+                    )
+            os.killpg(me, signal.SIGKILL)
+            return
+        for pid in members:
+            if pid != me:
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass  # it ended on its own just now: what we wanted
+
+    @staticmethod
+    def _group_members(group: int) -> list[int]:
+        """The pids of every process in process group `group` (`ps` exists on Linux and macOS alike)."""
+        listing = subprocess.run(
+            ["ps", "-A", "-o", "pid=,pgid="],  # noqa: S607 - ps is found on PATH by design
+            capture_output=True, text=True, timeout=PS_TIMEOUT_S, check=True,
+        )  # fmt: skip
+        pairs = (line.split() for line in listing.stdout.splitlines() if line.strip())
+        return [int(pid) for pid, pgid in pairs if int(pgid) == group]
 
     def _remove_job_dir(self, path: Path) -> None:
         shutil.rmtree(path, ignore_errors=True)
@@ -262,5 +339,5 @@ class Worker:
             return  # the task is over
         fields: dict[str, Any] = {"message": str(message)}
         if fraction is not None:
-            fields.update(current=int(PROGRESS_MAXIMUM * fraction), maximum=PROGRESS_MAXIMUM)
+            fields.update(current=_whole_percent(fraction), maximum=PROGRESS_MAXIMUM)
         self.channel.send(task, "UPDATE", **fields)

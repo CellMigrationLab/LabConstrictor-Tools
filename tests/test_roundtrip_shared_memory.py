@@ -8,9 +8,6 @@ from multiprocessing import shared_memory
 import _paths  # noqa: F401  (must come first)
 import numpy as np
 import roundtrip_harness as harness
-from roundtrip_known_failures import is_known
-
-KEY = "lifecycle:shared_memory_survives_the_worker"
 
 
 def wait_for_destruction(name, seconds=10.0):
@@ -73,8 +70,6 @@ def shared_memory_problems():
 class SharedMemoryOwnership(unittest.TestCase):
     @unittest.skipUnless(os.name == "posix", "POSIX shared memory is named, and tracked per process")
     def test_the_block_and_the_stderr_are_left_alone(self):
-        if is_known(KEY):
-            self.skipTest("known failure F13, watched by test_roundtrip_known_failures")
         self.assertEqual(shared_memory_problems(), [])
 
 
