@@ -18,7 +18,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from . import convert, runtime
+from . import _winjob, convert, runtime
 from . import types as T
 from .decorators import tools_in
 from .introspection import describe_tool
@@ -32,6 +32,7 @@ class Worker:
         for path in pythonpath:
             sys.path.insert(0, path)
         self.channel = Channel()
+        _winjob.kill_children_with_me()  # Windows: processes a tool starts end with the worker
         self._preload_numpy()
         try:
             importlib.import_module(module)

@@ -212,10 +212,12 @@ class WorkerProcess:
             self.kill()
 
     def kill(self) -> None:
-        self._kill_group()
-        self._kill_tree_windows()
-        self.proc.kill()
-        self.proc.wait()
+        try:
+            self._kill_group()
+            self._kill_tree_windows()
+        finally:  # whatever the tree kill did, the worker itself must be gone when this returns
+            self.proc.kill()
+            self.proc.wait()
 
     def _kill_tree_windows(self):
         """Windows has no process groups here: `taskkill /T` stops the worker AND the processes it started. (Not yet run on

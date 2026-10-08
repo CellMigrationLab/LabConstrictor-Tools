@@ -349,6 +349,9 @@ class CancelThatHadToKill(unittest.TestCase):
             with client.WorkerProcess("synthetic") as worker:
                 task = worker.task("stubborn", {"seconds": 60})
                 task.launched.wait(10)
+                time.sleep(
+                    1.0
+                )  # LAUNCH only says the request arrived: let the tool start sleeping, or Cancel wins before it runs (CANCELED)
                 task.cancel()
                 threading.Timer(1.0, worker.kill).start()
                 task.wait(20)

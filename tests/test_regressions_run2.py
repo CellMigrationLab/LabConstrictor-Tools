@@ -223,6 +223,7 @@ class QuietFailuresAreVisible(unittest.TestCase):
         self.assertIn("could not write the run record", log.tail(20))
         self.assertIn("disk full", log.tail(20))
 
+    @unittest.skipUnless(hasattr(os, "killpg"), "process groups are POSIX-only; Windows uses a job object")
     def test_a_failed_process_group_kill_is_logged(self):
         import types as _types
         from unittest import mock
