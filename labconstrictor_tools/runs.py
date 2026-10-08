@@ -56,19 +56,19 @@ def record(
         _prune()
         return folder
     except (
-        Exception
-    ) as error:  # noqa: BLE001 - a record must never break a run, but its absence must be visible
+        Exception  # noqa: BLE001 - a record must never break a run, but its absence must be visible
+    ) as error:
         log.warning(
             "could not write the run record for %s %s: %s: %s", app, tool_id, type(error).__name__, error
         )
         return None
 
 
-def _safe(text):
+def _safe(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", text)
 
 
-def _prune(keep=KEEP):
+def _prune(keep: int = KEEP) -> None:
     folders = sorted(p for p in runs_dir().iterdir() if p.is_dir())
     for old in folders[:-keep]:
         try:

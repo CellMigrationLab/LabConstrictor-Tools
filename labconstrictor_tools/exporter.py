@@ -15,7 +15,9 @@ import logging
 import os
 import re
 import tempfile
+from collections.abc import Callable, Iterator
 from pathlib import Path
+from typing import Any
 
 PRELUDE = """\
 from pathlib import Path
@@ -33,6 +35,7 @@ re-exporting replaces the blocks between the `# >>> lc-tool` and `# <<< lc-tool`
 '''
 
 _BLOCK = "# >>> lc-tool: %s\n%s# <<< lc-tool: %s\n"
+DROPPED_PREVIEW_CHARS = 60  # how much of a dropped statement is quoted back to the author
 _BLOCK_RE = r"# >>> lc-tool: %s\n.*?# <<< lc-tool: %s\n"
 
 
@@ -41,13 +44,16 @@ class CellError(Exception):
 
 
 class Prepared:
-    def __init__(self, name, code, dropped):
+    """A cell turned into module text, plus what was left out of it and what a check found wrong with it."""
+
+    def __init__(self, name: str, code: str, dropped: list[str]) -> None:
         self.name, self.code, self.dropped = name, code, dropped
-        self.problems, self.warnings = [], []
+        self.problems: list[str] = []
+        self.warnings: list[str] = []
 
 
 # ------------------------------------------------------------------ cell -> module text
-def prepare(source, label=None, function=None):
+def prepare(source: str, label: str | None = None, function: str | None = None) -> Prepared:
     try:
         tree = ast.parse(source)
     except SyntaxError as error:
@@ -73,7 +79,8 @@ def prepare(source, label=None, function=None):
         )
     target = targets[0]
     lines = source.splitlines()
-    kept, dropped = [], []
+    kept: list[str] = []
+    dropped: list[str] = []
     for node in tree.body:
         first = min([node.lineno] + [d.lineno for d in getattr(node, "decorator_list", [])])
         text = lines[first - 1 : node.end_lineno]
@@ -82,18 +89,18 @@ def prepare(source, label=None, function=None):
         if _belongs_in_module(node):
             kept.append("\n".join(text))
         else:
-            dropped.append(lines[node.lineno - 1].strip()[:60])
+            dropped.append(lines[node.lineno - 1].strip()[:DROPPED_PREVIEW_CHARS])
     return Prepared(target.name, "\n\n\n".join(kept) + "\n", dropped)
 
 
-def _is_tool_decorator(node):
+def _is_tool_decorator(node: ast.expr) -> bool:
     node = node.func if isinstance(node, ast.Call) else node
     return (isinstance(node, ast.Name) and node.id == "tool") or (
         isinstance(node, ast.Attribute) and node.attr == "tool"
     )
 
 
-def _belongs_in_module(node):
+def _belongs_in_module(node: ast.stmt) -> bool:
     if isinstance(node, (ast.Import, ast.ImportFrom, ast.FunctionDef, ast.ClassDef)):
         return True
     if isinstance(node, (ast.Assign, ast.AnnAssign)) and node.value is not None:
@@ -106,13 +113,13 @@ def _belongs_in_module(node):
 
 
 # ------------------------------------------------------------------ isolated check
-def check(prepared):
+def check(prepared: Prepared) -> Prepared:
     """Fills prepared.problems / prepared.warnings."""
     from .decorators import forget_module
     from .introspection import DeclarationError, describe_tool
 
     modname = "_lc_cell_check_%s" % prepared.name
-    namespace = {"__name__": modname}
+    namespace: dict[str, Any] = {"__name__": modname}
     try:
         exec(PRELUDE, namespace)  # noqa: S102 - the author's own code, run in the author's own kernel
         exec(compile(prepared.code, "<cell %s>" % prepared.name, "exec"), namespace)  # noqa: S102
@@ -133,7 +140,7 @@ def check(prepared):
         prepared.problems.append("invalid declaration: %s" % error)
     except (
         Exception
-    ) as error:  # noqa: BLE001 - whatever the cell raises is the finding (reported as a problem, and logged with its traceback)
+    ) as error:  # whatever the cell raises is the finding (reported as a problem, and logged with its traceback)
         logging.getLogger("labconstrictor.exporter").error(
             "tool cell %r fails on its own", prepared.name, exc_info=True
         )
@@ -161,11 +168,11 @@ def check(prepared):
     return prepared
 
 
-def _free_names(module_code, namespace):
+def _free_names(module_code: Any, namespace: dict[str, Any]) -> set[str]:
     """Global names used inside functions that neither the module nor the builtins define."""
-    found = set()
+    found: set[str] = set()
 
-    def walk(code):
+    def walk(code: Any) -> None:
         for inst in dis.get_instructions(code):
             if inst.opname == "LOAD_GLOBAL":
                 found.add(inst.argval)
@@ -178,7 +185,12 @@ def _free_names(module_code, namespace):
 
 
 # ------------------------------------------------------------------ writing the module
-def export(path, prepared_cells):
+def _literal(block: str) -> Callable[[re.Match[str]], str]:
+    """A re.sub replacement that inserts `block` as it is (no backslash escapes), bound now because it is made in a loop."""
+    return lambda _match: block
+
+
+def export(path: str | Path, prepared_cells: list[Prepared]) -> Path:
     """Replace (or append) one managed block per cell in `path`; everything else in the file is kept."""
     path = Path(path)
     text = path.read_text(encoding="utf-8") if path.exists() else HEADER + PRELUDE + "\n\n"
@@ -186,7 +198,7 @@ def export(path, prepared_cells):
         block = _BLOCK % (cell.name, cell.code, cell.name)
         pattern = re.compile(_BLOCK_RE % (re.escape(cell.name), re.escape(cell.name)), re.S)
         text = (
-            pattern.sub(lambda _m, b=block: b, text)
+            pattern.sub(_literal(block), text)
             if pattern.search(text)
             else text.rstrip("\n") + "\n\n\n" + block
         )
@@ -201,7 +213,7 @@ def export(path, prepared_cells):
 MAGIC = "%%lc_tool"
 
 
-def parse_magic_line(line):
+def parse_magic_line(line: str) -> Any:
     """'%%lc_tool "Label" --export lc_tools.py --function f --no-form' -> argparse namespace."""
     import argparse
     import shlex
@@ -214,7 +226,7 @@ def parse_magic_line(line):
     return parser.parse_args(shlex.split(line))
 
 
-def cells_of(notebook_path):
+def cells_of(notebook_path: str | Path) -> Iterator[tuple[Any, str]]:
     """(magic_line_arguments, source) for every %%lc_tool cell of an .ipynb file (plain JSON, no nbformat)."""
     notebook = json.loads(Path(notebook_path).read_text(encoding="utf-8"))
     for cell in notebook.get("cells", []):
@@ -226,9 +238,10 @@ def cells_of(notebook_path):
             yield parse_magic_line(first.strip()[len(MAGIC) :]), rest
 
 
-def export_notebook(notebook_path, out_path):
+def export_notebook(notebook_path: str | Path, out_path: str | Path) -> tuple[list[Prepared], list[str]]:
     """Returns (prepared_cells, errors). Nothing is written when any cell has problems."""
-    prepared, errors = [], []
+    prepared: list[Prepared] = []
+    errors: list[str] = []
     for number, (arguments, source) in enumerate(cells_of(notebook_path), 1):
         try:
             cell = check(prepare(source, arguments.label, arguments.function))

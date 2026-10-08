@@ -28,7 +28,11 @@ def _text(value: Any) -> str:
     return str(value)
 
 
-def _quote(text: str, windows: bool) -> str:
+def quote(text: str, windows: bool | None = None) -> str:
+    """Quote one argument for the shell of this machine (or of `windows`). The only place in the package that turns
+    strings into shell text: a person pastes the result, so a name with a space or a quote must stay one argument.
+    """
+    windows = (os.name == "nt") if windows is None else windows
     if windows:
         if text and all(c.isalnum() or c in "-_.:/\\=+," for c in text):
             return text
@@ -65,9 +69,9 @@ def command_line(
     """`python -m labconstrictor_tools run App tool name=value ...`, quoted for the shell."""
     windows = (os.name == "nt") if windows is None else windows
     parts = [python, "-m", "labconstrictor_tools", "run", app, tool["id"]]
-    parts = [_quote(x, windows) for x in parts]
+    parts = [quote(x, windows) for x in parts]
     for p, value in _given(tool, values):
-        parts.append(_quote("%s=%s" % (p["name"], _text(value)), windows))
+        parts.append(quote("%s=%s" % (p["name"], _text(value)), windows))
     note = placeholders(tool, values)
     line = " ".join(parts)
     if note:

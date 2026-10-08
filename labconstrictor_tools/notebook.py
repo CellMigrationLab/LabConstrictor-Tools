@@ -9,14 +9,24 @@ result conversion, so a tool behaves identically in all four front-ends (noteboo
 
 import logging
 import tempfile
+from collections.abc import Callable
+from typing import Any
 
 from . import convert, runtime
 from . import types as T
 from .introspection import describe_tool
+from .structures import ParamSchema, Result
+
+# bounds of a number box whose parameter declares no Min / Max (the widget needs finite limits)
+UNBOUNDED_INT = 10**9
+UNBOUNDED_FLOAT = 1e9
+FLOAT_STEP = 1e-4  # arrow-key step of a float box
 
 
 class ToolForm:
-    def __init__(self, function):
+    """The form of one tool. ipywidgets is imported inside, so importing this module works without it installed."""
+
+    def __init__(self, function: Callable[..., Any]) -> None:
         try:
             import ipywidgets as widgets
         except ImportError as error:
@@ -42,10 +52,10 @@ class ToolForm:
         self.widget = widgets.VBox(
             [title, *self.controls.values(), self.run_button, self.progress, self.status, self.output]
         )
-        self.results = None
+        self.results: list[Result] | None = None
 
     # ---- controls (same type mapping as the other hosts)
-    def _control(self, param):
+    def _control(self, param: ParamSchema) -> Any:
         w, kind = self._w, param["type"]
         common = {
             "description": param["label"],
@@ -64,16 +74,16 @@ class ToolForm:
         elif kind == "integer":
             control = w.BoundedIntText(
                 value=int(default or 0),
-                min=param.get("minimum", -(10**9)),
-                max=param.get("maximum", 10**9),
+                min=param.get("minimum", -UNBOUNDED_INT),
+                max=param.get("maximum", UNBOUNDED_INT),
                 **common,
             )
         elif kind == "float":
             control = w.BoundedFloatText(
                 value=float(default or 0),
-                min=param.get("minimum", -1e9),
-                max=param.get("maximum", 1e9),
-                step=1e-4,
+                min=param.get("minimum", -UNBOUNDED_FLOAT),
+                max=param.get("maximum", UNBOUNDED_FLOAT),
+                step=FLOAT_STEP,
                 **common,
             )
         elif kind == "boolean":
@@ -89,9 +99,9 @@ class ToolForm:
         control.tooltip = tooltip
         return control
 
-    def values(self):
+    def values(self) -> dict[str, Any]:
         """Control values -> the inputs the worker would receive (empty optional paths are left out)."""
-        inputs = {}
+        inputs: dict[str, Any] = {}
         for param in self.schema["inputs"]:
             value = self.controls[param["name"]].value
             if param["type"] in ("image", "labels", "table", "file", "folder") and not str(value).strip():
@@ -100,7 +110,7 @@ class ToolForm:
         return inputs
 
     # ---- run (in this kernel)
-    def run(self):
+    def run(self) -> list[Result] | None:
         """Run the tool with the current control values. Returns the list of typed results, or None if it failed."""
         self.output.clear_output()
         self.progress.layout.visibility = "visible"
@@ -117,7 +127,7 @@ class ToolForm:
             self.status.value = "✖ <b>%s</b>: %s" % (error.code, error.message)
         except (
             Exception
-        ) as error:  # noqa: BLE001 - UI boundary: any tool failure is shown in the form, and logged with its traceback
+        ) as error:  # UI boundary: any tool failure is shown in the form, and logged with its traceback
             logging.getLogger("labconstrictor.notebook").error(
                 "tool run failed in the notebook form", exc_info=True
             )
@@ -128,12 +138,12 @@ class ToolForm:
             self.run_button.disabled = False
         return self.results
 
-    def _on_progress(self, fraction, message):
+    def _on_progress(self, fraction: float | None, message: str) -> None:
         if fraction is not None:
             self.progress.value = fraction
         self.status.value = str(message)
 
-    def _show(self, results):
+    def _show(self, results: list[Result]) -> None:
         with self.output:
             for result in results:
                 kind = result["type"]
@@ -166,7 +176,7 @@ class ToolForm:
                     print(result["name"], result.get("path", ""))
 
     @staticmethod
-    def _show_image(result):
+    def _show_image(result: Result) -> None:
         import matplotlib.pyplot as plt
         import tifffile
 
@@ -180,7 +190,7 @@ class ToolForm:
         plt.show()
 
 
-def form(function):
+def form(function: Callable[..., Any]) -> ToolForm:
     """Show (and return) the form for a declared tool."""
     from IPython.display import display
 

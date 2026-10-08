@@ -18,9 +18,10 @@ import os
 import subprocess
 import sys
 import tempfile
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
+from .command import quote
 from .structures import AppSchema, RegistryEntry
 
 SUPPORTED_PROTOCOLS = (1,)
@@ -74,7 +75,7 @@ def runtime_path() -> str:
     return str(Path(__file__).resolve().parent.parent)
 
 
-def _check_name(name):
+def _check_name(name: str) -> str:
     """An app name becomes a file name in the registry: refuse anything that could point outside of it."""
     if not name or name in (".", "..") or any(c in name for c in "/\\\0") or name != name.strip():
         raise ValueError("invalid app name %r: it must be a plain name without path separators" % (name,))
@@ -87,7 +88,7 @@ def _runtime_needed(interpreter: str | Path) -> bool:
     If the probe itself fails (cannot start, times out) we cannot tell: assume the runtime is needed, and say so in the log.
     """
     try:
-        done = subprocess.run(
+        done = subprocess.run(  # noqa: S603 - argument list (the app's own interpreter), no shell
             [str(interpreter), "-I", "-c", "import labconstrictor_tools"],
             capture_output=True,
             timeout=PROBE_TIMEOUT_S,
@@ -147,14 +148,21 @@ def register(
     return entry
 
 
-def _generate_schema(name, interpreter, module, env, application, version) -> str:
+def _generate_schema(
+    name: str,
+    interpreter: str | Path,
+    module: str,
+    env: dict[str, str],
+    application: str,
+    version: str,
+) -> str:
     """Run `describe` in the app's own interpreter -> the schema JSON text; a hang or failure is a RuntimeError."""
     command = [str(interpreter), "-m", "labconstrictor_tools", "describe", "--module", module]
     command += ["--application", application, "--version", version]
     from . import log
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 - argument list (the app's own interpreter), no shell
             command, capture_output=True, text=True, env=env, encoding="utf-8", timeout=REGISTER_TIMEOUT_S
         )
     except subprocess.TimeoutExpired as error:
@@ -162,7 +170,7 @@ def _generate_schema(name, interpreter, module, env, application, version) -> st
         raise RuntimeError(
             "schema generation for %s timed out after %s s (interpreter %s, module %s): importing the tool module is "
             "slow or hangs; check it with `labconstrictor-tools check --module %s`"
-            % (name, REGISTER_TIMEOUT_S, interpreter, module, module)
+            % (name, REGISTER_TIMEOUT_S, interpreter, module, quote(module))
         ) from error
     if result.returncode:
 
@@ -368,7 +376,7 @@ def load_entries() -> tuple[dict[str, RegistryEntry], list[tuple[str, str]]]:
 _LOGGED_PROBLEMS: set[tuple[str, str]] = set()
 
 
-def _log_problems(problems):
+def _log_problems(problems: Iterable[tuple[str, str]]) -> None:
     """Each skipped app is logged once per session with the reason (not on every rescan)."""
     from . import log
 

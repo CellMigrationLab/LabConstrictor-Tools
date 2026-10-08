@@ -1,12 +1,14 @@
 """@tool registration. Registration only records the function; nothing scientific runs or is imported."""
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 _REGISTRY: dict[str, "Tool"] = {}
 
 
 class Tool:
+    """One registered function; `module` is kept so a module's tools can be dropped together (`forget_module`)."""
+
     def __init__(self, fn: Callable[..., Any], id: str, label: str) -> None:
         self.fn, self.id, self.label, self.module = fn, id, label, fn.__module__
 
@@ -17,13 +19,14 @@ def tool(label: str | Callable[..., Any] | None = None, *, id: str | None = None
         fn, label = label, None
         return _register(fn, None, None)
 
-    def deco(fn):
-        return _register(fn, label, id)
+    def deco(fn: Callable[..., Any]) -> Callable[..., Any]:
+        # `label` is text here: a callable label took the bare-@tool branch above
+        return _register(fn, cast("str | None", label), id)
 
     return deco
 
 
-def _register(fn, label, id):
+def _register(fn: Callable[..., Any], label: str | None, id: str | None) -> Callable[..., Any]:
     tid = id or fn.__name__
     if (
         tid in _REGISTRY
@@ -32,7 +35,7 @@ def _register(fn, label, id):
     ):
         raise ValueError("duplicate tool id %r (already declared in %s)" % (tid, _REGISTRY[tid].module))
     _REGISTRY[tid] = Tool(fn, tid, label or fn.__name__.replace("_", " ").capitalize())
-    fn.__lc_tool__ = _REGISTRY[tid]
+    fn.__lc_tool__ = _REGISTRY[tid]  # type: ignore[attr-defined]  # functions accept new attributes; notebook.ToolForm reads it back
     return fn
 
 

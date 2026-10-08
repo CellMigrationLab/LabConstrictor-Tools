@@ -27,18 +27,29 @@ import time
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 # Standard library only: no dependency on the host's log file. Inside a host the "labconstrictor" logger writes to the shared
 # log; in a worker (no handler) warnings and errors reach stderr, which the host copies into that log.
 log = logging.getLogger("labconstrictor.diagnostics")
 
+TOOL_PROBE_TIMEOUT_S = 10.0  # a GPU tool query (nvidia-smi, ...) that takes longer is reported as timed out
+NETWORK_TIMEOUT_S = 5  # per host in the network probe
+HTTPS_PORT = 443
+BENCHMARK_SIZE = 512  # side of the matrix / image of the GPU benchmark
+BENCHMARK_REPEATS = 5  # timed repetitions per device
+BENCHMARK_AGREEMENT = 1e-3  # relative difference to the CPU result above which a device is said to disagree
+ASCII_MAX = 127  # characters above this in a path are reported (some tools cannot open such paths)
+# exit codes `_run` reports, following the shell convention
+EXIT_TIMED_OUT, EXIT_NOT_EXECUTABLE, EXIT_NOT_FOUND = 124, 126, 127
 OK, WARN, FAIL, INFO = "ok", "warn", "fail", "info"
 _SYMBOL = {OK: "\u2714", WARN: "\u26a0", FAIL: "\u2716", INFO: "\u2022"}
 
 
 @dataclass
 class Check:
+    """One line of the `doctor` report: what was looked at, how it went, and what to do about it."""
+
     layer: str  # "machine", "worker", "gpu tools", "gpu libraries", "benchmark", "network", ...
     name: str
     status: str  # ok | warn | fail | info
@@ -61,6 +72,8 @@ def _ram_gb() -> float | None:
             import ctypes
 
             class Status(ctypes.Structure):
+                """Windows MEMORYSTATUSEX: the layout GlobalMemoryStatusEx fills in."""
+
                 _fields_ = (
                     [("length", ctypes.c_ulong), ("load", ctypes.c_ulong), ("total", ctypes.c_ulonglong)]
                     + [(n, ctypes.c_ulonglong) for n in ("avail", "ptotal", "pavail", "vtotal", "vavail")]
@@ -133,9 +146,7 @@ def probe_machine() -> list[Check]:
                     "wrote and read a file with a non-ASCII name in %s" % folder,
                 )
             )
-    except (
-        Exception
-    ) as error:  # noqa: BLE001 - probe boundary: any failure here IS the finding (returned below, and logged)
+    except Exception as error:  # probe boundary: any failure here IS the finding (returned below, and logged)
         log.error("probe 'writing files' failed: %s: %s", type(error).__name__, error, exc_info=True)
         out.append(
             Check(
@@ -147,7 +158,7 @@ def probe_machine() -> list[Check]:
             )
         )
     path = tempfile.gettempdir()
-    if any(ord(c) > 127 for c in path):
+    if any(ord(c) > ASCII_MAX for c in path):
         out.append(
             Check(
                 "machine",
@@ -191,18 +202,18 @@ def probe_worker() -> list[Check]:
 
 
 # ---------------------------------------------------------------------------------------------------- GPU tools
-def _run(command: list[str], timeout: float = 10.0) -> tuple[int, str]:
+def _run(command: list[str], timeout: float = TOOL_PROBE_TIMEOUT_S) -> tuple[int, str]:
     try:
-        done = subprocess.run(
+        done = subprocess.run(  # noqa: S603 - fixed argument lists only, never a shell
             command, capture_output=True, text=True, timeout=timeout
-        )  # noqa: S603 - fixed argument lists only
+        )
         return done.returncode, (done.stdout or "") + (done.stderr or "")
     except FileNotFoundError:
-        return 127, ""
+        return EXIT_NOT_FOUND, ""
     except subprocess.TimeoutExpired:
-        return 124, "timed out after %.0f s" % timeout
+        return EXIT_TIMED_OUT, "timed out after %.0f s" % timeout
     except OSError as error:
-        return 126, str(error)
+        return EXIT_NOT_EXECUTABLE, str(error)
 
 
 def parse_nvidia_smi(text: str) -> list[dict]:
@@ -220,7 +231,7 @@ def probe_gpu_tools() -> list[Check]:
     code, text = _run(
         ["nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader,nounits"]
     )
-    if code == 127:
+    if code == EXIT_NOT_FOUND:
         out.append(
             Check(
                 "gpu tools",
@@ -268,13 +279,13 @@ def probe_gpu_tools() -> list[Check]:
 
 
 # ---------------------------------------------------------------------------------------------------- GPU libraries
-def _torch_module():
+def _torch_module() -> Any:
     """PyTorch only if the app already has it: a probe must not import something heavy that is not installed."""
     import importlib.util
 
     if importlib.util.find_spec("torch") is None:
         return None
-    import torch  # noqa: PLC0415
+    import torch
 
     return torch
 
@@ -284,7 +295,7 @@ def probe_torch() -> list[Check]:
         torch = _torch_module()
     except (
         Exception
-    ) as error:  # noqa: BLE001 - a broken install is a finding: importing can raise anything (returned below, and logged)
+    ) as error:  # a broken install is a finding: importing can raise anything (returned below, and logged)
         log.error("probe PyTorch: import failed: %s: %s", type(error).__name__, error, exc_info=True)
         return [
             Check(
@@ -305,9 +316,7 @@ def probe_torch() -> list[Check]:
     cuda_build = getattr(getattr(torch, "version", None), "cuda", None)
     try:
         cuda_ok = bool(torch.cuda.is_available())
-    except (
-        Exception
-    ) as error:  # noqa: BLE001 - driver calls can raise anything: reported as the CUDA finding below
+    except Exception as error:  # driver calls can raise anything: reported as the CUDA finding below
         log.error(
             "probe PyTorch: torch.cuda.is_available() failed: %s: %s",
             type(error).__name__,
@@ -365,9 +374,7 @@ def probe_torch() -> list[Check]:
                         "Update macOS (12.3 or newer) and use a PyTorch built for Apple Silicon.",
                     )
                 )
-        except (
-            Exception
-        ) as error:  # noqa: BLE001 - driver calls can raise anything: reported as the MPS finding
+        except Exception as error:  # driver calls can raise anything: reported as the MPS finding
             log.error("probe PyTorch: MPS query failed: %s: %s", type(error).__name__, error, exc_info=True)
             out.append(Check("gpu libraries", "MPS (Apple Metal)", WARN, str(error)))
     hip = getattr(getattr(torch, "version", None), "hip", None)
@@ -390,7 +397,7 @@ def torch_devices() -> list[str]:
         torch = _torch_module()
     except (
         Exception
-    ):  # noqa: BLE001 - a broken PyTorch import: probe_torch reports it as a finding; here we only list devices
+    ):  # a broken PyTorch import: probe_torch reports it as a finding; here we only list devices
         log.error("torch_devices: PyTorch cannot be imported, no devices listed", exc_info=True)
         return []
     if torch is None:
@@ -399,28 +406,24 @@ def torch_devices() -> list[str]:
     try:
         if torch.cuda.is_available():
             names += ["cuda:%d" % i for i in range(torch.cuda.device_count())]
-    except (
-        Exception
-    ):  # noqa: BLE001 - driver query can raise anything; probe_torch reports CUDA problems as findings
+    except Exception:  # driver query can raise anything; probe_torch reports CUDA problems as findings
         log.error("torch_devices: the CUDA query failed, no CUDA device listed", exc_info=True)
     try:
         if getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
             names.append("mps")
-    except (
-        Exception
-    ):  # noqa: BLE001 - driver query can raise anything; probe_torch reports MPS problems as findings
+    except Exception:  # driver query can raise anything; probe_torch reports MPS problems as findings
         log.error("torch_devices: the MPS query failed, no MPS device listed", exc_info=True)
     return names
 
 
 # ---------------------------------------------------------------------------------------------------- real work
-def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
+def probe_benchmark(size: int = BENCHMARK_SIZE, repeats: int = BENCHMARK_REPEATS) -> list[Check]:
     """The same small convolution and matrix product on every device: the results must agree (a broken driver does not), and the timings show the real speed-up."""
     try:
         torch = _torch_module()
     except (
         Exception
-    ):  # noqa: BLE001 - a broken PyTorch import: probe_torch reports it as a finding; there is nothing to benchmark
+    ):  # a broken PyTorch import: probe_torch reports it as a finding; there is nothing to benchmark
         log.error("probe benchmark: PyTorch cannot be imported, nothing benchmarked", exc_info=True)
         return []
     if torch is None:
@@ -437,8 +440,8 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
             image, kernel, matrix = image.to(device), kernel.to(device), matrix.to(device)
 
             def work(
-                image=image, kernel=kernel, matrix=matrix
-            ):  # bound now: the loop moves on to the next device
+                image: Any = image, kernel: Any = kernel, matrix: Any = matrix
+            ) -> Any:  # bound now: the loop moves on to the next device
                 return torch.nn.functional.conv2d(image, kernel, padding=2).sum() + (matrix @ matrix).sum()
 
             work()  # warm-up (kernels are compiled on first use)
@@ -455,7 +458,7 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
             result = float(value.cpu())
             if reference is None:
                 reference = result
-            agrees = abs(result - reference) <= 1e-3 * max(1.0, abs(reference))
+            agrees = abs(result - reference) <= BENCHMARK_AGREEMENT * max(1.0, abs(reference))
             out.append(
                 Check(
                     "benchmark",
@@ -472,7 +475,7 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
             )
         except (
             Exception
-        ) as error:  # noqa: BLE001 - a device test can fail in any way: that is the finding (returned, and logged)
+        ) as error:  # a device test can fail in any way: that is the finding (returned, and logged)
             log.error(
                 "probe benchmark: device %s failed: %s: %s", name, type(error).__name__, error, exc_info=True
             )
@@ -504,7 +507,7 @@ def probe_network(hosts: Iterable[str] = ("pypi.org", "huggingface.co", "github.
     for host in hosts:
         started = time.perf_counter()
         try:
-            with socket.create_connection((host, 443), timeout=5):
+            with socket.create_connection((host, HTTPS_PORT), timeout=NETWORK_TIMEOUT_S):
                 pass
             out.append(
                 Check("network", host, OK, "reachable in %.0f ms" % ((time.perf_counter() - started) * 1000))
@@ -540,7 +543,7 @@ def run_checks(*, benchmark: bool = True, network: bool = False, extra: Iterable
             checks.extend(probe())
         except (
             Exception
-        ) as error:  # noqa: BLE001 - isolation boundary: one broken probe must not stop the others (returned, and logged)
+        ) as error:  # isolation boundary: one broken probe must not stop the others (returned, and logged)
             log.error(
                 "probe %s raised: %s: %s",
                 getattr(probe, "__name__", "probe"),

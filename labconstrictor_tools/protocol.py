@@ -7,13 +7,14 @@ Anything on the worker's real stdout other than these lines would corrupt the st
 takes the real stdout for itself and redirects the process-wide stdout to stderr.
 """
 
+import io
 import json
 import math
 import os
 import sys
 import threading
-from collections.abc import Iterator
-from typing import Any
+from collections.abc import Callable, Iterator
+from typing import Any, cast
 
 TOOL_PREFIX = "lc:"
 JOB_DIR_KEY = "_job_dir"  # reserved input: host-owned directory for outputs
@@ -28,7 +29,7 @@ def tool_id_from_script(script: str) -> str | None:
     return script[len(TOOL_PREFIX) :] if script.startswith(TOOL_PREFIX) else None
 
 
-def _finite(value):
+def _finite(value: Any) -> Any:
     if isinstance(value, float) and not math.isfinite(value):
         return None
     if isinstance(value, dict):
@@ -51,7 +52,7 @@ def _encode(message: dict[str, Any]) -> str:
 class Channel:
     """Thread-safe writer of response lines on the worker's real stdout."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._out = os.fdopen(os.dup(1), "w", encoding="utf-8", buffering=1)
         os.dup2(2, 1)  # stray prints from tools or libraries go to stderr
         sys.stdout = sys.stderr
@@ -130,16 +131,16 @@ def _oversized(size: int) -> None:
     )
 
 
-def _stdin_lines():
+def _stdin_lines() -> Iterator[str]:
     if os.name != "nt":
         # a line that is not valid UTF-8 must not kill the reader (strict decoding does on macOS and on UTF-8 locales)
-        sys.stdin.reconfigure(errors="replace")
+        cast(io.TextIOWrapper, sys.stdin).reconfigure(errors="replace")
         yield from _bounded_lines(sys.stdin.readline)
         return
     yield from _stdin_lines_without_pending_read()
 
 
-def _bounded_lines(readline, limit: int = MAX_REQUEST_BYTES) -> Iterator[str]:
+def _bounded_lines(readline: Callable[[int], str], limit: int = MAX_REQUEST_BYTES) -> Iterator[str]:
     """Lines from `readline`, except that a line longer than `limit` is dropped (reported once) instead of buffered."""
     while True:
         line = readline(limit + 1)
@@ -181,7 +182,7 @@ class LineSplitter:
         return [rest.decode("utf-8", errors="replace")] if rest.strip() and not self.dropping else []
 
 
-def _stdin_lines_without_pending_read(poll_seconds=0.02):
+def _stdin_lines_without_pending_read(poll_seconds: float = 0.02) -> Iterator[str]:
     """Windows: never leave a blocking ReadFile pending on the stdin handle.
 
     While a thread blocks in ReadFile on a synchronous pipe, any other code that queries that handle blocks too. Native
@@ -193,7 +194,9 @@ def _stdin_lines_without_pending_read(poll_seconds=0.02):
     import time
     from ctypes import wintypes
 
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32 = ctypes.WinDLL(  # type: ignore[attr-defined]  # Windows-only: the stubs of other platforms lack it
+        "kernel32", use_last_error=True
+    )
     kernel32.PeekNamedPipe.argtypes = [
         wintypes.HANDLE,
         ctypes.c_void_p,
@@ -202,7 +205,7 @@ def _stdin_lines_without_pending_read(poll_seconds=0.02):
         ctypes.POINTER(wintypes.DWORD),
         ctypes.c_void_p,
     ]
-    handle = wintypes.HANDLE(msvcrt.get_osfhandle(0))
+    handle = wintypes.HANDLE(msvcrt.get_osfhandle(0))  # type: ignore[attr-defined]  # Windows-only: absent from other platforms' stubs
     splitter = LineSplitter()
     while True:
         available = wintypes.DWORD(0)

@@ -17,11 +17,14 @@ import shutil
 import subprocess
 import sys
 import time
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
 from . import log, registry
-from .structures import ParamSchema, ToolSchema
+from .client import Task
+from .command import quote
+from .structures import AppSchema, ParamSchema, RegistryEntry, ToolSchema
 
 HEAVY_MODULES = (
     "numpy",
@@ -52,7 +55,7 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 
 # ---------------------------------------------------------------- run
-def _find_tool(schema, wanted):
+def _find_tool(schema: AppSchema, wanted: str) -> ToolSchema:
     for tool in schema["tools"]:
         if wanted in (tool["id"], tool["label"]):
             return tool
@@ -132,7 +135,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         raise SystemExit("✖ %s" % error) from error
     except KeyboardInterrupt:  # Ctrl-C: the worker is closed by run_once's context manager; no traceback
         print("✖ interrupted; the worker was asked to stop", file=sys.stderr)
-        return 130
+        return EXIT_INTERRUPTED
     if task.status != "COMPLETE" and not args.out:
         _remove_empty_job_dir(inputs["_job_dir"])
     print(json.dumps(_run_report(task, round(time.time() - started, 2)), indent=2))
@@ -145,10 +148,10 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0 if task.status == "COMPLETE" else 1
 
 
-def _parse_params(app: str, tool, pairs) -> dict:
+def _parse_params(app: str, tool: ToolSchema, pairs: Iterable[str]) -> dict[str, Any]:
     """`name=value` arguments -> typed inputs; a bad, unknown or repeated name exits with the usage."""
     by_name = {p["name"]: p for p in tool["inputs"]}
-    inputs = {}
+    inputs: dict[str, Any] = {}
     for pair in pairs:
         name, sep, text = pair.partition("=")
         if not sep or name not in by_name:
@@ -166,9 +169,9 @@ def _remove_empty_job_dir(job_dir: str) -> None:
         log.logger().debug("job folder %s was not removed: %s: %s", job_dir, type(error).__name__, error)
 
 
-def _run_report(task, seconds: float) -> dict:
+def _run_report(task: Task, seconds: float) -> dict[str, Any]:
     """The JSON a finished `run` prints; a traceback of a failed task goes to stderr."""
-    report = {"status": task.status, "seconds": seconds}
+    report: dict[str, Any] = {"status": task.status, "seconds": seconds}
     if task.record_dir:
         report["run_record"] = str(task.record_dir / "run.json")
     if task.status == "COMPLETE":
@@ -181,7 +184,14 @@ def _run_report(task, seconds: float) -> dict:
     return report
 
 
-RESULTS_KEPT = 20
+RESULTS_KEPT = 20  # result folders of `run` that are kept; older ones are removed
+RESULTS_DIR_ATTEMPTS = 20  # tries to find an unused results folder name before giving up
+RESULTS_DIR_RANDOM_BYTES = 3  # random part of a results folder name (two runs in one second never collide)
+LIVE_SCHEMA_TIMEOUT_S = 120  # doctor: how long an app's own interpreter gets to describe its tools
+VERSION_PROBE_TIMEOUT_S = 20  # support bundle: how long `python -VV` of an app gets
+BUNDLE_RUNS_KEPT = 10  # support bundle: the newest run records it includes
+SLOW_DECLARATIONS_S = 0.5  # check: warn when importing the declarations takes longer than this
+EXIT_INTERRUPTED = 130  # shell convention for Ctrl-C: 128 + SIGINT
 
 
 _RUN_FOLDER = re.compile(
@@ -189,11 +199,11 @@ _RUN_FOLDER = re.compile(
 )  # what _new_results_dir creates: nothing else in results/ is ever pruned
 
 
-def _slug(text):
+def _slug(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", text).lstrip(".") or "x"
 
 
-def _new_results_dir(app, tool_id):
+def _new_results_dir(app: str, tool_id: str) -> Path:
     """<LC_HOME>/results/<time>_<id>_<app>_<tool>, created here (two runs in the same second never share a folder).
     Older run folders beyond RESULTS_KEPT are removed; only folders this command created (by name) are ever touched.
     """
@@ -209,10 +219,10 @@ def _new_results_dir(app, tool_id):
             log.warning(
                 "could not remove the old results folder %s (%s: %s)", old, type(error).__name__, error
             )
-    for _ in range(20):
+    for _ in range(RESULTS_DIR_ATTEMPTS):
         name = "%s_%s_%s_%s" % (
             time.strftime("%Y%m%dT%H%M%S"),
-            os.urandom(3).hex(),
+            os.urandom(RESULTS_DIR_RANDOM_BYTES).hex(),
             _slug(app),
             _slug(tool_id),
         )
@@ -227,7 +237,7 @@ def _new_results_dir(app, tool_id):
     raise SystemExit("could not create a results folder in %s" % base)
 
 
-def _print_progress(message, fraction):
+def _print_progress(message: str, fraction: float | None) -> None:
     shown = (
         "[ ?%]" if fraction is None else "[%3d%%]" % round(100 * fraction)
     )  # None = indeterminate, not 0 %
@@ -235,9 +245,9 @@ def _print_progress(message, fraction):
 
 
 # ---------------------------------------------------------------- check (for authors)
-def _hints(item: dict) -> str:
+def _hints(item: Mapping[str, Any]) -> str:
     """The interaction hints of a parameter or output, so an author sees what hosts will do with it."""
-    found = []
+    found: list[str] = []
     if item.get("choices_from"):
         found.append("dropdown from %s" % item["choices_from"]["tool"])
     if item.get("clear_after_run"):
@@ -299,7 +309,7 @@ def cmd_check(args: argparse.Namespace) -> int:
         print(
             "  registering and browsing tools stays instant (hosts only need the declarations until Run is pressed)"
         )
-    if seconds > 0.5:
+    if seconds > SLOW_DECLARATIONS_S:
         print("⚠ loading the declarations took %.1f s" % seconds)
     return 0
 
@@ -353,7 +363,7 @@ def cmd_export_notebook(args: argparse.Namespace) -> int:
 
 
 # ---------------------------------------------------------------- doctor (for users and administrators)
-def _live_schema(entry):
+def _live_schema(entry: RegistryEntry) -> tuple[subprocess.CompletedProcess[str], float]:
     env = {
         **os.environ,
         "PYTHONNOUSERSITE": "1",
@@ -362,11 +372,13 @@ def _live_schema(entry):
     }
     command = [entry["python"], "-m", "labconstrictor_tools", "describe", "--module", entry["module"]]
     started = time.perf_counter()
-    result = subprocess.run(command, capture_output=True, text=True, env=env, encoding="utf-8", timeout=120)
+    result = subprocess.run(  # noqa: S603 - argument list (the app's own interpreter), no shell
+        command, capture_output=True, text=True, env=env, encoding="utf-8", timeout=LIVE_SCHEMA_TIMEOUT_S
+    )
     return result, time.perf_counter() - started
 
 
-def _strip(schema):
+def _strip(schema: Mapping[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in schema.items() if k not in ("application", "version")}
 
 
@@ -383,7 +395,7 @@ def diagnose() -> list[tuple[str, str, str]]:
     return findings
 
 
-def _diagnose_app(name: str, entry) -> tuple[str, str, str]:
+def _diagnose_app(name: str, entry: RegistryEntry) -> tuple[str, str, str]:
     """One registered app -> (app, level, message): is its cached schema what its own interpreter says now?"""
     try:
         cached = registry.schema(name)
@@ -396,7 +408,8 @@ def _diagnose_app(name: str, entry) -> tuple[str, str, str]:
         return (
             name,
             "error",
-            "its interpreter did not answer within 120 s (importing the tool module hangs?)",
+            "its interpreter did not answer within %d s (importing the tool module hangs?)"
+            % LIVE_SCHEMA_TIMEOUT_S,
         )
     except (OSError, ValueError) as error:  # cannot start, or it printed something that is not a schema
         return (
@@ -467,7 +480,7 @@ def cmd_support_bundle(args: argparse.Namespace) -> int:
             for path in _bundle_files(home / folder, pattern, skipped):
                 bundle.write(path, "%s/%s" % (folder, path.name))
         runs = sorted(p for p in (home / "runs").glob("*") if p.is_dir() and not p.is_symlink())
-        for run in runs[-10:]:
+        for run in runs[-BUNDLE_RUNS_KEPT:]:
             for path in _bundle_files(run, "*.json", skipped):
                 bundle.write(path, "runs/%s/%s" % (run.name, path.name))
         if skipped:
@@ -492,7 +505,7 @@ def cmd_support_bundle(args: argparse.Namespace) -> int:
     return 0
 
 
-def _bundle_files(folder, pattern, skipped):
+def _bundle_files(folder: Path, pattern: str, skipped: list[str]) -> Iterator[Path]:
     """Regular files of the expected kind directly inside `folder`. A symlink would make the zip contain whatever it points
     to (a private key, say): leave those out and say so."""
     if not folder.is_dir() or folder.is_symlink():
@@ -511,7 +524,7 @@ def _bundle_files(folder, pattern, skipped):
         yield path
 
 
-def _environment_report():
+def _environment_report() -> str:
     import platform
     from importlib import metadata
 
@@ -523,7 +536,9 @@ def _environment_report():
     lines += ["", "apps:"]
     for name, entry in sorted(entries.items()):
         try:
-            result = subprocess.run([entry["python"], "-VV"], capture_output=True, text=True, timeout=20)
+            result = subprocess.run(  # noqa: S603 - argument list (the app's own interpreter), no shell
+                [entry["python"], "-VV"], capture_output=True, text=True, timeout=VERSION_PROBE_TIMEOUT_S
+            )
             version = (result.stdout or result.stderr).strip()
         except (
             OSError,
@@ -576,9 +591,10 @@ def cmd_init(args: argparse.Namespace) -> int:
     if target.exists():
         raise SystemExit("%s already exists; not overwriting" % target)
     target.write_text(TEMPLATE, encoding="utf-8")
-    module = target.stem
+    module = quote(target.stem)
+    folder = quote(str(target.parent.resolve()))
     print(
         "wrote %s\nnext:\n  labconstrictor-tools check --module %s --pythonpath %s\n  labconstrictor-tools register --name myapp --prefix <app prefix> --module %s --pythonpath %s"
-        % (target, module, target.parent.resolve(), module, target.parent.resolve())
+        % (target, module, folder, module, folder)
     )
     return 0

@@ -20,6 +20,8 @@ _keep_alive = None  # the job handle must stay open for as long as the worker ru
 
 
 class _BasicLimits(ctypes.Structure):
+    """Win32 JOBOBJECT_BASIC_LIMIT_INFORMATION: field order and sizes must match the C struct exactly."""
+
     _fields_ = [
         ("PerProcessUserTimeLimit", ctypes.c_int64),
         ("PerJobUserTimeLimit", ctypes.c_int64),
@@ -34,10 +36,14 @@ class _BasicLimits(ctypes.Structure):
 
 
 class _IoCounters(ctypes.Structure):
+    """Win32 IO_COUNTERS: six counters we never read, present only so the struct below has the right size."""
+
     _fields_ = [(name, ctypes.c_uint64) for name in ("a", "b", "c", "d", "e", "f")]
 
 
 class _ExtendedLimits(ctypes.Structure):
+    """Win32 JOBOBJECT_EXTENDED_LIMIT_INFORMATION: the one SetInformationJobObject accepts for kill-on-close."""
+
     _fields_ = [
         ("BasicLimitInformation", _BasicLimits),
         ("IoInfo", _IoCounters),
@@ -53,7 +59,9 @@ def kill_children_with_me() -> bool:
     global _keep_alive
     if os.name != "nt":
         return False
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32 = ctypes.WinDLL(  # type: ignore[attr-defined]  # Windows-only: the stubs of other platforms lack it
+        "kernel32", use_last_error=True
+    )
     # explicit signatures: without them ctypes passes handles as C ints and the pseudo-handle -1 of this process overflows
     kernel32.CreateJobObjectW.argtypes = [wintypes.LPVOID, wintypes.LPCWSTR]
     kernel32.CreateJobObjectW.restype = wintypes.HANDLE
@@ -79,7 +87,7 @@ def kill_children_with_me() -> bool:
         log.warning(
             "worker: could not join a kill-on-close job object (Windows error %s); processes a tool starts may "
             "outlive the worker",
-            ctypes.get_last_error(),
+            ctypes.get_last_error(),  # type: ignore[attr-defined]  # Windows-only: absent from other platforms' stubs
         )
         return False
     _keep_alive = job

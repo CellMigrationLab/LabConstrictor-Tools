@@ -32,13 +32,16 @@ line-length = 110
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B", "UP"]
+select = ["E", "F", "W", "I", "B", "UP", "S", "BLE", "RUF100"]   # S: security (shell, exec, permissions); BLE: no blind except; RUF100: every noqa must still do something
 ignore = ["E501", "UP031", "UP032", "B905"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["E402", "B007"]   # test scripts set up sys.path / env before importing
+"tests/**" = ["E402", "B007", "S", "BLE", "RUF100"]   # test scripts set up sys.path / env before importing; they assert, run subprocesses and expect failures on purpose
 
 [tool.mypy]
 # the example app uses the semantic marker types (Image, ...) as annotations on purpose
 ignore_missing_imports = true
+disallow_untyped_defs = true   # every function in the package is annotated; keep it that way
+disallow_incomplete_defs = true
+warn_unused_ignores = true   # a "type: ignore" that no longer silences anything is removed
 exclude = ["labconstrictor_tools/examples/"]
