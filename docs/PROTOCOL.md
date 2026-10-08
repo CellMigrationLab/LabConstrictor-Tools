@@ -16,6 +16,7 @@ Value rules (enforced by the worker, each violation is a `FAILURE` with code `in
 * A default must be valid for its declared type (checked when the schema is generated, not when a host omits the value).
 * A `choice` declared with an `Enum` annotation reaches the tool as the Enum member.
 * An image/labels input with no pixels is refused (`empty_image`), from a file or from shared memory.
+* Table inputs (a CSV file, UTF-8, first line is the header) reach the tool as a DataFrame exactly as written: floating point cells are read with every digit (`float_precision="round_trip"`, about twice as slow as pandas' default on very large tables); column names are kept as written, duplicates (`a,a`) and empty names included (pandas' renaming to `a.1` / `Unnamed: 0` is switched off, so a tool must address such columns by position); an empty cell is missing (NaN); the texts `NA`, `N/A`, `NULL`, `None`, `nan`, `null`, ... stay text, except in a column whose other cells are all numbers, where they are missing numbers. A table file that does not exist is refused with `file_not_found`; one that is empty or not a UTF-8 CSV with `unreadable_table`; both messages name the file.
 * Image outputs: integers are never changed in value (wide integers that fit 16 bits are stored as 16-bit; others must be exact as 32-bit float or the result fails with `unsupported_dtype`); floating point values are stored as float32 (about 7 significant digits); float values outside the float32 range fail.
 
 Input `type`: `string integer float boolean choice image labels table file folder`.
