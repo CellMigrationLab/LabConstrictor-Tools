@@ -65,9 +65,7 @@ def _load_one(param: ParamSchema, value: Any) -> Any:
             )
         return _check_dimensions(param, array)
     if kind == "table":
-        import pandas as pd
-
-        return pd.read_csv(value)
+        return _read_table(param, value)
     if kind == "file":
         return Path(value)
     if kind == "folder":
@@ -119,6 +117,98 @@ def _check_dimensions(param: ParamSchema, array: Any) -> Any:
             % (param["label"], len(axes), axes, array.ndim, tuple(array.shape)),
         )
     return array
+
+
+# Texts pandas reads as "missing" by default. In a table input they stay text, except in a column whose other cells are numbers
+# (there they are missing numbers); an empty cell is always missing. Documented in docs/PROTOCOL.md ("Table inputs").
+PANDAS_NA_WORDS = [
+    "#N/A",
+    "#N/A N/A",
+    "#NA",
+    "-1.#IND",
+    "-1.#QNAN",
+    "-NaN",
+    "-nan",
+    "1.#IND",
+    "1.#QNAN",
+    "<NA>",
+    "N/A",
+    "NA",
+    "NULL",
+    "NAN",
+    "NaN",
+    "None",
+    "n/a",
+    "nan",
+    "null",
+]
+NAN_SPELLINGS = frozenset(
+    {"NaN", "nan", "NAN"}
+)  # what Fiji, QuPath, numpy and pandas write for an unavailable number
+EMPTY_CELL = ""
+
+
+def _read_table(param: ParamSchema, value: Any) -> Any:
+    """Read a CSV file into a DataFrame exactly as the host wrote it: floats with all their digits (`round_trip`), column names
+    as written (duplicates and empty names included: columns are read by position and named afterwards), empty cells missing,
+    texts like "NA" kept as text unless the column is numeric. A missing or unreadable file is a ToolError, not a pandas error.
+    """
+    import pandas as pd
+
+    path = Path(value)
+    label = param["label"]
+    if not path.is_file():
+        raise ToolError("file_not_found", "'%s': table file not found: %s" % (label, path))
+    try:
+        header = pd.read_csv(path, header=None, nrows=1, dtype=str, keep_default_na=False)
+        names = [str(name) for name in header.iloc[0]]
+        columns = list(range(len(names)))
+        options: dict[str, Any] = {"header": 0, "names": columns, "float_precision": "round_trip"}
+        frame = pd.read_csv(path, keep_default_na=False, na_values=[EMPTY_CELL], **options)
+
+        def is_text(column: int) -> bool:
+            return bool(
+                pd.api.types.is_string_dtype(frame[column].dtype)
+            )  # dtype, not cells: object columns hold NaN too
+
+        words = [
+            column for column in columns if is_text(column) and frame[column].isin(PANDAS_NA_WORDS).any()
+        ]
+        for column in words:
+            cells = frame[column].dropna()
+            if cells.isin(
+                NAN_SPELLINGS
+            ).all():  # only NaN spellings (and empty cells): an unavailable measurement
+                frame[column] = pd.Series(float("nan"), index=frame.index, dtype=float)
+        words = [column for column in words if is_text(column)]
+        if words:  # a column of numbers with some "NA" cells is numeric, with those cells missing
+            numeric = pd.read_csv(
+                path,
+                usecols=words,
+                keep_default_na=False,
+                na_values=PANDAS_NA_WORDS + [EMPTY_CELL],
+                **options,
+            )
+            for column in words:
+                if (
+                    pd.api.types.is_numeric_dtype(numeric[column]) and numeric[column].notna().any()
+                ):  # all words: text
+                    frame[column] = numeric[column]
+        frame.columns = names
+        return frame
+    except (
+        pd.errors.ParserError,
+        pd.errors.EmptyDataError,
+        UnicodeDecodeError,
+        ValueError,
+        OSError,
+    ) as error:
+        logging.getLogger("labconstrictor.convert").error("cannot read table %s", path, exc_info=True)
+        raise ToolError(
+            "unreadable_table",
+            "cannot read %s as a CSV table: %s; save the table as a UTF-8 CSV file with a header row"
+            % (path.name, error),
+        ) from error
 
 
 def _read_image(value: Any) -> Any:

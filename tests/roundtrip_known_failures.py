@@ -39,28 +39,6 @@ FINDINGS: dict[str, Finding] = {
         "as docs/PROTOCOL.md promises for every value-rule violation",
         "FAILURE with the Python exception class as code, e.g. [ValueError] invalid literal for int() with base 10: 'abc'",
     ),
-    "F2": Finding(
-        "A table input does not read floating point cells exactly",
-        'a CSV file "f\\n0.30000000000000004\\n" given to a Table parameter: convert.load_inputs(schema, {"t": path})["t"]["f"][0]'
-        " is 0.3 (and 6.4575963826141304e+16 is read as 6.45759638261413e+16)",
-        "the cell equals float('0.30000000000000004'): pd.read_csv(path, float_precision='round_trip') in convert._load_one",
-        "pandas' default C parser rounds the last digit; the tool computes with a different number than the host wrote, and a "
-        "TableOut echo then writes the rounded value back",
-    ),
-    "F3": Finding(
-        "Duplicate and empty column names of a table input are renamed silently",
-        'a CSV whose header is "a,a" (or ",b"): the tool receives the columns ["a", "a.1"] (["Unnamed: 0", "b"])',
-        "the tool sees the names the host wrote, or the call fails with a message that names the problem",
-        "pd.read_csv mangles the header; nothing tells the person",
-    ),
-    "F4": Finding(
-        "A table that cannot be read raises a raw pandas/OS exception instead of a ToolError",
-        "a missing file, an empty file or binary garbage given to a Table parameter: FileNotFoundError / EmptyDataError / "
-        "UnicodeDecodeError",
-        "ToolError('file_not_found', ...) for a missing file (like image: file_not_found) and ToolError('unreadable_table', ...) "
-        "for content that is not a CSV, so the host shows a readable message",
-        "FAILURE with code FileNotFoundError / EmptyDataError / UnicodeDecodeError",
-    ),
     "F5": Finding(
         "A tool that returns the wrong kind of value for an output gets a raw Python exception, not a ToolError('bad_return')",
         "a tool returns [[1, 0, 0], [0, 1], [0, 0, 1]] (ragged) or [['a', 0, 0], [0, 1, 0], [0, 0, 1]] as its Affine output; or "
@@ -76,22 +54,6 @@ FINDINGS: dict[str, Finding] = {
         "ToolError('bad_return', ...) like PointsOut and ShapesOut, and like the author test harness's contract check "
         "('affines are finite 3x3')",
         "COMPLETE with matrix_yx containing null; a host that applies it moves the image to nowhere",
-    ),
-    "F7": Finding(
-        "Text cells that pandas treats as missing (NA, null, None, N/A, nan, ...) arrive as NaN",
-        'a CSV column holding the texts "NA", "null", "None": the tool receives NaN for every one of them',
-        "a text cell stays text (pd.read_csv(..., keep_default_na=False) and an empty cell as missing), or the behaviour is "
-        "documented in docs/PROTOCOL.md",
-        "silent loss of the cell's content (a gene called NA, a status 'None')",
-    ),
-    "F10": Finding(
-        "command.quote(windows=True) breaks texts with backslashes before a quote",
-        'command.quote(\'x y\\\\"z\', windows=True) and command.quote("C:\\\\My Data\\\\", windows=True): parse the result with '
-        "CommandLineToArgvW / the MSVC rules (tests/test_roundtrip_command.py has the parser)",
-        "the copied Windows command line gives the program exactly the text: backslashes in front of a quote (or of the closing "
-        "quote) are doubled",
-        "a folder path with a space that ends in a backslash, or a text with backslashes before a double quote, comes out "
-        "changed (the closing quote is swallowed)",
     ),
     "F11": Finding(
         "A malformed or stale shared-memory image descriptor raises a raw exception",
@@ -167,36 +129,6 @@ _add(
     "property:only_toolerror_bounded",
 )
 _add(
-    "F2",
-    "cli:echo_table/float-digits",
-    "cli:echo_table/random-floats",
-    "notebook:echo_table/float-digits",
-    "notebook:echo_table/random-floats",
-    "snippet:echo_table/float-digits",
-    "snippet:echo_table/random-floats",
-    "terminal:echo_table/float-digits",
-    "terminal:echo_table/random-floats",
-    "worker:echo_table/float-digits",
-    "worker:echo_table/random-floats",
-    "property:table_floats_survive_the_csv_exactly",
-)
-_add(
-    "F3",
-    "worker:echo_table/duplicate-column-names",
-    "worker:echo_table/empty-column-name",
-)
-_add(
-    "F4",
-    "cli:echo_table/missing-file",
-    "cli:echo_table/no-header-no-rows",
-    "terminal:echo_table/missing-file",
-    "terminal:echo_table/no-header-no-rows",
-    "worker:echo_table/binary-garbage",
-    "worker:echo_table/missing-file",
-    "worker:echo_table/no-header-no-rows",
-    "property:only_toolerror_table_file",
-)
-_add(
     "F5",
     "property:only_toolerror_result_affine",
     "property:only_toolerror_result_image",
@@ -218,21 +150,6 @@ _add(
     "worker:echo_affine/invalid/nan-cell",
 )
 _add(
-    "F7",
-    "cli:echo_table/text-that-pandas-calls-missing",
-    "notebook:echo_table/text-that-pandas-calls-missing",
-    "snippet:echo_table/text-that-pandas-calls-missing",
-    "terminal:echo_table/text-that-pandas-calls-missing",
-    "worker:echo_table/text-that-pandas-calls-missing",
-)
-_add(
-    "F10",
-    "winquote:quote-after-backslashes",
-    "winquote:spaced-trailing-backslash",
-    "winquote:spaced-quote-after-backslash",
-    "property:windows_quoting_keeps_a_text_one_argument",
-)
-_add(
     "F11",
     "property:only_toolerror_image_shared_memory",
 )
@@ -250,12 +167,6 @@ _add(
     "terminal:echo_image/uint64/beyond-float32",
     "snippet:echo_image/uint64/beyond-float32",
     "notebook:echo_image/uint64/beyond-float32",
-)
-_add(
-    "F10",
-    "winproc:quote-after-backslashes",
-    "winproc:spaced-trailing-backslash",
-    "winproc:spaced-quote-after-backslash",
 )
 _add(
     "F12",
