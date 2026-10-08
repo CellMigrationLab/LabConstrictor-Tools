@@ -167,7 +167,9 @@ def _read_table(param: ParamSchema, value: Any) -> Any:
         frame = pd.read_csv(path, keep_default_na=False, na_values=[EMPTY_CELL], **options)
 
         def is_text(column: int) -> bool:
-            return bool(pd.api.types.is_string_dtype(frame[column]))
+            return bool(
+                pd.api.types.is_string_dtype(frame[column].dtype)
+            )  # dtype, not cells: object columns hold NaN too
 
         words = [
             column for column in columns if is_text(column) and frame[column].isin(PANDAS_NA_WORDS).any()
