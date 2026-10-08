@@ -12,6 +12,13 @@ from .structures import AppSchema, OutputSchema, ParamSchema, ToolSchema
 
 PROTOCOL = 1
 SCALARS = {str: "string", int: "integer", float: "float", bool: "boolean"}
+OUTPUT_ONLY_MARKERS = (
+    T.Name,
+    T.Replace,
+    T.ApplyTo,
+)  # these describe a result: on an input they would be ignored
+AXES_ON_INPUT = "parameter %r: Axes describes the dimensions of an Image or Labels input and this parameter is not one: remove it"
+IMAGE_OUTPUT_TYPES = ("image", "labels")  # the output types an Axes hint describes
 
 
 class DeclarationError(Exception):
@@ -105,6 +112,7 @@ def _param(name: str, p: inspect.Parameter, hint: Any, argdoc: dict[str, str]) -
         d["default"] = p.default.value if isinstance(p.default, enum.Enum) else p.default
     _add_type_fields(d, name, p, hint, base, meta, has_default)
     _check_default(name, d)
+    _check_number_hints(d, name, meta)
     if d["type"] in ("integer", "float"):
         _add_number_fields(d, name, meta)
     _add_display_fields(d, name, meta, argdoc)
@@ -128,9 +136,17 @@ def _add_type_fields(
     has_default: bool,
 ) -> None:
     """The parameter's `type` (and its image/choice specifics), from the annotation."""
+    for marker in OUTPUT_ONLY_MARKERS:
+        if _m(meta, marker):
+            raise DeclarationError(
+                "parameter %r: %s describes a result, not an input: put it on the return annotation or remove it"
+                % (name, marker.__name__)
+            )
     if base in T.INPUT_TYPES:
         d["type"] = T.INPUT_TYPES[base]
         if _m(meta, T.Axes):
+            if d["type"] not in IMAGE_OUTPUT_TYPES:
+                raise DeclarationError(AXES_ON_INPUT % name)
             d["axes"] = _m(meta, T.Axes).value
         if _m(meta, T.PickChannel) and _m(meta, T.PickChannel).value:
             if d["type"] != "image":
@@ -141,6 +157,8 @@ def _add_type_fields(
                     % name
                 )
             d["pick_channel"] = True
+    elif _m(meta, T.Axes):
+        raise DeclarationError(AXES_ON_INPUT % name)
     elif get_origin(base) is Literal:
         ch = list(get_args(base))
         d["type"] = "choice"
@@ -158,6 +176,40 @@ def _add_type_fields(
         d["type"] = "file"
     else:
         raise DeclarationError("parameter %r: unsupported annotation %r" % (name, hint))
+
+
+def _check_number_hints(d: dict[str, Any], name: str, meta: list[Any]) -> None:
+    """Min / Max / PixelSizeOf say something about a number: on any other parameter they would be silently ignored, and a
+    bound that is not a number or a Min above Max can never be satisfied, so each is refused with what to change.
+    """
+    if d["type"] not in ("integer", "float"):
+        for marker in (T.Min, T.Max):
+            if _m(meta, marker):
+                raise DeclarationError(
+                    "parameter %r: %s applies to an int or float parameter; this one is of type %s: remove it"
+                    % (name, marker.__name__, d["type"])
+                )
+    if _m(meta, T.PixelSizeOf) and d["type"] != "float":
+        raise DeclarationError(
+            "parameter %r: PixelSizeOf applies to a float parameter (the calibration in um/px); this one is of type %s: remove it"
+            % (name, d["type"])
+        )
+    bounds = {}
+    for marker in (T.Min, T.Max):
+        found = _m(meta, marker)
+        if not found:
+            continue
+        bound = found.value
+        if isinstance(bound, bool) or not isinstance(bound, (int, float)) or not math.isfinite(bound):
+            raise DeclarationError(
+                "parameter %r: %s(%r) must be a finite number" % (name, marker.__name__, bound)
+            )
+        bounds[marker.__name__] = bound
+    if "Min" in bounds and "Max" in bounds and bounds["Min"] > bounds["Max"]:
+        raise DeclarationError(
+            "parameter %r: Min(%r) is above Max(%r), so no value is allowed: swap them or widen the range"
+            % (name, bounds["Min"], bounds["Max"])
+        )
 
 
 def _add_number_fields(d: dict[str, Any], name: str, meta: list[Any]) -> None:
@@ -251,19 +303,36 @@ def _outputs(ret: Any, tool_id: str) -> list[OutputSchema]:
                 )
             o["replace"] = True
         if _m(m, T.Axes):
+            if o["type"] not in IMAGE_OUTPUT_TYPES:
+                raise DeclarationError(
+                    "tool %r output %d: Axes describes an image or labels output; this one is of type %s: remove it"
+                    % (tool_id, i, o["type"])
+                )
             o["axes"] = _m(m, T.Axes).value
+        o["explicit_name"] = bool(_m(m, T.Name))
         a = _m(m, T.ApplyTo)
         if a:
             o["display"] = {"apply_to": a.source, **({"relative_to": a.target} if a.target else {})}
         outs.append(o)
+    explicit = [o["name"] for o in outs if o.pop("explicit_name")]
+    if len(set(explicit)) != len(explicit):
+        duplicated = sorted({n for n in explicit if explicit.count(n) > 1})
+        raise DeclarationError(
+            "tool %r: two outputs are named %s: give each output its own Name(...)"
+            % (tool_id, ", ".join(repr(n) for n in duplicated))
+        )
     seen: dict[str, int] = {}
     for o in outs:  # unnamed outputs of the same type get a numeric suffix
         seen[o["name"]] = seen.get(o["name"], 0) + 1
         if seen[o["name"]] > 1:
             o["name"] += str(seen[o["name"]])
     names = [o["name"] for o in outs]
-    if len(set(names)) != len(names):
-        raise DeclarationError("tool %r: duplicate output names %s" % (tool_id, names))
+    if len(set(names)) != len(
+        names
+    ):  # an unnamed output's generated name ("image2") equals a name the author chose
+        raise DeclarationError(
+            "tool %r: duplicate output names %s: give the outputs different Name(...)s" % (tool_id, names)
+        )
     return cast(list[OutputSchema], outs)
 
 

@@ -31,14 +31,6 @@ class Finding:
 SCHEMA = '{"id": "t", "label": "t", "outputs": [], "inputs": [{"name": "n", "label": "N", "type": "%s", "required": True}]}'
 
 FINDINGS: dict[str, Finding] = {
-    "F1": Finding(
-        "A number parameter given something that is not a number raises a raw Python exception",
-        'from labconstrictor_tools import convert\nschema = %s\nconvert.load_inputs(schema, {"n": "abc"})   # ValueError; [1] -> TypeError;'
-        ' float("inf") -> OverflowError (type "float": 10**400 -> OverflowError)' % (SCHEMA % "integer"),
-        "ToolError('invalid_parameter', \"'N' must be an integer\") (or a number): the host is told FAILURE code invalid_parameter, "
-        "as docs/PROTOCOL.md promises for every value-rule violation",
-        "FAILURE with the Python exception class as code, e.g. [ValueError] invalid literal for int() with base 10: 'abc'",
-    ),
     "F2": Finding(
         "A table input does not read floating point cells exactly",
         'a CSV file "f\\n0.30000000000000004\\n" given to a Table parameter: convert.load_inputs(schema, {"t": path})["t"]["f"][0]'
@@ -60,22 +52,6 @@ FINDINGS: dict[str, Finding] = {
         "ToolError('file_not_found', ...) for a missing file (like image: file_not_found) and ToolError('unreadable_table', ...) "
         "for content that is not a CSV, so the host shows a readable message",
         "FAILURE with code FileNotFoundError / EmptyDataError / UnicodeDecodeError",
-    ),
-    "F5": Finding(
-        "A tool that returns the wrong kind of value for an output gets a raw Python exception, not a ToolError('bad_return')",
-        "a tool returns [[1, 0, 0], [0, 1], [0, 0, 1]] (ragged) or [['a', 0, 0], [0, 1, 0], [0, 0, 1]] as its Affine output; or "
-        "convert.build_results(schema_with_a_points_output, False, folder); or {} as Affine, None as an image, 5 as Scalars",
-        "ToolError('bad_return', '... must be ...') as for a matrix of the wrong shape or a missing y/x column, so the author "
-        "gets the same readable failure for every kind of wrong return",
-        "FAILURE with the exception class as code: ValueError (inhomogeneous shape / could not convert string to float), "
-        "TypeError, ...",
-    ),
-    "F6": Finding(
-        "An Affine output with NaN or infinity is delivered as null instead of being refused",
-        "a tool returns [[1, 0, float('nan')], [0, 1, 0], [0, 0, 1]] as its Affine output",
-        "ToolError('bad_return', ...) like PointsOut and ShapesOut, and like the author test harness's contract check "
-        "('affines are finite 3x3')",
-        "COMPLETE with matrix_yx containing null; a host that applies it moves the image to nowhere",
     ),
     "F7": Finding(
         "Text cells that pandas treats as missing (NA, null, None, N/A, nan, ...) arrive as NaN",
@@ -107,18 +83,6 @@ FINDINGS: dict[str, Finding] = {
         "a folder path with a space that ends in a backslash, or a text with backslashes before a double quote, comes out "
         "changed (the closing quote is swallowed)",
     ),
-    "F11": Finding(
-        "A malformed or stale shared-memory image descriptor raises a raw exception",
-        'convert.load_inputs(schema, {"image": {"appose_type": "ndarray"}}) -> KeyError; an unknown "shm" name -> FileNotFoundError',
-        "ToolError('unreadable_image', 'the shared-memory image ... is gone or malformed')",
-        "FAILURE with code KeyError / FileNotFoundError / TypeError / ValueError",
-    ),
-    "F12": Finding(
-        "A file or folder parameter given a non-text JSON value raises TypeError",
-        'convert.load_inputs(schema_with_a_file_parameter, {"f": [1]}) -> TypeError from Path([1])',
-        "ToolError('invalid_parameter', 'must be a path (text)')",
-        "FAILURE code TypeError",
-    ),
     "F14": Finding(
         "labels_to_shapes drops objects that the simplification collapses (a single pixel with the default settings)",
         "import numpy as np; from labconstrictor_tools.shapes import labels_to_shapes\n"
@@ -128,26 +92,6 @@ FINDINGS: dict[str, Finding] = {
         "unsimplified one (or the simplification is clamped so that it cannot collapse the object)",
         "an empty FeatureCollection for an image of single-pixel objects: the objects exist (count_labels sees them) but nothing "
         "is drawn and nothing says why",
-    ),
-    "F15": Finding(
-        "An image output that no host can open is written (or crashes with KeyError) instead of being refused",
-        "a tool declared -> ImageOut returns np.zeros((0, 3), np.uint8) or np.zeros((2, 2), np.complex64) or "
-        "np.array([[None, 1]], dtype=object) or np.array([['a', 'b']]) (examples.roundtrip.make_array)",
-        "ToolError('bad_return' / 'unsupported_dtype', ...): an empty image is refused on the way in (empty_image) and every "
-        "host fails on a complex or text TIFF, so the tool is told at once",
-        "empty and complex arrays are written (the empty one as a nonconformant TIFF that the bridge itself refuses to read back); "
-        "object and text arrays fail with [KeyError] 'O' / 'U'",
-    ),
-    "F16": Finding(
-        "Hints on the wrong kind of parameter, or with an impossible value, are accepted and silently ignored",
-        "Annotated[str, Min(0)], Annotated[int, Min(5), Max(1)], Annotated[str, Axes('YX')], Annotated[int, PixelSizeOf('image')], "
-        "Annotated[str, Replace()] (an output marker on an input), two outputs both named with Name('same'): "
-        "describe_tool accepts every one of them (tests/test_roundtrip_hints.py generates the full list)",
-        "a clear DeclarationError that names the parameter and what to change: docs/MANIFEST.md asks for 'a clear declaration "
-        "error for misuse' for every marker; an author who wrote Min on a text parameter or Min(5), Max(1) has made a mistake",
-        "the hint disappears from the schema (or an empty range / a renamed output is published): the app registers and the "
-        "mistake is found by a person, if at all. (Duplicate explicit output names become 'same' and 'same2': the "
-        "'duplicate output names' DeclarationError in introspection._outputs can never be raised)",
     ),
     "F17": Finding(
         "Asking a dead worker for a task raises BrokenPipeError in the host (and leaves the task registered)",
@@ -170,18 +114,6 @@ FINDINGS: dict[str, Finding] = {
         "the whole percent nearest to the fraction (round(100 * fraction)), as the tool reported it",
         "int(100 * fraction) in worker._send_progress loses a percent whenever 100 * fraction is just below the integer",
     ),
-    "F20": Finding(
-        "Integer images are checked for float32 exactness with an out-of-range cast: uint64 2**64-1 is stored as 2**64 on ARM",
-        "from labconstrictor_tools.convert import portable_dtype; import numpy as np\n"
-        "portable_dtype(np.array([[2**64 - 1, 1]], np.uint64))   # x86: ToolError unsupported_dtype; arm64 (Apple silicon): a float32 array holding 2**64",
-        "ToolError('unsupported_dtype', ...) on every machine: 2**64-1 is not exactly representable as float32 (docs/PROTOCOL.md: integers never change in value)",
-        "convert.portable_dtype tests exactness with np.array_equal(widened.astype(array.dtype), array); casting the float32 2**64 back to uint64 is "
-        "undefined: x86 gives 0 (not equal, refused), ARM saturates to 2**64-1 (equal, accepted) so the value is silently changed by 1. "
-        "Seen on GitHub's macOS runners (arm64); not reproducible on x86 Linux",
-        ("posix", "nt"),
-        (0,),
-        ("arm64", "aarch64"),
-    ),
     "F13": Finding(
         "The worker destroys the host's shared-memory block when it exits",
         "the host creates a block, sends it as an image input, the task completes, the worker is closed: the block is gone, and the "
@@ -202,25 +134,6 @@ def _add(finding: str, *keys: str) -> None:
         KNOWN[key] = finding
 
 
-_add(
-    "F1",
-    "worker:echo_float/dict",
-    "worker:echo_float/empty-text",
-    "worker:echo_float/huge-int",
-    "worker:echo_float/list",
-    "worker:echo_float/word",
-    "worker:echo_int/decimal-text",
-    "worker:echo_int/dict",
-    "worker:echo_int/empty-text",
-    "worker:echo_int/inf",
-    "worker:echo_int/list",
-    "worker:echo_int/minus-inf",
-    "worker:echo_int/nan",
-    "worker:echo_int/word",
-    "property:only_toolerror_integer",
-    "property:only_toolerror_float",
-    "property:only_toolerror_bounded",
-)
 _add(
     "F2",
     "cli:echo_table/float-digits",
@@ -250,27 +163,6 @@ _add(
     "worker:echo_table/missing-file",
     "worker:echo_table/no-header-no-rows",
     "property:only_toolerror_table_file",
-)
-_add(
-    "F5",
-    "property:only_toolerror_result_affine",
-    "property:only_toolerror_result_image",
-    "property:only_toolerror_result_points",
-    "property:only_toolerror_result_table",
-    "property:only_toolerror_result_values",
-    "failure:wrong_type_image",
-    "failure:wrong_type_table",
-    "failure:wrong_type_scalars",
-    "failure:wrong_type_points",
-    "failure:wrong_count_one_array",
-    "failure:wrong_count_tuple_for_one",
-    "worker:echo_affine/invalid/ragged",
-    "worker:echo_affine/invalid/text-cell",
-)
-_add(
-    "F6",
-    "worker:echo_affine/invalid/inf-cell",
-    "worker:echo_affine/invalid/nan-cell",
 )
 _add(
     "F7",
@@ -304,25 +196,6 @@ _add(
     "property:windows_quoting_keeps_a_text_one_argument",
 )
 _add(
-    "F11",
-    "property:only_toolerror_image_shared_memory",
-)
-_add(
-    "F15",
-    "worker:make_array/empty",
-    "worker:make_array/complex",
-    "worker:make_array/object",
-    "worker:make_array/text",
-)
-_add(
-    "F20",
-    "worker:echo_image/uint64/beyond-float32",
-    "cli:echo_image/uint64/beyond-float32",
-    "terminal:echo_image/uint64/beyond-float32",
-    "snippet:echo_image/uint64/beyond-float32",
-    "notebook:echo_image/uint64/beyond-float32",
-)
-_add(
     "F10",
     "winproc:quote-after-backslashes",
     "winproc:spaced-trailing-backslash",
@@ -336,40 +209,6 @@ _add(
     "F14",
     "test:test_roundtrip_geometry.Outlines.test_default_simplification_never_drops_a_label",
     "worker:outline_labels/single-pixel-default-simplify",
-)
-_add(
-    "F12",
-    "property:only_toolerror_file_value",
-    "property:only_toolerror_folder_value",
-)
-_add(
-    "F16",
-    "hint:ApplyTo-on-the-input-image",
-    "hint:ApplyTo-on-the-input-str",
-    "hint:Axes-on-file",
-    "hint:Axes-on-int",
-    "hint:Axes-on-str",
-    "hint:Axes-on-table",
-    "hint:Max-on-bool",
-    "hint:Max-on-file",
-    "hint:Max-on-image",
-    "hint:Max-on-literal3",
-    "hint:Max-on-str",
-    "hint:Min-above-Max",
-    "hint:Min-is-not-a-number",
-    "hint:Min-on-bool",
-    "hint:Min-on-file",
-    "hint:Min-on-image",
-    "hint:Min-on-literal3",
-    "hint:Min-on-str",
-    "hint:Name-on-the-input-image",
-    "hint:Name-on-the-input-str",
-    "hint:PixelSizeOf-on-bool",
-    "hint:PixelSizeOf-on-int",
-    "hint:PixelSizeOf-on-str",
-    "hint:Replace-on-the-input-image",
-    "hint:Replace-on-the-input-str",
-    "hint:duplicate-output-names",
 )
 
 

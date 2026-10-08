@@ -8,6 +8,8 @@ numpy/pandas/tifffile are imported lazily, only when a tool actually uses those 
 
 import logging
 import math
+import os
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +21,45 @@ UINT16_MAX = (
 )
 INT16_MIN, INT16_MAX = -32768, 32767
 DEFAULT_AXES = {2: "YX", 3: "ZYX", 4: "CZYX"}
+IMAGE_DTYPE_KINDS = (
+    "biuf"  # bool, signed/unsigned integer, float: the only element kinds a TIFF that hosts can open holds
+)
+SHARED_MEMORY_DTYPE_KINDS = (
+    "biufc"  # what a host may put in a shared-memory block (complex is read, the tool decides)
+)
+AFFINE_SIZE = 3
+_PLAIN_TYPE_NAMES = {
+    str: "text",
+    bytes: "bytes",
+    list: "a list",
+    tuple: "a list",
+    dict: "an object",
+    bool: "true/false",
+    int: "an integer",
+    float: "a number",
+    type(None): "nothing (None)",
+}
+
+
+def _describe_type(value: Any) -> str:
+    """The kind of `value` in the words a person uses, for error messages ('text', 'a list', ...)."""
+    return _PLAIN_TYPE_NAMES.get(type(value), "a value of type %s" % type(value).__name__)
+
+
+def _is_json_number(value: Any) -> bool:
+    """True for a JSON number (int or float, never a boolean): the only thing an integer/float parameter accepts."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _path_text(label: str, value: Any) -> Path:
+    """The path a host sent: it must be text (a number, list or object is a mistake of the host, not a file name)."""
+    if not isinstance(value, str):
+        raise ToolError(
+            "invalid_parameter",
+            "'%s' must be a path (text), got %s: the host must send the file or folder path as text"
+            % (label, _describe_type(value)),
+        )
+    return Path(value)
 
 
 def load_inputs(schema: ToolSchema, inputs: dict[str, Any], fn: Any = None) -> dict[str, Any]:
@@ -55,7 +96,7 @@ def _restore_enums(fn: Any, kwargs: dict[str, Any]) -> dict[str, Any]:
 def _load_one(param: ParamSchema, value: Any) -> Any:
     kind, name = param["type"], param["name"]
     if kind in ("image", "labels"):
-        array = _read_image(value)
+        array = _read_image(value, param["label"])
         if array.size == 0:  # a file is checked while reading; shared memory is checked here
             raise ToolError(
                 "empty_image", "'%s' contains no image data (shape %s)" % (param["label"], tuple(array.shape))
@@ -66,20 +107,32 @@ def _load_one(param: ParamSchema, value: Any) -> Any:
 
         return pd.read_csv(value)
     if kind == "file":
-        return Path(value)
+        return _path_text(param["label"], value)
     if kind == "folder":
-        path = Path(value)
+        path = _path_text(param["label"], value)
         if not path.is_dir():
             raise ToolError("folder_not_found", "'%s': folder not found: %s" % (param["label"], path))
         return path
     if kind == "integer":
-        if isinstance(value, bool) or int(value) != value:
+        if not _is_json_number(value):
+            raise ToolError(
+                "invalid_parameter",
+                "'%s' must be an integer, got %s" % (param["label"], _describe_type(value)),
+            )
+        if isinstance(value, float) and not (math.isfinite(value) and value.is_integer()):
             raise ToolError("invalid_parameter", "'%s' must be an integer" % param["label"])
         return _check_range(param, int(value))
     if kind == "float":
         if isinstance(value, bool):
             raise ToolError("invalid_parameter", "'%s' must be a number, not true/false" % param["label"])
-        number = float(value)
+        if not _is_json_number(value):
+            raise ToolError(
+                "invalid_parameter", "'%s' must be a number, got %s" % (param["label"], _describe_type(value))
+            )
+        try:
+            number = float(value)
+        except OverflowError:  # an integer beyond the float range
+            number = math.inf
         if not math.isfinite(number):
             raise ToolError("invalid_parameter", "'%s' must be a finite number" % param["label"])
         return _check_range(param, number)
@@ -118,10 +171,10 @@ def _check_dimensions(param: ParamSchema, array: Any) -> Any:
     return array
 
 
-def _read_image(value: Any) -> Any:
+def _read_image(value: Any, label: str = "image") -> Any:
     if isinstance(value, dict) and value.get("appose_type") == "ndarray":
-        return _ndarray_from_shared_memory(value)
-    path = Path(value)
+        return _ndarray_from_shared_memory(value, label)
+    path = _path_text(label, value)
     if not path.is_file():
         raise ToolError("file_not_found", "image file not found: %s" % path)
     try:
@@ -155,23 +208,61 @@ def _read_other_format(path: Path) -> Any:
     return iio.imread(path)
 
 
-def _ndarray_from_shared_memory(descriptor: dict[str, Any]) -> Any:
+def _ndarray_from_shared_memory(descriptor: dict[str, Any], label: str = "image") -> Any:
+    """Copy the image out of the host's shared-memory block. A block that is gone (the host freed it, a stale descriptor) or a
+    descriptor that is incomplete or inconsistent is `unreadable_image` with a message that says what the host must send.
+    """
     from multiprocessing import shared_memory
 
     import numpy as np
 
-    shm = shared_memory.SharedMemory(name=descriptor["shm"]["name"])
     try:
-        view = np.ndarray(tuple(descriptor["shape"]), dtype=descriptor["dtype"], buffer=shm.buf)
+        name = descriptor["shm"]["name"]
+        dtype = np.dtype(descriptor["dtype"])
+        if dtype.kind not in SHARED_MEMORY_DTYPE_KINDS:
+            raise ValueError("dtype %s is not a number type" % dtype)
+        shape = tuple(descriptor["shape"])
+        shm = shared_memory.SharedMemory(name=name)
+    except (KeyError, TypeError, ValueError, OSError) as error:
+        logging.getLogger("labconstrictor.convert").error(
+            "unusable shared-memory descriptor for %s", label, exc_info=True
+        )
+        raise ToolError("unreadable_image", _shared_memory_message(label, error)) from error
+    try:
+        view = np.ndarray(shape, dtype=dtype, buffer=shm.buf)
         return view.copy()
+    except (TypeError, ValueError) as error:  # shape/dtype larger than the block, or a negative dimension
+        raise ToolError("unreadable_image", _shared_memory_message(label, error)) from error
     finally:
         shm.close()
 
 
+def _shared_memory_message(label: str, error: Exception) -> str:
+    """Why a shared-memory image cannot be read and what the host must do (keep the block until the task ends, send all fields)."""
+    return (
+        "the shared-memory image for '%s' is gone or malformed (%s: %s): the host must keep the block alive until the task "
+        'ends and send {"appose_type": "ndarray", "shm": {"name": ...}, "shape": [...], "dtype": ...}'
+        % (label, type(error).__name__, error)
+    )
+
+
 def build_results(schema: ToolSchema, returned: Any, job_dir: str | Path) -> list[Result]:
-    """Turn the tool's return value into the list of typed results declared by the schema."""
+    """Turn the tool's return value into the list of typed results declared by the schema. Anything that is not what the
+    declaration promised is `bad_return` with a message that names the output and what was expected, never a raw exception.
+    """
     outputs = schema["outputs"]
-    values = [returned] if len(outputs) == 1 else list(returned or [])
+    if len(outputs) == 1:
+        values = [returned]
+    elif returned is None:
+        values = []
+    elif isinstance(returned, (tuple, list)):
+        values = list(returned)
+    else:
+        raise ToolError(
+            "bad_return",
+            "tool returned %s, declared %d outputs: return a tuple with one value per output"
+            % (_describe_type(returned), len(outputs)),
+        )
     if len(outputs) != len(values):
         raise ToolError("bad_return", "tool returned %d values, declared %d" % (len(values), len(outputs)))
     return [
@@ -179,32 +270,61 @@ def build_results(schema: ToolSchema, returned: Any, job_dir: str | Path) -> lis
     ]  # lengths checked just above (strict= needs 3.10)
 
 
+def _bad_return(kind: str, name: str, expected: str, value: Any) -> ToolError:
+    """The one wording of a wrong kind of returned value: which output, what it must be, what the tool returned."""
+    return ToolError(
+        "bad_return",
+        "the %s output '%s' must be %s, got %s" % (kind, name, expected, _describe_type(value)),
+    )
+
+
+def _as_frame(kind: str, name: str, value: Any) -> Any:
+    """A DataFrame, or what pandas builds one from (dict of lists, list of dicts / rows); anything else is `bad_return`."""
+    import pandas as pd
+
+    if isinstance(value, pd.DataFrame):
+        return value
+    if isinstance(value, (str, bytes, bool)) or value is None or _is_json_number(value):
+        raise _bad_return(kind, name, "a DataFrame, a dict of lists or a list of dicts", value)
+    try:
+        return pd.DataFrame(value)
+    except (TypeError, ValueError) as error:
+        raise ToolError(
+            "bad_return",
+            "the %s output '%s' must be a DataFrame, a dict of lists or a list of dicts (%s)"
+            % (kind, name, error),
+        ) from error
+
+
 def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
     kind, name = out["type"], out["name"]
     if kind in ("image", "labels"):
-        import numpy as np
         import tifffile
 
-        array = portable_dtype(np.asarray(value), name)
+        array = portable_dtype(_as_array(kind, name, value), name)
         path = job_dir / (name + ".tif")
         tifffile.imwrite(path, array)
         axes = out.get("axes") or DEFAULT_AXES.get(array.ndim, "")
         return {"type": kind, "name": name, "path": str(path), "axes": axes}
     if kind == "table":
-        import pandas as pd
-
-        frame = value if isinstance(value, pd.DataFrame) else pd.DataFrame(value)
+        frame = _as_frame("table", name, value)
         path = job_dir / (name + ".csv")
         frame.to_csv(path, index=False)
         return {"type": "table", "name": name, "path": str(path)}
     if kind == "file":
+        if not isinstance(value, (str, os.PathLike)):
+            raise _bad_return("file", name, "a path (pathlib.Path or text)", value)
         return {"type": "file", "name": name, "path": str(value)}
     if kind == "values":
-        return {"type": "values", "name": name, "values": {str(k): _plain(v) for k, v in dict(value).items()}}
+        if not isinstance(value, Mapping):
+            raise _bad_return("values", name, "a dict of JSON-able values", value)
+        return {"type": "values", "name": name, "values": {str(k): _plain(v) for k, v in value.items()}}
     if kind == "affine":
-        return {"type": "affine", "name": name, "matrix_yx": _as_3x3(value), **out.get("display", {})}
+        return {"type": "affine", "name": name, "matrix_yx": _as_3x3(value, name), **out.get("display", {})}
     if kind == "message":
-        text = str(value).strip()
+        if not isinstance(value, str):
+            raise _bad_return("message", name, "text", value)
+        text = value.strip()
         if not text:
             raise ToolError("bad_return", "the message output '%s' is empty" % name)
         return {"type": "message", "name": name, "text": text}
@@ -220,7 +340,7 @@ def _write_points(name: str, value: Any, job_dir: Path, display: dict[str, str])
     import numpy as np
     import pandas as pd
 
-    frame = value if isinstance(value, pd.DataFrame) else pd.DataFrame(value)
+    frame = _as_frame("points", name, value)
     missing = [c for c in ("y", "x") if c not in frame.columns]
     if missing:
         raise ToolError(
@@ -371,15 +491,58 @@ def _plain(value: Any) -> Any:
     return value
 
 
-def _as_3x3(matrix: Any) -> list[list[float]]:
+def _as_array(kind: str, name: str, value: Any) -> Any:
+    """The tool's image/labels result as an ndarray; text, nothing, an object or a ragged list is `bad_return`."""
     import numpy as np
 
-    m = np.asarray(matrix, float)
-    if m.shape == (2, 3):
+    if isinstance(value, (str, bytes, dict)) or value is None:
+        raise _bad_return(kind, name, "an array of numbers", value)
+    try:
+        return np.asarray(value)
+    except (TypeError, ValueError) as error:  # ragged nested lists
+        raise ToolError(
+            "bad_return", "the %s output '%s' must be an array of numbers (%s)" % (kind, name, error)
+        ) from error
+
+
+def _as_3x3(matrix: Any, name: str = "affine") -> list[list[float]]:
+    """A 2x3 or 3x3 matrix of finite numbers as a 3x3 list; anything else is `bad_return` naming the output."""
+    import numpy as np
+
+    try:
+        m = np.asarray(matrix, float)
+    except (TypeError, ValueError) as error:
+        raise ToolError(
+            "bad_return", "the affine output '%s' must be a 3x3 matrix of numbers (%s)" % (name, error)
+        ) from error
+    if m.shape == (2, AFFINE_SIZE):
         m = np.vstack([m, [0, 0, 1]])
-    if m.shape != (3, 3):
+    if m.shape != (AFFINE_SIZE, AFFINE_SIZE):
         raise ToolError("bad_return", "affine must be 3x3 (got %s)" % (m.shape,))
+    if not np.isfinite(m).all():
+        raise ToolError(
+            "bad_return",
+            "the affine output '%s' has a value that is not a finite number (NaN or infinity): a host cannot apply it"
+            % name,
+        )
     return m.tolist()
+
+
+_DTYPE_KIND_NAMES = {"c": "complex numbers", "O": "Python objects", "U": "text", "S": "bytes", "V": "records"}
+
+
+def _float32_holds_exactly(widened: Any, original: Any) -> bool:
+    """True when every integer of `original` equals its float32 `widened`. The back-conversion is only done for values inside
+    the integer type's range: casting a float outside it is undefined (x86 gives 0, ARM saturates), which once let a uint64
+    2**64-1 pass as float32 2**64."""
+    import numpy as np
+
+    info = np.iinfo(original.dtype)
+    values = widened.astype(np.float64)  # exact: every float32 is a float64
+    upper_exclusive = 2.0 ** (info.bits - (1 if info.min < 0 else 0))
+    if not ((values >= float(info.min)) & (values < upper_exclusive)).all():
+        return False
+    return bool(np.array_equal(widened.astype(original.dtype), original))
 
 
 def portable_dtype(array: Any, what: str = "image") -> Any:
@@ -390,6 +553,18 @@ def portable_dtype(array: Any, what: str = "image") -> Any:
     import numpy as np
 
     kind, size = array.dtype.kind, array.dtype.itemsize
+    if array.size == 0:
+        raise ToolError(
+            "bad_return",
+            "%s is empty (shape %s): an image needs at least one pixel in every dimension"
+            % (what, tuple(array.shape)),
+        )
+    if kind not in IMAGE_DTYPE_KINDS:
+        raise ToolError(
+            "unsupported_dtype",
+            "%s holds %s values (%s): hosts can only open numbers; return a numeric array (integers or floats)"
+            % (what, array.dtype, _DTYPE_KIND_NAMES.get(kind, "not numbers")),
+        )
     if kind == "b":
         return array.astype(np.uint8)
     if kind == "f":
@@ -407,15 +582,13 @@ def portable_dtype(array: Any, what: str = "image") -> Any:
             return array
         if kind == "i" and size == 1:
             return array.astype(np.int16)
-        if array.size == 0:
-            return array.astype(np.uint16)
         low, high = int(array.min()), int(array.max())
         if low >= 0 and high <= UINT16_MAX:
             return array.astype(np.uint16)
         if low >= INT16_MIN and high <= INT16_MAX:
             return array.astype(np.int16)
         widened = array.astype(np.float32)
-        if np.array_equal(widened.astype(array.dtype), array):
+        if _float32_holds_exactly(widened, array):
             return widened
         raise ToolError(
             "unsupported_dtype",
