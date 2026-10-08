@@ -26,29 +26,46 @@ def wait_for_destruction(name, seconds=10.0):
     return False
 
 
+def wait_for(condition, seconds=10.0):
+    end = time.time() + seconds
+    while time.time() < end:
+        if condition():
+            return True
+        time.sleep(0.1)
+    return bool(condition())
+
+
 def shared_memory_problems():
-    """Read an image from a host-owned block through a real worker, close the worker, and look at what is left."""
+    """Read an image from a host-owned block through a real worker, let the worker EXIT BY ITSELF (the host closes its end of the
+    pipe), and look at what is left.
+
+    The worker must end on its own, not through WorkerProcess.close(): close() kills the worker's whole process group after a
+    moment, and that can kill Python's resource-tracker process (a child of the worker) before it has acted, which hides the
+    defect in a race (seen on CI: the same check passed on a loaded machine and failed on an idle one)."""
     session = harness.Session()
     problems = []
+    worker = None
     try:
         array = np.arange(12, dtype=np.uint16).reshape(3, 4)
         descriptor = session._share(array)
         worker = harness.start_worker()
-        try:
-            task = worker.task("echo_image", {"image": descriptor}).wait(60)
-            if task.status != "COMPLETE":
-                return ["the task did not complete: %s" % task.error]
-        finally:
-            worker.close()
-        destroyed = wait_for_destruction(descriptor["shm"]["name"])
+        task = worker.task("echo_image", {"image": descriptor}).wait(60)
+        if task.status != "COMPLETE":
+            return ["the task did not complete: %s" % task.error]
+        worker.proc.stdin.close()  # the host is done: the worker leaves by itself
+        worker.proc.wait(60)
+        name = descriptor["shm"]["name"]
+        destroyed = wait_for_destruction(name, 15.0)
         if destroyed:
             problems.append("the host's shared-memory block was destroyed when the worker exited")
-        noise = "".join(worker.stderr)
-        if "resource_tracker" in noise:
-            problems.append(
-                "the worker's stderr (shown to people in crash messages) holds: %s" % noise.strip()[:200]
-            )
+            if wait_for(lambda: "resource_tracker" in "".join(worker.stderr), 15.0):
+                noise = "".join(worker.stderr)
+                problems.append(
+                    "the worker's stderr (shown to people in crash messages) holds: %s" % noise.strip()[:200]
+                )
     finally:
+        if worker is not None:
+            worker.close()
         session.close()
     return problems
 
