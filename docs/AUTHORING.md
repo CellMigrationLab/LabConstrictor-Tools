@@ -37,7 +37,7 @@ app lists in `construct.yaml` under `extra_files` like the rest of `src/`). Any 
 | `x: int / float / bool / str` | number / checkbox / text field |
 | `x: Literal["a", "b"]` or an `Enum` | dropdown |
 | `x: Image` / `Labels` | an image chosen from the host (you receive a numpy array) |
-| `x: Table` | a CSV file (you receive a pandas DataFrame) |
+| `x: Table` | a CSV file (you receive a pandas DataFrame; floats exact, column names as written even if duplicated or empty, empty cells NaN, texts such as `NA` or `None` stay text unless the column is numeric: see PROTOCOL.md) |
 | `x: Path` / `File` | a file (you receive a `Path`) |
 | `x: Folder` | a folder (you receive a `Path`; the worker checks that it exists; hosts show a folder chooser) |
 | a default value | the form's default; no default = required |
