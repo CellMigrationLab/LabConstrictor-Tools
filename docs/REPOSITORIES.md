@@ -13,13 +13,15 @@ The project has a shared Python toolkit, host-specific interfaces and applicatio
 Two other kinds of repository have different jobs:
 
 - [LabConstrictor](https://github.com/CellMigrationLab/LabConstrictor) is the **notebook-to-desktop-application packaging template**, not another graphical host for the tools.
-- Scientific applications such as NucleiSky, CellTracksColab and VLab4Mic own their analysis code and tool declarations. Their installers register the installed application's interpreter and tool module.
+- Scientific applications such as NucleiSky, CellTracksColab, VLab4Mic and Guess the Condition own their analysis code and tool declarations. LabConstrictor installers can register the applications' tool modules automatically when they are packaged; the toolkit also supports manual registration.
 
 ## What is shared
 
 The toolkit defines the [schema and worker protocol](PROTOCOL.md). Hosts read cached schemas to build forms without importing scientific application packages. When a user runs a tool, the host starts or reuses a worker in that application's Python environment.
 
 Hosts do **not** need to install the application's scientific dependencies. The application does **not** need to import Napari, Fiji or QuPath.
+
+**Registration is not a host-by-host approval process.** An application with a valid registered manifest is discoverable by any host supporting that protocol. The practical value of a particular tool depends on the host's workflow and on whether its inputs and outputs are relevant there.
 
 This is a shared contract, **not a promise that every host implements every presentation hint**. For example, an image selection, a dynamic dropdown or an output table may be handled differently by each host. Consult the relevant host README for current behavior and limits.
 
