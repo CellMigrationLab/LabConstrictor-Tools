@@ -21,6 +21,7 @@ import tempfile
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
+from .command import quote
 from .structures import AppSchema, RegistryEntry
 
 SUPPORTED_PROTOCOLS = (1,)
@@ -169,7 +170,7 @@ def _generate_schema(
         raise RuntimeError(
             "schema generation for %s timed out after %s s (interpreter %s, module %s): importing the tool module is "
             "slow or hangs; check it with `labconstrictor-tools check --module %s`"
-            % (name, REGISTER_TIMEOUT_S, interpreter, module, module)
+            % (name, REGISTER_TIMEOUT_S, interpreter, module, quote(module))
         ) from error
     if result.returncode:
 

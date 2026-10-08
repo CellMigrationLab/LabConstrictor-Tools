@@ -23,6 +23,7 @@ from typing import Any
 
 from . import log, registry
 from .client import Task
+from .command import quote
 from .structures import AppSchema, ParamSchema, RegistryEntry, ToolSchema
 
 HEAVY_MODULES = (
@@ -590,9 +591,10 @@ def cmd_init(args: argparse.Namespace) -> int:
     if target.exists():
         raise SystemExit("%s already exists; not overwriting" % target)
     target.write_text(TEMPLATE, encoding="utf-8")
-    module = target.stem
+    module = quote(target.stem)
+    folder = quote(str(target.parent.resolve()))
     print(
         "wrote %s\nnext:\n  labconstrictor-tools check --module %s --pythonpath %s\n  labconstrictor-tools register --name myapp --prefix <app prefix> --module %s --pythonpath %s"
-        % (target, module, target.parent.resolve(), module, target.parent.resolve())
+        % (target, module, folder, module, folder)
     )
     return 0
