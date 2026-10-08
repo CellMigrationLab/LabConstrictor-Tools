@@ -53,10 +53,13 @@ FINDINGS: dict[str, Finding] = {
         "FAILURE with code FileNotFoundError / EmptyDataError / UnicodeDecodeError",
     ),
     "F5": Finding(
-        "An Affine output that is not a numeric 3x3/2x3 matrix raises ValueError",
-        "a tool returns [[1, 0, 0], [0, 1], [0, 0, 1]] (ragged) or [['a', 0, 0], [0, 1, 0], [0, 0, 1]] as its Affine output",
-        "ToolError('bad_return', 'affine must be 3x3 ...') as for a matrix of the wrong shape",
-        "FAILURE code ValueError (numpy's message about inhomogeneous shape / could not convert string to float)",
+        "A tool that returns the wrong kind of value for an output gets a raw Python exception, not a ToolError('bad_return')",
+        "a tool returns [[1, 0, 0], [0, 1], [0, 0, 1]] (ragged) or [['a', 0, 0], [0, 1, 0], [0, 0, 1]] as its Affine output; or "
+        "convert.build_results(schema_with_a_points_output, False, folder); or {} as Affine, None as an image, 5 as Scalars",
+        "ToolError('bad_return', '... must be ...') as for a matrix of the wrong shape or a missing y/x column, so the author "
+        "gets the same readable failure for every kind of wrong return",
+        "FAILURE with the exception class as code: ValueError (inhomogeneous shape / could not convert string to float), "
+        "TypeError, ...",
     ),
     "F6": Finding(
         "An Affine output with NaN or infinity is delivered as null instead of being refused",
@@ -95,6 +98,18 @@ FINDINGS: dict[str, Finding] = {
         "a folder path with a space that ends in a backslash, or a text with backslashes before a double quote, comes out "
         "changed (the closing quote is swallowed)",
     ),
+    "F11": Finding(
+        "A malformed or stale shared-memory image descriptor raises a raw exception",
+        'convert.load_inputs(schema, {"image": {"appose_type": "ndarray"}}) -> KeyError; an unknown "shm" name -> FileNotFoundError',
+        "ToolError('unreadable_image', 'the shared-memory image ... is gone or malformed')",
+        "FAILURE with code KeyError / FileNotFoundError / TypeError / ValueError",
+    ),
+    "F12": Finding(
+        "A file or folder parameter given a non-text JSON value raises TypeError",
+        'convert.load_inputs(schema_with_a_file_parameter, {"f": [1]}) -> TypeError from Path([1])',
+        "ToolError('invalid_parameter', 'must be a path (text)')",
+        "FAILURE code TypeError",
+    ),
     "F13": Finding(
         "The worker destroys the host's shared-memory block when it exits",
         "the host creates a block, sends it as an image input, the task completes, the worker is closed: the block is gone, and the "
@@ -130,6 +145,9 @@ _add(
     "worker:echo_int/minus-inf",
     "worker:echo_int/nan",
     "worker:echo_int/word",
+    "property:only_toolerror_integer",
+    "property:only_toolerror_float",
+    "property:only_toolerror_bounded",
 )
 _add(
     "F2",
@@ -143,6 +161,7 @@ _add(
     "terminal:echo_table/random-floats",
     "worker:echo_table/float-digits",
     "worker:echo_table/random-floats",
+    "property:table_floats_survive_the_csv_exactly",
 )
 _add(
     "F3",
@@ -158,9 +177,15 @@ _add(
     "worker:echo_table/binary-garbage",
     "worker:echo_table/missing-file",
     "worker:echo_table/no-header-no-rows",
+    "property:only_toolerror_table_file",
 )
 _add(
     "F5",
+    "property:only_toolerror_result_affine",
+    "property:only_toolerror_result_image",
+    "property:only_toolerror_result_points",
+    "property:only_toolerror_result_table",
+    "property:only_toolerror_result_values",
     "worker:echo_affine/invalid/ragged",
     "worker:echo_affine/invalid/text-cell",
 )
@@ -198,8 +223,18 @@ _add(
     "winquote:quote-after-backslashes",
     "winquote:spaced-trailing-backslash",
     "winquote:spaced-quote-after-backslash",
+    "property:windows_quoting_keeps_a_text_one_argument",
+)
+_add(
+    "F11",
+    "property:only_toolerror_image_shared_memory",
 )
 _add("F13", "lifecycle:shared_memory_survives_the_worker")
+_add(
+    "F12",
+    "property:only_toolerror_file_value",
+    "property:only_toolerror_folder_value",
+)
 
 
 def is_known(key: str) -> bool:

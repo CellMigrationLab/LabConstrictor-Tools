@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import functools
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -1764,6 +1765,10 @@ def shapes_cases() -> list[Case]:
 
 
 def outline_cases() -> list[Case]:
+    if (
+        importlib.util.find_spec("skimage") is None
+    ):  # labels_to_shapes needs scikit-image (an app that segments has it)
+        return []
     rng = np.random.default_rng(RNG_SEED + 3)
     cases: list[Case] = []
     shapes: dict[str, np.ndarray] = {}

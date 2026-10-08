@@ -5,6 +5,7 @@ tool that nobody wrote a case for makes this file fail. The oracle checks pin th
 """
 
 import hashlib
+import importlib.util
 import json
 import unittest
 
@@ -70,7 +71,8 @@ class CaseList(unittest.TestCase):
 
     def test_every_tool_of_the_app_has_cases(self):
         used = {c.tool for c in rc.all_cases()}
-        self.assertEqual(sorted(set(schema_of_app()) - used), [])
+        without_skimage = {"outline_labels"} if importlib.util.find_spec("skimage") is None else set()
+        self.assertEqual(sorted(set(schema_of_app()) - used - without_skimage), [])
 
     def test_the_slow_transports_get_a_stated_share(self):
         for path, limits in rc.TRANSPORT_LIMITS.items():
