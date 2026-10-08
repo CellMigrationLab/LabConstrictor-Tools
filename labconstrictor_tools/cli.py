@@ -113,15 +113,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     if args.usage:
         print(usage(args.app, tool))
         return 0
-    by_name = {p["name"]: p for p in tool["inputs"]}
-    inputs = {}
-    for pair in args.params:
-        name, sep, text = pair.partition("=")
-        if not sep or name not in by_name:
-            raise SystemExit("bad parameter %r\n%s" % (pair, usage(args.app, tool)))
-        if name in inputs:
-            raise SystemExit("parameter %r was given more than once" % name)
-        inputs[name] = parse_value(by_name[name], text)
+    inputs = _parse_params(args.app, tool, args.params)
     if args.out:
         inputs["_job_dir"] = str(Path(args.out).resolve())
     else:  # a known place instead of a random /tmp folder per run; the newest RESULTS_KEPT runs are kept
@@ -142,11 +134,41 @@ def cmd_run(args: argparse.Namespace) -> int:
         print("✖ interrupted; the worker was asked to stop", file=sys.stderr)
         return 130
     if task.status != "COMPLETE" and not args.out:
-        try:
-            Path(inputs["_job_dir"]).rmdir()  # only if it is empty: nothing was produced, nothing to keep
-        except OSError as error:  # not empty (or already gone): leave the folder, say so in the log
-            log.logger().debug("job folder %s was not removed: %s: %s", inputs["_job_dir"], type(error).__name__, error)
-    report = {"status": task.status, "seconds": round(time.time() - started, 2)}
+        _remove_empty_job_dir(inputs["_job_dir"])
+    print(json.dumps(_run_report(task, round(time.time() - started, 2)), indent=2))
+    if task.status == "COMPLETE" and not args.out:
+        print(
+            "(results are in %s - use --out DIR to choose where they go; the newest %d runs are kept)"
+            % (task.outputs["job_dir"], RESULTS_KEPT),
+            file=sys.stderr,
+        )
+    return 0 if task.status == "COMPLETE" else 1
+
+
+def _parse_params(app: str, tool, pairs) -> dict:
+    """`name=value` arguments -> typed inputs; a bad, unknown or repeated name exits with the usage."""
+    by_name = {p["name"]: p for p in tool["inputs"]}
+    inputs = {}
+    for pair in pairs:
+        name, sep, text = pair.partition("=")
+        if not sep or name not in by_name:
+            raise SystemExit("bad parameter %r\n%s" % (pair, usage(app, tool)))
+        if name in inputs:
+            raise SystemExit("parameter %r was given more than once" % name)
+        inputs[name] = parse_value(by_name[name], text)
+    return inputs
+
+
+def _remove_empty_job_dir(job_dir: str) -> None:
+    try:
+        Path(job_dir).rmdir()  # only if it is empty: nothing was produced, nothing to keep
+    except OSError as error:  # not empty (or already gone): leave the folder, say so in the log
+        log.logger().debug("job folder %s was not removed: %s: %s", job_dir, type(error).__name__, error)
+
+
+def _run_report(task, seconds: float) -> dict:
+    """The JSON a finished `run` prints; a traceback of a failed task goes to stderr."""
+    report = {"status": task.status, "seconds": seconds}
     if task.record_dir:
         report["run_record"] = str(task.record_dir / "run.json")
     if task.status == "COMPLETE":
@@ -156,14 +178,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         report.update(error=task.error, code=task.code, log=str(log.log_path()))
         if task.traceback:
             print(task.traceback, file=sys.stderr)
-    print(json.dumps(report, indent=2))
-    if task.status == "COMPLETE" and not args.out:
-        print(
-            "(results are in %s - use --out DIR to choose where they go; the newest %d runs are kept)"
-            % (task.outputs["job_dir"], RESULTS_KEPT),
-            file=sys.stderr,
-        )
-    return 0 if task.status == "COMPLETE" else 1
+    return report
 
 
 RESULTS_KEPT = 20
@@ -355,64 +370,54 @@ def diagnose() -> list[tuple[str, str, str]]:
     entries, problems = registry.load_entries()
     findings = [(name, "error", reason) for name, reason in problems]
     for name, entry in sorted(entries.items()):
-        try:
-            cached = registry.schema(name)
-        except ValueError as error:
-            findings.append((name, "error", str(error)))
-            continue
-        try:
-            result, seconds = _live_schema(entry)
-            live = None if result.returncode else _strip(json.loads(result.stdout))
-        except subprocess.TimeoutExpired:
-            findings.append(
-                (
-                    name,
-                    "error",
-                    "its interpreter did not answer within 120 s (importing the tool module hangs?)",
-                )
-            )
-            continue
-        except (OSError, ValueError) as error:  # cannot start, or it printed something that is not a schema
-            findings.append(
-                (
-                    name,
-                    "error",
-                    "cannot load its tools with its own interpreter: %s: %s" % (type(error).__name__, error),
-                )
-            )
-            continue
-        if result.returncode:
-            lines = result.stderr.strip().splitlines()
-            findings.append(
-                (
-                    name,
-                    "error",
-                    "cannot load its tools with its own interpreter (exit %s): %s"
-                    % (result.returncode, lines[-1] if lines else "no error output"),
-                )
-            )
-        elif live != _strip(cached):
-            findings.append(
-                (
-                    name,
-                    "warning",
-                    "cached schema is stale (the app changed): run `labconstrictor-tools register` again",
-                )
-            )
-        else:
-            findings.append(
-                (
-                    name,
-                    "ok",
-                    "%d tool(s), schema current, interpreter %s (%.2f s)"
-                    % (len(cached["tools"]), entry["python"], seconds),
-                )
-            )
+        findings.append(_diagnose_app(name, entry))
     if not entries and not problems:
         findings.append(
             ("-", "warning", "no apps registered in %s" % ", ".join(str(d) for d in registry.search_dirs()))
         )
     return findings
+
+
+def _diagnose_app(name: str, entry) -> tuple[str, str, str]:
+    """One registered app -> (app, level, message): is its cached schema what its own interpreter says now?"""
+    try:
+        cached = registry.schema(name)
+    except ValueError as error:
+        return (name, "error", str(error))
+    try:
+        result, seconds = _live_schema(entry)
+        live = None if result.returncode else _strip(json.loads(result.stdout))
+    except subprocess.TimeoutExpired:
+        return (
+            name,
+            "error",
+            "its interpreter did not answer within 120 s (importing the tool module hangs?)",
+        )
+    except (OSError, ValueError) as error:  # cannot start, or it printed something that is not a schema
+        return (
+            name,
+            "error",
+            "cannot load its tools with its own interpreter: %s: %s" % (type(error).__name__, error),
+        )
+    if result.returncode:
+        lines = result.stderr.strip().splitlines()
+        return (
+            name,
+            "error",
+            "cannot load its tools with its own interpreter (exit %s): %s"
+            % (result.returncode, lines[-1] if lines else "no error output"),
+        )
+    if live != _strip(cached):
+        return (
+            name,
+            "warning",
+            "cached schema is stale (the app changed): run `labconstrictor-tools register` again",
+        )
+    return (
+        name,
+        "ok",
+        "%d tool(s), schema current, interpreter %s (%.2f s)" % (len(cached["tools"]), entry["python"], seconds),
+    )
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
