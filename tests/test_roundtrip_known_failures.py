@@ -115,12 +115,31 @@ class KnownFailuresDoNotRot(unittest.TestCase):
             module.META = False
 
     def test_lifecycle_entries_still_fail(self):
-        if is_known("lifecycle:shared_memory_survives_the_worker"):
-            from test_roundtrip_shared_memory import shared_memory_problems
+        import test_roundtrip_failures as failures
+        from test_roundtrip_shared_memory import shared_memory_problems
 
-            self.assertTrue(
-                shared_memory_problems(), "the shared-memory block now survives the worker: delete the entry"
-            )
+        checks = {
+            "shared_memory_survives_the_worker": shared_memory_problems,
+            "task_on_a_dead_worker": failures.task_on_dead_worker_problems,
+            "children_die_when_the_host_goes_away": failures.children_problems,
+            "progress_percent_is_rounded": failures.progress_problems,
+        }
+        listed = {k.split(":", 1)[1] for k in KNOWN if k.startswith("lifecycle:")}
+        self.assertEqual(sorted(listed - set(checks)), [], "an entry without a check")
+        for name, check in checks.items():
+            if is_known("lifecycle:" + name):
+                with self.subTest(name):
+                    self.assertTrue(check(), "%s now PASSES: delete the entry" % name)
+
+    def test_failure_entries_still_fail(self):
+        import test_roundtrip_failures as failures
+
+        for key in KNOWN:
+            if key.startswith("failure:") and is_known(key):
+                with self.subTest(key):
+                    self.assertTrue(
+                        failures.toolerror_problems(key.split(":", 1)[1]), "now PASSES: delete the entry"
+                    )
 
     def test_windows_quoting_entries_still_fail(self):
         from test_roundtrip_command import TEXTS, parse_windows_command_line

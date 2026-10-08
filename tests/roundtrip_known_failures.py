@@ -145,6 +145,27 @@ FINDINGS: dict[str, Finding] = {
         "mistake is found by a person, if at all. (Duplicate explicit output names become 'same' and 'same2': the "
         "'duplicate output names' DeclarationError in introspection._outputs can never be raised)",
     ),
+    "F17": Finding(
+        "Asking a dead worker for a task raises BrokenPipeError in the host (and leaves the task registered)",
+        "w = WorkerProcess(...); w.task('crash', {}).wait(); w.task('echo', {})   # BrokenPipeError: [Errno 32] Broken pipe",
+        "a CRASHED task whose message says the worker is gone (with its last words), so every host handles one case, not two",
+        "an OSError from WorkerProcess.task(); Task objects stay in worker.tasks for ever",
+    ),
+    "F18": Finding(
+        "On POSIX the processes a tool started survive the worker when the host goes away",
+        "start a worker, run a tool that starts a subprocess and keeps running, close the worker's stdin without calling close(): "
+        "the worker exits within a second, the tool's subprocess keeps running (tests/test_roundtrip_failures.py::children_problems)",
+        "nothing a tool started outlives the worker on any platform: the Windows worker puts its children in a job object, "
+        "the POSIX worker should kill its own process group (it leads one) when it leaves after the host went away",
+        "orphaned subprocesses (a segmentation or a model server of a tool) keep running after Napari crashed or was killed",
+        ("posix",),
+    ),
+    "F19": Finding(
+        "Progress is truncated, not rounded: progress(0.29) is shown as 28 %",
+        "progress(0.29, 'x') in a tool; the host's callback receives 0.28 (also 0.57 -> 0.56, 0.58 -> 0.57)",
+        "the whole percent nearest to the fraction (round(100 * fraction)), as the tool reported it",
+        "int(100 * fraction) in worker._send_progress loses a percent whenever 100 * fraction is just below the integer",
+    ),
     "F13": Finding(
         "The worker destroys the host's shared-memory block when it exits",
         "the host creates a block, sends it as an image input, the task completes, the worker is closed: the block is gone, and the "
@@ -221,6 +242,12 @@ _add(
     "property:only_toolerror_result_points",
     "property:only_toolerror_result_table",
     "property:only_toolerror_result_values",
+    "failure:wrong_type_image",
+    "failure:wrong_type_table",
+    "failure:wrong_type_scalars",
+    "failure:wrong_type_points",
+    "failure:wrong_count_one_array",
+    "failure:wrong_count_tuple_for_one",
     "worker:echo_affine/invalid/ragged",
     "worker:echo_affine/invalid/text-cell",
 )
@@ -272,6 +299,9 @@ _add(
     "worker:make_array/text",
 )
 _add("F13", "lifecycle:shared_memory_survives_the_worker")
+_add("F17", "lifecycle:task_on_a_dead_worker")
+_add("F18", "lifecycle:children_die_when_the_host_goes_away")
+_add("F19", "lifecycle:progress_percent_is_rounded")
 _add(
     "F14",
     "test:test_roundtrip_geometry.Outlines.test_default_simplification_never_drops_a_label",
