@@ -16,16 +16,36 @@ import sys
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="labconstrictor-tools", description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
+    _add_describe_command(sub)
+    _add_serve_command(sub)
+    _add_register_command(sub)
+    _add_unregister_command(sub)
+    _add_list_command(sub)
+    _add_run_command(sub)
+    _add_check_command(sub)
+    _add_test_command(sub)
+    _add_export_command(sub)
+    _add_init_command(sub)
+    _add_logs_command(sub)
+    _add_bundle_command(sub)
+    _add_doctor_command(sub)
+    return parser
 
+
+def _add_describe_command(sub) -> None:
     describe = sub.add_parser("describe", help="print the JSON schema of a declaration module (internal)")
     describe.add_argument("--module", required=True)
     describe.add_argument("--application")
     describe.add_argument("--version")
 
+
+def _add_serve_command(sub) -> None:
     serve = sub.add_parser("serve", help="run the tool worker on stdin/stdout (internal)")
     serve.add_argument("--module", required=True)
     serve.add_argument("--pythonpath", action="append", default=[])
 
+
+def _add_register_command(sub) -> None:
     register = sub.add_parser(
         "register", help="make an installed app visible to Napari/Fiji (post-install step)"
     )
@@ -41,14 +61,20 @@ def build_parser() -> argparse.ArgumentParser:
         "--dir", help="write the entry here instead of the per-user registry (e.g. a shared folder)"
     )
 
+
+def _add_unregister_command(sub) -> None:
     unregister = sub.add_parser("unregister", help="remove an app (pre-uninstall step)")
     unregister.add_argument("--name", required=True)
     unregister.add_argument("--dir")
     unregister.add_argument("--prefix", help="only remove the entry if it belongs to this install prefix")
 
+
+def _add_list_command(sub) -> None:
     lst = sub.add_parser("list", help="installed apps and their tools")
     lst.add_argument("--json", action="store_true")
 
+
+def _add_run_command(sub) -> None:
     run = sub.add_parser("run", help="run a tool without a GUI")
     run.add_argument("app")
     run.add_argument("tool")
@@ -63,10 +89,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.add_argument("--timeout", type=float, default=None, help="kill the worker after this many seconds")
 
+
+def _add_check_command(sub) -> None:
     check = sub.add_parser("check", help="validate a declaration module (for app authors)")
     check.add_argument("--module", required=True)
     check.add_argument("--pythonpath", action="append", default=[])
 
+
+def _add_test_command(sub) -> None:
     test = sub.add_parser("test", help="run the tools on small samples and check the results (for authors)")
     test.add_argument("--module", required=True)
     test.add_argument("--pythonpath", action="append", default=[])
@@ -78,26 +108,34 @@ def build_parser() -> argparse.ArgumentParser:
     test.add_argument("--check-cancel", action="store_true", help="also check that tools react to cancel")
     test.add_argument("--json", action="store_true")
 
+
+def _add_export_command(sub) -> None:
     export = sub.add_parser("export-notebook", help="write the %%%%lc_tool cells of a notebook to a module")
     export.add_argument("notebook")
     export.add_argument("--out", default="lc_tools.py")
 
+
+def _add_init_command(sub) -> None:
     init = sub.add_parser("init", help="write a starter declaration module (for app authors)")
     init.add_argument("path", help="e.g. my_app_tools.py")
 
+
+def _add_logs_command(sub) -> None:
     logs = sub.add_parser("logs", help="show the end of the log file (all front-ends write to it)")
     logs.add_argument("-n", "--lines", type=int, default=60)
     logs.add_argument("--path", action="store_true", help="print the log file location only")
 
+
+def _add_bundle_command(sub) -> None:
     bundle = sub.add_parser(
         "support-bundle", help="zip logs, registry and versions to attach to a bug report"
     )
     bundle.add_argument("--out")
 
+
+def _add_doctor_command(sub) -> None:
     doctor = sub.add_parser("doctor", help="diagnose the installation")
     doctor.add_argument("--json", action="store_true")
-
-    return parser
 
 
 def _tolerant_streams():

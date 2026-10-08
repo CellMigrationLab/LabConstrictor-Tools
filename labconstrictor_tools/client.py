@@ -86,20 +86,7 @@ class WorkerProcess:
                 "pythonpath": [str(Path(p).resolve()) for p in pythonpath],
                 "runtime_path": registry.runtime_path(),
             }
-        env = {key: value for key, value in os.environ.items() if key not in _SCRUBBED_ENV}
-        env.update(
-            PYTHONPATH=os.pathsep.join(
-                # the app's own paths first: runtime_path (the host interpreter's site-packages in direct mode) must not
-                # shadow a working-tree copy of the module that is also installed there
-                x
-                for x in (*self.entry["pythonpath"], self.entry["runtime_path"])
-                if x
-            ),
-            PYTHONNOUSERSITE="1",
-            PYTHONSAFEPATH="1",  # Python 3.11+: the host's working directory is not put on the worker's import path
-            PYTHONIOENCODING="utf-8",
-            PYTHONUNBUFFERED="1",
-        )
+        env = self._worker_env(self.entry)
         command = [
             self.entry["python"],
             "-m",
@@ -108,24 +95,7 @@ class WorkerProcess:
             "--module",
             self.entry["module"],
         ]
-        try:
-            self.proc = subprocess.Popen(
-                command,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                env=env,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),  # no console flash on Windows
-                start_new_session=os.name
-                == "posix",  # own process group: children of a tool die with the worker
-            )
-        except OSError as error:
-            reason = log.explain_spawn_error(error, command)
-            log.error("worker start failed: %s | command=%s", reason, command)
-            raise WorkerStartError(reason + " (details in %s)" % log.log_path()) from error
+        self.proc = self._spawn(command, env)
         self._command, self._started = command, time.time()
         self._send_lock = threading.Lock()
         self.tasks: dict[str, Task] = {}
@@ -149,6 +119,46 @@ class WorkerProcess:
             )
             self.kill()
             raise
+
+    @staticmethod
+    def _spawn(command, env):
+        try:
+            return subprocess.Popen(
+                command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                env=env,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),  # no console flash on Windows
+                start_new_session=os.name
+                == "posix",  # own process group: children of a tool die with the worker
+            )
+        except OSError as error:
+            reason = log.explain_spawn_error(error, command)
+            log.error("worker start failed: %s | command=%s", reason, command)
+            raise WorkerStartError(reason + " (details in %s)" % log.log_path()) from error
+
+    @staticmethod
+    def _worker_env(entry):
+        """The worker's environment: the host's, minus what must not leak in, with its own import paths."""
+        env = {key: value for key, value in os.environ.items() if key not in _SCRUBBED_ENV}
+        env.update(
+            PYTHONPATH=os.pathsep.join(
+                # the app's own paths first: runtime_path (the host interpreter's site-packages in direct mode) must not
+                # shadow a working-tree copy of the module that is also installed there
+                x
+                for x in (*entry["pythonpath"], entry["runtime_path"])
+                if x
+            ),
+            PYTHONNOUSERSITE="1",
+            PYTHONSAFEPATH="1",  # Python 3.11+: the host's working directory is not put on the worker's import path
+            PYTHONIOENCODING="utf-8",
+            PYTHONUNBUFFERED="1",
+        )
+        return env
 
     @staticmethod
     def _entry_for(app):

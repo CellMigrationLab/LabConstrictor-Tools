@@ -247,92 +247,124 @@ def expectation_problems(
 
 
 def _compare(name: str, result: Result, wanted: dict[str, Any]) -> list[str]:
-    problems: list[str] = []
     kind = result["type"]
     if kind in RESULT_KEYS:  # an unknown key would be an assertion that silently never runs
-        for key in sorted(set(wanted) - RESULT_KEYS[kind]):
-            problems.append(
-                "%s: unknown expectation %r for a %s result (allowed: %s)"
-                % (name, key, kind, ", ".join(sorted(RESULT_KEYS[kind])) or "none")
-            )
+        problems = _unknown_expectations(name, kind, wanted)
         if problems:
             return problems
     if kind in ("image", "labels"):
-        import tifffile
-
-        array = tifffile.imread(result["path"])
-        if "shape" in wanted and list(array.shape) != list(wanted["shape"]):
-            problems.append("%s: shape %s, expected %s" % (name, list(array.shape), wanted["shape"]))
-        if "dtype" in wanted and str(array.dtype) != wanted["dtype"]:
-            problems.append("%s: dtype %s, expected %s" % (name, array.dtype, wanted["dtype"]))
-        if "mean" in wanted and not _close(float(array.mean()), wanted["mean"]):
-            problems.append("%s: mean %.6g, expected %s" % (name, array.mean(), wanted["mean"]))
-        if "max" in wanted and not _close(float(array.max()), wanted["max"]):
-            problems.append("%s: max %.6g, expected %s" % (name, array.max(), wanted["max"]))
-        if "n_labels" in wanted:
-            import numpy as np
-
-            n = int(len(np.unique(array)) - (1 if (array == 0).any() else 0))
-            if n != wanted["n_labels"]:
-                problems.append("%s: %d labels, expected %d" % (name, n, wanted["n_labels"]))
-    elif kind == "table":
-        import pandas as pd
-
-        frame = pd.read_csv(result["path"])
-        if "columns" in wanted and not set(wanted["columns"]) <= set(frame.columns):
-            problems.append(
-                "%s: missing columns %s" % (name, sorted(set(wanted["columns"]) - set(frame.columns)))
-            )
-        if "rows" in wanted and len(frame) != wanted["rows"]:
-            problems.append("%s: %d rows, expected %d" % (name, len(frame), wanted["rows"]))
-        for key, value in wanted.get("cells", {}).items():  # "column[row]": value
-            column, _, row = key.partition("[")
-            try:
-                actual = frame[column].iloc[int(row.rstrip("]"))]
-            except (KeyError, ValueError, IndexError):
-                problems.append("%s: no cell %s" % (name, key))
-                continue
-            if not _close(actual, value):
-                problems.append("%s: %s is %r, expected %r" % (name, key, actual, value))
-    elif kind == "values":
-        for key, value in wanted.get("equals", wanted).items():
-            actual = result["values"].get(key)
-            if isinstance(value, dict) and "approx" in value:  # {"approx": 12.0, "tol": 0.5}
-                ok = isinstance(actual, (int, float)) and abs(actual - value["approx"]) <= value.get(
-                    "tol", 1e-6
-                )
-            else:
-                ok = key in result["values"] and _close(actual, value)
-            if not ok:
-                problems.append("%s: %s is %r, expected %r" % (name, key, actual, value))
-    elif kind == "message" and "contains" in wanted:
+        return _compare_raster(name, result, wanted)
+    if kind == "table":
+        return _compare_table(name, result, wanted)
+    if kind == "values":
+        return _compare_values(name, result, wanted)
+    if kind == "message" and "contains" in wanted:
         if wanted["contains"] not in result["text"]:
-            problems.append("%s: the message lacks %r" % (name, wanted["contains"]))
+            return ["%s: the message lacks %r" % (name, wanted["contains"])]
     elif kind == "shapes":
         if "features" in wanted and result["n"] != wanted["features"]:
-            problems.append("%s: %d outlines, expected %d" % (name, result["n"], wanted["features"]))
+            return ["%s: %d outlines, expected %d" % (name, result["n"], wanted["features"])]
     elif kind == "points":
-        import pandas as pd
-
-        frame = pd.read_csv(result["path"])
-        if "rows" in wanted and len(frame) != wanted["rows"]:
-            problems.append("%s: %d points, expected %d" % (name, len(frame), wanted["rows"]))
-        if "columns" in wanted and not set(wanted["columns"]) <= set(frame.columns):
-            problems.append("%s: missing columns %s" % (name, sorted(set(wanted["columns"]) - set(frame.columns))))
+        return _compare_points(name, result, wanted)
     elif kind == "affine" and "matrix" in wanted:
-        expected = wanted["matrix"]
-        if not (
-            isinstance(expected, list)
-            and len(expected) == 3
-            and all(isinstance(row, list) and len(row) == 3 for row in expected)
-        ):
-            return ["%s: the expected matrix must be 3x3 (a list of three rows of three numbers)" % name]
-        flat = [v for row in result["matrix_yx"] for v in row]
-        if len(flat) != 9 or not all(
-            _close(a, b) for a, b in zip(flat, [v for row in expected for v in row])
-        ):
-            problems.append("%s: matrix %s, expected %s" % (name, result["matrix_yx"], expected))
+        return _compare_affine(name, result, wanted)
+    return []
+
+
+def _unknown_expectations(name: str, kind: str, wanted: dict[str, Any]) -> list[str]:
+    return [
+        "%s: unknown expectation %r for a %s result (allowed: %s)"
+        % (name, key, kind, ", ".join(sorted(RESULT_KEYS[kind])) or "none")
+        for key in sorted(set(wanted) - RESULT_KEYS[kind])
+    ]
+
+
+def _compare_raster(name: str, result: Result, wanted: dict[str, Any]) -> list[str]:
+    import tifffile
+
+    problems: list[str] = []
+    array = tifffile.imread(result["path"])
+    if "shape" in wanted and list(array.shape) != list(wanted["shape"]):
+        problems.append("%s: shape %s, expected %s" % (name, list(array.shape), wanted["shape"]))
+    if "dtype" in wanted and str(array.dtype) != wanted["dtype"]:
+        problems.append("%s: dtype %s, expected %s" % (name, array.dtype, wanted["dtype"]))
+    if "mean" in wanted and not _close(float(array.mean()), wanted["mean"]):
+        problems.append("%s: mean %.6g, expected %s" % (name, array.mean(), wanted["mean"]))
+    if "max" in wanted and not _close(float(array.max()), wanted["max"]):
+        problems.append("%s: max %.6g, expected %s" % (name, array.max(), wanted["max"]))
+    if "n_labels" in wanted:
+        import numpy as np
+
+        n = int(len(np.unique(array)) - (1 if (array == 0).any() else 0))
+        if n != wanted["n_labels"]:
+            problems.append("%s: %d labels, expected %d" % (name, n, wanted["n_labels"]))
     return problems
+
+
+def _compare_table(name: str, result: Result, wanted: dict[str, Any]) -> list[str]:
+    import pandas as pd
+
+    problems: list[str] = []
+    frame = pd.read_csv(result["path"])
+    if "columns" in wanted and not set(wanted["columns"]) <= set(frame.columns):
+        problems.append(
+            "%s: missing columns %s" % (name, sorted(set(wanted["columns"]) - set(frame.columns)))
+        )
+    if "rows" in wanted and len(frame) != wanted["rows"]:
+        problems.append("%s: %d rows, expected %d" % (name, len(frame), wanted["rows"]))
+    for key, value in wanted.get("cells", {}).items():  # "column[row]": value
+        column, _, row = key.partition("[")
+        try:
+            actual = frame[column].iloc[int(row.rstrip("]"))]
+        except (KeyError, ValueError, IndexError):
+            problems.append("%s: no cell %s" % (name, key))
+            continue
+        if not _close(actual, value):
+            problems.append("%s: %s is %r, expected %r" % (name, key, actual, value))
+    return problems
+
+
+def _compare_values(name: str, result: Result, wanted: dict[str, Any]) -> list[str]:
+    problems: list[str] = []
+    for key, value in wanted.get("equals", wanted).items():
+        actual = result["values"].get(key)
+        if isinstance(value, dict) and "approx" in value:  # {"approx": 12.0, "tol": 0.5}
+            ok = isinstance(actual, (int, float)) and abs(actual - value["approx"]) <= value.get(
+                "tol", 1e-6
+            )
+        else:
+            ok = key in result["values"] and _close(actual, value)
+        if not ok:
+            problems.append("%s: %s is %r, expected %r" % (name, key, actual, value))
+    return problems
+
+
+def _compare_points(name: str, result: Result, wanted: dict[str, Any]) -> list[str]:
+    import pandas as pd
+
+    problems: list[str] = []
+    frame = pd.read_csv(result["path"])
+    if "rows" in wanted and len(frame) != wanted["rows"]:
+        problems.append("%s: %d points, expected %d" % (name, len(frame), wanted["rows"]))
+    if "columns" in wanted and not set(wanted["columns"]) <= set(frame.columns):
+        problems.append("%s: missing columns %s" % (name, sorted(set(wanted["columns"]) - set(frame.columns))))
+    return problems
+
+
+def _compare_affine(name: str, result: Result, wanted: dict[str, Any]) -> list[str]:
+    expected = wanted["matrix"]
+    if not (
+        isinstance(expected, list)
+        and len(expected) == 3
+        and all(isinstance(row, list) and len(row) == 3 for row in expected)
+    ):
+        return ["%s: the expected matrix must be 3x3 (a list of three rows of three numbers)" % name]
+    flat = [v for row in result["matrix_yx"] for v in row]
+    if len(flat) != 9 or not all(
+        _close(a, b) for a, b in zip(flat, [v for row in expected for v in row])
+    ):
+        return ["%s: matrix %s, expected %s" % (name, result["matrix_yx"], expected)]
+    return []
 
 
 def _close(actual: Any, wanted: Any, tolerance: float = 1e-6) -> bool:
@@ -370,43 +402,11 @@ def run_case(
     with tempfile.TemporaryDirectory(prefix="lc_test_") as scratch:
         inputs = dict(_resolve_paths(case, tool), _job_dir=str(Path(scratch) / "job"))
         started = time.time()
-        with client.WorkerProcess(**worker_args) as worker:
-            task = worker.task(tool["id"], inputs, lambda m, f: updates.append((m, f)))
-            if case.get("cancel_after_s") is not None:
-                time.sleep(case["cancel_after_s"])
-                task.cancel()
-                task.wait(CANCEL_GRACE_S)
-            else:
-                task.wait(timeout)
-            if not task.done.is_set():
-                worker.kill()
-                report["problems"].append(
-                    "did not finish within %s s"
-                    % (CANCEL_GRACE_S if case.get("cancel_after_s") is not None else timeout)
-                )
-                task.status = "TIMEOUT"
-            stderr = "".join(worker.stderr)
+        task, stderr = _run_to_end(tool, case, inputs, worker_args, timeout, updates, report)
         report["seconds"] = round(time.time() - started, 2)
         report["status"] = task.status
         want = expect.get("status", "CANCELED" if case.get("cancel_after_s") is not None else "COMPLETE")
-        if task.status != want and task.status != "TIMEOUT":
-            detail = (task.error or "").strip()
-            report["problems"].append(
-                "status %s, expected %s%s" % (task.status, want, ": " + detail if detail else "")
-            )
-            if task.traceback:
-                report["traceback"] = task.traceback
-        elif task.status == "COMPLETE":
-            results = task.outputs.get("results", [])
-            report["problems"] += contract_problems(tool, results)
-            report["problems"] += expectation_problems(expect, results, report["seconds"], len(updates))
-        else:
-            if "code" in expect and task.code != expect["code"]:
-                report["problems"].append("error code %r, expected %r" % (task.code, expect["code"]))
-            if "message_contains" in expect and expect["message_contains"] not in (task.error or ""):
-                report["problems"].append(
-                    "error message %r lacks %r" % (task.error, expect["message_contains"])
-                )
+        _judge_outcome(report, tool, task, want, expect, len(updates))
         if stderr.strip() and task.status != "COMPLETE" and task.status != want:
             report["stderr_tail"] = stderr.strip().splitlines()[-5:]
     if check_cancel and case.get("cancel_after_s") is None:
@@ -416,6 +416,60 @@ def run_case(
         ] += cancel_problems  # --check-cancel asked for a verdict: ignoring a cancel request is a failure
         report["warnings"] += cancel_warnings
     return report
+
+
+def _run_to_end(
+    tool: ToolSchema,
+    case: CaseSpec,
+    inputs: dict[str, Any],
+    worker_args: dict[str, Any],
+    timeout: float,
+    updates: list[tuple[str, float | None]],
+    report: CaseReport,
+) -> tuple[Any, str]:
+    """Run the tool in a fresh worker (cancelling it after `cancel_after_s` if asked), killing it if it
+    overruns. Records progress in `updates` and a timeout in `report`. -> (task, worker stderr)"""
+    with client.WorkerProcess(**worker_args) as worker:
+        task = worker.task(tool["id"], inputs, lambda m, f: updates.append((m, f)))
+        if case.get("cancel_after_s") is not None:
+            time.sleep(case["cancel_after_s"])
+            task.cancel()
+            task.wait(CANCEL_GRACE_S)
+        else:
+            task.wait(timeout)
+        if not task.done.is_set():
+            worker.kill()
+            report["problems"].append(
+                "did not finish within %s s"
+                % (CANCEL_GRACE_S if case.get("cancel_after_s") is not None else timeout)
+            )
+            task.status = "TIMEOUT"
+        stderr = "".join(worker.stderr)
+    return task, stderr
+
+
+def _judge_outcome(
+    report: CaseReport, tool: ToolSchema, task: Any, want: str, expect: dict[str, Any], n_updates: int
+) -> None:
+    """Compare how the task ended with what the case expected, adding to report["problems"]."""
+    if task.status != want and task.status != "TIMEOUT":
+        detail = (task.error or "").strip()
+        report["problems"].append(
+            "status %s, expected %s%s" % (task.status, want, ": " + detail if detail else "")
+        )
+        if task.traceback:
+            report["traceback"] = task.traceback
+    elif task.status == "COMPLETE":
+        results = task.outputs.get("results", [])
+        report["problems"] += contract_problems(tool, results)
+        report["problems"] += expectation_problems(expect, results, report["seconds"], n_updates)
+    else:
+        if "code" in expect and task.code != expect["code"]:
+            report["problems"].append("error code %r, expected %r" % (task.code, expect["code"]))
+        if "message_contains" in expect and expect["message_contains"] not in (task.error or ""):
+            report["problems"].append(
+                "error message %r lacks %r" % (task.error, expect["message_contains"])
+            )
 
 
 def _cancel_check(

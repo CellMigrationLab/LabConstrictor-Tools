@@ -169,35 +169,10 @@ class Worker:
             final = ("CANCELATION", {})
         except T.ToolError as error:
             final = ("FAILURE", {"error": "[%s] %s" % (error.code, error.message), "code": error.code})
-        except (
-            SystemExit,
-            KeyboardInterrupt,
-        ) as error:  # a tool leaving the interpreter must still get an answer
-            self._complain(
-                "tool %r tried to stop the worker with %s(%r)", script, type(error).__name__, error.args
-            )
-            final = (
-                "FAILURE",
-                {
-                    "error": "[%s] the tool called sys.exit() or was interrupted (%r)"
-                    % (type(error).__name__, error.args),
-                    "code": type(error).__name__,
-                },
-            )
+        except (SystemExit, KeyboardInterrupt) as error:  # a tool leaving the interpreter must still get an answer
+            final = self._tool_exit_outcome(script, error)
         except Exception as error:  # noqa: BLE001 - any tool failure becomes a structured FAILURE
-            print(
-                "LabConstrictor worker: tool %r failed:\n%s" % (script, traceback.format_exc()),
-                file=sys.stderr,
-                flush=True,
-            )
-            final = (
-                "FAILURE",
-                {
-                    "error": "[%s] %s" % (type(error).__name__, error),
-                    "code": type(error).__name__,
-                    "traceback": traceback.format_exc(),
-                },
-            )
+            final = self._tool_crash_outcome(script, error)
         finally:
             runtime.install()  # late progress()/cancelled() calls from a tool's leftover threads do nothing
         if job_dir is not None and owns_job_dir and final[0] != "COMPLETION":
@@ -206,6 +181,34 @@ class Worker:
         self._owned_dirs.discard(job_dir)  # a finished result belongs to the host now
         self._cancel_events.pop(task, None)
         self.channel.send(task, final[0], **final[1])
+
+    def _tool_exit_outcome(self, script, error):
+        """A tool called sys.exit() or was interrupted: complain on stderr, answer with a FAILURE."""
+        self._complain("tool %r tried to stop the worker with %s(%r)", script, type(error).__name__, error.args)
+        return (
+            "FAILURE",
+            {
+                "error": "[%s] the tool called sys.exit() or was interrupted (%r)" % (type(error).__name__, error.args),
+                "code": type(error).__name__,
+            },
+        )
+
+    @staticmethod
+    def _tool_crash_outcome(script, error):
+        """An unexpected exception in a tool (call from its `except` block): traceback to stderr and into the FAILURE."""
+        print(
+            "LabConstrictor worker: tool %r failed:\n%s" % (script, traceback.format_exc()),
+            file=sys.stderr,
+            flush=True,
+        )
+        return (
+            "FAILURE",
+            {
+                "error": "[%s] %s" % (type(error).__name__, error),
+                "code": type(error).__name__,
+                "traceback": traceback.format_exc(),
+            },
+        )
 
     def _execute(self, tool_id, inputs, job_dir, cancel):
         schema = self.schemas[tool_id]
