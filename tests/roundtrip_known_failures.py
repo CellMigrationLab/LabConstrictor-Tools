@@ -191,10 +191,6 @@ FINDINGS: dict[str, Finding] = {
         "Python's resource tracker in the worker unlinks every block it attached to when the worker exits, so a host that "
         "keeps a block between tasks (or reuses it after a worker restart) finds it gone, and the warning ends up in crash messages",
         ("posix",),
-        (
-            3,
-            11,
-        ),  # absent on Python 3.10 (CI: Ubuntu and macOS 3.10 pass the check), present on 3.11 (sandbox) and 3.12 (CI: Ubuntu, macOS)
     ),
 }
 
