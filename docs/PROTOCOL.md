@@ -54,8 +54,7 @@ Rules the worker enforces (each violation is written to the worker log/stderr):
   `image/labels {path, axes}`, `table {path}`, `values {values}`, `affine {matrix_yx, apply_to, relative_to}`, `file {path}`.
 * Closing stdin means "the host is gone": running tools are asked to cancel and the worker exits within 10 s. On every platform nothing a
   tool started outlives the worker: Windows puts them in a kill-on-close job object; on POSIX the worker makes itself the leader of its own
-  process group at start (`setsid`, whoever started it, so no host has to) and sends SIGKILL to that group as its last act (its exit
-  status is then -9).
+  process group at start (`setsid`, whoever started it, so no host has to) and sends SIGKILL to every other process of that group as its last act (found with `ps`; if that fails it kills the whole group, itself included).
 * `UPDATE {message, current, maximum}`: `maximum` is 100 and `current` is the whole percent nearest to the fraction the tool reported
   (`progress(0.29)` -> 29); a tie goes up (0.295 -> 30), as Java's `Math.round` does. A host that shows or converts the fraction itself rounds
   the same way and never truncates.

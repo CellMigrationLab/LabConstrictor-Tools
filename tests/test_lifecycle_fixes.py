@@ -3,6 +3,7 @@
 
 import logging
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -107,6 +108,27 @@ class ProcessGroup(unittest.TestCase):
                 )
             finally:
                 worker_.kill()
+
+
+class GroupListingFails(unittest.TestCase):
+    """The one place a stand-in is right: `ps` cannot be made to fail on demand, and the real killpg would end the test run."""
+
+    @unittest.skipUnless(os.name == "posix", "process groups")
+    def test_when_the_members_cannot_be_listed_the_whole_group_is_ended_and_the_reason_logged(self):
+        me = os.getpid()
+        with (
+            mock.patch.object(os, "getpgrp", return_value=me),
+            mock.patch.object(worker.Worker, "_group_members", side_effect=FileNotFoundError("ps")),
+            mock.patch.object(os, "killpg") as killpg,
+            self.assertLogs("labconstrictor", logging.WARNING) as logged,
+        ):
+            worker.Worker._end_process_group()
+        killpg.assert_called_once_with(me, signal.SIGKILL)
+        self.assertIn("cannot list its process group", logged.output[0])
+
+    @unittest.skipUnless(os.name == "posix", "process groups")
+    def test_the_members_listing_finds_this_process_in_its_own_group(self):
+        self.assertIn(os.getpid(), worker.Worker._group_members(os.getpgrp()))
 
 
 class Progress(unittest.TestCase):
