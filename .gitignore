@@ -5,3 +5,7 @@ dist/
 evidence/
 fixtures/nucleisky/
 .venv/
+mutants/
+.coverage*
+.hypothesis/
+htmlcov/

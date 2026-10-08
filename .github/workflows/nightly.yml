@@ -1,0 +1,56 @@
+# Nightly: the round-trip matrix with every heavy case on every transport, hypothesis with thousands of examples, and mutation testing
+# of the converters. Surviving mutants are uploaded: each one is a test that is missing.
+name: nightly
+on:
+  schedule:
+    - cron: "41 2 * * *"
+  workflow_dispatch:
+jobs:
+  roundtrip-nightly:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    env:
+      LC_ROUNDTRIP_PROFILE: nightly
+      LC_HYPOTHESIS_PROFILE: nightly
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Private virtualenv (Linux)
+        if: runner.os == 'Linux'
+        run: python -m venv --copies "$RUNNER_TEMP/venv" && echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+      - run: pip install -e ".[test]"
+      - name: Round-trip tests, nightly profile
+        working-directory: tests
+        run: python -m unittest -v test_roundtrip_cases test_roundtrip_matrix test_roundtrip_properties test_roundtrip_geometry test_roundtrip_hints test_roundtrip_failures test_roundtrip_known_failures test_roundtrip_command
+
+  mutation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Private virtualenv
+        run: python -m venv --copies "$RUNNER_TEMP/venv" && echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+      - run: pip install -e ".[test]" mutmut==3.8.0 pytest
+      - name: Mutation testing (convert, introspection, shapes, region, command; settings in pyproject.toml [tool.mutmut])
+        run: mutmut run
+        continue-on-error: true   # survivors are the report, not a failure of the job
+      - name: Surviving mutants
+        if: always()
+        run: |
+          mutmut results > surviving-mutants.txt || true
+          mutmut export-cicd-stats || true
+          cat surviving-mutants.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: surviving-mutants
+          path: |
+            surviving-mutants.txt
+            mutants/mutmut-cicd-stats.json
