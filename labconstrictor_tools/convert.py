@@ -279,20 +279,35 @@ def _bad_return(kind: str, name: str, expected: str, value: Any) -> ToolError:
 
 
 def _as_frame(kind: str, name: str, value: Any) -> Any:
-    """A DataFrame, or what pandas builds one from (dict of lists, list of dicts / rows); anything else is `bad_return`."""
+    """A DataFrame, a dict of equal-length lists/arrays, or a list of dicts, as a DataFrame; anything else is `bad_return`.
+    The shape is checked here, before pandas sees it: pandas' own errors differ between versions (AttributeError, TypeError,
+    ValueError) and some mixed lists are accepted by one version and crash another."""
+    import numpy as np
     import pandas as pd
 
+    expected = "a DataFrame, a dict of lists or a list of dicts"
     if isinstance(value, pd.DataFrame):
         return value
-    if isinstance(value, (str, bytes, bool)) or value is None or _is_json_number(value):
-        raise _bad_return(kind, name, "a DataFrame, a dict of lists or a list of dicts", value)
+    column_types = (list, tuple, np.ndarray, pd.Series)
+    if isinstance(value, Mapping):
+        columns = list(value.values())
+        if not all(isinstance(c, column_types) and np.ndim(c) == 1 for c in columns):
+            raise _bad_return(kind, name, expected + " (every column must be a 1-D list)", value)
+        if len({len(c) for c in columns}) > 1:
+            raise ToolError(
+                "bad_return",
+                "the %s output '%s' must be %s: the columns have different lengths" % (kind, name, expected),
+            )
+    elif isinstance(value, (list, tuple)):
+        if not all(isinstance(row, Mapping) for row in value):
+            raise _bad_return(kind, name, expected + " (every row must be a dict)", value)
+    else:
+        raise _bad_return(kind, name, expected, value)
     try:
         return pd.DataFrame(value)
-    except (TypeError, ValueError) as error:
+    except (TypeError, ValueError, AttributeError) as error:  # whatever the pandas version objects to
         raise ToolError(
-            "bad_return",
-            "the %s output '%s' must be a DataFrame, a dict of lists or a list of dicts (%s)"
-            % (kind, name, error),
+            "bad_return", "the %s output '%s' must be %s (%s)" % (kind, name, expected, error)
         ) from error
 
 

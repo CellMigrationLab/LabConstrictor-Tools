@@ -24,7 +24,7 @@ import roundtrip_cases as rc
 import roundtrip_harness as harness
 import roundtrip_profiles  # noqa: F401  (registers and loads the hypothesis profile)
 import tifffile
-from hypothesis import given, settings
+from hypothesis import example, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as hnp
 from roundtrip_known_failures import KNOWN, is_known
@@ -171,6 +171,29 @@ def only_toolerror_result_affine(value):
     only_toolerror_results("affine", value)
 
 
+# shapes that crashed some pandas versions (found by hypothesis on Python 3.10): pinned so every Python and every run sees them
+TABLE_LIKE_MISTAKES = (
+    [{}, None],
+    [1, 2],
+    [{"a": 1}, [1]],
+    ["a", {}],
+    {"a": {"b": 1}},
+    {"a": [1, 2], "b": [1]},
+    {"a": 1},
+    [[1, 2], [3]],
+    [None],
+    "abc",
+    {1, 2},
+)
+
+
+def with_table_examples(test):
+    for mistake in TABLE_LIKE_MISTAKES:
+        test = example(mistake)(test)
+    return test
+
+
+@with_table_examples
 @given(JSON_VALUES)
 def only_toolerror_result_points(value):
     only_toolerror_results("points", value)
@@ -181,6 +204,7 @@ def only_toolerror_result_shapes(value):
     only_toolerror_results("shapes", value)
 
 
+@with_table_examples
 @given(JSON_VALUES)
 def only_toolerror_result_table(value):
     only_toolerror_results("table", value)

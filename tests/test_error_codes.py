@@ -108,7 +108,10 @@ class SharedMemoryDescriptors(unittest.TestCase):
     def test_a_shape_larger_than_the_block_or_negative(self):
         block = shared_memory.SharedMemory(create=True, size=16)
         try:
-            for shape in ([100, 100], [-1, 4]):
+            too_big = block.size + (
+                1 << 16
+            )  # beyond the real block even where blocks are rounded up to whole pages
+            for shape in ([too_big, 1], [-1, 4]):
                 with self.subTest(shape=shape):
                     descriptor = self.descriptor(shm={"name": block.name}, shape=shape)
                     self.assertEqual(refused(load, "image", descriptor).code, "unreadable_image")
@@ -143,6 +146,29 @@ class WrongReturns(unittest.TestCase):
             with self.subTest(kind=kind, value=value):
                 error = refused(result, kind, value)
                 self.assertEqual((error.code, error.message), ("bad_return", message))
+
+    def test_table_like_mistakes_are_bad_return_whatever_the_pandas_version(self):
+        mistakes = [
+            [{}, None],
+            [1, 2],
+            [{"a": 1}, [1]],
+            ["a", {}],
+            {"a": {"b": 1}},
+            {"a": [1, 2], "b": [1]},
+            {"a": 1},
+            [[1, 2], [3]],
+            [None],
+            "abc",
+            {1, 2},
+            np.array(5),
+            np.zeros((2, 2)),
+            iter([1]),
+        ]
+        for kind in ("table", "points"):
+            for value in mistakes:
+                with self.subTest(kind=kind, value=repr(value)[:30]):
+                    self.assertEqual(refused(result, kind, value).code, "bad_return")
+        self.assertIn("different lengths", refused(result, "table", {"a": [1, 2], "b": [1]}).message)
 
     def test_affine_that_is_ragged_text_or_not_a_matrix(self):
         for value in ([[1, 0, 0], [0, 1], [0, 0, 1]], [["a", 0, 0], [0, 1, 0], [0, 0, 1]], {}):
