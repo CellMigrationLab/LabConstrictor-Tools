@@ -164,9 +164,8 @@ class Completeness(unittest.TestCase):
     def test_every_choice_of_every_choice_tool_has_a_case(self):
         sent = {}
         for case in self.cases:
-            if case.expect.status == "COMPLETE":
-                for name, value in case.send.items():
-                    sent.setdefault((case.tool, name), []).append(value)
+            for name, value in case.send.items():
+                sent.setdefault((case.tool, name), []).append(value)
         for tool_id, tool in self.tools.items():
             for param in tool["inputs"]:
                 if param["type"] == "choice":

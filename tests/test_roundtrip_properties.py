@@ -21,8 +21,9 @@ import numpy as np
 import pandas as pd
 import roundtrip_cases as rc
 import roundtrip_harness as harness
+import roundtrip_profiles  # noqa: F401  (registers and loads the hypothesis profile)
 import tifffile
-from hypothesis import HealthCheck, given, settings
+from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as hnp
 from roundtrip_known_failures import is_known
@@ -31,20 +32,6 @@ from labconstrictor_tools import cli, command, convert, protocol, testing
 from labconstrictor_tools.decorators import tools_in
 from labconstrictor_tools.introspection import describe_tools
 from labconstrictor_tools.types import ToolError
-
-_ALL_CHECKS = list(HealthCheck)
-settings.register_profile(
-    "ci", max_examples=200, derandomize=True, deadline=None, database=None, suppress_health_check=_ALL_CHECKS
-)
-settings.register_profile(
-    "nightly",
-    max_examples=5000,
-    derandomize=False,
-    deadline=None,
-    database=None,
-    suppress_health_check=_ALL_CHECKS,
-)
-settings.load_profile(os.environ.get("LC_HYPOTHESIS_PROFILE", "ci"))
 
 __import__(rc.APP_MODULE)
 TOOLS = {t["id"]: t for t in describe_tools(rc.APP_MODULE)["tools"]}

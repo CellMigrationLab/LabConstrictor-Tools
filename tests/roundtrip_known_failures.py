@@ -6,8 +6,13 @@ ids that fail because of it. Keys are `<transport>:<case id>` for the matrix, `p
 again and FAILS when one starts passing, so the PR that fixes a finding has to delete its entries (the list cannot rot).
 """
 
+import functools
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
+
+META = False  # test_roundtrip_known_failures sets this while it re-runs the listed tests, so that they do not skip themselves
 
 
 @dataclass(frozen=True)
@@ -109,6 +114,25 @@ FINDINGS: dict[str, Finding] = {
         'convert.load_inputs(schema_with_a_file_parameter, {"f": [1]}) -> TypeError from Path([1])',
         "ToolError('invalid_parameter', 'must be a path (text)')",
         "FAILURE code TypeError",
+    ),
+    "F14": Finding(
+        "labels_to_shapes drops objects that the simplification collapses (a single pixel with the default settings)",
+        "import numpy as np; from labconstrictor_tools.shapes import labels_to_shapes\n"
+        "a = np.zeros((5, 5), np.uint8); a[2, 2] = 1\nlabels_to_shapes(a)['features']   # [] (default simplify=0.5, min_area=1); "
+        "a 1x3 bar is dropped with simplify=1.0",
+        "every label with at least min_area pixels has a feature: when the simplified outline degenerates, keep the "
+        "unsimplified one (or the simplification is clamped so that it cannot collapse the object)",
+        "an empty FeatureCollection for an image of single-pixel objects: the objects exist (count_labels sees them) but nothing "
+        "is drawn and nothing says why",
+    ),
+    "F15": Finding(
+        "An image output that no host can open is written (or crashes with KeyError) instead of being refused",
+        "a tool declared -> ImageOut returns np.zeros((0, 3), np.uint8) or np.zeros((2, 2), np.complex64) or "
+        "np.array([[None, 1]], dtype=object) or np.array([['a', 'b']]) (examples.roundtrip.make_array)",
+        "ToolError('bad_return' / 'unsupported_dtype', ...): an empty image is refused on the way in (empty_image) and every "
+        "host fails on a complex or text TIFF, so the tool is told at once",
+        "empty and complex arrays are written (the empty one as a nonconformant TIFF that the bridge itself refuses to read back); "
+        "object and text arrays fail with [KeyError] 'O' / 'U'",
     ),
     "F13": Finding(
         "The worker destroys the host's shared-memory block when it exits",
@@ -229,7 +253,19 @@ _add(
     "F11",
     "property:only_toolerror_image_shared_memory",
 )
+_add(
+    "F15",
+    "worker:make_array/empty",
+    "worker:make_array/complex",
+    "worker:make_array/object",
+    "worker:make_array/text",
+)
 _add("F13", "lifecycle:shared_memory_survives_the_worker")
+_add(
+    "F14",
+    "test:test_roundtrip_geometry.Outlines.test_default_simplification_never_drops_a_label",
+    "worker:outline_labels/single-pixel-default-simplify",
+)
 _add(
     "F12",
     "property:only_toolerror_file_value",
@@ -241,3 +277,18 @@ def is_known(key: str) -> bool:
     """True when `key` is a listed failure on this platform (the runners skip it)."""
     finding = KNOWN.get(key)
     return finding is not None and os.name in FINDINGS[finding].platforms
+
+
+def known_failure(key: str) -> Callable[[Any], Any]:
+    """Decorator of a test method that currently fails because of a listed defect: it skips itself (and says why)."""
+
+    def wrap(test: Any) -> Any:
+        @functools.wraps(test)
+        def run(self: Any, *args: Any, **kwargs: Any) -> Any:
+            if is_known(key) and not META:
+                self.skipTest("known failure %s, watched by test_roundtrip_known_failures" % KNOWN[key])
+            return test(self, *args, **kwargs)
+
+        return run
+
+    return wrap

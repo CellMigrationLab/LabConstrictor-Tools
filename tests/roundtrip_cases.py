@@ -421,6 +421,18 @@ def image_cases() -> list[Case]:
             "image",
         )
     )
+    for kind in ("empty", "complex", "object", "text"):
+        cases.append(
+            Case(
+                "make_array/%s" % kind,
+                "make_array",
+                {"kind": kind},
+                Expect(status="FAILED", toolerror=True),
+                ("worker",),
+                False,
+                "image",
+            )
+        )
     # large images only in the nightly profile
     if nightly():
         add("float32/2048x2048", "echo_image", ramp((2048, 2048), "float32"), "image", "image", heavy=True)
@@ -1850,6 +1862,17 @@ def outline_cases() -> list[Case]:
             "outline_labels",
             {"labels": blobs, "simplify": 0.5},
             Expect(outputs={"shapes": OutOutlines(blobs, simplify=0.5, slack=int(blobs.size * 0.02))}),
+            ("worker",),
+            False,
+            "shapes",
+        )
+    )
+    cases.append(
+        Case(
+            "outline_labels/single-pixel-default-simplify",
+            "outline_labels",
+            {"labels": one, "simplify": 0.5},
+            Expect(outputs={"shapes": OutOutlines(one, simplify=0.5, slack=1)}),
             ("worker",),
             False,
             "shapes",

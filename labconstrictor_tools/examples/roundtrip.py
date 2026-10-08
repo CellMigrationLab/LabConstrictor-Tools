@@ -84,6 +84,19 @@ def echo_image(
     return image, _array_report(image)
 
 
+@tool("Make an array")
+def make_array(kind: Literal["empty", "complex", "object", "text"]) -> Annotated[ImageOut, Name("image")]:
+    """Returns an array that no host can open as an image: the result must be refused with a readable message."""
+    import numpy as np
+
+    return {
+        "empty": np.zeros((0, 3), np.uint8),
+        "complex": np.zeros((2, 2), np.complex64),
+        "object": np.array([[None, 1]], dtype=object),
+        "text": np.array([["a", "b"]]),
+    }[kind]
+
+
 @tool("Echo labels")
 def echo_labels(
     labels: Labels,
