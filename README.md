@@ -81,17 +81,17 @@ labconstrictor-tools test --module myapp_lc_tools --pythonpath .
 
 The `check` command validates declarations; `test` runs declared tools with samples and reports problems. For custom fixtures and expected results, use `--cases lc_tests/cases.json`. The toolkit also supports `%%lc_tool` notebook cells and `export-notebook`; see the [authoring guide](docs/AUTHORING.md).
 
-## Applications you can try
+## Applications
 
-These are separate scientific applications, not tools bundled with this bridge. Install an application and its LabConstrictor tool registration before expecting it to appear in Fiji, Napari or QuPath.
+The bridge lists tools registered by installed applications. The following repositories provide applications or test tools; they are not bundled with this toolkit.
 
-- [LabConstrictor Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground) — synthetic images, segmentation outputs, installation checks and host integration tests. [Installers](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases).
-- [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) — registration of microscopy images using nuclei positions. [Desktop installation](https://github.com/CellMigrationLab/NucleiSky/blob/main/.tools/docs/download_executable.md). Its repository documents Fiji integration; verify the installed version exposes the required tools.
-- [VLab4Mic desktop application](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) — fluorescence microscopy simulations and image comparison. [Installation guide](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/blob/main/.tools/docs/download_executable.md). Its repository documents Napari and Fiji bridge workflows.
-- [CellTracksColab desktop application](https://github.com/CellMigrationLab/CellTracksColab_LabConstrictor) — cell-track analysis. [Desktop installation](https://github.com/CellMigrationLab/CellTracksColab_LabConstrictor/blob/main/.tools/docs/download_executable.md). Check the installed application's declared tools before assuming a particular host workflow is available.
-- [Guess the Condition](https://github.com/CellMigrationLab/GuessTheCondition) — blinded classification of microscopy images to test whether experimental conditions can be distinguished across biological repeats. [Desktop installers](https://github.com/CellMigrationLab/GuessTheCondition/releases) and [Colab notebook](https://colab.research.google.com/github/CellMigrationLab/GuessTheCondition/blob/main/notebooks/GuessTheCondition/GuessTheCondition.ipynb). Its repository documents five bridge tools for Napari and Fiji.
+- [Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground) ([releases](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases)): synthetic images, example outputs and installation diagnostics.
+- [Guess the Condition](https://github.com/CellMigrationLab/GuessTheCondition) ([releases](https://github.com/CellMigrationLab/GuessTheCondition/releases), [Colab](https://colab.research.google.com/github/CellMigrationLab/GuessTheCondition/blob/main/notebooks/GuessTheCondition/GuessTheCondition.ipynb)): blinded classification of microscopy images across biological repeats. Its code declares six tools: five game actions and a helper that supplies condition choices. The application documents Napari, Fiji and CLI use.
+- [VLab4Mic desktop](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) ([releases](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases)): fluorescence image simulation; the application documents Napari and Fiji use.
+- [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) ([releases](https://github.com/CellMigrationLab/NucleiSky/releases)): image registration from nuclei landmarks. The Fiji bridge includes NucleiSky integration tests.
+- [CellTracksColab desktop](https://github.com/CellMigrationLab/CellTracksColab_LabConstrictor) ([releases](https://github.com/CellMigrationLab/CellTracksColab_LabConstrictor/releases)): tracking-data analysis. Check which tools are available in the installed version.
 
-**Compatibility is tool- and host-specific.** An application having a desktop installer does not by itself establish that every analysis function is exposed through the bridge. Use `labconstrictor-tools list` to inspect the installed tools.
+A desktop installer does not guarantee that a particular tool works in every host. Run `labconstrictor-tools list` to see what your installation registers. QuPath compatibility should be checked independently.
 
 ## Documentation
 
