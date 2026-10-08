@@ -302,18 +302,25 @@ BREAKS = [
     Break(
         "command: POSIX quoting removed",
         "command.py",
-        "return shlex.quote(text)",
-        "return text",
+        "else shlex.quote(text)",
+        "else text",
         unittest_slice("test_roundtrip_command.QuotingHelper.test_posix_quoting_survives_a_real_shell"),
     ),
     Break(
-        "command: Windows quoting loses the double quotes",
+        "command: Windows quoting does not escape a double quote",
         "command.py",
-        "text.replace('\"', '\\\\\"')",
-        "text.replace('\"', '')",
+        "BACKSLASH * (2 * run + 1) if c == DOUBLE_QUOTE else BACKSLASH * run",
+        "BACKSLASH * run",
         unittest_slice(
             "test_roundtrip_command.QuotingHelper.test_windows_quoting_keeps_every_text_one_argument"
         ),
+    ),
+    Break(
+        "command: Windows quoting does not double the trailing backslashes",
+        "command.py",
+        "BACKSLASH * (2 * run) + DOUBLE_QUOTE",
+        "BACKSLASH * run + DOUBLE_QUOTE",
+        unittest_slice("test_quote_vectors.QuoteVectors.test_quote_gives_the_expected_text_for_both_shells"),
     ),
     Break(
         "command: booleans are written as True/False",
@@ -398,7 +405,7 @@ def build_tree(destination: Path) -> Path:
     )
     tests = destination / "tests"
     tests.mkdir()
-    for path in (ROOT / "tests").glob("*.py"):
+    for path in [*(ROOT / "tests").glob("*.py"), ROOT / "tests" / "quote_vectors.json"]:
         shutil.copy2(path, tests / path.name)
     shutil.copytree(
         ROOT / "tests" / "failure_app", tests / "failure_app", ignore=shutil.ignore_patterns("__pycache__")

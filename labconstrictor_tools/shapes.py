@@ -17,6 +17,7 @@ from .types import ToolError
 
 CONTOUR_LEVEL = 0.5  # halfway between background (0) and label (1): the outline runs along pixel edges
 DEFAULT_SIMPLIFY_PX = 0.5  # default for labels_to_shapes(simplify=...)
+MIN_RING_POINTS = 4  # a closed ring needs 3 distinct vertices plus the repeated first one
 MAX_LABELS_HINT = 50_000  # hosts show up to this many outlines and say how many were left out
 
 
@@ -46,9 +47,9 @@ def _rings_of(mask: Any, simplify: float) -> list[list[list[float]]]:
     rings: list[list[list[float]]] = []
     for contour in find_contours(padded, CONTOUR_LEVEL):
         if simplify and simplify > 0:
-            contour = approximate_polygon(contour, simplify)
-        if len(contour) < 4:  # a closed ring of fewer than 3 distinct vertices is no polygon
-            continue
+            simplified = approximate_polygon(contour, simplify)
+            # a ring that simplification collapses (a single pixel, a 1x3 bar) keeps its un-simplified outline: never drop a label
+            contour = simplified if len(simplified) >= MIN_RING_POINTS else contour
         ring = [
             [float(c) - 1.0, float(r) - 1.0] for r, c in contour
         ]  # undo the padding; (row, col) -> [x, y]
@@ -79,7 +80,10 @@ def labels_to_shapes(labels: Any, simplify: float = DEFAULT_SIMPLIFY_PX, min_are
     """GeoJSON FeatureCollection of the outlines of a 2D label image.
 
     `simplify` is the largest distance in pixels an outline may move when it is simplified (0 keeps every pixel corner);
-    `min_area` skips labels with fewer pixels.
+    `min_area` skips labels with fewer pixels. Every label with at least `min_area` pixels gets exactly one feature: when
+    simplification would leave a ring with fewer than 3 vertices (a single pixel, a 1x3 bar), that ring keeps its
+    UN-simplified outline instead, so no label is ever dropped silently. For a single pixel at (y, x) this is the diamond
+    with vertices (x, y +- 0.5) and (x +- 0.5, y), a valid 4-vertex polygon around the pixel centre.
     """
     import numpy as np
     from scipy import ndimage
@@ -98,8 +102,10 @@ def labels_to_shapes(labels: Any, simplify: float = DEFAULT_SIMPLIFY_PX, min_are
         if area < min_area:
             continue
         polygons = _polygons(_rings_of(crop, simplify))
-        if not polygons:
-            continue
+        if (
+            not polygons
+        ):  # cannot happen (every non-empty mask has a contour of >= 4 points); never skip silently
+            raise ToolError("bad_return", "label %d has %d pixels but no outline" % (index, area))
         dy, dx = region[0].start, region[1].start
         shifted = [[[[x + dx, y + dy] for x, y in ring] for ring in polygon] for polygon in polygons]
         geometry = (
