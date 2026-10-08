@@ -37,6 +37,23 @@ ignore = ["E501", "UP031", "UP032", "B905"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["E402", "B007", "S", "BLE", "RUF100"]   # test scripts set up sys.path / env before importing; they assert, run subprocesses and expect failures on purpose
+"tests/vulture_whitelist.py" = ["B018", "F821"]   # bare names on purpose: that is how vulture is told a name is used
+
+[tool.coverage.run]
+# production code only: the package, not the tests and not the example apps (they are test fixtures that tools run through)
+source_pkgs = ["labconstrictor_tools"]
+omit = ["*/labconstrictor_tools/examples/*", "*/tests/*"]
+branch = true
+parallel = true      # the workers and the command line run in subprocesses: one data file each, combined afterwards
+patch = ["subprocess"]   # coverage also follows every Python process the tests start (workers, `labconstrictor-tools run`, snippets)
+data_file = ".coverage"
+
+[tool.coverage.report]
+fail_under = 0   # set by the CI step to today's measured level, rounded down (see docs/TESTING.md)
+show_missing = true
+ignore_errors = true   # data of temporary copies of the package (test_sabotage.py) has no source left to read
+skip_empty = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]
 
 [tool.mypy]
 # the example app uses the semantic marker types (Image, ...) as annotations on purpose
