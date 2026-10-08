@@ -54,18 +54,27 @@ def kill_children_with_me() -> bool:
     if os.name != "nt":
         return False
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    # explicit signatures: without them ctypes passes handles as C ints and the pseudo-handle -1 of this process overflows
+    kernel32.CreateJobObjectW.argtypes = [wintypes.LPVOID, wintypes.LPCWSTR]
     kernel32.CreateJobObjectW.restype = wintypes.HANDLE
+    kernel32.GetCurrentProcess.argtypes = []
     kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+    kernel32.SetInformationJobObject.argtypes = [
+        wintypes.HANDLE,
+        ctypes.c_int,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+    ]
+    kernel32.SetInformationJobObject.restype = wintypes.BOOL
+    kernel32.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+    kernel32.AssignProcessToJobObject.restype = wintypes.BOOL
     job = kernel32.CreateJobObjectW(None, None)
     limits = _ExtendedLimits()
     limits.BasicLimitInformation.LimitFlags = _KILL_ON_JOB_CLOSE
-    ok = job and kernel32.SetInformationJobObject(
-        wintypes.HANDLE(job),
-        _JOB_OBJECT_EXTENDED_LIMIT_INFORMATION,
-        ctypes.byref(limits),
-        ctypes.sizeof(limits),
+    ok = bool(job) and kernel32.SetInformationJobObject(
+        job, _JOB_OBJECT_EXTENDED_LIMIT_INFORMATION, ctypes.byref(limits), ctypes.sizeof(limits)
     )
-    ok = ok and kernel32.AssignProcessToJobObject(wintypes.HANDLE(job), kernel32.GetCurrentProcess())
+    ok = ok and kernel32.AssignProcessToJobObject(job, kernel32.GetCurrentProcess())
     if not ok:
         log.warning(
             "worker: could not join a kill-on-close job object (Windows error %s); processes a tool starts may "
