@@ -18,7 +18,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from . import _winjob, convert, runtime
+from . import _winjob, convert, log, runtime
 from . import types as T
 from .decorators import tools_in
 from .introspection import describe_tool
@@ -27,6 +27,8 @@ from .protocol import JOB_DIR_KEY, Channel, tool_id_from_script
 # a task's end as the host hears it: (terminal response type, its fields)
 Outcome = tuple[str, dict[str, Any]]
 
+SCRIPT_PREVIEW_CHARS = 40  # how much of a refused script is echoed back in the error
+PROGRESS_MAXIMUM = 100  # progress is reported to hosts as current/maximum on this scale
 ORPHAN_GRACE_S = 10.0  # after the host disappears, how long a running tool gets to notice and stop
 
 
@@ -58,7 +60,7 @@ class Worker:
                 file=sys.stderr,
                 flush=True,
             )
-            raise SystemExit(3) from None
+            raise SystemExit(log.EXIT_TOOL_IMPORT_FAILED) from None
         self.tools = {tool.id: tool for tool in tools_in(module)}
         self.schemas = {tid: describe_tool(tool) for tid, tool in self.tools.items()}
         self._cancel_events: dict[str, threading.Event] = {}
@@ -164,7 +166,10 @@ class Worker:
                 raise T.Cancelled()
             tool_id = tool_id_from_script(script)
             if tool_id not in self.tools:
-                raise T.ToolError("unknown_tool", "only declared tools may be executed; got %r" % script[:40])
+                raise T.ToolError(
+                    "unknown_tool",
+                    "only declared tools may be executed; got %r" % script[:SCRIPT_PREVIEW_CHARS],
+                )
             inputs = dict(inputs)
             given = inputs.pop(JOB_DIR_KEY, None)
             owns_job_dir = given is None
@@ -259,5 +264,5 @@ class Worker:
             return  # the task is over
         fields: dict[str, Any] = {"message": str(message)}
         if fraction is not None:
-            fields.update(current=int(100 * fraction), maximum=100)
+            fields.update(current=int(PROGRESS_MAXIMUM * fraction), maximum=PROGRESS_MAXIMUM)
         self.channel.send(task, "UPDATE", **fields)

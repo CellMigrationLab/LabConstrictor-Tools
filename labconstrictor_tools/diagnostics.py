@@ -33,6 +33,15 @@ from typing import Any, Callable
 # log; in a worker (no handler) warnings and errors reach stderr, which the host copies into that log.
 log = logging.getLogger("labconstrictor.diagnostics")
 
+TOOL_PROBE_TIMEOUT_S = 10.0  # a GPU tool query (nvidia-smi, ...) that takes longer is reported as timed out
+NETWORK_TIMEOUT_S = 5  # per host in the network probe
+HTTPS_PORT = 443
+BENCHMARK_SIZE = 512  # side of the matrix / image of the GPU benchmark
+BENCHMARK_REPEATS = 5  # timed repetitions per device
+BENCHMARK_AGREEMENT = 1e-3  # relative difference to the CPU result above which a device is said to disagree
+ASCII_MAX = 127  # characters above this in a path are reported (some tools cannot open such paths)
+# exit codes `_run` reports, following the shell convention
+EXIT_TIMED_OUT, EXIT_NOT_EXECUTABLE, EXIT_NOT_FOUND = 124, 126, 127
 OK, WARN, FAIL, INFO = "ok", "warn", "fail", "info"
 _SYMBOL = {OK: "\u2714", WARN: "\u26a0", FAIL: "\u2716", INFO: "\u2022"}
 
@@ -151,7 +160,7 @@ def probe_machine() -> list[Check]:
             )
         )
     path = tempfile.gettempdir()
-    if any(ord(c) > 127 for c in path):
+    if any(ord(c) > ASCII_MAX for c in path):
         out.append(
             Check(
                 "machine",
@@ -195,18 +204,18 @@ def probe_worker() -> list[Check]:
 
 
 # ---------------------------------------------------------------------------------------------------- GPU tools
-def _run(command: list[str], timeout: float = 10.0) -> tuple[int, str]:
+def _run(command: list[str], timeout: float = TOOL_PROBE_TIMEOUT_S) -> tuple[int, str]:
     try:
         done = subprocess.run(
             command, capture_output=True, text=True, timeout=timeout
         )  # noqa: S603 - fixed argument lists only
         return done.returncode, (done.stdout or "") + (done.stderr or "")
     except FileNotFoundError:
-        return 127, ""
+        return EXIT_NOT_FOUND, ""
     except subprocess.TimeoutExpired:
-        return 124, "timed out after %.0f s" % timeout
+        return EXIT_TIMED_OUT, "timed out after %.0f s" % timeout
     except OSError as error:
-        return 126, str(error)
+        return EXIT_NOT_EXECUTABLE, str(error)
 
 
 def parse_nvidia_smi(text: str) -> list[dict]:
@@ -224,7 +233,7 @@ def probe_gpu_tools() -> list[Check]:
     code, text = _run(
         ["nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader,nounits"]
     )
-    if code == 127:
+    if code == EXIT_NOT_FOUND:
         out.append(
             Check(
                 "gpu tools",
@@ -418,7 +427,7 @@ def torch_devices() -> list[str]:
 
 
 # ---------------------------------------------------------------------------------------------------- real work
-def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
+def probe_benchmark(size: int = BENCHMARK_SIZE, repeats: int = BENCHMARK_REPEATS) -> list[Check]:
     """The same small convolution and matrix product on every device: the results must agree (a broken driver does not), and the timings show the real speed-up."""
     try:
         torch = _torch_module()
@@ -459,7 +468,7 @@ def probe_benchmark(size: int = 512, repeats: int = 5) -> list[Check]:
             result = float(value.cpu())
             if reference is None:
                 reference = result
-            agrees = abs(result - reference) <= 1e-3 * max(1.0, abs(reference))
+            agrees = abs(result - reference) <= BENCHMARK_AGREEMENT * max(1.0, abs(reference))
             out.append(
                 Check(
                     "benchmark",
@@ -508,7 +517,7 @@ def probe_network(hosts: Iterable[str] = ("pypi.org", "huggingface.co", "github.
     for host in hosts:
         started = time.perf_counter()
         try:
-            with socket.create_connection((host, 443), timeout=5):
+            with socket.create_connection((host, HTTPS_PORT), timeout=NETWORK_TIMEOUT_S):
                 pass
             out.append(
                 Check("network", host, OK, "reachable in %.0f ms" % ((time.perf_counter() - started) * 1000))

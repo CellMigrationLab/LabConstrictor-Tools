@@ -14,6 +14,10 @@ from typing import Any
 from .structures import OutputSchema, ParamSchema, Result, ToolSchema
 from .types import ToolError
 
+UINT16_MAX = (
+    65535  # integer images within the 16-bit ranges are narrowed to uint16 / int16, which every host opens
+)
+INT16_MIN, INT16_MAX = -32768, 32767
 DEFAULT_AXES = {2: "YX", 3: "ZYX", 4: "CZYX"}
 
 
@@ -406,9 +410,9 @@ def portable_dtype(array: Any, what: str = "image") -> Any:
         if array.size == 0:
             return array.astype(np.uint16)
         low, high = int(array.min()), int(array.max())
-        if low >= 0 and high <= 65535:
+        if low >= 0 and high <= UINT16_MAX:
             return array.astype(np.uint16)
-        if low >= -32768 and high <= 32767:
+        if low >= INT16_MIN and high <= INT16_MAX:
             return array.astype(np.int16)
         widened = array.astype(np.float32)
         if np.array_equal(widened.astype(array.dtype), array):

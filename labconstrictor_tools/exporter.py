@@ -35,6 +35,7 @@ re-exporting replaces the blocks between the `# >>> lc-tool` and `# <<< lc-tool`
 '''
 
 _BLOCK = "# >>> lc-tool: %s\n%s# <<< lc-tool: %s\n"
+DROPPED_PREVIEW_CHARS = 60  # how much of a dropped statement is quoted back to the author
 _BLOCK_RE = r"# >>> lc-tool: %s\n.*?# <<< lc-tool: %s\n"
 
 
@@ -88,7 +89,7 @@ def prepare(source: str, label: str | None = None, function: str | None = None) 
         if _belongs_in_module(node):
             kept.append("\n".join(text))
         else:
-            dropped.append(lines[node.lineno - 1].strip()[:60])
+            dropped.append(lines[node.lineno - 1].strip()[:DROPPED_PREVIEW_CHARS])
     return Prepared(target.name, "\n\n\n".join(kept) + "\n", dropped)
 
 

@@ -22,7 +22,11 @@ from . import client
 from .structures import AppSchema, CaseReport, CaseSpec, Result, ToolSchema
 
 FIJI_SAFE_DTYPES = ("uint8", "uint16", "int16", "float32")
-CANCEL_GRACE_S = 10
+CANCEL_GRACE_S = 10  # how long a tool gets to stop after a cancel request in `test`
+DEFAULT_CASE_TIMEOUT_S = 120  # a case that has not finished after this many seconds is a failure
+LAUNCH_WAIT_S = 60  # cancel check: how long the worker gets to accept the task
+CANCEL_CHECK_DELAY_S = 1.0  # cancel check: let the tool really start before asking it to stop
+TOLERANCE = 1e-6  # default tolerance of an `approx` expectation, and relative tolerance of every other numeric comparison
 PATH_TYPES = ("image", "labels", "table", "file", "folder")
 
 CASE_KEYS = {"tool", "inputs", "expect", "skip", "cancel_after_s", "comment", "_dir"}
@@ -342,7 +346,9 @@ def _compare_values(name: str, result: Result, wanted: dict[str, Any]) -> list[s
     for key, value in wanted.get("equals", wanted).items():
         actual = result["values"].get(key)
         if isinstance(value, dict) and "approx" in value:  # {"approx": 12.0, "tol": 0.5}
-            ok = isinstance(actual, (int, float)) and abs(actual - value["approx"]) <= value.get("tol", 1e-6)
+            ok = isinstance(actual, (int, float)) and abs(actual - value["approx"]) <= value.get(
+                "tol", TOLERANCE
+            )
         else:
             ok = key in result["values"] and _close(actual, value)
         if not ok:
@@ -378,7 +384,7 @@ def _compare_affine(name: str, result: Result, wanted: dict[str, Any]) -> list[s
     return []
 
 
-def _close(actual: Any, wanted: Any, tolerance: float = 1e-6) -> bool:
+def _close(actual: Any, wanted: Any, tolerance: float = TOLERANCE) -> bool:
     if isinstance(wanted, (int, float)) and not isinstance(wanted, bool) and isinstance(actual, (int, float)):
         return abs(actual - wanted) <= tolerance * max(1.0, abs(wanted))
     return actual == wanted
@@ -492,9 +498,9 @@ def _cancel_check(
     ):
         inputs = dict(_resolve_paths(case, tool), _job_dir=str(Path(scratch) / "job"))
         task = worker.task(tool["id"], inputs)
-        task.launched.wait(60)
+        task.launched.wait(LAUNCH_WAIT_S)
         time.sleep(
-            1.0
+            CANCEL_CHECK_DELAY_S
         )  # let the tool really start: a cancel that arrives first is honoured without the tool's help
         if task.done.is_set():
             return [], []  # too quick to cancel: nothing to learn
@@ -516,7 +522,7 @@ def run_suite(
     cases: list[CaseSpec] | None,
     only: str | None = None,
     samples: dict[str, str] | None = None,
-    timeout: float = 120,
+    timeout: float = DEFAULT_CASE_TIMEOUT_S,
     check_cancel: bool = False,
     python: str | None = None,
 ) -> tuple[list[CaseReport], list[str]]:

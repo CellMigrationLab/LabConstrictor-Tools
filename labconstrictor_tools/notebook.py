@@ -17,6 +17,11 @@ from . import types as T
 from .introspection import describe_tool
 from .structures import ParamSchema, Result
 
+# bounds of a number box whose parameter declares no Min / Max (the widget needs finite limits)
+UNBOUNDED_INT = 10**9
+UNBOUNDED_FLOAT = 1e9
+FLOAT_STEP = 1e-4  # arrow-key step of a float box
+
 
 class ToolForm:
     """The form of one tool. ipywidgets is imported inside, so importing this module works without it installed."""
@@ -69,16 +74,16 @@ class ToolForm:
         elif kind == "integer":
             control = w.BoundedIntText(
                 value=int(default or 0),
-                min=param.get("minimum", -(10**9)),
-                max=param.get("maximum", 10**9),
+                min=param.get("minimum", -UNBOUNDED_INT),
+                max=param.get("maximum", UNBOUNDED_INT),
                 **common,
             )
         elif kind == "float":
             control = w.BoundedFloatText(
                 value=float(default or 0),
-                min=param.get("minimum", -1e9),
-                max=param.get("maximum", 1e9),
-                step=1e-4,
+                min=param.get("minimum", -UNBOUNDED_FLOAT),
+                max=param.get("maximum", UNBOUNDED_FLOAT),
+                step=FLOAT_STEP,
                 **common,
             )
         elif kind == "boolean":

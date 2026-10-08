@@ -102,6 +102,8 @@ def _add_check_command(sub: "Subparsers") -> None:
 
 
 def _add_test_command(sub: "Subparsers") -> None:
+    from .testing import DEFAULT_CASE_TIMEOUT_S
+
     test = sub.add_parser("test", help="run the tools on small samples and check the results (for authors)")
     test.add_argument("--module", required=True)
     test.add_argument("--pythonpath", action="append", default=[])
@@ -109,7 +111,7 @@ def _add_test_command(sub: "Subparsers") -> None:
     test.add_argument("--cases", help="JSON file with test cases; without it every tool gets a smoke test")
     test.add_argument("--sample", action="append", default=[], metavar="name=path")
     test.add_argument("--only", help="test just this tool id")
-    test.add_argument("--timeout", type=float, default=120)
+    test.add_argument("--timeout", type=float, default=DEFAULT_CASE_TIMEOUT_S)
     test.add_argument("--check-cancel", action="store_true", help="also check that tools react to cancel")
     test.add_argument("--json", action="store_true")
 

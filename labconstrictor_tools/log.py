@@ -15,6 +15,12 @@ from pathlib import Path
 from . import registry
 
 LOG_NAME = "labconstrictor.log"
+LOG_FILE_BYTES = 1_000_000  # size of one log file before it rotates
+LOG_FILE_BACKUPS = 5  # rotated files kept next to the current one
+TAIL_LINES = 60  # how many log lines `tail()` returns by default
+EXIT_TOOL_IMPORT_FAILED = (
+    3  # the worker's exit code when the tool module cannot be imported (worker.py exits with it)
+)
 _FORMAT = "%(asctime)s.%(msecs)03d %(levelname)-7s pid=%(process)d %(message)s"
 _logger = None
 _version_fallback_logged = False
@@ -38,7 +44,7 @@ def logger() -> logging.Logger:
     try:
         log_dir().mkdir(parents=True, exist_ok=True)
         handler = logging.handlers.RotatingFileHandler(
-            log_path(), maxBytes=1_000_000, backupCount=5, encoding="utf-8"
+            log_path(), maxBytes=LOG_FILE_BYTES, backupCount=LOG_FILE_BACKUPS, encoding="utf-8"
         )
         handler.setFormatter(logging.Formatter(_FORMAT, "%Y-%m-%d %H:%M:%S"))
         _logger.addHandler(handler)
@@ -91,7 +97,7 @@ def error(message: str, *args: object, exc_info: bool = False) -> None:
     logger().error(message, *args, exc_info=exc_info)
 
 
-def tail(lines: int = 60) -> str:
+def tail(lines: int = TAIL_LINES) -> str:
     """Last `lines` lines of the log, newest last (for 'Details' windows and `labconstrictor-tools logs`)."""
     try:
         return "".join(log_path().read_text(encoding="utf-8", errors="replace").splitlines(True)[-lines:])
@@ -127,6 +133,6 @@ def hint_for_exit(returncode: int | None, stderr_tail: str | None) -> str:
         return "the worker was killed (out of memory? the OS OOM killer ends big image jobs this way)"
     if returncode in (-11, 139, 3221225477):
         return "the worker crashed natively (segmentation fault in a compiled library)"
-    if returncode == 3:
+    if returncode == EXIT_TOOL_IMPORT_FAILED:
         return "the app's tool module failed to import (see the traceback above)"
     return ""

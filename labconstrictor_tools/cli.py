@@ -134,7 +134,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         raise SystemExit("✖ %s" % error) from error
     except KeyboardInterrupt:  # Ctrl-C: the worker is closed by run_once's context manager; no traceback
         print("✖ interrupted; the worker was asked to stop", file=sys.stderr)
-        return 130
+        return EXIT_INTERRUPTED
     if task.status != "COMPLETE" and not args.out:
         _remove_empty_job_dir(inputs["_job_dir"])
     print(json.dumps(_run_report(task, round(time.time() - started, 2)), indent=2))
@@ -183,7 +183,14 @@ def _run_report(task: Task, seconds: float) -> dict[str, Any]:
     return report
 
 
-RESULTS_KEPT = 20
+RESULTS_KEPT = 20  # result folders of `run` that are kept; older ones are removed
+RESULTS_DIR_ATTEMPTS = 20  # tries to find an unused results folder name before giving up
+RESULTS_DIR_RANDOM_BYTES = 3  # random part of a results folder name (two runs in one second never collide)
+LIVE_SCHEMA_TIMEOUT_S = 120  # doctor: how long an app's own interpreter gets to describe its tools
+VERSION_PROBE_TIMEOUT_S = 20  # support bundle: how long `python -VV` of an app gets
+BUNDLE_RUNS_KEPT = 10  # support bundle: the newest run records it includes
+SLOW_DECLARATIONS_S = 0.5  # check: warn when importing the declarations takes longer than this
+EXIT_INTERRUPTED = 130  # shell convention for Ctrl-C: 128 + SIGINT
 
 
 _RUN_FOLDER = re.compile(
@@ -211,10 +218,10 @@ def _new_results_dir(app: str, tool_id: str) -> Path:
             log.warning(
                 "could not remove the old results folder %s (%s: %s)", old, type(error).__name__, error
             )
-    for _ in range(20):
+    for _ in range(RESULTS_DIR_ATTEMPTS):
         name = "%s_%s_%s_%s" % (
             time.strftime("%Y%m%dT%H%M%S"),
-            os.urandom(3).hex(),
+            os.urandom(RESULTS_DIR_RANDOM_BYTES).hex(),
             _slug(app),
             _slug(tool_id),
         )
@@ -301,7 +308,7 @@ def cmd_check(args: argparse.Namespace) -> int:
         print(
             "  registering and browsing tools stays instant (hosts only need the declarations until Run is pressed)"
         )
-    if seconds > 0.5:
+    if seconds > SLOW_DECLARATIONS_S:
         print("⚠ loading the declarations took %.1f s" % seconds)
     return 0
 
@@ -364,7 +371,9 @@ def _live_schema(entry: RegistryEntry) -> tuple[subprocess.CompletedProcess[str]
     }
     command = [entry["python"], "-m", "labconstrictor_tools", "describe", "--module", entry["module"]]
     started = time.perf_counter()
-    result = subprocess.run(command, capture_output=True, text=True, env=env, encoding="utf-8", timeout=120)
+    result = subprocess.run(
+        command, capture_output=True, text=True, env=env, encoding="utf-8", timeout=LIVE_SCHEMA_TIMEOUT_S
+    )
     return result, time.perf_counter() - started
 
 
@@ -398,7 +407,8 @@ def _diagnose_app(name: str, entry: RegistryEntry) -> tuple[str, str, str]:
         return (
             name,
             "error",
-            "its interpreter did not answer within 120 s (importing the tool module hangs?)",
+            "its interpreter did not answer within %d s (importing the tool module hangs?)"
+            % LIVE_SCHEMA_TIMEOUT_S,
         )
     except (OSError, ValueError) as error:  # cannot start, or it printed something that is not a schema
         return (
@@ -469,7 +479,7 @@ def cmd_support_bundle(args: argparse.Namespace) -> int:
             for path in _bundle_files(home / folder, pattern, skipped):
                 bundle.write(path, "%s/%s" % (folder, path.name))
         runs = sorted(p for p in (home / "runs").glob("*") if p.is_dir() and not p.is_symlink())
-        for run in runs[-10:]:
+        for run in runs[-BUNDLE_RUNS_KEPT:]:
             for path in _bundle_files(run, "*.json", skipped):
                 bundle.write(path, "runs/%s/%s" % (run.name, path.name))
         if skipped:
@@ -525,7 +535,9 @@ def _environment_report() -> str:
     lines += ["", "apps:"]
     for name, entry in sorted(entries.items()):
         try:
-            result = subprocess.run([entry["python"], "-VV"], capture_output=True, text=True, timeout=20)
+            result = subprocess.run(
+                [entry["python"], "-VV"], capture_output=True, text=True, timeout=VERSION_PROBE_TIMEOUT_S
+            )
             version = (result.stdout or result.stderr).strip()
         except (
             OSError,

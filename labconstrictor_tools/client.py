@@ -27,6 +27,13 @@ ProgressCallback = Callable[
 ]  # (message, fraction 0..1 or None) as the worker reports it
 
 CANCEL_GRACE_S = 10.0  # Task.cancel(): how long a tool gets to honour the request before its worker is killed
+BRIEF_LIMIT_CHARS = 300  # inputs written to the log are cut to this many characters
+CLOSE_TIMEOUT_S = 5  # WorkerProcess.close(): how long the worker gets to exit after its stdin is closed
+KILLED_TASK_WAIT_S = (
+    5  # run_once(): how long to wait for a task to report after its worker was killed on timeout
+)
+STDERR_JOIN_S = 2  # after the worker exits: how long to wait for its stderr reader to drain the last lines
+CRASH_REPORT_TAIL_CHARS = 2500  # how much of the worker's last output goes into a crash message
 _SCRUBBED_ENV = ("PYTHONHOME", "VIRTUAL_ENV", "CONDA_PREFIX", "QT_PLUGIN_PATH", "PYTHONPATH")
 _STATUS_BY_RESPONSE = {
     "COMPLETION": "COMPLETE",
@@ -36,7 +43,7 @@ _STATUS_BY_RESPONSE = {
 }
 
 
-def _brief(inputs: dict[str, Any], limit: int = 300) -> str:
+def _brief(inputs: dict[str, Any], limit: int = BRIEF_LIMIT_CHARS) -> str:
     """Inputs for the log: paths and scalars as they are, bulky shared-memory descriptors shortened."""
     text = json.dumps(inputs, default=str)
     return text if len(text) <= limit else text[:limit] + "...(%d chars)" % len(text)
@@ -197,7 +204,7 @@ class WorkerProcess:
         self._send({"task": task.id, "requestType": "EXECUTE", "script": "lc:" + tool_id, "inputs": inputs})
         return task
 
-    def close(self, timeout: float = 5) -> None:
+    def close(self, timeout: float = CLOSE_TIMEOUT_S) -> None:
         """Ask the worker to exit (close stdin); kill it if it does not."""
         try:
             if self.proc.stdin:
@@ -306,8 +313,8 @@ class WorkerProcess:
     def _on_exit(self) -> None:
         """stdout closed: the worker is gone. Unfinished tasks crashed - say why, with the worker's own last words."""
         returncode = self.proc.wait()
-        self._stderr_thread.join(2)
-        tail = "".join(self.stderr)[-2500:].strip()
+        self._stderr_thread.join(STDERR_JOIN_S)
+        tail = "".join(self.stderr)[-CRASH_REPORT_TAIL_CHARS:].strip()
         pending = [t for t in list(self.tasks.values()) if not t.done.is_set()]
         cancelled = any(t.cancel_requested for t in pending)
         log.info(
@@ -472,7 +479,7 @@ def run_once(
         task = worker.task(tool_id, inputs, on_update).wait(timeout)
         if not task.done.is_set():
             worker.kill()
-            task.wait(5)
+            task.wait(KILLED_TASK_WAIT_S)
             task.error = "timed out after %s s" % timeout
             log.error("task %s timed out after %s s, worker killed", task.id[:8], timeout)
         if record:

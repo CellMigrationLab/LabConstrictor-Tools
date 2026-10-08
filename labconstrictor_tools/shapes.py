@@ -15,6 +15,8 @@ from typing import Any
 
 from .types import ToolError
 
+CONTOUR_LEVEL = 0.5  # halfway between background (0) and label (1): the outline runs along pixel edges
+DEFAULT_SIMPLIFY_PX = 0.5  # default for labels_to_shapes(simplify=...)
 MAX_LABELS_HINT = 50_000  # hosts show up to this many outlines and say how many were left out
 
 
@@ -42,7 +44,7 @@ def _rings_of(mask: Any, simplify: float) -> list[list[list[float]]]:
 
     padded = np.pad(mask.astype(np.uint8), 1)
     rings: list[list[list[float]]] = []
-    for contour in find_contours(padded, 0.5):
+    for contour in find_contours(padded, CONTOUR_LEVEL):
         if simplify and simplify > 0:
             contour = approximate_polygon(contour, simplify)
         if len(contour) < 4:  # a closed ring of fewer than 3 distinct vertices is no polygon
@@ -73,7 +75,7 @@ def _polygons(rings: list[list[list[float]]]) -> list[list[list[list[float]]]]:
     return polygons
 
 
-def labels_to_shapes(labels: Any, simplify: float = 0.5, min_area: int = 1) -> dict[str, Any]:
+def labels_to_shapes(labels: Any, simplify: float = DEFAULT_SIMPLIFY_PX, min_area: int = 1) -> dict[str, Any]:
     """GeoJSON FeatureCollection of the outlines of a 2D label image.
 
     `simplify` is the largest distance in pixels an outline may move when it is simplified (0 keeps every pixel corner);
