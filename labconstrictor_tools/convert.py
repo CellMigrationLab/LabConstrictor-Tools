@@ -314,7 +314,7 @@ def _as_frame(kind: str, name: str, value: Any) -> Any:
     column_types = (list, tuple, np.ndarray, pd.Series)
     if isinstance(value, Mapping):
         columns = list(value.values())
-        if not all(isinstance(c, column_types) and np.ndim(c) == 1 for c in columns):
+        if not all(isinstance(c, column_types) and getattr(c, "ndim", 1) == 1 for c in columns):
             raise _bad_return(kind, name, expected + " (every column must be a 1-D list)", value)
         if len({len(c) for c in columns}) > 1:
             raise ToolError(

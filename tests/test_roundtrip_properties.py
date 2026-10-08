@@ -184,6 +184,8 @@ TABLE_LIKE_MISTAKES = (
     [None],
     "abc",
     {1, 2},
+    {"": [None, []]},
+    {"a": np.zeros((2, 2))},
 )
 
 

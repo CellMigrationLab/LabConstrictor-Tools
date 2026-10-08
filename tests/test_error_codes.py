@@ -163,6 +163,7 @@ class WrongReturns(unittest.TestCase):
             np.array(5),
             np.zeros((2, 2)),
             iter([1]),
+            {"a": np.zeros((2, 2))},
         ]
         for kind in ("table", "points"):
             for value in mistakes:
