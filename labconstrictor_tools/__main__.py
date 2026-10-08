@@ -8,6 +8,7 @@ Used by people     : list | run | check | test | doctor     (see cli.py)
 import argparse
 import importlib
 import json
+import logging
 import os
 import sys
 
@@ -104,8 +105,8 @@ def _tolerant_streams():
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.reconfigure(errors="replace")
-        except (AttributeError, ValueError):
-            pass
+        except (AttributeError, ValueError) as error:  # a stream without reconfigure (replaced by a host/test): keep it as it is
+            logging.getLogger("labconstrictor").debug("cannot make %r tolerant of encoding errors: %s", stream, error)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -116,8 +117,8 @@ def main(argv: list[str] | None = None) -> int:
         # stdout is pointed at the null device so that the flush at interpreter exit cannot fail a second time.
         try:
             os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
-        except (OSError, ValueError, AttributeError):
-            pass
+        except (OSError, ValueError, AttributeError) as error:  # best effort; the exit code stays 0
+            logging.getLogger("labconstrictor").debug("cannot redirect stdout after a broken pipe: %s: %s", type(error).__name__, error)
         return 0
 
 

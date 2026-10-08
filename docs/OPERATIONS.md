@@ -53,6 +53,19 @@ Napari: after a failure the status line says so and **Details...** shows the err
 Fiji: the error dialog shows the worker's last lines and the log location; unexpected script errors are logged with their stack trace.
 Each run also has `<LC_HOME>/runs/<time>_<app>_<tool>/run.json`.
 
+## Fallbacks (intended)
+Places where the code deliberately carries on with a substitute instead of failing. Each one writes one line to the log when it happens
+(see "When something goes wrong: logs"); none of them hides a failure the person could act on.
+
+| Where | What happens | What the person sees |
+|---|---|---|
+| `log.version()` (session start line, `doctor`, support bundle) | `labconstrictor-tools` is not installed as a package (a source checkout): the version is reported as `unknown (checkout)` | That text instead of a number; one info line in the log |
+| `diagnostics.probe_worker()` | Same situation: the package row says `running from a source folder` | That text in the "Check this installation" table; one info line in the log |
+| `diagnostics.probe_worker()` (numpy, pandas, scipy, tifffile, matplotlib) | A library that is not installed is left out of the table | Its row is absent; a debug line in the log |
+| `diagnostics._ram_gb()` | `os.sysconf` has no memory value (Windows): the Windows memory API is used instead; if that also fails the memory row is omitted | The memory row, or no memory row plus a warning in the log |
+| `cli` environment report (`support-bundle`) | An app's interpreter cannot be run for `-VV`: its line says `cannot run: ...` and the bundle is still written | That line in the bundle; a warning in the log |
+| `log.tail()` (`logs`, Details windows) | The log file does not exist or cannot be read: an empty tail | Nothing to show; a debug line explaining why |
+
 ## Known limits (testing phase)
 * Verified on Linux with real NucleiSky and CellTracksColab installers, in Napari and Fiji (an earlier VLab4Mic check is not repeated here).
   Windows only under Wine (real Windows installer, host and worker both Windows processes); the `.bat` install hooks have never run on real

@@ -56,6 +56,7 @@ class Channel:
         os.dup2(2, 1)  # stray prints from tools or libraries go to stderr
         sys.stdout = sys.stderr
         self._lock = threading.Lock()
+        self._reported_closed = False
 
     def send(self, task: str, response_type: str, **fields: Any) -> None:
         message = {"task": task, "responseType": response_type, **fields}
@@ -82,8 +83,15 @@ class Channel:
             try:
                 self._out.write(line + "\n")
                 self._out.flush()
-            except (BrokenPipeError, OSError):
-                pass  # the host is gone: nobody to tell
+            except OSError as error:  # BrokenPipeError included: the host is gone, nobody to tell; stderr is what is left
+                if not self._reported_closed:
+                    self._reported_closed = True
+                    print(
+                        "LabConstrictor worker: cannot write to the host (%s: %s); the host is gone, further output is dropped"
+                        % (type(error).__name__, error),
+                        file=sys.stderr,
+                        flush=True,
+                    )
 
     @staticmethod
     def read_requests() -> Iterator[dict[str, Any]]:

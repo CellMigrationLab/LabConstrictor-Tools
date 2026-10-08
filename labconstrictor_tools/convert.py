@@ -6,6 +6,7 @@ Outputs: ndarray -> TIFF, DataFrame/dict/list -> CSV, matrices -> JSON, dict -> 
 numpy/pandas/tifffile are imported lazily, only when a tool actually uses those types.
 """
 
+import logging
 import math
 from pathlib import Path
 from typing import Any
@@ -131,7 +132,8 @@ def _read_image(value):
         return array
     except ToolError:
         raise
-    except Exception as error:  # noqa: BLE001 - any reader failure is the user's file problem
+    except Exception as error:  # noqa: BLE001 - readers raise anything for a bad file: becomes a ToolError for the person, traceback logged
+        logging.getLogger("labconstrictor.convert").error("cannot read image %s", path, exc_info=True)
         raise ToolError("unreadable_image", "cannot read %s: %s" % (path.name, error)) from error
 
 

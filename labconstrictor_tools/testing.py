@@ -11,6 +11,7 @@ import importlib
 import json
 import math
 import sys
+import logging
 import tempfile
 import time
 from collections.abc import Sequence
@@ -218,7 +219,8 @@ def _table_problems(name: str, result: Result) -> list[str]:
 
     try:
         frame = pd.read_csv(result["path"])
-    except Exception as error:  # noqa: BLE001 - any parse failure is a finding
+    except (ValueError, OSError) as error:  # unparsable or unreadable CSV (pandas parse errors are ValueErrors): the finding
+        logging.getLogger("labconstrictor.testing").warning("table %s does not parse: %s: %s", name, type(error).__name__, error)
         return ["%s: table does not parse (%s)" % (name, error)]
     return ["%s: table has no columns" % name] if frame.shape[1] == 0 else []
 

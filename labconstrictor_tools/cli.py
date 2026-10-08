@@ -144,8 +144,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     if task.status != "COMPLETE" and not args.out:
         try:
             Path(inputs["_job_dir"]).rmdir()  # only if it is empty: nothing was produced, nothing to keep
-        except OSError:
-            pass
+        except OSError as error:  # not empty (or already gone): leave the folder, say so in the log
+            log.logger().debug("job folder %s was not removed: %s: %s", inputs["_job_dir"], type(error).__name__, error)
     report = {"status": task.status, "seconds": round(time.time() - started, 2)}
     if task.record_dir:
         report["run_record"] = str(task.record_dir / "run.json")
@@ -514,7 +514,8 @@ def _environment_report():
         try:
             result = subprocess.run([entry["python"], "-VV"], capture_output=True, text=True, timeout=20)
             version = (result.stdout or result.stderr).strip()
-        except Exception as error:  # noqa: BLE001
+        except (OSError, subprocess.SubprocessError) as error:  # cannot start, or timed out: the report says so
+            log.warning("environment report: %s -VV failed (%s: %s)", entry["python"], type(error).__name__, error)
             version = "cannot run: %s" % error
         lines.append("  %s %s: %s | %s" % (name, entry.get("version", ""), entry["python"], version))
     lines += ["  skipped: %s: %s" % p for p in problems]
