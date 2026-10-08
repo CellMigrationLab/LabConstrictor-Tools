@@ -163,16 +163,22 @@ def _attach_shared_memory(name: str) -> Any:
 
     Python's resource tracker unlinks every block a process registered when that process exits. Attaching registers the block
     before Python 3.13 (3.13 has `track=False`), so a worker leaving would destroy a block the host still owns (and print a
-    "leaked shared_memory" warning into crash messages). Tracking is a POSIX mechanism: Windows has none to undo.
+    "leaked shared_memory" warning into crash messages). Tracking is a POSIX mechanism: Windows has none to avoid.
     """
     from multiprocessing import resource_tracker, shared_memory
 
     if sys.version_info >= SHARED_MEMORY_TRACK_PARAMETER_FROM:
         return shared_memory.SharedMemory(name=name, track=False)  # type: ignore[call-arg,unused-ignore]  # older stubs lack `track`
-    shm = shared_memory.SharedMemory(name=name)
-    if os.name == "posix":
-        resource_tracker.unregister(shm._name, "shared_memory")  # type: ignore[attr-defined]  # the registered (prefixed) name
-    return shm
+    if os.name != "posix":
+        return shared_memory.SharedMemory(name=name)
+    # Before 3.13 the constructor registers every attach: skip that one call (unregistering afterwards would also cancel the
+    # registration of a creator living in THIS process, e.g. a test or a notebook that calls the converter directly)
+    register = resource_tracker.register
+    resource_tracker.register = lambda *_args, **_kwargs: None
+    try:
+        return shared_memory.SharedMemory(name=name)
+    finally:
+        resource_tracker.register = register
 
 
 def _ndarray_from_shared_memory(descriptor: dict[str, Any]) -> Any:
