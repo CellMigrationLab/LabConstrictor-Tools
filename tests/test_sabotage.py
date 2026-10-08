@@ -82,15 +82,15 @@ BREAKS = [
     Break(
         "convert: a boolean is accepted as an integer",
         "convert.py",
-        "if isinstance(value, bool) or int(value) != value:",
-        "if int(value) != value:",
+        "return isinstance(value, (int, float)) and not isinstance(value, bool)",
+        "return isinstance(value, (int, float))",
         matrix("echo_int/bool"),
     ),
     Break(
         "convert: a fraction is accepted as an integer",
         "convert.py",
-        "if isinstance(value, bool) or int(value) != value:",
-        "if isinstance(value, bool):",
+        "if isinstance(value, float) and not (math.isfinite(value) and value.is_integer()):",
+        "if False:",
         matrix("echo_int/(fraction|tiny)"),
     ),
     Break(
@@ -131,7 +131,7 @@ BREAKS = [
     Break(
         "convert: a File arrives as text",
         "convert.py",
-        '        return Path(value)\n    if kind == "folder":',
+        '        return _path_text(param["label"], value)\n    if kind == "folder":',
         '        return str(value)\n    if kind == "folder":',
         matrix("echo_file/name/plain"),
     ),
@@ -187,8 +187,8 @@ BREAKS = [
     Break(
         "convert: a message is not stripped",
         "convert.py",
-        "text = str(value).strip()",
-        "text = str(value)",
+        "text = value.strip()",
+        "text = value",
         matrix("echo_message/surrounded"),
     ),
     Break(

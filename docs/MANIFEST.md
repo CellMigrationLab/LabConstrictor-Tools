@@ -57,4 +57,6 @@ A tool declares itself with Python types and a few markers; hosts (Napari, Fiji,
 `ToolError("code", "message")` gives the person a readable message (`no_result` and `no_match` are shown as notices, not failures); `progress(fraction, "text")` updates the progress bar; `check_cancel()` lets Cancel stop the tool between steps.
 
 ## Adding something to the manifest
+Misuse of a hint is refused when the app is registered (`DeclarationError`, a message naming the parameter and the fix): `Min`/`Max` on anything but an int or float, a bound that is not a finite number, `Min` above `Max`, `PixelSizeOf` on anything but a float, `Axes` on anything but an Image/Labels input or an image/labels output, the output markers `Name`, `Replace` and `ApplyTo` on an input, and two outputs given the same `Name`.
+
 A feature joins one family, follows the naming pattern (`XxxOf("param")` for links, `XxxOut` for outputs), and is not merged until it has: a row here, a recipe row in `AUTHORING.md`, a line in `check`, a use in the example app, a clear declaration error for misuse, and a test in every host (or a documented fallback in `HOST_FEATURES.md`).
