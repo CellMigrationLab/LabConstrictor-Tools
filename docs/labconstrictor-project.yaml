@@ -1,0 +1,5 @@
+# yaml-language-server: $schema=https://labconstrictor.cellmig.org/schema/labconstrictor-project.schema.json
+# How this project is listed on the LabConstrictor website's Ecosystem page. Keep the status true.
+name: LabConstrictor-Tools
+summary: 'The contract between apps and hosts: declare typed tools once, use them from napari, Fiji, QuPath, notebooks and the command line.'
+status: Install from GitHub
