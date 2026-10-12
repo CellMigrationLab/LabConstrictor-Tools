@@ -79,7 +79,7 @@ A request's `inputs` may carry fields that are not tool parameters. Their names 
 | `_calibration` | hosts that send a `PixelSizeOf` value | per-axis pixel/voxel size with provenance (`x`, `y`, later `z`, `t`) | [SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) 2.3.4 |
 | `_axes` | hosts that write a file without axes metadata | `{param: "TZCYX"}`, the axes of the file just written | [SPEC_WAVE2.md](SPEC_WAVE2.md) |
 
-Adding a name is additive within protocol 1: add it to `RESERVED_INPUTS` and to this table in the same change. **Order of work for issue #51 (reject undeclared inputs):** the worker must already tolerate the reserved names (this section) before #51 starts to refuse anything. #51 rejects exactly `convert.undeclared_inputs(schema, inputs)` (names that are neither declared nor reserved); it must not look at anything else. Until #51 lands, undeclared names are ignored (and logged at debug level).
+Adding a name is additive within protocol 1: add it to `RESERVED_INPUTS` and to this table in the same change. **Order of work for issue #51 (reject undeclared inputs):** the worker must already tolerate the reserved names (this section) before #51 starts to refuse anything. #51 rejects exactly `convert.undeclared_inputs(schema, inputs)` (names that are neither declared nor reserved); it must not look at anything else. The worker refuses undeclared names with `invalid_parameter` (issue #51).
 
 ## Wire protocol (host <-> worker)
 The worker (`python -m labconstrictor_tools serve --module M`) speaks the Appose worker protocol: one JSON object per line on stdin/stdout.

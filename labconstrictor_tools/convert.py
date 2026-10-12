@@ -83,12 +83,20 @@ def undeclared_inputs(schema: ToolSchema, inputs: Mapping[str, Any]) -> list[str
 def load_inputs(schema: ToolSchema, inputs: dict[str, Any], fn: Any = None) -> dict[str, Any]:
     """Validate `inputs` against the tool schema and return keyword arguments for the tool function.
     With `fn`, a `choice` parameter annotated with an Enum arrives as that Enum member (not as its value).
-    Reserved underscore inputs are never passed to the tool and never an error; names the tool does not declare are
-    ignored today (logged), see `undeclared_inputs`."""
-    extra = undeclared_inputs(schema, inputs)
-    if extra:
-        logging.getLogger("labconstrictor.convert").debug(
-            "tool %s: ignoring undeclared input(s) %s", schema.get("id"), extra
+    Reserved underscore inputs are never passed to the tool and never an error; a name the tool does not declare is
+    refused with `invalid_parameter` (see `undeclared_inputs`): a misspelt, renamed or removed parameter must not
+    silently fall back to the default of the right one."""
+    unknown = undeclared_inputs(schema, inputs)
+    if unknown:
+        declared = [param["name"] for param in schema["inputs"]]
+        raise ToolError(
+            "invalid_parameter",
+            "unknown parameter%s %s; this tool takes: %s"
+            % (
+                "s" if len(unknown) > 1 else "",
+                ", ".join(repr(n) for n in unknown),
+                ", ".join(declared) or "(none)",
+            ),
         )
     kwargs: dict[str, Any] = {}
     for param in schema["inputs"]:

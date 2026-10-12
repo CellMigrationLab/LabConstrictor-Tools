@@ -1,5 +1,6 @@
 """Tools for the worker-protocol tests: they misbehave on purpose."""
 
+import os
 import sys
 import time
 
@@ -30,3 +31,11 @@ def odd(a: float = 1.0) -> Scalars:
 @tool("Returns NaN")
 def nan(a: float = 1.0) -> Scalars:
     return {"v": float("nan")}
+
+
+@tool("Records that it ran")
+def records_call(sigma: float = 2.0) -> Scalars:
+    """Appends the sigma it received to the file named by LC_CALL_LOG: proof that the tool body ran (or did not)."""
+    with open(os.environ["LC_CALL_LOG"], "a", encoding="utf-8") as log:
+        log.write("sigma=%s\n" % sigma)
+    return {"sigma": sigma}
