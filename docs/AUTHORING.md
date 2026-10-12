@@ -97,7 +97,7 @@ read with `tifffile`; other formats (PNG, JPEG, ...) are read if the app environ
 ```
 labconstrictor-tools check --module my_app_lc_tools --pythonpath .
 labconstrictor-tools register --name myapp --prefix <app prefix> --module my_app_lc_tools --pythonpath .   # by hand; the installer does it
-labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/      # without --out: <LC_HOME>/results/<time>_<app>_<tool> (newest 20 kept)
+labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/      # without --out: <LC_HOME>/results/<time>_<app>_<tool> (newest 20 completed kept by `labconstrictor-tools prune`)
 labconstrictor-tools run myapp blur --usage
 ```
 
