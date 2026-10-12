@@ -49,8 +49,8 @@ Rules (declaration errors at registration, exact text):
 @tool("Track speed")
 def speed(
     movie: Annotated[Image, Axes("TYX")],
-    pixel_size: Annotated[float, PixelSizeOf("movie"), Unit("um/px")] = 1.0,
-    dt: Annotated[float, TimeIntervalOf("movie"), Unit("s")] = 1.0,
+    pixel_size: Annotated[float, PixelSizeOf("movie"), Unit("um/px")],
+    dt: Annotated[float, TimeIntervalOf("movie"), Unit("s")],
     dz: Annotated[Optional[float], ZStepOf("volume"), Unit("um")] = None,
 ): ...
 ```
@@ -61,7 +61,11 @@ def speed(
 | Unit | um/px | **seconds** | **micrometres** |
 | Prefill from | layer scale / calibration | Fiji `frameInterval`, OME `TimeIncrement`, QuPath server `getTimeUnit`, Napari layer `scale[T]` | Fiji `pixelDepth`, OME `PhysicalSizeZ`, QuPath `getZSpacingMicrons`, Napari `scale[Z]` |
 * Declaration rules: applies to a `float` (or `Optional[float]`) parameter and names an `Image` / `Labels` parameter of the same tool whose `Axes` contain `T` (resp. `Z`) or that has no `Axes`. Error: `parameter 'dt': TimeIntervalOf('movie') needs 'movie' to have a T axis (its Axes are 'YX')`.
-* Hosts convert to the fixed units above (Fiji `frameInterval` in `timeUnit` -> s; QuPath minutes/ms -> s). Unknown or zero calibration: the parameter keeps its default and the host shows "not calibrated" in the tooltip; it never sends 0.
+* Hosts convert to the fixed units above (Fiji `frameInterval` in `timeUnit` -> s; QuPath minutes/ms -> s). **Calibration rules (amended by [SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) section 2, which is normative for all three links):**
+  * A source is calibrated only from explicit metadata: a number with a unit. A bare number or default pixel units is *unknown*; the host never assumes um (or seconds) and never infers calibration from the value 1.0.
+  * Unknown, zero or non-finite calibration leaves the linked field **blank** with the tooltip "not calibrated"; it never sends 0 and **the declared default is not used as a stand-in**. A required linked field that is blank blocks the run until a value is entered; an `Optional[float]` sends `null`.
+  * The field is `unset`, `auto` or `user`; a source change re-derives or clears an `auto` value, and never overwrites a `user` value (SPEC_WRONG_SCIENCE 2.2).
+  * The request carries the value in the canonical unit (um per pixel, um, seconds) and the reserved per-axis `_calibration` input (x, y, z, t, each `{value, unit, source}`); tools never see it (SPEC_WRONG_SCIENCE 2.3.4).
 * `Unit("s")` / `Unit("um")` stay free text for display; the units in the table are the contract.
 
 ### 1.5 What a tool returns for stacks
@@ -72,7 +76,7 @@ def speed(
 | `ShapesOut` | each feature has optional properties `t` and `z` (zero-based integers); coordinates stay `[x, y]` per plane |
 | `TableOut` | an ordinary table; a `t` / `z` column by convention (hosts do not interpret it) |
 | `Scalars`, `MessageOut`, `Affine` | unchanged (a per-frame Affine is refused with `PerPlane`, 1.6) |
-* A point or shape without `t` / `z` when its `apply_to` image has that axis with length > 1 is placed on plane 0 and the host says so once (status line). `labconstrictor-tools test` reports it as a contract problem: `points 'peaks': image has a T axis but no 't' column (placed on frame 0)`.
+* A point or shape without `t` / `z` when its `apply_to` image has that axis with length > 1 is placed on **the plane that was exported** (the frame's plane; SPEC_WRONG_SCIENCE 1.1.9), not on plane 0, and the host says so once (status line). `labconstrictor-tools test` reports it as a contract problem: `points 'peaks': image has a T axis but no 't' column (placed on the exported plane)`.
 * A `t` / `z` outside the image is dropped by the host and counted: `3 points were outside the image planes and were not shown` (never an error).
 * Pixel centres at integers, as before; `t` and `z` are plane indices, never physical times.
 
@@ -137,7 +141,7 @@ Generated round-trip cases, in the style of the cases files read by `labconstric
 | `perplane_points` | 3 frames | points table has a `t` column 0..2 |
 | `perplane_cancel` | `cancel_after_s` mid-run | `CANCELATION` within one plane |
 | `perplane_bad_plane` | tool raises on frame 2 | `per_plane_failed`, message contains `frame 2` |
-| `calibration_prefill` | parameters not given | defaults used; `time_interval_of` / `z_step_of` present in schema |
+| `calibration_prefill` | parameters not given | CLI and notebook: a required linked parameter that is not given is refused (SPEC_WRONG_SCIENCE 2.3.5); an `Optional` one is `null`; `time_interval_of` / `z_step_of` present in schema |
 | `unknown_axis` | `_axes: "QYX"` | `unknown_axes` |
 | `too_large` | `LC_MAX_STACK_BYTES=1000` | `stack_too_large` |
 | `points_missing_t` | tool returns points without `t` on a stack | contract problem reported by `test` |
@@ -319,7 +323,7 @@ Hosts for 5-7 can start as soon as 4 is merged and the example tools exist; 8 an
 3. **Fixed canonical order `TCZYX`-subset (C before Z)?** Recommended: yes, with `Y`, `X` last; one rule to document, matches tifffile/OME-Zarr practice.
 4. **Calibration units: fixed (s, um) or host-native?** Recommended: fixed s and um; hosts convert; `Unit` stays display-only.
 5. **Per-plane iteration in the worker or in the hosts?** Recommended: in the worker (`PerPlane`): one task, one progress bar, one cancel path, same behaviour in CLI/notebook, memory bounded.
-6. **Missing `t` / `z` on points of a stack: frame 0, all frames, or an error?** Recommended: frame 0 plus a status note and a `test` contract warning; "all frames" would hide a tool bug.
+6. **Missing `t` / `z` on points of a stack: frame 0, all frames, or an error?** Recommended (decided in SPEC_WRONG_SCIENCE 1.1.9): the exported plane plus a status note and a `test` contract warning; "all frames" would hide a tool bug.
 7. **Zero- or one-based plane indices?** Recommended: zero-based in the protocol (like pixel coordinates); hosts show their own numbering.
 8. **Default stack limit 4 GiB?** Recommended: 4 GiB whole-stack and 500 planes in QuPath, both overridable; tune after the first real movie.
 9. **QuPath default "Planes" choice?** Recommended: current plane (never silently sends a whole movie); "all" is explicit and guarded.
