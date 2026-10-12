@@ -309,8 +309,11 @@ def run_cli(session: Session, case: Case, wire: dict[str, Any], folder: Path) ->
 def run_snippet(session: Session, case: Case, wire: dict[str, Any], folder: Path) -> Observed:
     session.register_app()
     text = command.python_snippet(APP, session.tools[case.tool], wire)
+    # run from a file, as a notebook cell is: `python -c <text>` would put the snippet on a command line, which Windows limits
+    script = folder / "snippet.py"
+    script.write_text(text, encoding="utf-8")
     done = subprocess.run(
-        [sys.executable, "-c", text],
+        [sys.executable, str(script)],
         capture_output=True,
         env=session.case_env(folder),
         timeout=SUBPROCESS_TIMEOUT_S,
