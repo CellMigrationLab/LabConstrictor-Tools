@@ -68,6 +68,19 @@ def _path_text(label: str, value: Any) -> Path:
 def load_inputs(schema: ToolSchema, inputs: dict[str, Any], fn: Any = None) -> dict[str, Any]:
     """Validate `inputs` against the tool schema and return keyword arguments for the tool function.
     With `fn`, a `choice` parameter annotated with an Enum arrives as that Enum member (not as its value)."""
+    declared = [param["name"] for param in schema["inputs"]]
+    unknown = sorted(str(name) for name in inputs if name not in declared)
+    # a misspelt, renamed or removed parameter must not silently fall back to the default of the right one
+    if unknown:
+        raise ToolError(
+            "invalid_parameter",
+            "unknown parameter%s %s; this tool takes: %s"
+            % (
+                "s" if len(unknown) > 1 else "",
+                ", ".join(repr(n) for n in unknown),
+                ", ".join(declared) or "(none)",
+            ),
+        )
     kwargs: dict[str, Any] = {}
     for param in schema["inputs"]:
         name, value = param["name"], inputs.get(param["name"])
