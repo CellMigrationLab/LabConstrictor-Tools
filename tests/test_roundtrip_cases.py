@@ -74,13 +74,22 @@ class CaseList(unittest.TestCase):
         self.assertEqual(sorted(set(schema_of_app()) - used - without_skimage), [])
 
     def test_the_slow_transports_get_a_stated_share(self):
-        for path, limits in rc.TRANSPORT_LIMITS.items():
-            picked = rc.selected(path)
+        # the share is a property of the `ci` profile; the nightly profile sends everything, so ask for each profile by name
+        # (LC_ROUNDTRIP_PROFILE must not change what this test measures)
+        for path in rc.TRANSPORT_LIMITS:
+            picked = rc.selected(path, "ci")
             self.assertGreater(len(picked), 20, path)
             self.assertLess(len(picked), 300, path)
             self.assertEqual(len({c.id for c in picked}), len(picked))
             self.assertTrue(all(("cli" if path == "terminal" else path) in c.paths for c in picked))
-        self.assertEqual(len(rc.selected("worker")), len([c for c in rc.all_cases() if not c.heavy]))
+            carried = "cli" if path == "terminal" else path
+            everything = rc.selected(path, "nightly")
+            self.assertEqual(
+                {c.id for c in everything}, {c.id for c in rc.all_cases() if carried in c.paths}, path
+            )
+            self.assertLess(len(picked), len(everything), path)
+        self.assertEqual(len(rc.selected("worker", "ci")), len([c for c in rc.all_cases() if not c.heavy]))
+        self.assertEqual(len(rc.selected("worker", "nightly")), len(rc.all_cases()))
 
 
 class Completeness(unittest.TestCase):
