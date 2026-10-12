@@ -57,6 +57,15 @@ Feature ids (the implemented ones are in `FEATURES`; a planned id appears there 
 | `calibration_per_axis` | the worker copies the per-axis `_calibration` into the run record ([SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) 2.3.4) | planned (registration/calibration PRs) |
 | `retention_prune` | the CLI command `prune` and the `retention` module (hosts only mark a run finished, then run `prune`) | planned (3.1-3.5 of the same spec) |
 
+### Compatibility rules for hosts
+A host that needs a minimum states it as `(min_tools_version, required_features)` and applies the rules below to every schema it loads, with `labconstrictor_tools.compat.check_schema` (Python hosts: Napari, notebooks) or the same rules written in its own language (Fiji, QuPath; the data is in `conformance.json`, [HOST_PARITY.md](HOST_PARITY.md#2-proposed-conformance-file), `compat` section). The result is `ok`, `warn` or `refuse`, with one sentence for the person:
+1. `protocol` not supported by the host: `refuse` (as today).
+2. A required feature missing from `features` (or no `features` list at all): `refuse`, "needs <feature>; update the app's labconstrictor-tools".
+3. `tools_version` missing (unknown/old) while a minimum is set: `refuse`; with no minimum set: `warn`, "Tools version unknown".
+4. `tools_version` below the minimum: `refuse`. Below the optional `warn_below` version but not below the minimum: `warn`.
+5. Otherwise `ok`. A `tools_version` the host cannot parse is `warn` (never a crash).
+Version order is PEP 440 for the forms used here: `0.2.0a1 < 0.2.0b1 < 0.2.0rc1 < 0.2.0 < 0.2.1`. A host in the release-candidate phase writes the minimum as `0.2.0rc1`.
+
 ## Reserved inputs
 A request's `inputs` may carry fields that are not tool parameters. Their names start with an underscore and belong to the protocol; a tool cannot declare a parameter with one of these names (declaration error). **A worker accepts every name that starts with an underscore and ignores the ones it does not know**: a newer host may send a field an older worker predates, and that must never fail the task. Tools never see reserved inputs. The list (`labconstrictor_tools.protocol.RESERVED_INPUTS`, tested against this table):
 
