@@ -834,16 +834,87 @@
   },
   "calibration": {
    "unit": "um per pixel",
-   "length_units_um": {
-    "um": 1.0,
-    "nm": 0.001,
-    "mm": 1000.0,
-    "millimeter": 1000.0,
-    "millimetre": 1000.0,
-    "cm": 10000.0,
-    "m": 1000000.0,
-    "\u00b5m": 1.0,
-    "\u03bcm": 1.0
+   "length_units": {
+    "nm": {
+     "um_per_unit": 0.001,
+     "symbols": [
+      "nm"
+     ],
+     "words": [
+      "nanometer",
+      "nanometers",
+      "nanometre",
+      "nanometres"
+     ]
+    },
+    "um": {
+     "um_per_unit": 1.0,
+     "symbols": [
+      "um",
+      "\u00b5m",
+      "\u03bcm"
+     ],
+     "words": [
+      "micron",
+      "microns",
+      "micrometer",
+      "micrometers",
+      "micrometre",
+      "micrometres"
+     ]
+    },
+    "mm": {
+     "um_per_unit": 1000.0,
+     "symbols": [
+      "mm"
+     ],
+     "words": [
+      "millimeter",
+      "millimeters",
+      "millimetre",
+      "millimetres"
+     ]
+    },
+    "cm": {
+     "um_per_unit": 10000.0,
+     "symbols": [
+      "cm"
+     ],
+     "words": [
+      "centimeter",
+      "centimeters",
+      "centimetre",
+      "centimetres"
+     ]
+    },
+    "m": {
+     "um_per_unit": 1000000.0,
+     "symbols": [
+      "m"
+     ],
+     "words": [
+      "meter",
+      "meters",
+      "metre",
+      "metres"
+     ]
+    },
+    "angstrom": {
+     "um_per_unit": 0.0001,
+     "symbols": [
+      "\u00c5",
+      "\u212b"
+     ],
+     "words": [
+      "angstrom",
+      "angstroms"
+     ]
+    }
+   },
+   "unit_match": {
+    "rule": "symbols (m, nm, um, mm, cm, the micro-sign forms, the Angstrom signs) are matched as exact text: case-sensitive, nothing trimmed; words are matched case-insensitively after trimming surrounding whitespace; a words entry is written lower case and trimmed; text that matches nothing is an unknown unit and means unknown calibration; U+FFFD followed by m is never accepted (damaged_micro_prefix)",
+    "canonical": "um",
+    "how_to_add": "docs/CONFORMANCE.md, 'How to add a unit'"
    },
    "micro_sign_spellings": [
     "\u00b5",
@@ -890,7 +961,7 @@
         "source": "image",
         "raw": {
          "scale": 1.0,
-         "unit": "um"
+         "unit": "micrometer"
         }
        },
        "y": {
@@ -899,7 +970,7 @@
         "source": "image",
         "raw": {
          "scale": 1.0,
-         "unit": "um"
+         "unit": "micrometer"
         }
        }
       }
@@ -917,15 +988,15 @@
    "cases": [
     {
      "id": "CAL-01",
-     "source": "Napari scale (1,1), units (um, um)",
+     "source": "Napari scale (1,1), units (micrometer, micrometer)",
      "input": {
       "scale": [
        1,
        1
       ],
       "units": [
-       "um",
-       "um"
+       "micrometer",
+       "micrometer"
       ]
      },
      "expect": {
@@ -1052,12 +1123,12 @@
     },
     {
      "id": "CAL-08",
-     "source": "Fiji unit um, pixelWidth 1.0 / unit pixel, width 1.0 / unit empty",
+     "source": "Fiji unit micron, pixelWidth 1.0 / unit pixel, width 1.0 / unit empty",
      "input": {
       "variants": [
        {
         "pixelWidth": 1.0,
-        "unit": "um"
+        "unit": "micron"
        },
        {
         "pixelWidth": 1.0,
@@ -1100,11 +1171,11 @@
     },
     {
      "id": "CAL-10",
-     "source": "TIFF with ImageJ unit=um spacing 1.0 / no resolution tags / ResolutionUnit NONE",
+     "source": "TIFF with ImageJ unit=micron spacing 1.0 / no resolution tags / ResolutionUnit NONE",
      "input": {
       "variants": [
        {
-        "imagej_unit": "um",
+        "imagej_unit": "micron",
         "spacing": 1.0
        },
        {
@@ -1237,7 +1308,7 @@
     },
     {
      "id": "CAL-17",
-     "source": "unit text Angstrom, U+00C5, U+212B, scale 1.0 (not accepted names)",
+     "source": "unit text Angstrom, U+00C5, U+212B, scale 1.0",
      "input": {
       "variants": [
        {
@@ -1256,9 +1327,9 @@
      },
      "expect": {
       "um_per_px_each": [
-       "unknown",
-       "unknown",
-       "unknown"
+       0.0001,
+       0.0001,
+       0.0001
       ]
      }
     },
@@ -1293,10 +1364,10 @@
     },
     {
      "id": "CAL-19",
-     "source": "scale 1.0 with each refused unit name (micron(s), micrometer(s), case variants, plurals, long forms other than millimeter/millimetre, names with spaces)",
+     "source": "scale 1.0 with each name of unit_match_refused (not in the catalog: case variants and spaced forms of symbols, plurals of symbols, words split by a space, inch, pixel, kilometer, ...)",
      "input": {
       "scale": 1.0,
-      "units_from": "unit_names.refused"
+      "units_from": "unit_match_refused"
      },
      "expect": {
       "um_per_px_each": [
@@ -1348,22 +1419,44 @@
        "unknown",
        "unknown",
        "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
-       "unknown",
        "unknown"
+      ]
+     }
+    },
+    {
+     "id": "CAL-20",
+     "source": "words are case-insensitive and trimmed: Micron, ' MILLIMETER ', Angstroms, Centimetres, METER, scale 1.0",
+     "input": {
+      "variants": [
+       {
+        "scale": 1.0,
+        "unit": "Micron"
+       },
+       {
+        "scale": 1.0,
+        "unit": " MILLIMETER "
+       },
+       {
+        "scale": 1.0,
+        "unit": "Angstroms"
+       },
+       {
+        "scale": 1.0,
+        "unit": "Centimetres"
+       },
+       {
+        "scale": 1.0,
+        "unit": "METER"
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       1.0,
+       1000.0,
+       0.0001,
+       10000.0,
+       1000000.0
       ]
      }
     }
@@ -1415,77 +1508,57 @@
      "expect": "stays 0.25, source user (flag, not comparison)"
     }
    ],
-   "unit_names": {
-    "decision": "SPEC_WRONG_SCIENCE section 8 (confirmed): the accepted names are exactly the keys of length_units_um (nm, um and the micro sign spellings, mm, cm, m, and the long forms millimeter and millimetre)",
-    "match": "exact text: case-sensitive, no plural, no surrounding or inner spaces (nothing is trimmed or lower-cased)",
-    "refused": [
-     "micron",
-     "microns",
-     "micrometer",
-     "micrometers",
-     "micrometre",
-     "micrometres",
-     "Angstrom",
-     "angstrom",
-     "\u00c5",
-     "\u212b",
-     "UM",
-     "Um",
-     "ums",
-     " um",
-     "um ",
-     "NM",
-     "Nm",
-     "nms",
-     " nm",
-     "nm ",
-     "MM",
-     "Mm",
-     "mms",
-     " mm",
-     "mm ",
-     "MILLIMETER",
-     "Millimeter",
-     "millimeters",
-     " millimeter",
-     "millimeter ",
-     "MILLIMETRE",
-     "Millimetre",
-     "millimetres",
-     " millimetre",
-     "millimetre ",
-     "CM",
-     "Cm",
-     "cms",
-     " cm",
-     "cm ",
-     "M",
-     "ms",
-     " m",
-     "m ",
-     "\u00b5m ",
-     " \u00b5m",
-     "\u03bcm ",
-     "\u00b5 m",
-     "\u03bc m",
-     "u m",
-     "milli meter",
-     "micro meter",
-     "micro metre",
-     "centimeter",
-     "centimetre",
-     "nanometer",
-     "nanometre",
-     "meter",
-     "metre",
-     "meters",
-     "metres",
-     "MICRON",
-     "Micron",
-     "\u00b5ms"
-    ],
-    "result": "an unknown unit name gives unknown calibration; the wording of a warning for it is not decided"
-   }
+   "unit_match_refused": [
+    "UM",
+    "Um",
+    "uM",
+    "NM",
+    "Nm",
+    "MM",
+    "Mm",
+    "CM",
+    "Cm",
+    "M",
+    "ms",
+    " um",
+    "um ",
+    "nm ",
+    "mm ",
+    " m",
+    "m ",
+    "\u00b5m ",
+    " \u00b5m",
+    "\u00b5 m",
+    "\u03bc m",
+    "u m",
+    "\u00c5 ",
+    "\u00e5",
+    "ums",
+    "nms",
+    "mms",
+    "cms",
+    "micro meter",
+    "micro metre",
+    "milli meter",
+    "micrometerss",
+    "micro-meter",
+    "inch",
+    "inches",
+    "in",
+    "pixel",
+    "px",
+    "foot",
+    "second",
+    "kilometer",
+    "km",
+    "pm",
+    "picometer",
+    "\ufffdm",
+    " nm",
+    " mm",
+    " cm",
+    "cm "
+   ]
   },
   "retention": {
    "markers": {

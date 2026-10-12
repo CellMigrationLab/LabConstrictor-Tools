@@ -190,6 +190,58 @@ def _vector(value: Any, length: int) -> bool:
     return isinstance(value, list) and len(value) == length and all(_number(v) for v in value)
 
 
+def _length_units(units: Any, match: Any, problems: list[str]) -> None:
+    """The unit catalog: canonical unit -> {um_per_unit, symbols, words}. Symbols match as exact text, words case-insensitively
+    after trimming, so a word is written lower case and trimmed, and no two units may own the same name."""
+    label = "wrong_science.calibration.length_units"
+    if not isinstance(units, dict) or not units:
+        problems.append("%s: must be a non-empty object (canonical unit -> its factor and names)" % label)
+        return
+    owner: dict[str, str] = {}  # the key a text is looked up by -> canonical unit
+    for canonical, entry in units.items():
+        if not isinstance(entry, dict):
+            problems.append(
+                "%s.%s: must be an object with um_per_unit, symbols and words" % (label, canonical)
+            )
+            continue
+        factor = entry.get("um_per_unit")
+        if factor is None or not _number(factor) or factor <= 0:
+            problems.append("%s.%s: needs a positive um_per_unit" % (label, canonical))
+        for kind in ("symbols", "words"):
+            names = entry.get(kind)
+            if not isinstance(names, list) or not all(isinstance(n, str) and n for n in names):
+                problems.append("%s.%s.%s: must be a list of non-empty text" % (label, canonical, kind))
+                continue
+            for name in names:
+                if kind == "symbols":
+                    key = "s:" + name
+                    bad = name != name.strip() or name.startswith("\ufffd")
+                else:
+                    key = "w:" + name.casefold()
+                    bad = name != name.strip().casefold() or name.startswith("\ufffd")
+                if bad:
+                    problems.append(
+                        "%s.%s.%s: %r must be trimmed%s, and never start with U+FFFD"
+                        % (label, canonical, kind, name, " and lower case" if kind == "words" else "")
+                    )
+                elif key in owner:
+                    problems.append(
+                        "%s: the name %r is listed for both %s and %s" % (label, name, owner[key], canonical)
+                    )
+                else:
+                    owner[key] = canonical
+    for key, canonical in list(
+        owner.items()
+    ):  # a symbol that is also a word of another unit would be ambiguous
+        if key.startswith("s:") and owner.get("w:" + key[2:].casefold(), canonical) != canonical:
+            problems.append(
+                "%s: the symbol %r is also a word of %s" % (label, key[2:], owner["w:" + key[2:].casefold()])
+            )
+    base = units.get(match.get("canonical") if isinstance(match, dict) else None)
+    if not isinstance(match, dict) or not isinstance(base, dict) or base.get("um_per_unit") != 1.0:
+        problems.append("%s: unit_match.canonical must name the unit whose um_per_unit is 1.0" % label)
+
+
 def _wrong_science(wrong: Mapping[str, Any], limits: Mapping[str, Any], problems: list[str]) -> None:
     seen: set[str] = set()
     coordinate = wrong["coordinate"]
@@ -211,9 +263,7 @@ def _wrong_science(wrong: Mapping[str, Any], limits: Mapping[str, Any], problems
         )
     _ids("wrong_science.coordinate.cases", coordinate.get("cases"), problems, seen, "coordinate")
     calibration = wrong["calibration"]
-    units = calibration.get("length_units_um")
-    if not isinstance(units, dict) or not all(_number(v) and v > 0 for v in units.values()):
-        problems.append("wrong_science.calibration.length_units_um: unit text -> positive um per unit")
+    _length_units(calibration.get("length_units"), calibration.get("unit_match"), problems)
     _ids("wrong_science.calibration.cases", calibration.get("cases"), problems, seen, "calibration")
     for case in calibration.get("cases") or []:
         expect = case.get("expect") if isinstance(case, dict) else None

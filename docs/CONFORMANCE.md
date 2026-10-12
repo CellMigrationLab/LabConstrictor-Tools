@@ -14,7 +14,7 @@ One machine-readable file, shipped inside the `labconstrictor-tools` wheel (`[to
 | `messages` | sentence templates with `{name}` placeholders (Python `str.format`; other languages replace `{name}`) | hosts compare the text they produce |
 | `compat` | the compatibility rules of [PROTOCOL.md](PROTOCOL.md) as vectors | Tools (`compat.check_schema`); Fiji and QuPath apply the same rules in their language |
 | `wrong_science.coordinate` | base image `ASYM`, the rectangle (vertices `[y, x]`, decided) and its mask, `axis_order` (which fixture field is y first and which is `[width, height]`), the placement formula, cases CF-01..CF-14 | hosts (and an arithmetic check in Tools) |
-| `wrong_science.calibration` | unit table (um per unit; the accepted names are exactly its keys, matched as exact text), `unit_names.refused` (the names that are an unknown unit), micro-sign spellings, the damaged-sign rule, anisotropy and default-dpi rules, the `_calibration` request shape, cases CAL-01..CAL-19 and transitions CAL-T1..T9 | hosts (and an arithmetic check in Tools) |
+| `wrong_science.calibration` | the length-unit catalog `length_units` (canonical unit -> `um_per_unit`, `symbols`, `words`) and its `unit_match` rule, `unit_match_refused` (names that are unknown), micro-sign spellings, the damaged-sign rule, anisotropy and default-dpi rules, the `_calibration` request shape, cases CAL-01..CAL-20 and transitions CAL-T1..T9 | hosts (and an arithmetic check in Tools) |
 | `wrong_science.retention` | marker names and fields; `fixtures_tools` RET-01..09, 12, 13 (structured: setup, action, expect) and `fixtures_hosts` HRET-01..04, RET-10, 11, 14 (prose) | Tools runs `fixtures_tools` against `retention.prune` and the CLI; every host runs `fixtures_hosts` with the `prune` subprocess replaced by a recorder |
 | `wrong_science.run_identity`, `async_lookups` | RUN-01..06, ASY-01..08 (prose sequences and expectations) | hosts |
 | `wrong_science.number_limits` | NUM-01..05 | hosts (Napari, Fiji dialog and macro, QuPath, notebook) |
@@ -43,6 +43,16 @@ conformance.validate(some_dict)    # the schema: a list of problems, empty when 
 | QuPath | `tests/gui_test_conformance_body.groovy`, run by `tests/run_gui_test.sh` (or `tests/headless_core.groovy` where no GUI is needed) | `LcJson.parse(new File(System.getenv("LC_CONFORMANCE")))`, same environment variable | the static members (`LcConst.*`, `LcDialog.*`, `LcArea.clamped`, `LcRegistry.load`) against `limits` and `messages`; CF placement, CAL and NUM cases |
 
 Rules for a host test: it fails when a key it knows is missing (no silent skip); it reports `unsupported` for a case it cannot run; it compares its **own** behaviour (drawn coordinates, request contents, files on disk), not only that no error occurred (SPEC_WRONG_SCIENCE 1.5).
+
+## How to add a unit
+
+The length units hosts convert are a catalog, `wrong_science.calibration.length_units` in `conformance.json`: one entry per canonical unit, `"mm": {"um_per_unit": 1000.0, "symbols": ["mm"], "words": ["millimeter", ...]}`. Symbols match as exact text (case-sensitive, nothing trimmed); words are written lower case and match case-insensitively after trimming. To add one:
+
+1. **A new alias**: add the name to `symbols` or `words` of its unit (one line). **A new unit**: add one entry with its factor in micrometres.
+2. **One test row**: add the unit to `CalibrationData.ORACLE` in `tests/test_conformance.py` (factor, symbols, words, written out by hand: the test compares the catalog against it), and a name that must stay unknown to `unit_match_refused` when you want one pinned.
+3. `python -m labconstrictor_tools.conformance --validate` rejects a duplicate name, a non-positive factor, a word that is not lower case or trimmed, a symbol that is also a word of another unit, and a missing base unit (`unit_match.canonical`, `um`, factor 1.0).
+
+No Tools code changes (Tools converts no units). **Every host loads the catalog** (Napari, Fiji, QuPath: `conformance.load()`, `python -m labconstrictor_tools.conformance --path`) and must not keep its own list: a host that still has its own table (Napari reads units through pint today) changes once, to read the catalog, and then follows every later edit of the file. Update the spec's list in 2.1.4 in the same change.
 
 ## Gaps: what the spec does not yet decide (so the file does not contain it)
 

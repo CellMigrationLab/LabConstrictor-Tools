@@ -711,20 +711,43 @@ BREAKS = [
     ),
     # ---- the data of the decisions of 12 Oct (SPEC_WRONG_SCIENCE section 8): the file itself is the thing that can break
     Break(
-        "conformance data: 'micron' is an accepted length unit",
+        "conformance data: the millimetre is 100 um",
         "conformance.json",
-        '"length_units_um": {\n    "um": 1.0,\n',
-        '"length_units_um": {\n    "um": 1.0,\n    "micron": 1.0,\n',
+        '"um_per_unit": 1000.0,',
+        '"um_per_unit": 100.0,',
         unittest_slice(
-            "test_conformance.CalibrationData.test_the_accepted_unit_names_are_exactly_the_decided_ones"
+            "test_conformance.CalibrationData.test_every_catalog_name_converts_to_the_factor_of_the_oracle"
         ),
     ),
     Break(
-        "conformance data: a refused unit name is also in the unit table",
+        "conformance data: 'inch' is an accepted word of the metre",
         "conformance.json",
-        '    "millimetre": 1000.0,\n',
-        '    "millimetre": 1000.0,\n    "MM": 1000.0,\n',
-        unittest_slice("test_conformance.CalibrationData.test_every_other_unit_name_is_an_unknown_unit"),
+        '      "meter",\n',
+        '      "inch",\n      "meter",\n',
+        unittest_slice(
+            "test_conformance.CalibrationData.test_every_catalog_name_converts_to_the_factor_of_the_oracle"
+        ),
+    ),
+    Break(
+        "conformance data: a refused name ('UM') is a symbol of the micrometre",
+        "conformance.json",
+        '      "um",\n      "\\u00b5m",\n',
+        '      "um",\n      "UM",\n      "\\u00b5m",\n',
+        unittest_slice("test_conformance.CalibrationData.test_every_refused_name_is_an_unknown_unit"),
+    ),
+    Break(
+        "conformance: a name listed for two units is valid",
+        "conformance.py",
+        "                elif key in owner:\n",
+        "                elif False:\n",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a catalog without the base unit (1.0 um) is valid",
+        "conformance.py",
+        'base.get("um_per_unit") != 1.0',
+        "False",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
     ),
     Break(
         "conformance data: the first vertex of the rect is [x, y]",
