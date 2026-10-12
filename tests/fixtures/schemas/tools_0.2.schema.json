@@ -1,0 +1,31 @@
+{
+  "protocol": 1,
+  "tools_version": "0.2.0rc1",
+  "features": [
+    "reserved_inputs_v1"
+  ],
+  "tools": [
+    {
+      "id": "scale",
+      "label": "Scale",
+      "inputs": [
+        {
+          "name": "factor",
+          "label": "Factor",
+          "type": "float",
+          "required": false,
+          "default": 2.0,
+          "minimum": 0.1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "result",
+          "type": "values"
+        }
+      ]
+    }
+  ],
+  "application": "FrozenApp",
+  "version": "1.0"
+}
