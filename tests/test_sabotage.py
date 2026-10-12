@@ -603,8 +603,8 @@ BREAKS = [
     Break(
         "cli: a finished run is not marked done",
         "cli.py",
-        "            retention.write_done(folder, status)\n",
-        "            pass\n",
+        "        retention.write_done(folder, status)\n",
+        "        pass\n",
         unittest_slice(
             "test_retention.CliCreatesOwnedFolders.test_finishing_a_run_marks_it_done_and_prunes_afterwards"
         ),
@@ -621,8 +621,8 @@ BREAKS = [
     Break(
         "cli: a finished run does not prune",
         "cli.py",
-        '            retention.prune("results")\n',
-        "            pass\n",
+        '        retention.prune("results")\n',
+        "        pass\n",
         unittest_slice(
             "test_retention.CliCreatesOwnedFolders.test_finishing_a_run_marks_it_done_and_prunes_afterwards"
         ),
