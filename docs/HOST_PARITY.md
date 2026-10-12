@@ -427,7 +427,22 @@ Two keys carry the migration: `value` is the reference and `today` is what each 
     {"case": "parameter name that is not an identifier", "expect": "refused"},
     {"case": "entry missing a required field", "expect": "refused", "reason_contains": "must be a non-empty string"},
     {"case": "schema protocol 2", "expect": "refused", "reason_contains": "protocol"}
-  ]
+  ],
+  "compat": {
+    "_about": "Tools versioning (PROTOCOL.md, 'Compatibility rules for hosts'). The host's own minimum is its constant; these vectors check that each host applies the rules the same way. Reference: labconstrictor_tools.compat.check_schema (tests/test_compat.py has the same cases).",
+    "min_tools_version": "0.2.0rc1",
+    "required_features": ["reserved_inputs_v1"],
+    "cases": [
+      {"case": "current", "schema": {"protocol": 1, "tools_version": "0.2.0rc1", "features": ["reserved_inputs_v1"]}, "expect": "ok"},
+      {"case": "newer release", "schema": {"protocol": 1, "tools_version": "0.3.1", "features": ["reserved_inputs_v1", "later"]}, "expect": "ok"},
+      {"case": "written by Tools 0.1 (no fields)", "schema": {"protocol": 1}, "expect": "refuse", "reason_contains": "too old"},
+      {"case": "feature missing", "schema": {"protocol": 1, "tools_version": "0.2.0", "features": ["other"]}, "expect": "refuse", "reason_contains": "reserved_inputs_v1"},
+      {"case": "below the minimum", "schema": {"protocol": 1, "tools_version": "0.1.9", "features": ["reserved_inputs_v1"]}, "expect": "refuse", "reason_contains": "older than"},
+      {"case": "version not understood", "schema": {"protocol": 1, "tools_version": "banana", "features": ["reserved_inputs_v1"]}, "expect": "warn"},
+      {"case": "protocol 2", "schema": {"protocol": 2}, "expect": "refuse", "reason_contains": "protocol"}
+    ],
+    "version_order": ["0.2.0a1", "0.2.0b1", "0.2.0rc1", "0.2.0", "0.2.1", "0.10.0"]
+  }
 }
 ```
 
