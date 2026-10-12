@@ -21,8 +21,26 @@ AXES_ON_INPUT = "parameter %r: Axes describes the dimensions of an Image or Labe
 IMAGE_OUTPUT_TYPES = ("image", "labels")  # the output types an Axes hint describes
 
 
+AXIS_LABELS = "TCZYXS"  # time, channel, z, y, x, samples (RGB): the labels tifffile and the hosts understand
+
+
 class DeclarationError(Exception):
     """A tool's signature cannot be turned into a schema; the message names the parameter and what to change."""
+
+
+def _check_axes(where: str, axes: Any) -> str:
+    """`Axes("...")` is a string of distinct labels from T C Z Y X S, one per array dimension (docs/PROTOCOL.md, "Axes")."""
+    if (
+        not isinstance(axes, str)
+        or not axes
+        or len(set(axes)) != len(axes)
+        or any(c not in AXIS_LABELS for c in axes)
+    ):
+        raise DeclarationError(
+            "%s: Axes(%r) must be distinct axis labels from %s, one per dimension, e.g. 'YX' or 'ZYX'"
+            % (where, axes, ", ".join(AXIS_LABELS))
+        )
+    return axes
 
 
 def _docstring_args(doc: str | None) -> dict[str, str]:
@@ -147,7 +165,7 @@ def _add_type_fields(
         if _m(meta, T.Axes):
             if d["type"] not in IMAGE_OUTPUT_TYPES:
                 raise DeclarationError(AXES_ON_INPUT % name)
-            d["axes"] = _m(meta, T.Axes).value
+            d["axes"] = _check_axes("parameter %r" % name, _m(meta, T.Axes).value)
         if _m(meta, T.PickChannel) and _m(meta, T.PickChannel).value:
             if d["type"] != "image":
                 raise DeclarationError("parameter %r: PickChannel applies to an Image input" % name)
@@ -343,7 +361,7 @@ def _outputs(ret: Any, tool_id: str) -> list[OutputSchema]:
                     "tool %r output %d: Axes describes an image or labels output; this one is of type %s: remove it"
                     % (tool_id, i, o["type"])
                 )
-            o["axes"] = _m(m, T.Axes).value
+            o["axes"] = _check_axes("tool %r output %d" % (tool_id, i), _m(m, T.Axes).value)
         o["explicit_name"] = bool(_m(m, T.Name))
         a = _m(m, T.ApplyTo)
         if a:
