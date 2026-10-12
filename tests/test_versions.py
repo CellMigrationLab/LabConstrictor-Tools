@@ -36,6 +36,12 @@ class VersionHasOneSource(unittest.TestCase):
         for needle in ("vX.Y.Z", "v0.2.0-rc.1", "the maintainer tags", "Claude and CI never create tags"):
             self.assertTrue(needle in text, "OPERATIONS.md lacks: " + needle)
 
+    def test_installer_pinning_is_documented_with_the_files_to_change(self):
+        text = (ROOT / "docs" / "OPERATIONS.md").read_text(encoding="utf-8")
+        section = text.split("### Pinning Tools in app installers", 1)[1].split("\n## ", 1)[0]
+        for needle in ("LC_TOOLS_SPEC", "refs/tags/", "refs/heads/main.zip", "post_install.sh", "post_install.bat"):
+            self.assertTrue(needle in section, "pinning section lacks: " + needle)
+
 
 if __name__ == "__main__":
     unittest.main()

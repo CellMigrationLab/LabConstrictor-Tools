@@ -14,6 +14,26 @@ The version lives in one place, `labconstrictor_tools/_version.py` (`__version__
 * **Moving a tag is forbidden.** A broken release is fixed with the next number (`-rc.2`, `0.2.1`); installers pin tags, and a moved tag would change what a pinned installer installs.
 * **The CI `compat` job** installs the newest tag (if one exists) and reads schemas across versions, see [TESTING.md](TESTING.md).
 
+### Pinning Tools in app installers
+An app installer must install a **tagged** Tools, never `main`: `main` moves, so two installs of the same app a week apart would run different workers, and a breaking change (for example issue #51) would reach installed apps without any release. The installer already reads the source from `LC_TOOLS_SPEC` and installs it with one `pip install` ([LABCONSTRICTOR_INTEGRATION.md](LABCONSTRICTOR_INTEGRATION.md)); pinning only changes the default:
+* Default value: `https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.2.0.zip` (a release) or `.../refs/tags/v0.2.0-rc.1.zip` while only a release candidate exists. Never `refs/heads/main.zip`, never a bare branch or a commit that is not a tag. An app moves to a newer Tools by a pull request that changes this one string (and runs its `lc_tests`), not by anybody tagging.
+* `LC_TOOLS_SPEC` stays the override (a local wheel for tests, a mirror, a branch for a developer).
+* After installing, the hook may record the version by running `labconstrictor-tools doctor`, which shows `Tools <version>`; a test of the installer checks that the version equals the pinned tag.
+* A tag is only pinned after the maintainer created it ([Releases and tags](#releases-and-tags)); an installer that pins a tag that does not exist fails at `pip install`, which the hook already reports without stopping the rest of the install.
+
+Files that must change in the apps (the template-repository change is a later task; the lists come from a search for `refs/heads/main.zip` and `LC_TOOLS_SPEC`; search again before editing, other branches may carry more):
+
+| Repository | File and line (at the time of writing) | Change |
+|---|---|---|
+| `labconstrictor-vlab4mic` | `app/bash_bat_scripts/post_install.sh` (the `pip install "${LC_TOOLS_SPEC:-...refs/heads/main.zip}"` line, about 88) | the default URL, to the tag |
+| `labconstrictor-vlab4mic` | `app/bash_bat_scripts/post_install.bat` (`IF NOT DEFINED LC_TOOLS_SPEC SET "LC_TOOLS_SPEC=..."`, about 111) | the same URL |
+| `guessthecondition` | `app/bash_bat_scripts/post_install.sh` (about 88) and `post_install.bat` (about 111) | the same |
+| `labconstrictor-playground` | `app/bash_bat_scripts/post_install.sh` (about 98) and `post_install.bat` (about 120) | the same |
+| `labconstrictor-playground` | `notebooks/LabConstrictorPlayground/LabConstrictorPlayground.ipynb` (the `!pip install -q ...main.zip` cell) | the same URL |
+| `NucleiSky`, `CellTracksColab` | `app/bash_bat_scripts/post_install.sh` and `.bat` once their bridge PRs are merged (not present on `main` of the local clones when this was written) | the same |
+| `LabConstrictor` (template) | `app/bash_bat_scripts/post_install.sh` and `.bat` of the template, so new apps start pinned | the same (later task) |
+| docs and READMEs that tell people to `pip install` Tools | `LabConstrictor-Tools/README.md` (about line 35), `napari-labconstrictor/README.md` (about 13), `labconstrictor-vlab4mic/README.md` (about 56), `docs/OPERATIONS.md` Install, above | say `refs/tags/<tag>.zip` (or keep `main` and label it "development version") |
+
 ## Many apps, many users, network shares
 * Any number of apps can be registered; hosts list them all. Same name registered twice: the higher-priority directory wins
   (the per-user entry overrides a shared one); two versions of one app side by side are not supported.
