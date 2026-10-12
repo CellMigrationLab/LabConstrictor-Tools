@@ -32,6 +32,7 @@ CLOSE_TIMEOUT_S = 5  # WorkerProcess.close(): how long the worker gets to exit a
 KILLED_TASK_WAIT_S = (
     5  # run_once(): how long to wait for a task to report after its worker was killed on timeout
 )
+STDERR_READ_CHARS = 65_536  # the most the host buffers at once from the worker's stderr, newline or not
 STDERR_JOIN_S = 2  # after the worker exits: how long to wait for its stderr reader to drain the last lines
 CRASH_REPORT_TAIL_CHARS = 2500  # how much of the worker's last output goes into a crash message
 _SCRUBBED_ENV = ("PYTHONHOME", "VIRTUAL_ENV", "CONDA_PREFIX", "QT_PLUGIN_PATH", "PYTHONPATH")
@@ -68,9 +69,11 @@ class _Tail:
 
     def append(self, line: str) -> None:
         self.total += len(line)
+        # one oversized line must not outgrow the limit: keep its end (where the error is)
+        line = line[-self.LIMIT :]
         self._lines.append(line)
         self._chars += len(line)
-        while self._chars > self.LIMIT and len(self._lines) > 1:
+        while self._chars > self.LIMIT:
             self._chars -= len(self._lines.popleft())
 
     def __iter__(self) -> Iterator[str]:
@@ -396,7 +399,9 @@ class WorkerProcess:
         return message
 
     def _read_stderr(self) -> None:
-        for line in _pipe(self.proc.stderr):
+        pipe = _pipe(self.proc.stderr)
+        # bounded reads: a line without a newline must not be buffered whole (readline stops at a newline or after this many characters)
+        for line in iter(lambda: pipe.readline(STDERR_READ_CHARS), ""):
             self.stderr.append(line)
             log.logger().debug("worker[%s] %s", self.proc.pid, line.rstrip())
         self._close_pipe(_pipe(self.proc.stderr))
