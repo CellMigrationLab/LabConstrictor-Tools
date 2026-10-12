@@ -305,7 +305,7 @@ Nothing here lets a tool run a command: `Open()` is a description, checked and e
 | 2 | LabConstrictor-Tools | `TimeIntervalOf`, `ZStepOf` (types, schema, errors, `check` line) | 1 |
 | 3 | LabConstrictor-Tools | `t` / `z` in points, shapes and tables (helpers, `test` contract checks, `RESULT_KEYS`) | 1 |
 | 4 | LabConstrictor-Tools | `PerPlane` (plane iteration, merge, progress, cancel, plane-wise writing, `MAX_STACK_BYTES`), example tools, generated round-trip cases | 1-3 |
-| 5 | napari-labconstrictor | stacks: axes chooser, export, dims sliders, N-D points/shapes, "Run on" | 4 |
+| 5 | LabConstrictor-napari | stacks: axes chooser, export, dims sliders, N-D points/shapes, "Run on" | 4 |
 | 6 | LabConstrictor-Fiji | hyperstack export/import, ROI positions, "Run on" | 4 |
 | 7 | labconstrictor-qupath | Planes chooser, z/t annotations, plane/byte guards, Copy as command note | 4 |
 | 8 | LabConstrictor-Tools | `FigureOut`, `Format`, limits, errors, notebook + CLI display | none (parallel to 5-7) |

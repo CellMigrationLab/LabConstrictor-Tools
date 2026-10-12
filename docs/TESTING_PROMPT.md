@@ -19,7 +19,7 @@ in the app's own Python in a separate worker process. Image inputs can come from
 | Repo | Branch | Role |
 |---|---|---|
 | `LabConstrictor-Tools` | `main` | runtime + CLI (`labconstrictor-tools`), example app `labconstrictor_tools.examples.synthetic`, docs, Python tests |
-| `napari-labconstrictor` | `main` | Napari dock widget, tests under Xvfb |
+| `LabConstrictor-napari` | `main` | Napari dock widget, tests under Xvfb |
 | `LabConstrictor-Fiji` | `main` | Fiji command (Maven jar + Groovy script), GUI test harness |
 | `LabConstrictor` | `bridge-test` | template: `app/bash_bat_scripts/post_install|pre_uninstall .sh/.bat` register/unregister hook, `.tools/docs/tools_bridge.md` |
 | `NucleiSky` | `bridge-test` | app: `src/nucleisky_lc_tools`, hooks in its scripts, `lc_tests/` |
@@ -43,7 +43,7 @@ named `claude/<topic>` and report; do not open pull requests unless asked. For t
    `cd tests && python -m unittest discover -v -p "test_*.py"` (about 80 seconds; expect 78 tests, 2 skipped: the read-only-prefix test, and a foreign-owned-entry test that needs root). Also run
    `python tests/windows/test_windows.py` (it is Windows-oriented but should pass on Linux). Run the suite twice: report any flaky test.
 2. **Napari repo.** Fresh venv (Python 3.11), `pip install "napari[pyqt5]" pandas scipy imageio tifffile`, then install the Tools clone and
-   `pip install -e ./napari-labconstrictor`. Run `tests/test_units.py`, and with `xvfb-run -a` `tests/test_widget.py`,
+   `pip install -e ./LabConstrictor-napari`. Run `tests/test_units.py`, and with `xvfb-run -a` `tests/test_widget.py`,
    `tests/test_file_sources.py`, `tests/test_run_state.py` and `tests/test_presentation.py` (each prints `FAILURES: none` when good). Open `evidence/widget_kitchen_sink.png` and describe what the UI looks like.
 3. **Fiji repo.** `mvn -B package` (jar), then `export LC_FIJI_HOME=<Fiji.app>` and, in an env with the Tools clone + numpy pandas tifffile,
    `python tests/run_cases.py` (script mode) and `LC_FIJI_MODE=jar python tests/run_cases.py` (jar mode). Expect 21 cases each (about 5 minutes per mode). Look at the

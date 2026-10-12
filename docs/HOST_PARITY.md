@@ -20,7 +20,7 @@ this repository (`docs/PROTOCOL.md`, `docs/MANIFEST.md`, `docs/HOST_FEATURES.md`
 | Part | Repository | Commit (origin/main) | Files |
 |---|---|---|---|
 | Reference | LabConstrictor-Tools | `86a840f` | `labconstrictor_tools/{types,convert,worker,client,cli,__main__,command,notebook,notebook_magic,testing,log,runs,registry,introspection,shapes,region}.py`, `docs/{MANIFEST,PROTOCOL,HOST_FEATURES,OPERATIONS}.md` |
-| Napari | napari-labconstrictor | `d736804` | `napari_labconstrictor/{_widget,_results,_export,_schema,_units,_workers}.py`, `README.md`, `docs/HOST_FEATURES.md` |
+| Napari | LabConstrictor-napari | `d736804` | `napari_labconstrictor/{_widget,_results,_export,_schema,_units,_workers}.py`, `README.md`, `docs/HOST_FEATURES.md` |
 | Fiji | LabConstrictor-Fiji | `116269d` | `src/main/resources/.../LabConstrictor_Tools.groovy`, `LabConstrictorCommand.java`, `LabConstrictorCopyCommand.java`, `README.md` |
 | QuPath | labconstrictor-qupath | `54f1164` | `src/main/resources/.../qupath/LabConstrictorTools.groovy`, `LabConstrictorExtension.java`, `README.md` |
 
