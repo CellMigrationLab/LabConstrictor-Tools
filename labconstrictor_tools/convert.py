@@ -458,19 +458,32 @@ def _write_csv(kind: str, name: str, frame: Any, path: Path) -> None:
         ) from error
 
 
+def _job_file(job_dir: Path, name: str, suffix: str) -> Path:
+    """`<job_dir>/<name><suffix>`, refused unless it really is a direct child of the job folder (defence in depth: names are
+    already checked when the tool is declared, but a schema can come from anywhere)."""
+    path = job_dir / (name + suffix)
+    if path.parent.resolve() != job_dir.resolve() or path.name != name + suffix:
+        raise ToolError(
+            "bad_return",
+            "the output name %r would write outside the result folder: use a plain name without '/', '\\' or '..'"
+            % name,
+        )
+    return path
+
+
 def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
     kind, name = out["type"], out["name"]
     if kind in ("image", "labels"):
         import tifffile
 
         array = portable_dtype(_as_array(kind, name, value), name)
-        path = job_dir / (name + ".tif")
+        path = _job_file(job_dir, name, ".tif")
         tifffile.imwrite(path, array)
         axes = out.get("axes") or DEFAULT_AXES.get(array.ndim, "")
         return {"type": kind, "name": name, "path": str(path), "axes": axes}
     if kind == "table":
         frame = _as_frame("table", name, value)
-        path = job_dir / (name + ".csv")
+        path = _job_file(job_dir, name, ".csv")
         _write_csv("table", name, frame, path)
         return {"type": "table", "name": name, "path": str(path)}
     if kind == "file":
@@ -519,7 +532,7 @@ def _write_points(name: str, value: Any, job_dir: Path, display: dict[str, str])
         frame[column] = numbers
     others = [c for c in frame.columns if c not in ("y", "x")]
     frame = frame[["y", "x"] + others]
-    path = job_dir / (name + ".csv")
+    path = _job_file(job_dir, name, ".csv")
     _write_csv("points", name, frame, path)
     return {
         "type": "points",
@@ -635,7 +648,7 @@ def _write_shapes(name: str, value: Any, job_dir: Path, display: dict[str, str])
                 }
             )
         collection = {"type": "FeatureCollection", "features": features}
-    path = job_dir / (name + ".geojson")
+    path = _job_file(job_dir, name, ".geojson")
     path.write_text(json.dumps(collection, allow_nan=False), encoding="utf-8")
     return {"type": "shapes", "name": name, "path": str(path), "n": len(collection["features"]), **display}
 
