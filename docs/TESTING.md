@@ -29,6 +29,7 @@ every real path, and that the tests themselves would notice if the production co
 | `tests/test_roundtrip_failures.py` + `tests/failure_app/` | failure injection through the real client |
 | `tests/test_roundtrip_command.py` | quoting against a real shell and the Windows rules; app names with spaces and quotes |
 | `tests/roundtrip_known_failures.py` + `test_roundtrip_known_failures.py` | real defects found, and the watcher that keeps the list honest |
+| `tests/test_conformance.py` | `conformance.json` and its loader ([CONFORMANCE.md](CONFORMANCE.md)): the schema (every kind of damage is named), the data against the code (limits, `compat` vectors, retention fixtures once `retention` exists), arithmetic oracles for the coordinate formula and the unit table, and the wheel contents |
 | `tests/test_sabotage.py`, `coverage_report.py`, `vulture_whitelist.py` | the production-code guarantees |
 
 Transports and what each can carry: `worker` carries everything (including shared-memory images and invalid JSON types), `cli`,

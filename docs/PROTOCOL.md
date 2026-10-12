@@ -64,7 +64,7 @@ Feature ids (the implemented ones are in `FEATURES`; a planned id appears there 
 | `retention_prune` | the CLI command `prune` and the `retention` module (hosts only mark a run finished, then run `prune`) | planned (3.1-3.5 of the same spec) |
 
 ### Compatibility rules for hosts
-A host that needs a minimum states it as `(min_tools_version, required_features)` and applies the rules below to every schema it loads, with `labconstrictor_tools.compat.check_schema` (Python hosts: Napari, notebooks) or the same rules written in its own language (Fiji, QuPath; the data is in `conformance.json`, [HOST_PARITY.md](HOST_PARITY.md#2-proposed-conformance-file), `compat` section). The result is `ok`, `warn` or `refuse`, with one sentence for the person:
+A host that needs a minimum states it as `(min_tools_version, required_features)` and applies the rules below to every schema it loads, with `labconstrictor_tools.compat.check_schema` (Python hosts: Napari, notebooks) or the same rules written in its own language (Fiji, QuPath; the data is in `conformance.json`, [CONFORMANCE.md](CONFORMANCE.md), `compat` section). The result is `ok`, `warn` or `refuse`, with one sentence for the person:
 1. `protocol` not supported by the host: `refuse` (as today).
 2. A required feature missing from `features` (or no `features` list at all): `refuse`, "needs <feature>; update the app's labconstrictor-tools".
 3. `tools_version` missing (unknown/old) while a minimum is set: `refuse`; with no minimum set: `warn`, "Tools version unknown".

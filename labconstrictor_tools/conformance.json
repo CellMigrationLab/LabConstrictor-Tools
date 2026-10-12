@@ -1,0 +1,1888 @@
+{
+ "conformance": 1,
+ "_about": "Rules every host must agree on, as data. Loaded with labconstrictor_tools.conformance.load(); validated by labconstrictor_tools.conformance.validate(). Only rules that are already decided in docs/SPEC_WRONG_SCIENCE.md (section 8) or carried by Tools code are here; a rule marked status 'default' is the spec's working default, not yet confirmed. Gaps (rules that are not decided yet) are listed in docs/CONFORMANCE.md, never invented here. A host test must fail when a key it knows is missing (no silent skip) and report 'unsupported' for a case its host cannot run, never 'pass'.",
+ "limits": {
+  "results_kept": {
+   "value": 20,
+   "status": "decided",
+   "spec": "3.3",
+   "unit": "owned finished result folders"
+  },
+  "run_records_kept": {
+   "value": 50,
+   "status": "decided",
+   "spec": "3.3",
+   "unit": "owned finished run records"
+  },
+  "form_integer_max": {
+   "value": 9007199254740991,
+   "status": "decided",
+   "spec": "6.1",
+   "rule": "an integer form field with no declared Min/Max accepts +-value; beyond it is refused, never clamped"
+  },
+  "unbounded_float": {
+   "value": 1000000000000000.0,
+   "status": "decided",
+   "spec": "6.1",
+   "rule": "a float form field with no declared Min/Max accepts +-value; beyond it is refused, never clamped"
+  },
+  "choices_debounce_ms": {
+   "value": 400,
+   "status": "decided",
+   "spec": "5.3",
+   "note": "delays the new request, never the invalidation"
+  },
+  "choices_busy_retry_ms": {
+   "value": 1500,
+   "status": "decided",
+   "spec": "5.5",
+   "note": "lookups wait while a run is active"
+  },
+  "worker_close_timeout_s": {
+   "value": 10,
+   "status": "decided",
+   "spec": "5.6",
+   "note": "HOST_PARITY K03"
+  },
+  "lookup_in_flight_max": {
+   "value": 1,
+   "status": "default",
+   "spec": "5.4",
+   "note": "per widget (per host window)"
+  },
+  "lookup_pending_max": {
+   "value": 8,
+   "status": "default",
+   "spec": "5.4",
+   "note": "oldest dropped and logged"
+  },
+  "lookup_timeout_s": {
+   "value": 60,
+   "status": "default",
+   "spec": "5.4"
+  }
+ },
+ "host_internal_codes": [
+  "frame_unsupported_transform",
+  "selection_mixed_planes",
+  "selection_plane_mismatch",
+  "target_unavailable"
+ ],
+ "messages": {
+  "number_above_maximum": {
+   "template": "'{label}' must be <= {maximum}",
+   "spec": "6.2",
+   "note": "HOST_PARITY I06 worker templates"
+  },
+  "number_below_minimum": {
+   "template": "'{label}' must be >= {minimum}",
+   "spec": "6.2"
+  },
+  "size_mismatch": {
+   "template": "'{name}' is {w} x {h} but '{source}' was exported as {w2} x {h2}; shown at the pixel origin, not aligned",
+   "spec": "1.1.7"
+  },
+  "calibration_required": {
+   "template": "'{param}' needs a value: '{of}' has no pixel size. Enter it in um.",
+   "spec": "2.3.1"
+  },
+  "calibration_unknown_tooltip": {
+   "template": "not calibrated: '{of}' has no pixel size",
+   "spec": "2.2"
+  },
+  "unit_damaged_warning": {
+   "template": "unit text '{unit}' is damaged; enter the pixel size",
+   "spec": "2.1.4"
+  },
+  "pixels_not_square_warning": {
+   "template": "pixels are not square",
+   "spec": "2.1.5"
+  },
+  "unit_not_length_warning": {
+   "template": "unit '{unit}' is not a length",
+   "spec": "2.1.5"
+  },
+  "target_unavailable": {
+   "template": "run {run_id} on '{source}': '{source}' is no longer open; results are in {path}",
+   "spec": "4.4"
+  },
+  "refusal_suffix": {
+   "template": "(nothing was changed; files are in {path})",
+   "spec": "1.4",
+   "note": "follows every refusal sentence when files exist"
+  },
+  "file_input_note": {
+   "template": "file input: results are in the file's pixel frame",
+   "spec": "1.3",
+   "note": "QuPath status"
+  }
+ },
+ "compat": {
+  "_about": "docs/PROTOCOL.md, 'Compatibility rules for hosts'. Reference: labconstrictor_tools.compat.check_schema.",
+  "min_tools_version": "0.2.0rc1",
+  "required_features": [
+   "reserved_inputs_v1"
+  ],
+  "cases": [
+   {
+    "case": "current",
+    "schema": {
+     "protocol": 1,
+     "tools_version": "0.2.0rc1",
+     "features": [
+      "reserved_inputs_v1"
+     ]
+    },
+    "expect": "ok"
+   },
+   {
+    "case": "newer release",
+    "schema": {
+     "protocol": 1,
+     "tools_version": "0.3.1",
+     "features": [
+      "reserved_inputs_v1",
+      "later"
+     ]
+    },
+    "expect": "ok"
+   },
+   {
+    "case": "written by Tools 0.1 (no fields)",
+    "schema": {
+     "protocol": 1
+    },
+    "expect": "refuse",
+    "reason_contains": "too old"
+   },
+   {
+    "case": "feature missing",
+    "schema": {
+     "protocol": 1,
+     "tools_version": "0.2.0",
+     "features": [
+      "other"
+     ]
+    },
+    "expect": "refuse",
+    "reason_contains": "reserved_inputs_v1"
+   },
+   {
+    "case": "below the minimum",
+    "schema": {
+     "protocol": 1,
+     "tools_version": "0.1.9",
+     "features": [
+      "reserved_inputs_v1"
+     ]
+    },
+    "expect": "refuse",
+    "reason_contains": "older than"
+   },
+   {
+    "case": "version not understood",
+    "schema": {
+     "protocol": 1,
+     "tools_version": "banana",
+     "features": [
+      "reserved_inputs_v1"
+     ]
+    },
+    "expect": "warn"
+   },
+   {
+    "case": "protocol 2",
+    "schema": {
+     "protocol": 2
+    },
+    "expect": "refuse",
+    "reason_contains": "protocol"
+   }
+  ],
+  "version_order": [
+   "0.2.0a1",
+   "0.2.0b1",
+   "0.2.0rc1",
+   "0.2.0",
+   "0.2.1",
+   "0.10.0"
+  ]
+ },
+ "wrong_science": {
+  "_spec": "docs/SPEC_WRONG_SCIENCE.md",
+  "_scope": "v1: 2D. N-D (T/Z stacks) and QuPath downsample fixtures follow in Wave 2 (SPEC_WRONG_SCIENCE, header).",
+  "coordinate": {
+   "image": {
+    "id": "ASYM",
+    "shape": [
+     8,
+     12
+    ],
+    "dtype": "uint16",
+    "value": "100*y + x"
+   },
+   "rect": [
+    [
+     1.5,
+     2.5
+    ],
+    [
+     1.5,
+     5.5
+    ],
+    [
+     3.5,
+     5.5
+    ],
+    [
+     3.5,
+     2.5
+    ]
+   ],
+   "rect_mask_pixels": [
+    [
+     2,
+     3
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     2,
+     5
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     3,
+     5
+    ]
+   ],
+   "rect_mask_values": [
+    203,
+    204,
+    205,
+    303,
+    304,
+    305
+   ],
+   "placement": {
+    "formula": "c = x0 + (x + 0.5) * downsample",
+    "napari_data": "c - 0.5",
+    "spec": "1.1.3"
+   },
+   "every_case_also_checks": [
+    "the worker's input file (exported pixels, mask pixels)",
+    "the actual drawn coordinates",
+    "nothing was drawn on any image other than target"
+   ],
+   "cases": [
+    {
+     "id": "CF-01",
+     "name": "identity",
+     "source": {},
+     "point": [
+      2,
+      3
+     ],
+     "expect": {
+      "world": [
+       2,
+       3
+      ],
+      "target_px": [
+       2,
+       3
+      ],
+      "mask": "rect_mask_pixels"
+     }
+    },
+    {
+     "id": "CF-02",
+     "name": "translate only (scale equal, origin different)",
+     "source": {
+      "translate": [
+       100,
+       0
+      ]
+     },
+     "shapes_layer": {
+      "translate": [
+       0,
+       0
+      ],
+      "vertices_world": "rect + [100, 0]"
+     },
+     "point": [
+      2,
+      3
+     ],
+     "expect": {
+      "world": [
+       102,
+       3
+      ],
+      "target_px": [
+       2,
+       3
+      ],
+      "mask": "rect_mask_pixels"
+     }
+    },
+    {
+     "id": "CF-03",
+     "name": "scale and translate",
+     "source": {
+      "scale": [
+       0.5,
+       0.25
+      ],
+      "translate": [
+       10,
+       20
+      ]
+     },
+     "point": [
+      2,
+      3
+     ],
+     "expect": {
+      "world": [
+       11.0,
+       20.75
+      ],
+      "target_px": [
+       2,
+       3
+      ]
+     }
+    },
+    {
+     "id": "CF-04",
+     "name": "rotation by 90 degrees",
+     "source": {
+      "affine": [
+       [
+        0,
+        -1,
+        0
+       ],
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        0,
+        0,
+        1
+       ]
+      ]
+     },
+     "shapes_layer": {
+      "vertices_world": [
+       [
+        -2.5,
+        1.5
+       ],
+       [
+        -5.5,
+        1.5
+       ],
+       [
+        -5.5,
+        3.5
+       ],
+       [
+        -2.5,
+        3.5
+       ]
+      ]
+     },
+     "point": [
+      2,
+      3
+     ],
+     "expect": {
+      "world": [
+       -3,
+       2
+      ],
+      "target_px": [
+       2,
+       3
+      ],
+      "mask": "rect_mask_pixels"
+     }
+    },
+    {
+     "id": "CF-05",
+     "name": "shear",
+     "source": {
+      "affine": [
+       [
+        1,
+        0.5,
+        0
+       ],
+       [
+        0,
+        1,
+        0
+       ],
+       [
+        0,
+        0,
+        1
+       ]
+      ]
+     },
+     "point": [
+      2,
+      4
+     ],
+     "expect": {
+      "world": [
+       4,
+       4
+      ],
+      "target_px": [
+       2,
+       4
+      ]
+     }
+    },
+    {
+     "id": "CF-06",
+     "name": "multiscale, level 0 carries the transform",
+     "source": {
+      "levels": [
+       [
+        8,
+        12
+       ],
+       [
+        4,
+        6
+       ]
+      ],
+      "translate": [
+       100,
+       0
+      ]
+     },
+     "point": [
+      2,
+      3
+     ],
+     "expect": {
+      "world": [
+       102,
+       3
+      ],
+      "export_shape": [
+       8,
+       12
+      ]
+     }
+    },
+    {
+     "id": "CF-07",
+     "name": "file input with a decoy open image",
+     "inputs": {
+      "image": {
+       "file": "ASYM.tif"
+      }
+     },
+     "open_image": {
+      "id": "DECOY",
+      "translate": [
+       100,
+       0
+      ]
+     },
+     "point": [
+      2,
+      3
+     ],
+     "expect": {
+      "target": "file:ASYM.tif",
+      "napari_world": [
+       2,
+       3
+      ],
+      "decoy_gets_nothing": true,
+      "fiji_new_window_titled": "ASYM.tif",
+      "qupath": "table_and_file"
+     }
+    },
+    {
+     "id": "CF-08",
+     "name": "earlier output must not become the target",
+     "sequence": [
+      "run A -> ImageOut shown",
+      "run B (file input) -> PointsOut ApplyTo"
+     ],
+     "expect": {
+      "target": "file:ASYM.tif",
+      "last_shown_image_gets_nothing": true
+     }
+    },
+    {
+     "id": "CF-09",
+     "name": "QuPath crop offset",
+     "source": {
+      "server_wh": [
+       12,
+       8
+      ]
+     },
+     "selection_annotation": {
+      "x": [
+       4,
+       10
+      ],
+      "y": [
+       2,
+       6
+      ],
+      "plane": [
+       0,
+       0
+      ]
+     },
+     "expect": {
+      "export_offset_yx": [
+       2,
+       4
+      ],
+      "export_shape": [
+       4,
+       6
+      ],
+      "export_value_0_0": 204,
+      "export_value_3_5": 509,
+      "regionof_mask": "all ones, shape [4, 6]"
+     },
+     "point": [
+      1,
+      2
+     ],
+     "result_expect": {
+      "target_px": [
+       3,
+       6
+      ]
+     }
+    },
+    {
+     "id": "CF-10",
+     "name": "QuPath planes",
+     "source": {
+      "z": 2,
+      "t": 1
+     },
+     "viewer": {
+      "z": 0,
+      "t": 0
+     },
+     "variants": [
+      {
+       "selection": [
+        {
+         "z": 0,
+         "t": 0
+        }
+       ],
+       "expect": "run, results on z=0 t=0"
+      },
+      {
+       "selection": [
+        {
+         "z": 1,
+         "t": 0
+        }
+       ],
+       "expect": "refuse selection_plane_mismatch"
+      },
+      {
+       "selection": [
+        {
+         "z": 0,
+         "t": 0
+        },
+        {
+         "z": 1,
+         "t": 0
+        }
+       ],
+       "expect": "refuse selection_mixed_planes"
+      },
+      {
+       "selection": [],
+       "viewer": {
+        "z": 1,
+        "t": 0
+       },
+       "export": "whole image",
+       "expect": "exported plane z=1 t=0, results on z=1 t=0"
+      },
+      {
+       "point_without_t_z": true,
+       "viewer": {
+        "z": 1,
+        "t": 0
+       },
+       "expect": "lands on z=1 t=0, not on plane 0"
+      }
+     ]
+    },
+    {
+     "id": "CF-11",
+     "name": "size mismatch is stated",
+     "result": {
+      "type": "labels",
+      "shape": [
+       4,
+       6
+      ],
+      "apply_to": "image"
+     },
+     "source_export_shape": [
+      8,
+      12
+     ],
+     "expect": {
+      "transform": "identity",
+      "status_contains": "not aligned"
+     }
+    },
+    {
+     "id": "CF-12",
+     "name": "Replace recomputes the transform",
+     "sequence": [
+      "labels result on source translate [100,0]",
+      "Replace with result for source translate [0,0]"
+     ],
+     "expect": {
+      "world_of_0_0": [
+       0,
+       0
+      ]
+     }
+    },
+    {
+     "id": "CF-13",
+     "name": "non-invertible source transform",
+     "source": {
+      "affine": [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        0,
+        0,
+        1
+       ]
+      ]
+     },
+     "expect": "refuse frame_unsupported_transform"
+    },
+    {
+     "id": "CF-14",
+     "name": "QuPath downsample 2 and 4 (c = x0 + (x + 0.5) * d); needs a host that exports at d != 1",
+     "variants": [
+      {
+       "server_wh": [
+        24,
+        16
+       ],
+       "downsample": 2,
+       "offset_yx": [
+        0,
+        0
+       ],
+       "export_shape": [
+        8,
+        12
+       ],
+       "point": [
+        2,
+        3
+       ],
+       "expect": {
+        "c_yx": [
+         5.0,
+         7.0
+        ]
+       }
+      },
+      {
+       "server_wh": [
+        48,
+        32
+       ],
+       "downsample": 4,
+       "offset_yx": [
+        0,
+        0
+       ],
+       "export_shape": [
+        8,
+        12
+       ],
+       "point": [
+        2,
+        3
+       ],
+       "expect": {
+        "c_yx": [
+         10.0,
+         14.0
+        ]
+       }
+      },
+      {
+       "server_wh": [
+        48,
+        32
+       ],
+       "downsample": 2,
+       "offset_yx": [
+        4,
+        8
+       ],
+       "export_shape": [
+        8,
+        12
+       ],
+       "point": [
+        2,
+        3
+       ],
+       "expect": {
+        "c_yx": [
+         9.0,
+         15.0
+        ]
+       }
+      },
+      {
+       "downsample": 1,
+       "offset_yx": [
+        0,
+        0
+       ],
+       "point": [
+        2,
+        3
+       ],
+       "expect": {
+        "c_yx": [
+         2.5,
+         3.5
+        ]
+       }
+      }
+     ],
+     "unsupported_ok": "a host that only exports at downsample 1 reports the first three as unsupported, never as passed"
+    }
+   ]
+  },
+  "calibration": {
+   "unit": "um per pixel",
+   "length_units_um": {
+    "um": 1.0,
+    "micron": 1.0,
+    "microns": 1.0,
+    "micrometer": 1.0,
+    "micrometre": 1.0,
+    "micrometers": 1.0,
+    "micrometres": 1.0,
+    "nm": 0.001,
+    "mm": 1000.0,
+    "millimeter": 1000.0,
+    "millimetre": 1000.0,
+    "cm": 10000.0,
+    "m": 1000000.0,
+    "Angstrom": 0.0001,
+    "angstrom": 0.0001,
+    "\u00c5": 0.0001,
+    "\u212b": 0.0001,
+    "\u00b5m": 1.0,
+    "\u03bcm": 1.0
+   },
+   "micro_sign_spellings": [
+    "\u00b5",
+    "\u03bc",
+    "u"
+   ],
+   "damaged_micro_prefix": "\ufffd",
+   "anisotropy_tolerance": {
+    "relative_to_larger": 0.001,
+    "within": "the scalar field takes the mean of x and y",
+    "beyond": "unknown plus warning"
+   },
+   "default_resolution_dpi": {
+    "values": [
+     72,
+     96
+    ],
+    "per_cm": [
+     28.35,
+     37.8
+    ],
+    "tolerance_relative": 0.005,
+    "units": [
+     "INCH",
+     "CENTIMETER"
+    ],
+    "result": "unknown"
+   },
+   "states": [
+    "unset",
+    "auto",
+    "user"
+   ],
+   "reserved_input": "_calibration",
+   "request_shape": {
+    "_calibration": {
+     "pixel_size": {
+      "of": "image",
+      "source": "image|file|user",
+      "axes": {
+       "x": {
+        "value": 1.0,
+        "unit": "um",
+        "source": "image",
+        "raw": {
+         "scale": 1.0,
+         "unit": "micrometer"
+        }
+       },
+       "y": {
+        "value": 1.0,
+        "unit": "um",
+        "source": "image",
+        "raw": {
+         "scale": 1.0,
+         "unit": "micrometer"
+        }
+       }
+      }
+     }
+    },
+    "phase_1_axes": [
+     "x",
+     "y"
+    ],
+    "later_axes": {
+     "z": "ZStepOf, um",
+     "t": "TimeIntervalOf, s"
+    }
+   },
+   "cases": [
+    {
+     "id": "CAL-01",
+     "source": "Napari scale (1,1), units (micrometer, micrometer)",
+     "input": {
+      "scale": [
+       1,
+       1
+      ],
+      "units": [
+       "micrometer",
+       "micrometer"
+      ]
+     },
+     "expect": {
+      "um_per_px": 1.0,
+      "source": "image"
+     }
+    },
+    {
+     "id": "CAL-02",
+     "source": "Napari scale (1,1), units default (pixel)",
+     "input": {
+      "scale": [
+       1,
+       1
+      ],
+      "units": [
+       "pixel",
+       "pixel"
+      ]
+     },
+     "expect": {
+      "um_per_px": "unknown"
+     }
+    },
+    {
+     "id": "CAL-03",
+     "source": "Napari scale (1,1), units millimeter",
+     "input": {
+      "scale": [
+       1,
+       1
+      ],
+      "units": [
+       "millimeter",
+       "millimeter"
+      ]
+     },
+     "expect": {
+      "um_per_px": 1000.0
+     }
+    },
+    {
+     "id": "CAL-04",
+     "source": "Napari scale (0.25,0.25), units pixel or none (never read as um)",
+     "input": {
+      "scale": [
+       0.25,
+       0.25
+      ],
+      "units": [
+       [
+        "pixel",
+        "pixel"
+       ],
+       [
+        null,
+        null
+       ]
+      ]
+     },
+     "expect": {
+      "um_per_px": "unknown"
+     }
+    },
+    {
+     "id": "CAL-05",
+     "source": "0.325 um, 325 nm, 0.000325 mm (any host)",
+     "input": {
+      "variants": [
+       {
+        "scale": 0.325,
+        "unit": "um"
+       },
+       {
+        "scale": 325,
+        "unit": "nm"
+       },
+       {
+        "scale": 0.000325,
+        "unit": "mm"
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px": 0.325,
+      "relative_error_below": 1e-09
+     }
+    },
+    {
+     "id": "CAL-06",
+     "source": "scale (0.5, 0.25), units um",
+     "input": {
+      "scale": [
+       0.5,
+       0.25
+      ],
+      "units": [
+       "um",
+       "um"
+      ]
+     },
+     "expect": {
+      "um_per_px": "unknown",
+      "warning": "pixels are not square"
+     }
+    },
+    {
+     "id": "CAL-07",
+     "source": "scale (1,1), units second",
+     "input": {
+      "scale": [
+       1,
+       1
+      ],
+      "units": [
+       "second",
+       "second"
+      ]
+     },
+     "expect": {
+      "um_per_px": "unknown",
+      "warning": "unit 'second' is not a length"
+     }
+    },
+    {
+     "id": "CAL-08",
+     "source": "Fiji unit micron, pixelWidth 1.0 / unit pixel, width 1.0 / unit empty",
+     "input": {
+      "variants": [
+       {
+        "pixelWidth": 1.0,
+        "unit": "micron"
+       },
+       {
+        "pixelWidth": 1.0,
+        "unit": "pixel"
+       },
+       {
+        "pixelWidth": 1.0,
+        "unit": ""
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       1.0,
+       "unknown",
+       "unknown"
+      ]
+     }
+    },
+    {
+     "id": "CAL-09",
+     "source": "QuPath hasPixelSizeMicrons() true with 1.0 / false",
+     "input": {
+      "variants": [
+       {
+        "hasPixelSizeMicrons": true,
+        "um": 1.0
+       },
+       {
+        "hasPixelSizeMicrons": false
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       1.0,
+       "unknown"
+      ]
+     }
+    },
+    {
+     "id": "CAL-10",
+     "source": "TIFF with ImageJ unit=micron spacing 1.0 / no resolution tags / ResolutionUnit NONE",
+     "input": {
+      "variants": [
+       {
+        "imagej_unit": "micron",
+        "spacing": 1.0
+       },
+       {
+        "tags": null
+       },
+       {
+        "ResolutionUnit": "NONE"
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       1.0,
+       "unknown",
+       "unknown"
+      ]
+     }
+    },
+    {
+     "id": "CAL-11",
+     "source": "TIFF ResolutionUnit INCH, 72 dpi, no ImageJ/OME unit",
+     "input": {
+      "ResolutionUnit": "INCH",
+      "resolution": [
+       72,
+       72
+      ]
+     },
+     "expect": {
+      "um_per_px": "unknown",
+      "not": 352.78
+     }
+    },
+    {
+     "id": "CAL-12",
+     "source": "TIFF ResolutionUnit INCH, 96 dpi, no ImageJ/OME unit",
+     "input": {
+      "ResolutionUnit": "INCH",
+      "resolution": [
+       96,
+       96
+      ]
+     },
+     "expect": {
+      "um_per_px": "unknown",
+      "not": 264.58
+     }
+    },
+    {
+     "id": "CAL-13",
+     "source": "TIFF ResolutionUnit CENTIMETER, 28.35 and 37.80 per cm, no unit text",
+     "input": {
+      "variants": [
+       {
+        "ResolutionUnit": "CENTIMETER",
+        "resolution": [
+         28.35,
+         28.35
+        ]
+       },
+       {
+        "ResolutionUnit": "CENTIMETER",
+        "resolution": [
+         37.8,
+         37.8
+        ]
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       "unknown",
+       "unknown"
+      ]
+     }
+    },
+    {
+     "id": "CAL-14",
+     "source": "TIFF ResolutionUnit INCH, 25400 dpi (not default-looking), no unit text",
+     "input": {
+      "ResolutionUnit": "INCH",
+      "resolution": [
+       25400,
+       25400
+      ]
+     },
+     "expect": {
+      "um_per_px": 1.0,
+      "source": "file"
+     }
+    },
+    {
+     "id": "CAL-15",
+     "source": "unit text micro sign / Greek mu / ASCII u, each + m, scale 0.5",
+     "input": {
+      "variants": [
+       {
+        "scale": 0.5,
+        "unit": "\u00b5m"
+       },
+       {
+        "scale": 0.5,
+        "unit": "\u03bcm"
+       },
+       {
+        "scale": 0.5,
+        "unit": "um"
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       0.5,
+       0.5,
+       0.5
+      ]
+     }
+    },
+    {
+     "id": "CAL-16",
+     "source": "unit text U+FFFD + m, scale 0.5",
+     "input": {
+      "scale": 0.5,
+      "unit": "\ufffdm"
+     },
+     "expect": {
+      "um_per_px": "unknown",
+      "warning": "unit text '\ufffdm' is damaged; enter the pixel size"
+     }
+    },
+    {
+     "id": "CAL-17",
+     "source": "unit text Angstrom, U+00C5, U+212B, scale 1.0",
+     "input": {
+      "variants": [
+       {
+        "scale": 1.0,
+        "unit": "Angstrom"
+       },
+       {
+        "scale": 1.0,
+        "unit": "\u00c5"
+       },
+       {
+        "scale": 1.0,
+        "unit": "\u212b"
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       0.0001,
+       0.0001,
+       0.0001
+      ]
+     }
+    },
+    {
+     "id": "CAL-18",
+     "source": "scale (0.5, 0.5004) um / scale (0.5, 0.5006) um",
+     "input": {
+      "variants": [
+       {
+        "scale": [
+         0.5,
+         0.5004
+        ],
+        "unit": "um"
+       },
+       {
+        "scale": [
+         0.5,
+         0.5006
+        ],
+        "unit": "um"
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       0.5002,
+       "unknown"
+      ],
+      "note": "difference 8e-4 is within 1e-3 (mean of x and y); 1.2e-3 is not (unknown + warning)"
+     }
+    }
+   ],
+   "transitions": [
+    {
+     "id": "CAL-T1",
+     "sequence": "A (0.25) -> B (0.5)",
+     "expect": "field 0.5, request 0.5, source image of B"
+    },
+    {
+     "id": "CAL-T2",
+     "sequence": "A (0.25) -> uncalibrated B",
+     "expect": "field empty, run blocked with 2.3.1; Optional: request null; A's value is in no request"
+    },
+    {
+     "id": "CAL-T3",
+     "sequence": "A (0.25), person types 0.3, switch to B (0.5)",
+     "expect": "0.3, source user"
+    },
+    {
+     "id": "CAL-T4",
+     "sequence": "state user(0.3), person clears field, source B (0.5)",
+     "expect": "auto 0.5"
+    },
+    {
+     "id": "CAL-T5",
+     "sequence": "open image A (0.25), file B uncalibrated",
+     "expect": "unset, run blocked (not A's value)"
+    },
+    {
+     "id": "CAL-T6",
+     "sequence": "CAL-T5, then file cleared",
+     "expect": "auto 0.25 (A)"
+    },
+    {
+     "id": "CAL-T7",
+     "sequence": "QuPath project image A -> file image uncalibrated",
+     "expect": "unset"
+    },
+    {
+     "id": "CAL-T8",
+     "sequence": "required linked field with default 1.0, source unknown",
+     "expect": "blocked, the default is not sent"
+    },
+    {
+     "id": "CAL-T9",
+     "sequence": "user types 0.25 equal to the last auto value, then switch to uncalibrated B",
+     "expect": "stays 0.25, source user (flag, not comparison)"
+    }
+   ]
+  },
+  "retention": {
+   "markers": {
+    "owner_file": ".lc-owner.json",
+    "done_file": ".lc-done.json",
+    "lock_file": ".retention.lock",
+    "deleting_prefix": ".lc-deleting-",
+    "owner_fields": [
+     "lc_marker",
+     "kind",
+     "name",
+     "host",
+     "pid",
+     "created",
+     "token"
+    ],
+    "owner_kinds": [
+     "result",
+     "run"
+    ],
+    "hosts": [
+     "cli",
+     "napari",
+     "fiji",
+     "qupath",
+     "notebook"
+    ],
+    "done_fields": [
+     "finished",
+     "status"
+    ],
+    "done_statuses": [
+     "ok",
+     "failed",
+     "cancelled"
+    ],
+    "name_characters": "A-Za-z0-9_.-",
+    "result_folder_name": "<YYYYMMDDTHHMMSS>_<6 hex>_<app>_<tool>"
+   },
+   "prune_command": "labconstrictor-tools prune [--root results|runs|all] [--dry-run]",
+   "fixtures_tools": [
+    {
+     "id": "RET-01",
+     "setup": [
+      {
+       "foreign": {
+        "root": "results",
+        "name": "20261008T120000_reanalysis_backup",
+        "files": {
+         "x.txt": "keep"
+        }
+       }
+      },
+      {
+       "owned": {
+        "root": "results",
+        "count": 300
+       }
+      }
+     ],
+     "action": {
+      "prune": "results"
+     },
+     "expect": [
+      {
+       "foreign_intact": true
+      },
+      {
+       "owned_remaining": {
+        "root": "results",
+        "count": 20,
+        "which": "newest_by_created"
+       }
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-02",
+     "setup": [
+      {
+       "foreign": {
+        "root": "runs",
+        "name": "0000_keep_this_analysis",
+        "files": {
+         "x.txt": "keep"
+        }
+       }
+      },
+      {
+       "owned": {
+        "root": "runs",
+        "count": 120
+       }
+      }
+     ],
+     "action": {
+      "prune": "runs"
+     },
+     "expect": [
+      {
+       "foreign_intact": true
+      },
+      {
+       "owned_remaining": {
+        "root": "runs",
+        "count": 50,
+        "which": "newest_by_created"
+       }
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-03",
+     "setup": [
+      {
+       "owned": {
+        "root": "results",
+        "count": 25,
+        "done": false
+       }
+      }
+     ],
+     "action": {
+      "prune": "results"
+     },
+     "expect": [
+      {
+       "owned_remaining": {
+        "root": "results",
+        "count": 25,
+        "which": "all"
+       }
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-04",
+     "setup": [
+      {
+       "owned": {
+        "root": "results",
+        "count": 30
+       }
+      }
+     ],
+     "action": {
+      "prune": "results"
+     },
+     "expect": [
+      {
+       "owned_remaining": {
+        "root": "results",
+        "count": 20,
+        "which": "newest_by_created"
+       }
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-05",
+     "setup": [
+      {
+       "link": {
+        "root": "results",
+        "name": "20261008T120000_000000_app_tool",
+        "to_outside_with_markers": true,
+        "kinds": [
+         "symlink",
+         "junction (Windows)"
+        ]
+       }
+      },
+      {
+       "owned": {
+        "root": "results",
+        "count": 40
+       }
+      }
+     ],
+     "action": {
+      "prune": "results"
+     },
+     "expect": [
+      {
+       "link_intact": true
+      },
+      {
+       "outside_intact": true
+      }
+     ],
+     "unsupported_when": "a link kind cannot be created: report unsupported for it, never pass",
+     "scope": "tools"
+    },
+    {
+     "id": "RET-06",
+     "setup": [
+      {
+       "owned_copy_renamed": {
+        "root": "results",
+        "name": "20261008T120000_000000_app_copy"
+       }
+      },
+      {
+       "owned": {
+        "root": "results",
+        "count": 30
+       }
+      }
+     ],
+     "action": {
+      "prune": "results"
+     },
+     "expect": [
+      {
+       "copy_intact": true
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-07",
+     "setup": [
+      {
+       "legacy": {
+        "root": "results",
+        "count": 30
+       }
+      },
+      {
+       "owned": {
+        "root": "results",
+        "count": 25
+       }
+      }
+     ],
+     "action": {
+      "prune": "results"
+     },
+     "expect": [
+      {
+       "legacy_intact": 30
+      },
+      {
+       "owned_remaining": {
+        "root": "results",
+        "count": 20,
+        "which": "newest_by_created"
+       }
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-08",
+     "setup": [
+      {
+       "foreign": {
+        "root": "results",
+        "name": "20261008T120000_reanalysis_backup",
+        "files": {
+         "x.txt": "keep"
+        }
+       }
+      },
+      {
+       "owned": {
+        "root": "results",
+        "count": 100
+       }
+      }
+     ],
+     "action": {
+      "prune_processes_at_once": 4,
+      "via": "cli",
+      "root": "results"
+     },
+     "expect": [
+      {
+       "owned_remaining": {
+        "root": "results",
+        "count": 20,
+        "which": "newest_by_created"
+       }
+      },
+      {
+       "foreign_intact": true
+      },
+      {
+       "every_exit_code": 0
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-09",
+     "setup": [
+      {
+       "owned": {
+        "root": "results",
+        "count": 30
+       }
+      },
+      {
+       "lock_held_by_another_process": true
+      }
+     ],
+     "action": {
+      "prune": "results"
+     },
+     "expect": [
+      {
+       "exit_code": 0
+      },
+      {
+       "owned_remaining": {
+        "root": "results",
+        "count": 30,
+        "which": "all"
+       }
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-12",
+     "setup": [
+      {
+       "owned": {
+        "root": "results",
+        "count": 1,
+        "done": false,
+        "oldest": true
+       }
+      },
+      {
+       "owned": {
+        "root": "results",
+        "count": 30
+       }
+      }
+     ],
+     "action": {
+      "prune": "results"
+     },
+     "expect": [
+      {
+       "crashed_survives": true
+      }
+     ],
+     "scope": "tools"
+    },
+    {
+     "id": "RET-13",
+     "setup": [
+      {
+       "equal_created": {
+        "root": "results",
+        "count": 3
+       }
+      }
+     ],
+     "action": {
+      "prune": "results",
+      "keep": 2
+     },
+     "expect": [
+      {
+       "remaining_names": "the last two by name, deterministic"
+      }
+     ],
+     "scope": "tools"
+    }
+   ],
+   "fixtures_hosts": [
+    {
+     "id": "HRET-01",
+     "scope": "host",
+     "setup": "foreign results/20261008T120000_reanalysis_backup/x.txt and foreign runs/0000_keep_this_analysis/x.txt",
+     "action": "the host does 60 runs",
+     "expect": "both foreign folders and x.txt intact"
+    },
+    {
+     "id": "HRET-02",
+     "scope": "host",
+     "setup": "done(60) owned results and done(120) owned run records already present",
+     "action": "the host does 5 runs",
+     "expect": "none of the old folders is gone (counts only grow)"
+    },
+    {
+     "id": "HRET-03",
+     "scope": "host",
+     "setup": "none",
+     "action": "one run",
+     "expect": "the folder has a valid .lc-owner.json (name equals folder name) and, after the run, a valid .lc-done.json with the right status"
+    },
+    {
+     "id": "HRET-04",
+     "scope": "host",
+     "setup": "prune replaced by a recorder, then by a command that fails",
+     "action": "one run each",
+     "expect": "the recorder saw labconstrictor-tools prune started after the done file exists; a failing command does not fail the run"
+    },
+    {
+     "id": "RET-10",
+     "scope": "host",
+     "setup": "job folder with report.txt ('data') returned as FileOut",
+     "action": "run to success, close the widget",
+     "expect": "reported path exists under results/, contents 'data'; job folder gone"
+    },
+    {
+     "id": "RET-11",
+     "scope": "host",
+     "setup": "failed or cancelled run",
+     "action": "finish",
+     "expect": "temporary job folder removed; an owned folder, if any, has failed / cancelled"
+    },
+    {
+     "id": "RET-14",
+     "scope": "host",
+     "setup": "undisplayable (over the display limit) ImageOut",
+     "action": "run",
+     "expect": "file stays at a stable owned path, the path is shown"
+    }
+   ],
+   "note": "fixtures_tools are executed by Tools against labconstrictor_tools.retention and the CLI; fixtures_hosts by every host with the prune subprocess replaced by a recorder"
+  },
+  "run_identity": {
+   "spec": "section 4",
+   "fixtures": [
+    {
+     "id": "RUN-01",
+     "sequence": "start on A (delayed tool), activate B, tool returns points",
+     "expect": "nothing on B; target_unavailable if A is gone, else points on A"
+    },
+    {
+     "id": "RUN-02",
+     "sequence": "start on A with a selection, change the selection during export",
+     "expect": "exported crop and mask are those of the click"
+    },
+    {
+     "id": "RUN-03",
+     "sequence": "start tool X, switch the widget to tool Y while running",
+     "expect": "result metadata app/tool are X's"
+    },
+    {
+     "id": "RUN-04",
+     "sequence": "start on A, close A",
+     "expect": "outputs kept, status names run_id and path, no exception"
+    },
+    {
+     "id": "RUN-05",
+     "sequence": "Napari: layer A is moved (translate changed) during the run",
+     "expect": "points follow A's transform at placement"
+    },
+    {
+     "id": "RUN-06",
+     "sequence": "two runs in a row on A then B",
+     "expect": "each result carries its own run_id and lands on its own source"
+    }
+   ]
+  },
+  "async_lookups": {
+   "spec": "section 5",
+   "fixtures": [
+    {
+     "id": "ASY-01",
+     "sequence": "tool A and B both have ChoicesFrom param mode; A's lookup is delayed; switch to B; release A",
+     "expect": "B's dropdown shows only B's choices; displayed choices and value checked"
+    },
+    {
+     "id": "ASY-02",
+     "sequence": "change the dependency of mode, release the old reply before the debounce fires",
+     "expect": "old reply dropped; mode is pending, not showing old choices"
+    },
+    {
+     "id": "ASY-03",
+     "sequence": "A's lookup fails after switch to B",
+     "expect": "no tooltip or error on any B field"
+    },
+    {
+     "id": "ASY-04",
+     "sequence": "change a dependency 50 times in 1 s",
+     "expect": "at most 1 in flight, at most 1 pending per param; worker processes started <= 1"
+    },
+    {
+     "id": "ASY-05",
+     "sequence": "two parameters each with ChoicesFrom, both lookups requested at once",
+     "expect": "one worker process; each reply goes to its own control"
+    },
+    {
+     "id": "ASY-06",
+     "sequence": "start a run, switch app, request a lookup",
+     "expect": "run uses its worker to the end; the lookup runs after, in the new app's worker"
+    },
+    {
+     "id": "ASY-07",
+     "sequence": "close the widget with a lookup in flight",
+     "expect": "no worker process or thread of the widget alive afterwards; no worker created after close survives"
+    },
+    {
+     "id": "ASY-08",
+     "sequence": "interleave acquire/release/reap/close from three threads with barriers",
+     "expect": "cache consistent (each worker owned once), no double close"
+    }
+   ],
+   "status": "limits marked default in limits.lookup_* are not yet confirmed"
+  },
+  "number_limits": {
+   "spec": "section 6",
+   "limits": [
+    "form_integer_max",
+    "unbounded_float"
+   ],
+   "cases": [
+    {
+     "id": "NUM-01",
+     "field": "integer, no Min/Max",
+     "typed": "9007199254740991",
+     "expect": "accepted; the request carries exactly that integer"
+    },
+    {
+     "id": "NUM-02",
+     "field": "integer, no Min/Max",
+     "typed": "9007199254740992",
+     "expect": "refused: 'L' must be <= 9007199254740991; never clamped (not 9007199254740991, not 2147483647); no run, no request"
+    },
+    {
+     "id": "NUM-03",
+     "field": "integer, no Min/Max",
+     "typed": "-9007199254740992",
+     "expect": "refused: 'L' must be >= -9007199254740991; never clamped; no run, no request"
+    },
+    {
+     "id": "NUM-04",
+     "field": "float, no Min/Max",
+     "typed": [
+      "1e15",
+      "1.0000000000000002e15"
+     ],
+     "expect": [
+      "accepted",
+      "refused"
+     ]
+    },
+    {
+     "id": "NUM-05",
+     "field": "integer with declared Max 10",
+     "typed": "11",
+     "expect": "refused (unchanged)"
+    }
+   ],
+   "hosts": [
+    "napari",
+    "fiji dialog",
+    "fiji macro",
+    "qupath",
+    "notebook"
+   ],
+   "cli": "the worker is the reference"
+  }
+ }
+}
