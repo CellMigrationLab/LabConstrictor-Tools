@@ -709,6 +709,43 @@ BREAKS = [
         "        print(path().parent)\n",
         unittest_slice("test_conformance.Loader.test_the_command_line_gives_the_path_and_validates"),
     ),
+    # ---- the notebook form's refusal of an integer beyond 2**53 - 1 (SPEC_WRONG_SCIENCE 6.2, NUM-02, NUM-03)
+    Break(
+        "notebook form: an integer above the limit gets the old sentence, not the template of 6.2",
+        "notebook.py",
+        '"\'%s\' must be <= %d" % (param["label"], MAX_FORM_INTEGER)',
+        '"\'%s\' is %d, beyond the limit" % (param["label"], MAX_FORM_INTEGER)',
+        unittest_slice(
+            "test_notebook_unset_and_range.UnsetAndRange.test_NUM_02_and_NUM_03_use_the_sentences_of_the_spec_and_start_no_run"
+        ),
+    ),
+    Break(
+        "notebook form: the sentence for an integer below the limit loses its minus sign",
+        "notebook.py",
+        '"\'%s\' must be >= %d" % (param["label"], -MAX_FORM_INTEGER)',
+        '"\'%s\' must be >= %d" % (param["label"], MAX_FORM_INTEGER)',
+        unittest_slice(
+            "test_notebook_unset_and_range.UnsetAndRange.test_NUM_02_and_NUM_03_use_the_sentences_of_the_spec_and_start_no_run"
+        ),
+    ),
+    Break(
+        "notebook form: the largest exact integer is refused",
+        "notebook.py",
+        'param["type"] == "integer" and value > MAX_FORM_INTEGER',
+        'param["type"] == "integer" and value >= MAX_FORM_INTEGER',
+        unittest_slice(
+            "test_notebook_unset_and_range.UnsetAndRange.test_NUM_01_the_largest_exact_integer_is_sent_unchanged"
+        ),
+    ),
+    Break(
+        "notebook form: an integer below the negative limit is accepted",
+        "notebook.py",
+        'param["type"] == "integer" and value < -MAX_FORM_INTEGER',
+        'param["type"] == "integer" and value < -MAX_FORM_INTEGER - 2**60',
+        unittest_slice(
+            "test_notebook_unset_and_range.UnsetAndRange.test_NUM_02_and_NUM_03_use_the_sentences_of_the_spec_and_start_no_run"
+        ),
+    ),
 ]
 
 
