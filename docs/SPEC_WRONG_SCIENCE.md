@@ -349,9 +349,12 @@ Decided by the maintainers:
 * A bare scale with default pixel units is unknown, never assumed um (2.1.2).
 * QuPath refuses an ROI on another plane and never switches the viewer (1.2.7).
 * Legacy unmarked folders are never auto-deleted (3.3).
-* **Hosts never prune.** Hosts write markers and start `labconstrictor-tools prune` in a subprocess; only Tools deletes (3.1).
+* **Hosts never prune.** Hosts write markers and start `labconstrictor-tools prune` in a subprocess; only Tools deletes (3.1). Final: the retention and hosts-prune-subprocess decisions (section 3) are not open for change in this wave.
 * Form integers up to +-(2^53-1), floats +-1e15; beyond is refused, never clamped (section 6).
 * The per-axis `_calibration` shape (x, y, z, t; phase 1 fills x, y) is final.
+* Decided (user, 12 Oct): a damaged micro sign (U+FFFD followed by `m`) is unknown with a warning, never read as micrometres (2.1.4).
+* Decided (user, 12 Oct): TIFF resolution tags equal to 72 or 96 dpi (within 0.5 %) with INCH units are unknown (2.1.6).
+* Decided (user, 12 Oct): the unknown-calibration rule applies to `TimeIntervalOf` and `ZStepOf` as well as `PixelSizeOf` (2.3.1; SPEC_WAVE2 1.4).
 
 Follow-up item: an explicit `labconstrictor-tools clean --legacy` command with a dry run (lists, then deletes only on confirmation). Not part of this wave.
 
@@ -364,5 +367,3 @@ Working decisions, **default, not yet confirmed**:
 6. Lookup limits: one in flight, 8 pending, 60 s timeout (section 5). (default, not yet confirmed)
 7. `prune` skips silently when it cannot take the lock, e.g. on a network share (3.5). (default, not yet confirmed)
 8. Napari snapshot identity is the object reference plus a still-in-`viewer.layers` check, not names or `unique_id` (section 4). (default, not yet confirmed)
-9. A damaged micro sign (U+FFFD + `m`) is unknown with a warning, not read as um (2.1.4). (default, not yet confirmed)
-10. TIFF resolution tags equal to 72 or 96 dpi (within 0.5 %) count as unknown (2.1.6). (default, not yet confirmed)
