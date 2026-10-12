@@ -6,6 +6,7 @@ labconstrictor-tools check --module M              validate a declaration module
 labconstrictor-tools doctor                        diagnose the installation (interpreters, schemas, staleness)
 labconstrictor-tools test --module M --cases F     run tools on samples and check the results (authors)
 labconstrictor-tools logs | support-bundle         the shared log file; a zip to attach to a bug report
+labconstrictor-tools prune [--root R] [--dry-run]  remove old result folders and run records (only ones LabConstrictor made)
 """
 
 import argparse
@@ -13,7 +14,6 @@ import importlib
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -21,7 +21,7 @@ from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
-from . import log, registry
+from . import log, registry, retention
 from .client import Task
 from .command import quote
 from .structures import AppSchema, ParamSchema, RegistryEntry, ToolSchema
@@ -119,7 +119,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     inputs = _parse_params(args.app, tool, args.params)
     if args.out:
         inputs["_job_dir"] = str(Path(args.out).resolve())
-    else:  # a known place instead of a random /tmp folder per run; the newest RESULTS_KEPT runs are kept
+    else:  # a known place instead of a random /tmp folder per run; `prune` keeps the newest RESULTS_KEPT finished ones
         inputs["_job_dir"] = str(_new_results_dir(args.app, tool["id"]))
     started = time.time()
     try:
@@ -132,17 +132,21 @@ def cmd_run(args: argparse.Namespace) -> int:
             record=not args.no_record,
         )
     except client.WorkerStartError as error:
+        if not args.out:
+            _finish_results_dir(inputs["_job_dir"], "failed")
         raise SystemExit("✖ %s" % error) from error
     except KeyboardInterrupt:  # Ctrl-C: the worker is closed by run_once's context manager; no traceback
         print("✖ interrupted; the worker was asked to stop", file=sys.stderr)
+        if not args.out:
+            _finish_results_dir(inputs["_job_dir"], "cancelled")
         return EXIT_INTERRUPTED
-    if task.status != "COMPLETE" and not args.out:
-        _remove_empty_job_dir(inputs["_job_dir"])
+    if not args.out:
+        _finish_results_dir(inputs["_job_dir"], _DONE_STATUS.get(task.status, "failed"))
     print(json.dumps(_run_report(task, round(time.time() - started, 2)), indent=2))
     if task.status == "COMPLETE" and not args.out:
         print(
             "(results are in %s - use --out DIR to choose where they go; the newest %d runs are kept)"
-            % (task.outputs["job_dir"], RESULTS_KEPT),
+            % (task.outputs["job_dir"], retention.RESULTS_KEPT),
             file=sys.stderr,
         )
     return 0 if task.status == "COMPLETE" else 1
@@ -162,11 +166,20 @@ def _parse_params(app: str, tool: ToolSchema, pairs: Iterable[str]) -> dict[str,
     return inputs
 
 
-def _remove_empty_job_dir(job_dir: str) -> None:
+_DONE_STATUS = {"COMPLETE": "ok", "CANCELED": "cancelled"}  # every other task status is "failed"
+
+
+def _finish_results_dir(job_dir: str, status: str) -> None:
+    """The run is over: a failed or cancelled run that wrote nothing leaves no folder, any other gets `.lc-done.json`, then the old ones are pruned.
+    Nothing here may fail the run (the person already has the result): a problem goes to the log."""
+    folder = Path(job_dir)
     try:
-        Path(job_dir).rmdir()  # only if it is empty: nothing was produced, nothing to keep
-    except OSError as error:  # not empty (or already gone): leave the folder, say so in the log
-        log.logger().debug("job folder %s was not removed: %s: %s", job_dir, type(error).__name__, error)
+        if status != "ok" and retention.discard_unused(folder):
+            return  # a run that failed or was cancelled before it wrote anything leaves no folder
+        retention.write_done(folder, status)
+        retention.prune("results")
+    except Exception as error:  # noqa: BLE001 - a retention problem must never fail or hide a finished run
+        log.warning("could not finish the results folder %s (%s: %s)", folder, type(error).__name__, error)
 
 
 def _run_report(task: Task, seconds: float) -> dict[str, Any]:
@@ -184,7 +197,6 @@ def _run_report(task: Task, seconds: float) -> dict[str, Any]:
     return report
 
 
-RESULTS_KEPT = 20  # result folders of `run` that are kept; older ones are removed
 RESULTS_DIR_ATTEMPTS = 20  # tries to find an unused results folder name before giving up
 RESULTS_DIR_RANDOM_BYTES = 3  # random part of a results folder name (two runs in one second never collide)
 LIVE_SCHEMA_TIMEOUT_S = 120  # doctor: how long an app's own interpreter gets to describe its tools
@@ -194,31 +206,16 @@ SLOW_DECLARATIONS_S = 0.5  # check: warn when importing the declarations takes l
 EXIT_INTERRUPTED = 130  # shell convention for Ctrl-C: 128 + SIGINT
 
 
-_RUN_FOLDER = re.compile(
-    r"^\d{8}T\d{6}_"
-)  # what _new_results_dir creates: nothing else in results/ is ever pruned
-
-
 def _slug(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", text).lstrip(".") or "x"
 
 
 def _new_results_dir(app: str, tool_id: str) -> Path:
-    """<LC_HOME>/results/<time>_<id>_<app>_<tool>, created here (two runs in the same second never share a folder).
-    Older run folders beyond RESULTS_KEPT are removed; only folders this command created (by name) are ever touched.
+    """<LC_HOME>/results/<time>_<id>_<app>_<tool>, created here with its owner marker (two runs in the same second never share
+    a folder). Nothing is removed here: `prune` does that after the run, and only folders that carry a marker.
     """
     base = registry.home() / "results"
     base.mkdir(parents=True, exist_ok=True)
-    folders = sorted(
-        p for p in base.iterdir() if p.is_dir() and not p.is_symlink() and _RUN_FOLDER.match(p.name)
-    )
-    for old in folders[: max(0, len(folders) - (RESULTS_KEPT - 1))]:
-        try:
-            shutil.rmtree(old)
-        except OSError as error:
-            log.warning(
-                "could not remove the old results folder %s (%s: %s)", old, type(error).__name__, error
-            )
     for _ in range(RESULTS_DIR_ATTEMPTS):
         name = "%s_%s_%s_%s" % (
             time.strftime("%Y%m%dT%H%M%S"),
@@ -233,6 +230,7 @@ def _new_results_dir(app: str, tool_id: str) -> Path:
             continue
         if folder.resolve().parent != base.resolve():
             raise SystemExit("refusing to write results outside %s: %s" % (base, folder))
+        retention.write_owner(folder, "result", "cli")
         return folder
     raise SystemExit("could not create a results folder in %s" % base)
 
@@ -242,6 +240,15 @@ def _print_progress(message: str, fraction: float | None) -> None:
         "[ ?%]" if fraction is None else "[%3d%%]" % round(100 * fraction)
     )  # None = indeterminate, not 0 %
     print("%s %s" % (shown, message), file=sys.stderr)
+
+
+# ---------------------------------------------------------------- prune
+def cmd_prune(args: argparse.Namespace) -> int:
+    """Hosts start this in a subprocess after a run (SPEC_WRONG_SCIENCE 3). Exit 0 also when nothing could be done because
+    another prune holds the lock; 1 when a folder that should go could not be removed."""
+    report = retention.prune(args.root, dry_run=args.dry_run)
+    print(json.dumps(report.as_dict(), indent=2) if args.json else report.text())
+    return 0 if report.ok else 1
 
 
 # ---------------------------------------------------------------- check (for authors)

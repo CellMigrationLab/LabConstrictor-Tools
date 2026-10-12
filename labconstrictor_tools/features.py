@@ -8,4 +8,5 @@ and a missing `features` list as "unknown/old".
 
 FEATURES: dict[str, str] = {
     "reserved_inputs_v1": "the worker accepts and ignores reserved underscore inputs it does not know (_job_dir, _calibration, _axes, ...)",
+    "retention_prune": "the CLI command `prune` and the `retention` module: only marker-owned, finished folders under results/ and runs/ are removed (hosts only mark a run finished)",
 }
