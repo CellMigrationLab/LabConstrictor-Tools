@@ -15,7 +15,7 @@ To try the bridge, install [LabConstrictor Playground](https://github.com/CellMi
 With an installed and registered LabConstrictor application, you can also:
 
 - **Fiji:** run analysis on an open image, choose a channel, use a selection as a region, and receive images, ROIs or tables. [Fiji bridge](https://github.com/CellMigrationLab/LabConstrictor-Fiji)
-- **Napari:** run tools from a dock widget using image layers or files, and receive new layers and measurements. [Napari plugin](https://github.com/CellMigrationLab/napari-labconstrictor)
+- **Napari:** run tools from a dock widget using image layers or files, and receive new layers and measurements. [Napari plugin](https://github.com/CellMigrationLab/LabConstrictor-napari)
 - **QuPath:** run analysis on a selected annotation or viewport, then place returned points and outlines at their original slide coordinates. [QuPath extension](https://github.com/CellMigrationLab/LabConstrictor-QuPath)
 - **Command line:** run the same registered tools in a script or batch workflow.
 

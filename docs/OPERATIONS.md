@@ -2,7 +2,7 @@
 
 ## Install
 * Each app environment needs `labconstrictor-tools` (standard library only, no dependencies).
-* Napari (nothing is on PyPI yet): `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip https://github.com/CellMigrationLab/napari-labconstrictor/archive/refs/heads/main.zip` in the napari environment (source archives: no `git` program needed; `git+https://github.com/...` works too if you have git). Plugins > LabConstrictor tools.
+* Napari (nothing is on PyPI yet): `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/heads/main.zip` in the napari environment (source archives: no `git` program needed; `git+https://github.com/...` works too if you have git). Plugins > LabConstrictor tools.
 * Fiji (no release or update site yet): either copy `LabConstrictor_Tools.groovy` (keep the underscore: Fiji lists a script in its menus only when its name contains one) from the Fiji repository (`src/main/resources/org/cellmigrationlab/labconstrictor/`) to `Fiji.app/scripts/Plugins/LabConstrictor/` (no build), or build the jar with `mvn package` and copy `target/labconstrictor-fiji-<version>.jar` to `Fiji.app/plugins/`, then restart: Plugins > LabConstrictor > LabConstrictor Tools... (jar) or Plugins > LabConstrictor > LabConstrictor Tools (script). The macro recorder needs the jar.
 * Fiji and Napari never import an app's packages, so apps with conflicting dependencies can coexist.
 
@@ -32,7 +32,7 @@ Files that must change in the apps (the template-repository change is a later ta
 | `labconstrictor-playground` | `notebooks/LabConstrictorPlayground/LabConstrictorPlayground.ipynb` (the `!pip install -q ...main.zip` cell) | the same URL |
 | `NucleiSky`, `CellTracksColab` | `app/bash_bat_scripts/post_install.sh` and `.bat` once their bridge PRs are merged (not present on `main` of the local clones when this was written) | the same |
 | `LabConstrictor` (template) | `app/bash_bat_scripts/post_install.sh` and `.bat` of the template, so new apps start pinned | the same (later task) |
-| docs and READMEs that tell people to `pip install` Tools | `LabConstrictor-Tools/README.md` (about line 35), `napari-labconstrictor/README.md` (about 13), `labconstrictor-vlab4mic/README.md` (about 56), `docs/OPERATIONS.md` Install, above | say `refs/tags/<tag>.zip` (or keep `main` and label it "development version") |
+| docs and READMEs that tell people to `pip install` Tools | `LabConstrictor-Tools/README.md` (about line 35), `LabConstrictor-napari/README.md` (about 13), `labconstrictor-vlab4mic/README.md` (about 56), `docs/OPERATIONS.md` Install, above | say `refs/tags/<tag>.zip` (or keep `main` and label it "development version") |
 
 ## Many apps, many users, network shares
 * Any number of apps can be registered; hosts list them all. Same name registered twice: the higher-priority directory wins

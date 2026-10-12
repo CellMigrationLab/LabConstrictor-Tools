@@ -5,7 +5,7 @@ The project has a shared Python toolkit, host-specific interfaces and applicatio
 | Repository | What it contains |
 |---|---|
 | [LabConstrictor-Tools](https://github.com/CellMigrationLab/LabConstrictor-Tools) | Python declarations (`@tool`, types and annotations), schema generation, registry, worker, CLI, notebook helpers, diagnostics and tests |
-| [napari-labconstrictor](https://github.com/CellMigrationLab/napari-labconstrictor) | Napari dock widget, layer conversion and presentation of results |
+| [LabConstrictor-napari](https://github.com/CellMigrationLab/LabConstrictor-napari) | Napari dock widget, layer conversion and presentation of results |
 | [LabConstrictor-Fiji](https://github.com/CellMigrationLab/LabConstrictor-Fiji) | Fiji menu command, SciJava forms, ImageJ ROI handling and Appose-based worker connection |
 | [LabConstrictor-QuPath](https://github.com/CellMigrationLab/LabConstrictor-QuPath) | QuPath extension, image-area export, annotation coordinates and result presentation |
 | [LabConstrictor-Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground) | An installable test application: diagnostics, synthetic image analysis and deliberately difficult cases for hosts |

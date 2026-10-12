@@ -10,7 +10,7 @@ The tool runs in the app's own Python environment, in a separate process. Your i
 ## Three steps
 
 1. **Install the app** you want to use. The installer registers the app on your computer, which is how the plugins find it.
-2. **Install the plugin** for your software: [napari](https://github.com/CellMigrationLab/napari-labconstrictor/blob/main/docs/user-guide.md), [Fiji](https://github.com/CellMigrationLab/LabConstrictor-Fiji/blob/main/docs/user-guide.md) or [QuPath](https://github.com/CellMigrationLab/LabConstrictor-QuPath/blob/main/docs/user-guide.md).
+2. **Install the plugin** for your software: [napari](https://github.com/CellMigrationLab/LabConstrictor-napari/blob/main/docs/user-guide.md), [Fiji](https://github.com/CellMigrationLab/LabConstrictor-Fiji/blob/main/docs/user-guide.md) or [QuPath](https://github.com/CellMigrationLab/LabConstrictor-QuPath/blob/main/docs/user-guide.md).
 3. **Open it**:
    - [napari](https://napari.org): Plugins > LabConstrictor tools
    - [Fiji](https://fiji.sc): Plugins > LabConstrictor > LabConstrictor Tools...
