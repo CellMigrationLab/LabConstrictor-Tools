@@ -61,7 +61,7 @@ def speed(
 | Unit | um/px | **seconds** | **micrometres** |
 | Prefill from | layer scale / calibration | Fiji `frameInterval`, OME `TimeIncrement`, QuPath server `getTimeUnit`, Napari layer `scale[T]` | Fiji `pixelDepth`, OME `PhysicalSizeZ`, QuPath `getZSpacingMicrons`, Napari `scale[Z]` |
 * Declaration rules: applies to a `float` (or `Optional[float]`) parameter and names an `Image` / `Labels` parameter of the same tool whose `Axes` contain `T` (resp. `Z`) or that has no `Axes`. Error: `parameter 'dt': TimeIntervalOf('movie') needs 'movie' to have a T axis (its Axes are 'YX')`.
-* Hosts convert to the fixed units above (Fiji `frameInterval` in `timeUnit` -> s; QuPath minutes/ms -> s). Unknown or zero calibration: the parameter keeps its default and the host shows "not calibrated" in the tooltip; it never sends 0.
+* Hosts convert to the fixed units above (Fiji `frameInterval` in `timeUnit` -> s; QuPath minutes/ms -> s). Unknown or zero calibration: the host shows "not calibrated" in the tooltip and never sends 0. **Amended by [SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) 2.3:** for a linked `PixelSizeOf` field the declared default is not used as a stand-in; the run is blocked until a value is entered (an `Optional[float]` sends null). `TimeIntervalOf` and `ZStepOf` follow the same rule.
 * `Unit("s")` / `Unit("um")` stay free text for display; the units in the table are the contract.
 
 ### 1.5 What a tool returns for stacks

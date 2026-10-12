@@ -1,6 +1,6 @@
 # Spec (proposal): the "wrong-science" fix wave
 
-Status: **for review, nothing is implemented.** Same conventions as [SPEC_WAVE2.md](SPEC_WAVE2.md) and [HOST_PARITY.md](HOST_PARITY.md): additive within `protocol: 1`, rules are host-neutral, a rule is "done" when its fixtures pass in every host that claims the feature. The fixtures below are data, meant to live in `labconstrictor_tools/conformance.json` under the key `wrong_science` and to be reused by the conformance suite (Tools #87).
+Status: **for review, nothing is implemented.** Maintainer decisions are recorded in section 7. Same conventions as [SPEC_WAVE2.md](SPEC_WAVE2.md) and [HOST_PARITY.md](HOST_PARITY.md): additive within `protocol: 1`, rules are host-neutral, a rule is "done" when its fixtures pass in every host that claims the feature. The fixtures below are data, meant to live in `labconstrictor_tools/conformance.json` under the key `wrong_science` and to be reused by the conformance suite (Tools #87).
 
 These rules exist because a tool run can succeed and still be scientifically wrong: a mask on the wrong pixels, a result drawn away from its image, a pixel size from another image, a researcher's folder deleted. Each host fixes its own code, but all of them implement **the same rule**, so a fix in one host cannot leave another one behind.
 
@@ -303,18 +303,19 @@ All use a temporary `LC_HOME`; every survivor is checked **by file contents** (a
 2. One PR per host, each closing the issues in the table at the top, each running the fixtures of its themes through a real GUI or harness (never only the helper function).
 3. Tools #87 imports `wrong_science` as its first known-answer fixtures; Napari #31-#38, Fiji #26-#30 and QuPath #14-#21 become regressions when fixed.
 
-## 7. Open questions for the maintainers (recommended answers)
-1. **A linked `PixelSizeOf` field with a declared default and an unknown source: block or use the default?** Recommended: block (2.3.1). This changes SPEC_WAVE2 1.4 ("keeps its default"), which would be amended; authors who want a fallback use `Optional[float] = None`.
-2. **A bare scale with default pixel units (for example `0.25`, no units).** Recommended: unknown, never um (2.1.2). This is stricter than today's Napari behaviour; a user who knows it is um enters it once (state `user`).
-3. **Do we add the reserved input `_calibration`?** Recommended: yes, additive, tools never see it, it makes the request testable and the run record honest. Alternative: only host-side tests of the form value.
-4. **QuPath ROI on a plane other than the viewer's: refuse (decided) or switch the viewer?** Recommended: refuse with a clear message. Switching planes behind the person's back is a bigger surprise than one extra click.
-5. **Fiji with a file source: open the file in a window (decided) or table only?** Recommended: open it, as it is cheap in Fiji; QuPath cannot, and uses table plus file.
-6. **Napari with a file source: pixel-frame layer (decided) or also add the file as an image layer?** Recommended: pixel-frame layer only; adding layers the person did not ask for is intrusive.
-7. **Napari lower-dimensional results on N-D sources.** Recommended: allowed only when dropped axes do not move the plane (1.3 note), else refuse. Needs the Wave 2 time-lapse work to confirm how 2D results on `TYX` layers are placed.
-8. **Legacy (unmarked) folders from earlier versions are never auto-deleted** (3.1). Up to 19 results and 49 run records per installation stay for ever. Recommended: accept, and add an explicit `labconstrictor-tools clean --legacy` later, with a dry run. Alternative: adopt legacy folders on first prune by writing a marker (this deletes unknown folders and is not recommended).
-9. **Crashed runs never auto-deleted** (3.3.4). Recommended: accept; disk growth is bounded by crash frequency and the person can list them with the later command.
-10. **Retention counts only eligible folders**, so foreign and active folders do not count against the quota. Recommended: yes; the alternative (count everything) lets a researcher's own folders evict LabConstrictor results.
-11. **Lookup limits (one in flight, 8 pending, 60 s).** Recommended: as written; tune after the first slow `ChoicesFrom` in a real app.
-12. **Is the Java hosts' port of `retention` acceptable instead of a shared binary?** Recommended: yes, with the RET fixtures as the contract. A shared helper executable would add a dependency to Fiji and QuPath.
-13. **Where does the prune lock live if `LC_HOME` is on a network share?** Recommended: not supported for retention (file locks are unreliable there); hosts skip pruning when the lock cannot be verified.
-14. **Napari `Layer.unique_id`/object identity for the snapshot.** Recommended: object reference plus a check that it is still in `viewer.layers`; no reliance on names.
+## 7. Decisions and follow-ups
+Decided by the maintainers: a linked pixel-size field with an unknown source blocks the run (2.3.1; SPEC_WAVE2 1.4 amended); a bare scale with default pixel units is unknown, never um (2.1.2); QuPath refuses an ROI on another plane and never switches the viewer (1.2.7); legacy unmarked folders are never auto-deleted (3.1).
+
+Follow-up item: an explicit `labconstrictor-tools clean --legacy` command with a dry run (lists, then deletes only on confirmation). Not part of this wave.
+
+Working decisions, **default, not yet confirmed** (open for the maintainers to change):
+1. `_calibration` reserved input is added (2.3.4), additive; tools never see it. (default, not yet confirmed)
+2. Fiji with a file source opens the file in its own window; QuPath uses table plus file (1.3). (default, not yet confirmed)
+3. Napari with a file source: pixel-frame layer only, no extra image layer (1.3). (default, not yet confirmed)
+4. Napari lower-dimensional results on N-D sources only when dropped axes do not move the plane; confirm against the Wave 2 time-lapse work (1.3). (default, not yet confirmed)
+5. Crashed runs (no `.lc-done.json`) are never auto-deleted (3.3.4). (default, not yet confirmed)
+6. Retention quota counts only eligible folders (3.2.1). (default, not yet confirmed)
+7. Lookup limits: one in flight, 8 pending, 60 s timeout (section 5). (default, not yet confirmed)
+8. Java hosts port `retention` line by line, governed by the RET fixtures; no shared helper binary (3.3.3). (default, not yet confirmed)
+9. `LC_HOME` on a network share: hosts skip pruning when the lock cannot be verified. (default, not yet confirmed)
+10. Napari snapshot identity is the object reference plus a still-in-`viewer.layers` check, not names or `unique_id` (section 4). (default, not yet confirmed)
