@@ -616,9 +616,7 @@ def _ring(name: str, number: int, vertices: Any, ring_name: str = "polygon") -> 
 
 
 def _check_geojson(name: str, collection: Any) -> None:
-    """A GeoJSON FeatureCollection of Polygon / MultiPolygon features with finite coordinates; anything else is refused."""
-    import math
-
+    """A GeoJSON FeatureCollection of Polygon / MultiPolygon features with well-formed rings (docs/PROTOCOL.md, "Shapes"); anything else is refused."""
     if (
         not isinstance(collection, dict)
         or collection.get("type") != "FeatureCollection"
@@ -630,11 +628,6 @@ def _check_geojson(name: str, collection: Any) -> None:
             % name,
         )
 
-    def finite(node: Any) -> bool:
-        if isinstance(node, (int, float)) and not isinstance(node, bool):
-            return math.isfinite(node)
-        return isinstance(node, (list, tuple)) and all(finite(x) for x in node)
-
     for i, feature in enumerate(collection["features"]):
         geometry: Any = feature.get("geometry") if isinstance(feature, dict) else None
         kind = geometry.get("type") if isinstance(geometry, dict) else None
@@ -644,11 +637,52 @@ def _check_geojson(name: str, collection: Any) -> None:
                 "the shapes output '%s': feature %d is a %s; only Polygon and MultiPolygon are supported"
                 % (name, i, kind or "geometry-less feature"),
             )
-        if not finite(geometry.get("coordinates")):
+        coordinates = geometry.get("coordinates")
+        polygons = [coordinates] if kind == "Polygon" else coordinates
+        where = "the shapes output '%s': feature %d (%s)" % (name, i, kind)
+        if not isinstance(polygons, (list, tuple)) or not polygons:
             raise ToolError(
                 "bad_return",
-                "the shapes output '%s': feature %d has a coordinate that is not a finite number" % (name, i),
+                "%s has no coordinates: a Polygon is a list of rings and a MultiPolygon a list of polygons; "
+                "an empty result is a FeatureCollection without features" % where,
             )
+        for j, polygon in enumerate(polygons):
+            label = where if kind == "Polygon" else "%s, polygon %d" % (where, j)
+            if not isinstance(polygon, (list, tuple)) or not polygon:
+                raise ToolError(
+                    "bad_return",
+                    "%s needs a non-empty list of rings (outer boundary first, then holes)" % label,
+                )
+            for k, ring in enumerate(polygon):
+                _check_geojson_ring("%s, ring %d" % (label, k), ring)
+
+
+def _check_geojson_ring(where: str, ring: Any) -> None:
+    """A GeoJSON ring: a closed list of finite [x, y] positions with at least 3 distinct vertices (the contract of `_ring`)."""
+    import math
+
+    if not isinstance(ring, (list, tuple)):
+        raise ToolError("bad_return", "%s must be a list of [x, y] positions" % where)
+    for position in ring:
+        if (
+            not isinstance(position, (list, tuple))
+            or len(position) != 2
+            or any(isinstance(v, bool) or not isinstance(v, (int, float)) for v in position)
+        ):
+            raise ToolError(
+                "bad_return",
+                "%s has a position that is not an [x, y] pair of numbers: %r" % (where, position),
+            )
+        if not all(math.isfinite(v) for v in position):
+            raise ToolError("bad_return", "%s has a coordinate that is not a finite number" % where)
+    if len(ring) < 4:
+        raise ToolError(
+            "bad_return", "%s has %d positions: a closed ring needs at least 4" % (where, len(ring))
+        )
+    if list(ring[0]) != list(ring[-1]):
+        raise ToolError("bad_return", "%s is not closed: its last position must equal its first" % where)
+    if len({tuple(position) for position in ring[:-1]}) < 3:
+        raise ToolError("bad_return", "%s has fewer than 3 distinct vertices" % where)
 
 
 def _write_shapes(name: str, value: Any, job_dir: Path, display: dict[str, str]) -> Result:
