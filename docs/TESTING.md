@@ -45,6 +45,21 @@ transports that can carry it (`Case.paths`).
 Run a slice: `LC_ROUNDTRIP_FILTER='echo_bounded' python -m unittest test_roundtrip_matrix` (a regular expression on case ids),
 `python -m unittest test_roundtrip_properties -k identity`.
 
+## What runs when
+
+| Trigger | Workflow | What runs |
+|---|---|---|
+| Pull request | `ci` | `lint`, then 4 test jobs: ubuntu 3.10, ubuntu 3.12 (coverage floor 85), windows 3.12 (plus the Windows-specific suite), macos 3.12 |
+| Push to `main`, manual dispatch, nightly (03:17 UTC) | `ci` | `lint`, then the full 3 OS x {3.10, 3.12} matrix, so Windows and macOS on 3.10 are still covered, at the latest the next night |
+| Nightly (02:41 UTC), manual dispatch | `nightly` | heavy round-trip profile on 3 OS, mutation testing |
+| Manual, or pushes to their own branches | `smoke`, `smoke_install` | end-to-end and install smoke tests (unchanged) |
+
+Why: a PR branch push used to run both the `push` and the `pull_request` trigger, each with 6 test jobs, and a superseded push kept
+running. Now `push` is limited to `main`, a newer push to the same ref cancels the older run (never on `main`), the test jobs wait for
+`lint` (about 30 s) so a lint failure costs one runner instead of six, and the PR matrix drops only the combinations where a 3.10-only
+or 3.12-only difference is rare (Windows/macOS 3.10). Every job has `timeout-minutes: 60` and pip is cached. The matrix choice is the
+`include` expression in `ci.yml`.
+
 ## How to add a case
 
 1. A new **value** of an existing type: add a row to the generator of that type in `tests/roundtrip_cases.py` (for instance an entry
