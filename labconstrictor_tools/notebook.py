@@ -163,11 +163,14 @@ class ToolForm:
             if name in self.set_toggles and not self.set_toggles[name].value:
                 continue  # optional and not set: the tool receives None
             value = self.controls[name].value
-            if param["type"] == "integer" and abs(value) > MAX_FORM_INTEGER:
+            # the refusal sentences are the templates of SPEC_WRONG_SCIENCE 6.2 (conformance.json: number_above_maximum, number_below_minimum)
+            if param["type"] == "integer" and value > MAX_FORM_INTEGER:
                 raise T.ToolError(
-                    "invalid_parameter",
-                    "'%s' is %d, beyond the +-%d the form can hold exactly: type a smaller number, or run the tool "
-                    "from the command line or a snippet" % (param["label"], value, MAX_FORM_INTEGER),
+                    "invalid_parameter", "'%s' must be <= %d" % (param["label"], MAX_FORM_INTEGER)
+                )
+            if param["type"] == "integer" and value < -MAX_FORM_INTEGER:
+                raise T.ToolError(
+                    "invalid_parameter", "'%s' must be >= %d" % (param["label"], -MAX_FORM_INTEGER)
                 )
             if param["type"] in ("image", "labels", "table", "file", "folder") and not str(value).strip():
                 continue
