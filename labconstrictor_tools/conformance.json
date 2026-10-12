@@ -221,6 +221,19 @@
     "dtype": "uint16",
     "value": "100*y + x"
    },
+   "axis_order": {
+    "decision": "SPEC_WRONG_SCIENCE section 8 (confirmed): a rect region is [y, x], like the image arrays; protocol shapes stay [x, y] (GeoJSON)",
+    "rect": "[y, x] per vertex",
+    "points": "[y, x]",
+    "protocol_shapes": "[x, y] (GeoJSON)",
+    "image_shape": "[rows, columns]",
+    "export_shape": "[rows, columns]",
+    "offset_yx": "[y, x]",
+    "c_yx": "[y, x]",
+    "server_wh": "[width, height] (the one place that is not y first; server_shape_yx gives the same size as [rows, columns])",
+    "server_shape_yx": "[rows, columns] = server_wh reversed",
+    "selection_annotation": "keyed: x is [x0, x1], y is [y0, y1], in full-resolution pixels"
+   },
    "rect": [
     [
      1.5,
@@ -542,6 +555,10 @@
       "server_wh": [
        12,
        8
+      ],
+      "server_shape_yx": [
+       8,
+       12
       ]
      },
      "selection_annotation": {
@@ -711,6 +728,10 @@
         24,
         16
        ],
+       "server_shape_yx": [
+        16,
+        24
+       ],
        "downsample": 2,
        "offset_yx": [
         0,
@@ -736,6 +757,10 @@
         48,
         32
        ],
+       "server_shape_yx": [
+        32,
+        48
+       ],
        "downsample": 4,
        "offset_yx": [
         0,
@@ -760,6 +785,10 @@
        "server_wh": [
         48,
         32
+       ],
+       "server_shape_yx": [
+        32,
+        48
        ],
        "downsample": 2,
        "offset_yx": [
@@ -805,26 +834,87 @@
   },
   "calibration": {
    "unit": "um per pixel",
-   "length_units_um": {
-    "um": 1.0,
-    "micron": 1.0,
-    "microns": 1.0,
-    "micrometer": 1.0,
-    "micrometre": 1.0,
-    "micrometers": 1.0,
-    "micrometres": 1.0,
-    "nm": 0.001,
-    "mm": 1000.0,
-    "millimeter": 1000.0,
-    "millimetre": 1000.0,
-    "cm": 10000.0,
-    "m": 1000000.0,
-    "Angstrom": 0.0001,
-    "angstrom": 0.0001,
-    "\u00c5": 0.0001,
-    "\u212b": 0.0001,
-    "\u00b5m": 1.0,
-    "\u03bcm": 1.0
+   "length_units": {
+    "nm": {
+     "um_per_unit": 0.001,
+     "symbols": [
+      "nm"
+     ],
+     "words": [
+      "nanometer",
+      "nanometers",
+      "nanometre",
+      "nanometres"
+     ]
+    },
+    "um": {
+     "um_per_unit": 1.0,
+     "symbols": [
+      "um",
+      "\u00b5m",
+      "\u03bcm"
+     ],
+     "words": [
+      "micron",
+      "microns",
+      "micrometer",
+      "micrometers",
+      "micrometre",
+      "micrometres"
+     ]
+    },
+    "mm": {
+     "um_per_unit": 1000.0,
+     "symbols": [
+      "mm"
+     ],
+     "words": [
+      "millimeter",
+      "millimeters",
+      "millimetre",
+      "millimetres"
+     ]
+    },
+    "cm": {
+     "um_per_unit": 10000.0,
+     "symbols": [
+      "cm"
+     ],
+     "words": [
+      "centimeter",
+      "centimeters",
+      "centimetre",
+      "centimetres"
+     ]
+    },
+    "m": {
+     "um_per_unit": 1000000.0,
+     "symbols": [
+      "m"
+     ],
+     "words": [
+      "meter",
+      "meters",
+      "metre",
+      "metres"
+     ]
+    },
+    "angstrom": {
+     "um_per_unit": 0.0001,
+     "symbols": [
+      "\u00c5",
+      "\u212b"
+     ],
+     "words": [
+      "angstrom",
+      "angstroms"
+     ]
+    }
+   },
+   "unit_match": {
+    "rule": "symbols (m, nm, um, mm, cm, the micro-sign forms, the Angstrom signs) are matched as exact text: case-sensitive, nothing trimmed; words are matched case-insensitively after trimming surrounding whitespace; a words entry is written lower case and trimmed; text that matches nothing is an unknown unit and means unknown calibration; U+FFFD followed by m is never accepted (damaged_micro_prefix)",
+    "canonical": "um",
+    "how_to_add": "docs/CONFORMANCE.md, 'How to add a unit'"
    },
    "micro_sign_spellings": [
     "\u00b5",
@@ -1271,6 +1361,104 @@
       ],
       "note": "difference 8e-4 is within 1e-3 (mean of x and y); 1.2e-3 is not (unknown + warning)"
      }
+    },
+    {
+     "id": "CAL-19",
+     "source": "scale 1.0 with each name of unit_match_refused (not in the catalog: case variants and spaced forms of symbols, plurals of symbols, words split by a space, inch, pixel, kilometer, ...)",
+     "input": {
+      "scale": 1.0,
+      "units_from": "unit_match_refused"
+     },
+     "expect": {
+      "um_per_px_each": [
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown"
+      ]
+     }
+    },
+    {
+     "id": "CAL-20",
+     "source": "words are case-insensitive and trimmed: Micron, ' MILLIMETER ', Angstroms, Centimetres, METER, scale 1.0",
+     "input": {
+      "variants": [
+       {
+        "scale": 1.0,
+        "unit": "Micron"
+       },
+       {
+        "scale": 1.0,
+        "unit": " MILLIMETER "
+       },
+       {
+        "scale": 1.0,
+        "unit": "Angstroms"
+       },
+       {
+        "scale": 1.0,
+        "unit": "Centimetres"
+       },
+       {
+        "scale": 1.0,
+        "unit": "METER"
+       }
+      ]
+     },
+     "expect": {
+      "um_per_px_each": [
+       1.0,
+       1000.0,
+       0.0001,
+       10000.0,
+       1000000.0
+      ]
+     }
     }
    ],
    "transitions": [
@@ -1319,6 +1507,57 @@
      "sequence": "user types 0.25 equal to the last auto value, then switch to uncalibrated B",
      "expect": "stays 0.25, source user (flag, not comparison)"
     }
+   ],
+   "unit_match_refused": [
+    "UM",
+    "Um",
+    "uM",
+    "NM",
+    "Nm",
+    "MM",
+    "Mm",
+    "CM",
+    "Cm",
+    "M",
+    "ms",
+    " um",
+    "um ",
+    "nm ",
+    "mm ",
+    " m",
+    "m ",
+    "\u00b5m ",
+    " \u00b5m",
+    "\u00b5 m",
+    "\u03bc m",
+    "u m",
+    "\u00c5 ",
+    "\u00e5",
+    "ums",
+    "nms",
+    "mms",
+    "cms",
+    "micro meter",
+    "micro metre",
+    "milli meter",
+    "micrometerss",
+    "micro-meter",
+    "inch",
+    "inches",
+    "in",
+    "pixel",
+    "px",
+    "foot",
+    "second",
+    "kilometer",
+    "km",
+    "pm",
+    "picometer",
+    "\ufffdm",
+    " nm",
+    " mm",
+    " cm",
+    "cm "
    ]
   },
   "retention": {

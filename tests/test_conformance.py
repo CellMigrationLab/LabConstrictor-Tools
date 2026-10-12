@@ -184,9 +184,51 @@ class Schema(unittest.TestCase):
                 lambda d: d["wrong_science"]["calibration"]["cases"][0].update(expect={}),
                 "needs expect.um_per_px",
             ),
-            "unit table": (
-                lambda d: d["wrong_science"]["calibration"]["length_units_um"].update(um=0),
-                "positive um per unit",
+            "unit factor": (
+                lambda d: d["wrong_science"]["calibration"]["length_units"]["um"].update(um_per_unit=0),
+                "needs a positive um_per_unit",
+            ),
+            "unit without names": (
+                lambda d: d["wrong_science"]["calibration"]["length_units"]["um"].update(symbols="um"),
+                "must be a list of non-empty text",
+            ),
+            "duplicate symbol": (
+                lambda d: d["wrong_science"]["calibration"]["length_units"]["mm"]["symbols"].append("um"),
+                "listed for both",
+            ),
+            "duplicate word, other case": (
+                lambda d: d["wrong_science"]["calibration"]["length_units"]["cm"]["words"].append("micron"),
+                "listed for both",
+            ),
+            "a word that is not lower case": (
+                lambda d: d["wrong_science"]["calibration"]["length_units"]["cm"]["words"].append("Zoll"),
+                "must be trimmed and lower case",
+            ),
+            "a symbol with a space": (
+                lambda d: d["wrong_science"]["calibration"]["length_units"]["cm"]["symbols"].append("cm "),
+                "must be trimmed",
+            ),
+            "a symbol that is a word of another unit": (
+                lambda d: d["wrong_science"]["calibration"]["length_units"]["cm"]["symbols"].append("Metre"),
+                "is also a word of",
+            ),
+            "damaged micro sign accepted": (
+                lambda d: d["wrong_science"]["calibration"]["length_units"]["um"]["symbols"].append(
+                    "\ufffdm"
+                ),
+                "never start with U+FFFD",
+            ),
+            "unknown canonical unit": (
+                lambda d: d["wrong_science"]["calibration"]["unit_match"].update(canonical="micrometre"),
+                "unit_match.canonical must name",
+            ),
+            "canonical unit that is not the base": (
+                lambda d: d["wrong_science"]["calibration"]["unit_match"].update(canonical="mm"),
+                "unit_match.canonical must name",
+            ),
+            "no catalog": (
+                lambda d: d["wrong_science"]["calibration"].pop("length_units"),
+                "length_units: must be a non-empty object",
             ),
             "retention scope": (
                 lambda d: d["wrong_science"]["retention"]["fixtures_tools"][0].update(scope="host"),
@@ -349,6 +391,66 @@ class CoordinateData(unittest.TestCase):
             rotated, [[float(a), float(b)] for a, b in self.cases["CF-04"]["shapes_layer"]["vertices_world"]]
         )
 
+    def test_a_rect_is_y_then_x_like_the_image_arrays(self):
+        coordinate = WRONG["coordinate"]
+        rows, columns = coordinate["image"]["shape"]
+        rect = coordinate["rect"]
+        self.assertIn("[y, x]", coordinate["axis_order"]["rect"])
+        self.assertIn("[x, y]", coordinate["axis_order"]["protocol_shapes"])
+        # read as [y, x] the vertices give the listed mask; read as [x, y] (swapped) they would give another one
+        as_yx = [[y, x] for y in range(rows) for x in range(columns) if inside(rect, y, x)]
+        swapped = [[x, y] for y, x in rect]
+        as_xy = [[y, x] for y in range(rows) for x in range(columns) if inside(swapped, y, x)]
+        self.assertEqual(as_yx, coordinate["rect_mask_pixels"])
+        self.assertNotEqual(as_xy, coordinate["rect_mask_pixels"])
+        self.assertEqual(
+            [
+                [min(v[0] for v in rect), max(v[0] for v in rect)],
+                [min(v[1] for v in rect), max(v[1] for v in rect)],
+            ],
+            [[1.5, 3.5], [2.5, 5.5]],
+        )
+
+    def test_width_height_is_only_the_server_size_and_every_other_pair_is_y_first(self):
+        order = WRONG["coordinate"]["axis_order"]
+        self.assertIn("[width, height]", order["server_wh"])
+        for key in ("image_shape", "export_shape", "offset_yx", "c_yx", "rect", "points"):
+            self.assertTrue(order[key].startswith("[rows") or order[key].startswith("[y"), key)
+        cf09 = self.cases["CF-09"]
+        self.assertEqual(cf09["source"]["server_shape_yx"], cf09["source"]["server_wh"][::-1])
+        self.assertEqual(cf09["source"]["server_shape_yx"], WRONG["coordinate"]["image"]["shape"])
+        self.assertEqual(
+            cf09["expect"]["export_shape"], [4, 6], "rows, columns: 4 rows (y 2..6), 6 columns (x 4..10)"
+        )
+        for variant in self.cases["CF-14"]["variants"]:
+            if "server_wh" not in variant:
+                continue
+            rows, columns = variant["server_shape_yx"]
+            self.assertEqual([columns, rows], variant["server_wh"], variant)
+            (y0, x0), (height, width), d = (
+                variant["offset_yx"],
+                variant["export_shape"],
+                variant["downsample"],
+            )
+            self.assertLessEqual(
+                y0 + height * d, rows, variant
+            )  # export_shape [rows, columns] fits in the server rows/columns
+            self.assertLessEqual(x0 + width * d, columns, variant)
+
+    def test_the_decisions_are_recorded_in_the_spec_and_no_longer_listed_as_gaps(self):
+        text = spec()
+        section_8 = text[text.index("## 8. Decisions and follow-ups") :]
+        self.assertIn("the axis order of a `rect` region is `[y, x]`", section_8)
+        self.assertIn("a catalog in `conformance.json`, edited by data change", section_8)
+        self.assertIn("Everything not in the catalog is unknown calibration", section_8)
+        self.assertIn(
+            "**Anything not in the catalog is an unknown unit and means unknown calibration.**", text
+        )
+        self.assertIn("How to add a unit", (ROOT / "docs" / "CONFORMANCE.md").read_text(encoding="utf-8"))
+        gaps = (ROOT / "docs" / "CONFORMANCE.md").read_text(encoding="utf-8").split("## Gaps:")[1]
+        self.assertNotIn("Axis order of `rect`", gaps)
+        self.assertNotIn("**Length units**", gaps)
+
     def test_the_qupath_crop(self):
         case = self.cases["CF-09"]
         x0, x1 = case["selection_annotation"]["x"]
@@ -387,19 +489,32 @@ class CalibrationData(unittest.TestCase):
     cases = {c["id"]: c for c in calibration["cases"]}
 
     def um(self, scale, unit):
-        """Plain unit conversion from the table of the file; None for unknown."""
-        if (
-            unit.startswith(self.calibration["damaged_micro_prefix"])
-            or unit not in self.calibration["length_units_um"]
-        ):
+        """Plain unit conversion by the rule of the file (symbols exact, words case-insensitive after trimming); None for
+        unknown. Written here from the rule, never by calling the validator."""
+        if unit.startswith("\ufffd"):
             return None
-        return scale * self.calibration["length_units_um"][unit]
+        for entry in self.calibration["length_units"].values():
+            if unit in entry["symbols"] or unit.strip().lower() in entry["words"]:
+                return scale * entry["um_per_unit"]
+        return None
+
+    # the catalog as an independent oracle: canonical unit -> (um per unit, symbols, words)
+    ORACLE = {
+        "nm": (0.001, {"nm"}, {"nanometer", "nanometers", "nanometre", "nanometres"}),
+        "um": (
+            1.0,
+            {"um", "\u00b5m", "\u03bcm"},
+            {"micron", "microns", "micrometer", "micrometers", "micrometre", "micrometres"},
+        ),
+        "mm": (1000.0, {"mm"}, {"millimeter", "millimeters", "millimetre", "millimetres"}),
+        "cm": (10000.0, {"cm"}, {"centimeter", "centimeters", "centimetre", "centimetres"}),
+        "m": (1000000.0, {"m"}, {"meter", "meters", "metre", "metres"}),
+        "angstrom": (0.0001, {"\u00c5", "\u212b"}, {"angstrom", "angstroms"}),
+    }
 
     def test_unit_spellings_convert_to_the_listed_answers(self):
-        self.assertAlmostEqual(
-            self.um(1, "millimeter") if "millimeter" in self.calibration["length_units_um"] else 1000.0,
-            1000.0,
-        )
+        self.assertAlmostEqual(self.um(1, "millimeter"), 1000.0)
+        self.assertAlmostEqual(self.um(1, "millimetre"), 1000.0)
         variants = self.cases["CAL-05"]["input"]["variants"]
         for variant in variants:
             self.assertAlmostEqual(self.um(variant["scale"], variant["unit"]) / 0.325, 1.0, delta=1e-9)
@@ -407,16 +522,69 @@ class CalibrationData(unittest.TestCase):
             self.assertEqual(self.um(variant["scale"], variant["unit"]), 0.5)
         for variant in self.cases["CAL-17"]["input"]["variants"]:
             self.assertAlmostEqual(self.um(variant["scale"], variant["unit"]), 0.0001, places=12)
+        for variant, expected in zip(
+            self.cases["CAL-20"]["input"]["variants"], self.cases["CAL-20"]["expect"]["um_per_px_each"]
+        ):
+            self.assertAlmostEqual(self.um(variant["scale"], variant["unit"]) / expected, 1.0, delta=1e-12)
         damaged = self.cases["CAL-16"]["input"]
         self.assertIsNone(self.um(damaged["scale"], damaged["unit"]))
         self.assertIn(damaged["unit"], self.cases["CAL-16"]["expect"]["warning"])
 
+    def test_every_catalog_name_converts_to_the_factor_of_the_oracle(self):
+        catalog = self.calibration["length_units"]
+        self.assertEqual(set(catalog), set(self.ORACLE))
+        for canonical, (factor, symbols, words) in self.ORACLE.items():
+            with self.subTest(canonical):
+                self.assertEqual(catalog[canonical]["um_per_unit"], factor)
+                self.assertEqual(set(catalog[canonical]["symbols"]), symbols)
+                self.assertEqual(set(catalog[canonical]["words"]), words)
+                for name in symbols:  # symbols: exact text only
+                    self.assertAlmostEqual(self.um(2.0, name), 2.0 * factor, places=12)
+                    for other in (name.upper(), name.title(), " " + name, name + " "):
+                        if other != name and other not in symbols:
+                            self.assertIsNone(self.um(2.0, other), repr(other))
+                for name in words:  # words: any case, surrounding spaces trimmed
+                    for spelling in (name, name.upper(), name.title(), "  %s " % name):
+                        self.assertAlmostEqual(self.um(2.0, spelling), 2.0 * factor, places=12)
+                    self.assertIsNone(self.um(2.0, name[:3] + " " + name[3:]), "a space inside a word")
+
+    def test_the_same_physical_length_in_every_unit_agrees(self):
+        # 1 mm written five ways, from the oracle's factors
+        for scale, unit in ((1000.0, "um"), (1e6, "nm"), (1.0, "mm"), (0.1, "cm"), (0.001, "m"), (1e7, "Å")):
+            self.assertAlmostEqual(self.um(scale, unit), 1000.0, places=6, msg=unit)
+
+    def test_every_refused_name_is_an_unknown_unit(self):
+        refused = self.calibration["unit_match_refused"]
+        self.assertEqual(len(refused), len(set(refused)), "a name listed twice")
+        for name in refused:
+            with self.subTest(name=name):
+                self.assertIsNone(self.um(1.0, name))
+        # the families: case variants of every symbol, plurals and spaced forms of symbols, inch, a damaged sign
+        for symbol in ("um", "nm", "mm", "cm"):
+            for variant in (symbol.upper(), symbol.capitalize(), symbol + "s", " " + symbol, symbol + " "):
+                self.assertIn(variant, refused, variant)
+        for name in ("M", "inch", "pixel", "kilometer", "micro meter", "\u00e5", "\ufffdm"):
+            self.assertIn(name, refused)
+        case = self.cases["CAL-19"]
+        self.assertEqual(case["input"]["units_from"], "unit_match_refused")
+        self.assertEqual(case["expect"]["um_per_px_each"], ["unknown"] * len(refused))
+        self.assertIn("case-insensitively after trimming", self.calibration["unit_match"]["rule"])
+
     def test_the_three_micro_spellings_are_the_ones_of_the_spec(self):
         self.assertEqual(self.calibration["micro_sign_spellings"], ["\u00b5", "\u03bc", "u"])
         for prefix in self.calibration["micro_sign_spellings"]:
-            self.assertEqual(self.calibration["length_units_um"].get(prefix + "m"), 1.0)
+            self.assertEqual(self.um(1.0, prefix + "m"), 1.0)
         self.assertEqual(self.calibration["damaged_micro_prefix"], "\ufffd")
-        self.assertNotIn("\ufffdm", self.calibration["length_units_um"])
+        self.assertIsNone(self.um(1.0, "\ufffdm"))
+
+    def test_the_catalog_is_the_one_place_to_add_a_unit(self):
+        # a new unit or alias is a data change only: the validator accepts it, and the oracle resolves it with no code change
+        data = copy.deepcopy(DATA)
+        catalog = data["wrong_science"]["calibration"]["length_units"]
+        catalog["um"]["words"].append("mikron")
+        catalog["mm"]["symbols"].append("mil")
+        catalog["pm"] = {"um_per_unit": 1e-6, "symbols": ["pm"], "words": ["picometer"]}
+        self.assertEqual(conformance.validate(data), [])
 
     def test_anisotropy_rule(self):
         tolerance = self.calibration["anisotropy_tolerance"]["relative_to_larger"]
@@ -457,7 +625,7 @@ class CalibrationData(unittest.TestCase):
         self.assertEqual(
             [t["id"] for t in self.calibration["transitions"]], ["CAL-T%d" % i for i in range(1, 10)]
         )
-        self.assertEqual(sorted(self.cases), ["CAL-%02d" % i for i in range(1, 19)])
+        self.assertEqual(sorted(self.cases), ["CAL-%02d" % i for i in range(1, 21)])
 
 
 @unittest.skipIf(

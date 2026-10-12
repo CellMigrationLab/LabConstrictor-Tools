@@ -709,6 +709,62 @@ BREAKS = [
         "        print(path().parent)\n",
         unittest_slice("test_conformance.Loader.test_the_command_line_gives_the_path_and_validates"),
     ),
+    # ---- the data of the decisions of 12 Oct (SPEC_WRONG_SCIENCE section 8): the file itself is the thing that can break
+    Break(
+        "conformance data: the millimetre is 100 um",
+        "conformance.json",
+        '"um_per_unit": 1000.0,',
+        '"um_per_unit": 100.0,',
+        unittest_slice(
+            "test_conformance.CalibrationData.test_every_catalog_name_converts_to_the_factor_of_the_oracle"
+        ),
+    ),
+    Break(
+        "conformance data: 'inch' is an accepted word of the metre",
+        "conformance.json",
+        '      "meter",\n',
+        '      "inch",\n      "meter",\n',
+        unittest_slice(
+            "test_conformance.CalibrationData.test_every_catalog_name_converts_to_the_factor_of_the_oracle"
+        ),
+    ),
+    Break(
+        "conformance data: a refused name ('UM') is a symbol of the micrometre",
+        "conformance.json",
+        '      "um",\n      "\\u00b5m",\n',
+        '      "um",\n      "UM",\n      "\\u00b5m",\n',
+        unittest_slice("test_conformance.CalibrationData.test_every_refused_name_is_an_unknown_unit"),
+    ),
+    Break(
+        "conformance: a name listed for two units is valid",
+        "conformance.py",
+        "                elif key in owner:\n",
+        "                elif False:\n",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a catalog without the base unit (1.0 um) is valid",
+        "conformance.py",
+        'base.get("um_per_unit") != 1.0',
+        "False",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance data: the first vertex of the rect is [x, y]",
+        "conformance.json",
+        '   "rect": [\n    [\n     1.5,\n     2.5\n    ],',
+        '   "rect": [\n    [\n     2.5,\n     1.5\n    ],',
+        unittest_slice("test_conformance.CoordinateData.test_a_rect_is_y_then_x_like_the_image_arrays"),
+    ),
+    Break(
+        "conformance data: the QuPath server size of CF-09 is [rows, columns] where the file says [width, height]",
+        "conformance.json",
+        '"server_shape_yx": [\n       8,\n       12\n      ]',
+        '"server_shape_yx": [\n       12,\n       8\n      ]',
+        unittest_slice(
+            "test_conformance.CoordinateData.test_width_height_is_only_the_server_size_and_every_other_pair_is_y_first"
+        ),
+    ),
     # ---- the notebook form's refusal of an integer beyond 2**53 - 1 (SPEC_WRONG_SCIENCE 6.2, NUM-02, NUM-03)
     Break(
         "notebook form: an integer above the limit gets the old sentence, not the template of 6.2",
