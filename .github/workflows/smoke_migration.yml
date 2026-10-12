@@ -1,6 +1,7 @@
 # Smoke test of the template 0.1.16 migration (LabConstrictor PR "Template 0.1.16"): an app at an OLD template version is built and
 # installed (no tools bridge), the migration of the template branch is applied to the app repository exactly as the template sync
-# workflow does (sync.py), a NEW installer is built from the migrated repository and installed over the old install, then the
+# workflow does (sync.py), a NEW installer is built from the migrated repository and the old install is updated to it (in place with -u on
+# Linux; uninstall, then install on macOS and Windows, which refuse an install over an existing one), then the
 # hooks, `labconstrictor-tools list` and `labconstrictor-tools doctor` are checked and the app is uninstalled. Nothing is released
 # or merged; the app repository is only read. Linux, macOS (Apple silicon) and Windows.
 #
@@ -250,7 +251,7 @@ jobs:
           if-no-files-found: ignore
 
   update:
-    name: Install old, install new over it, check, uninstall (${{ matrix.target.os_name }})
+    name: Install old, update to new, check, uninstall (${{ matrix.target.os_name }})
     needs: build
     runs-on: ${{ matrix.target.runner }}
     strategy:
@@ -300,15 +301,33 @@ jobs:
           ! grep -q labconstrictor_tools "$PRE" || { echo "FAIL: old pre-uninstall script already has the hook"; exit 1; }
           echo "old install: no tools registered, no hook in $(basename "$PRE")"
 
-      - name: Install the NEW installer over the old install (Linux/macOS, -u)
-        if: runner.os != 'Windows'
+      # How a user moves to the new installer differs by system (found by the first run of this workflow, 38298832113):
+      #  Linux: `installer.sh -u` updates the existing prefix in place (works).
+      #  macOS: `-u` stops in post_install (menuinst: "App already exists at ~/Applications/NucleiSky.app"), so the old app is uninstalled first.
+      #  Windows: the silent installer exits with code 2 on an existing install folder, so the old app is uninstalled first.
+      - name: Update to the NEW installer (Linux, in place with -u)
+        if: runner.os == 'Linux'
         run: bash "$(ls installer_new/*.sh | head -1)" -b -u -p "$PREFIX_DIR"
-      - name: Install the NEW installer over the old install (Windows, same folder)
+      - name: Update to the NEW installer (macOS, uninstall the old one, then install)
+        if: runner.os == 'macOS'
+        run: |
+          bash "$PREFIX_DIR/uninstall.sh" 2> uninstall_old.err; echo "old uninstall exit code $?"; cat uninstall_old.err
+          test ! -d "$PREFIX_DIR" || { echo "FAIL: old prefix still there"; exit 1; }
+          bash "$(ls installer_new/*.sh | head -1)" -b -p "$PREFIX_DIR"
+      - name: Update to the NEW installer (Windows, uninstall the old one, then install)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          $dir = "$env:USERPROFILE\mig"
+          $u = (Get-ChildItem "$dir\Uninstall-*.exe" | Select-Object -First 1).FullName
+          Write-Host "uninstalling the old install with $u"
+          $p = Start-Process -FilePath $u -ArgumentList '/S',"_?=$dir" -Wait -PassThru
+          Write-Host "old uninstaller exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { exit 1 }
+          Remove-Item -Recurse -Force $dir -ErrorAction SilentlyContinue
+          if (Test-Path $dir) { Write-Host "FAIL: old folder still there"; exit 1 }
           $exe = (Get-ChildItem installer_new\*.exe | Select-Object -First 1).FullName
-          $p = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0','/S',"/D=$env:USERPROFILE\mig" -Wait -PassThru
+          $p = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0','/S',"/D=$dir" -Wait -PassThru
           Write-Host "installer exit code: $($p.ExitCode)"
           if ($p.ExitCode -ne 0) { exit 1 }
       - name: The installer's own log
@@ -369,15 +388,17 @@ jobs:
           if (Test-Path $entry) { Write-Host "FAIL: registry entry still there: $entry"; exit 1 } else { Write-Host "registry entry removed" }
           if ($p.ExitCode -ne 0) { exit 1 }
 
+      - name: Collect the logs
+        if: always()
+        run: |
+          mkdir -p logs
+          cp "$PREFIX_DIR/menuinst_debug.log" logs/ 2>/dev/null || true
+          cp -r "$HOME/.labconstrictor/logs" logs/labconstrictor_logs 2>/dev/null || true
+          cp list.txt doctor.json uninstall.err uninstall_old.err logs/ 2>/dev/null || true
       - name: Keep the logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: update-logs-${{ matrix.target.os_name }}
-          path: |
-            ~/mig/menuinst_debug.log
-            ~/.labconstrictor/logs
-            list.txt
-            doctor.json
-            uninstall.err
+          path: logs
           if-no-files-found: ignore
