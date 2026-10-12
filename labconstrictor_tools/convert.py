@@ -486,9 +486,16 @@ def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
         import tifffile
 
         array = portable_dtype(_as_array(kind, name, value), name)
+        declared = out.get("axes")
+        if declared and array.ndim != len(declared):
+            raise ToolError(
+                "bad_return",
+                "the %s output '%s' is declared %s (%dD) but the tool returned a %dD array of shape %s"
+                % (kind, name, declared, len(declared), array.ndim, tuple(array.shape)),
+            )
         path = job_dir / (name + ".tif")
         tifffile.imwrite(path, array)
-        axes = out.get("axes") or DEFAULT_AXES.get(array.ndim, "")
+        axes = declared or DEFAULT_AXES.get(array.ndim, "")
         return {"type": kind, "name": name, "path": str(path), "axes": axes}
     if kind == "table":
         frame = _as_frame("table", name, value)
