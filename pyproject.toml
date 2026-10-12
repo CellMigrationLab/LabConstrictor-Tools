@@ -25,6 +25,9 @@ version = {attr = "labconstrictor_tools._version.__version__"}
 [tool.setuptools]
 packages = ["labconstrictor_tools", "labconstrictor_tools.examples"]
 
+[tool.setuptools.package-data]
+labconstrictor_tools = ["conformance.json"]   # the cross-host rules and vectors (docs/CONFORMANCE.md) travel with the wheel
+
 
 [tool.black]
 line-length = 110

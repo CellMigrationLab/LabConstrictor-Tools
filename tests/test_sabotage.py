@@ -645,6 +645,70 @@ BREAKS = [
             "test_retention.CliCreatesOwnedFolders.test_a_cancelled_or_crashed_run_record_says_so"
         ),
     ),
+    # ---- the conformance loader and its schema (docs/CONFORMANCE.md)
+    Break(
+        "conformance: a limit with an unknown status is valid",
+        "conformance.py",
+        '        if entry.get("status") not in STATUSES:\n',
+        "        if False:\n",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a duplicate fixture id is valid",
+        "conformance.py",
+        "        elif ident in seen:\n",
+        "        elif False:\n",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a positional placeholder in a template is valid",
+        "conformance.py",
+        "        if any(not _IDENTIFIER.match(f) for f in fields):\n",
+        "        if False:\n",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: version_order may be in any order",
+        "conformance.py",
+        "    if not parsed or None in parsed or parsed != sorted(parsed):",
+        "    if not parsed or None in parsed:",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a missing top-level key is not reported",
+        "conformance.py",
+        "        if key not in data:\n",
+        "        if False:\n",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a rectangle with the wrong number of vertices is valid",
+        "conformance.py",
+        "if not isinstance(rect, list) or len(rect) != 4 or",
+        "if not isinstance(rect, list) or",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: load() does not raise for a malformed file",
+        "conformance.py",
+        "        if problems:\n            raise ConformanceError(",
+        "        if False:\n            raise ConformanceError(",
+        unittest_slice("test_conformance.Loader.test_a_malformed_file_raises_with_every_problem"),
+    ),
+    Break(
+        "conformance: load() reads and validates the file on every call",
+        "conformance.py",
+        "    if _cache is None:\n",
+        "    if True:\n",
+        unittest_slice("test_conformance.Loader.test_the_file_is_in_the_package_and_valid"),
+    ),
+    Break(
+        "conformance: the command line prints the wrong file",
+        "conformance.py",
+        "        print(path())\n",
+        "        print(path().parent)\n",
+        unittest_slice("test_conformance.Loader.test_the_command_line_gives_the_path_and_validates"),
+    ),
 ]
 
 

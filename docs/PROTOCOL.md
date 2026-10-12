@@ -64,7 +64,7 @@ Feature ids (the implemented ones are in `FEATURES`; a planned id appears there 
 | `retention_prune` | the CLI command `labconstrictor-tools prune [--root results\|runs\|all] [--dry-run] [--json]` and `labconstrictor_tools.retention`: only folders carrying a valid `.lc-owner.json` and a `.lc-done.json` are ever removed ([SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) section 3; hosts only mark a run finished, then start `prune`) | in the first release after 0.2.0rc1 (not in 0.2.0rc1) |
 
 ### Compatibility rules for hosts
-A host that needs a minimum states it as `(min_tools_version, required_features)` and applies the rules below to every schema it loads, with `labconstrictor_tools.compat.check_schema` (Python hosts: Napari, notebooks) or the same rules written in its own language (Fiji, QuPath; the data is in `conformance.json`, [HOST_PARITY.md](HOST_PARITY.md#2-proposed-conformance-file), `compat` section). The result is `ok`, `warn` or `refuse`, with one sentence for the person:
+A host that needs a minimum states it as `(min_tools_version, required_features)` and applies the rules below to every schema it loads, with `labconstrictor_tools.compat.check_schema` (Python hosts: Napari, notebooks) or the same rules written in its own language (Fiji, QuPath; the data is in `conformance.json`, [CONFORMANCE.md](CONFORMANCE.md), `compat` section). The result is `ok`, `warn` or `refuse`, with one sentence for the person:
 1. `protocol` not supported by the host: `refuse` (as today).
 2. A required feature missing from `features` (or no `features` list at all): `refuse`, "needs <feature>; update the app's labconstrictor-tools".
 3. `tools_version` missing (unknown/old) while a minimum is set: `refuse`; with no minimum set: `warn`, "Tools version unknown".

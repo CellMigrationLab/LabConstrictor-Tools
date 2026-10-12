@@ -289,6 +289,8 @@ Columns: id, rule, reference, Napari, Fiji, QuPath, CLI, notebook, status, note.
 
 ## 2. Proposed conformance file
 
+**Status (phase 0.3): the file exists** with the rules already decided in [SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) (limits, host-internal codes, compatibility vectors, the `wrong_science` fixtures) and a validating loader, `labconstrictor_tools.conformance`; see [CONFORMANCE.md](CONFORMANCE.md), which also lists the keys of the sketch below that are not decided yet and therefore not in the file. The sketch is kept as the proposal for them.
+
 **One machine-readable file in this repository: `labconstrictor_tools/conformance.json`** (inside the package, so that every environment that already has `labconstrictor-tools` installed has it; add `[tool.setuptools.package-data] labconstrictor_tools = ["conformance.json"]` to `pyproject.toml`; `tests/conformance.json` would not reach the Napari, Fiji and QuPath test environments). It holds the values and test vectors the rows above show to be copied by hand into four code bases: named limits, error codes, message templates, number grammar, quoting, command vectors, coordinate vectors, result sentences, trust cases. Hosts keep their own constants; their tests read this file and compare. A change of a rule becomes a change of this file and a failing test in every host that has not followed.
 
 Two keys carry the migration: `value` is the reference and `today` is what each host has now, so the first run of the new tests prints exactly the `DIVERGES` rows of section 1 and nothing else.
