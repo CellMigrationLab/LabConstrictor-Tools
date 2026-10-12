@@ -70,7 +70,8 @@ def undeclared_inputs(schema: ToolSchema, inputs: Mapping[str, Any]) -> list[str
     """Names in `inputs` that the tool does not declare and that are not reserved protocol fields (sorted).
 
     Reserved fields (`protocol.RESERVED_INPUTS`, and any other name with a leading underscore) are accepted and ignored,
-    known to this worker or not. Rejecting the names returned here is issue #51; it may only ever look at this list."""
+    known to this worker or not. Rejecting the names returned here is issue #51; it may only ever look at this list.
+    """
     declared = {p["name"] for p in schema["inputs"]}
     return sorted(
         k
@@ -86,7 +87,9 @@ def load_inputs(schema: ToolSchema, inputs: dict[str, Any], fn: Any = None) -> d
     ignored today (logged), see `undeclared_inputs`."""
     extra = undeclared_inputs(schema, inputs)
     if extra:
-        logging.getLogger("labconstrictor.convert").debug("tool %s: ignoring undeclared input(s) %s", schema.get("id"), extra)
+        logging.getLogger("labconstrictor.convert").debug(
+            "tool %s: ignoring undeclared input(s) %s", schema.get("id"), extra
+        )
     kwargs: dict[str, Any] = {}
     for param in schema["inputs"]:
         name, value = param["name"], inputs.get(param["name"])

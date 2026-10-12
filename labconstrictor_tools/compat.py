@@ -42,7 +42,10 @@ def check_schema(
     warn_below_tools_version: str | None = None,
 ) -> Compat:
     """Apply the host rules to one cached schema (docs/PROTOCOL.md). A missing field means unknown/old, never an error."""
-    for name, limit in (("min_tools_version", min_tools_version), ("warn_below_tools_version", warn_below_tools_version)):
+    for name, limit in (
+        ("min_tools_version", min_tools_version),
+        ("warn_below_tools_version", warn_below_tools_version),
+    ):
         if limit and parse_version(limit) is None:
             raise ValueError("%s %r is not a version (programming error in the host)" % (name, limit))
     required = sorted(set(required_features))
@@ -76,9 +79,13 @@ def check_schema(
                 % (raw_version, min_tools_version),
             )
     if raw_version in (None, ""):
-        return Compat(WARN, "the version of this app's labconstrictor-tools is unknown (it predates version 0.2)")
+        return Compat(
+            WARN, "the version of this app's labconstrictor-tools is unknown (it predates version 0.2)"
+        )
     if version is None:
-        return Compat(WARN, "the labconstrictor-tools version %r of this app is not understood" % (raw_version,))
+        return Compat(
+            WARN, "the labconstrictor-tools version %r of this app is not understood" % (raw_version,)
+        )
     soft = parse_version(warn_below_tools_version)
     if soft is not None and version < soft:
         return Compat(

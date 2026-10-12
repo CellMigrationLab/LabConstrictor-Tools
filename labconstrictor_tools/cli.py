@@ -379,7 +379,9 @@ def _live_schema(entry: RegistryEntry) -> tuple[subprocess.CompletedProcess[str]
 
 
 def _strip(schema: Mapping[str, Any]) -> dict[str, Any]:
-    return {k: v for k, v in schema.items() if k not in ("application", "version", "tools_version", "features")}
+    return {
+        k: v for k, v in schema.items() if k not in ("application", "version", "tools_version", "features")
+    }
 
 
 def tools_summary(schema: Mapping[str, Any]) -> str:

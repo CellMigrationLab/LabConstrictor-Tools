@@ -72,7 +72,9 @@ class WorkerAcceptsThem(unittest.TestCase):
         w = RawWorker()
         try:
             reserved = {
-                "_calibration": {"pixel_size": {"of": "image", "x": {"value": 0.5, "unit": "um", "source": "user"}}},
+                "_calibration": {
+                    "pixel_size": {"of": "image", "x": {"value": 0.5, "unit": "um", "source": "user"}}
+                },
                 "_axes": {"image": "YX"},
                 "_next_protocol_field": [1, 2, 3],
             }

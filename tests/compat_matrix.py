@@ -89,36 +89,66 @@ def main() -> int:
     from labconstrictor_tools import compat, registry
 
     work = Path(tempfile.mkdtemp(prefix="lc_compat_work_"))
-    fixture = {n: json.loads((FIXTURES / ("tools_%s.schema.json" % n)).read_text("utf-8")) for n in ("0.1", "0.2")}
+    fixture = {
+        n: json.loads((FIXTURES / ("tools_%s.schema.json" % n)).read_text("utf-8")) for n in ("0.1", "0.2")
+    }
 
     # 1. old schema, new host
     result = run_python(old, ["-m", "labconstrictor_tools", "describe", "--module", MODULE], work, new=False)
     step("old describe runs", result.returncode == 0, result.stderr[-300:])
     old_schema = json.loads(result.stdout)
     loaded = registry._validated_schema(old_schema)
-    step("new host loads the schema the old Tools wrote (tools_version=%r)" % old_schema.get("tools_version"), bool(ids(loaded)))
-    step("new host loads the frozen 0.1 fixture", ids(registry._validated_schema(fixture["0.1"])) == ["scale"])
+    step(
+        "new host loads the schema the old Tools wrote (tools_version=%r)" % old_schema.get("tools_version"),
+        bool(ids(loaded)),
+    )
+    step(
+        "new host loads the frozen 0.1 fixture", ids(registry._validated_schema(fixture["0.1"])) == ["scale"]
+    )
     refused = compat.check_schema(fixture["0.1"], "0.2.0rc1", ["reserved_inputs_v1"])
     step("host needing 0.2 refuses the 0.1 fixture: " + refused.reason, refused.status == compat.REFUSE)
     tolerant = compat.check_schema(fixture["0.1"])
-    step("host needing nothing only warns about the 0.1 fixture: " + tolerant.reason, tolerant.status == compat.WARN)
-    step("new host accepts the 0.2 fixture", compat.check_schema(fixture["0.2"], "0.2.0rc1", ["reserved_inputs_v1"]).status == compat.OK)
+    step(
+        "host needing nothing only warns about the 0.1 fixture: " + tolerant.reason,
+        tolerant.status == compat.WARN,
+    )
+    step(
+        "new host accepts the 0.2 fixture",
+        compat.check_schema(fixture["0.2"], "0.2.0rc1", ["reserved_inputs_v1"]).status == compat.OK,
+    )
 
     # 2. new schema, old host
-    new_text = run_python(sys.executable, ["-m", "labconstrictor_tools", "describe", "--module", MODULE], work, new=True)
+    new_text = run_python(
+        sys.executable, ["-m", "labconstrictor_tools", "describe", "--module", MODULE], work, new=True
+    )
     step("new describe runs", new_text.returncode == 0, new_text.stderr[-300:])
     new_path = work / "new.schema.json"
     new_path.write_text(new_text.stdout, encoding="utf-8")
-    for label, path in (("the schema the new Tools writes", new_path), ("the frozen 0.2 fixture", FIXTURES / "tools_0.2.schema.json")):
+    for label, path in (
+        ("the schema the new Tools writes", new_path),
+        ("the frozen 0.2 fixture", FIXTURES / "tools_0.2.schema.json"),
+    ):
         read = run_python(old, ["-c", READ_OLD, str(path)], work, new=False)
-        step("old host reads " + label, read.returncode == 0 and bool(json.loads(read.stdout)), read.stderr[-300:])
+        step(
+            "old host reads " + label,
+            read.returncode == 0 and bool(json.loads(read.stdout)),
+            read.stderr[-300:],
+        )
 
     # 3. workers
     reserved = {"a": 1, "b": 2, "_calibration": {"pixel_size": {}}, "_axes": {"image": "YX"}, "_next": 1}
     done = worker_completes(old, False, reserved)
-    step("old worker accepts a request with reserved inputs", bool(done) and done["responseType"] == "COMPLETION", str(done)[:300])
+    step(
+        "old worker accepts a request with reserved inputs",
+        bool(done) and done["responseType"] == "COMPLETION",
+        str(done)[:300],
+    )
     done = worker_completes(sys.executable, True, {"a": 1, "b": 2})
-    step("new worker accepts a request without reserved inputs", bool(done) and done["responseType"] == "COMPLETION", str(done)[:300])
+    step(
+        "new worker accepts a request without reserved inputs",
+        bool(done) and done["responseType"] == "COMPLETION",
+        str(done)[:300],
+    )
     return 0
 
 

@@ -54,7 +54,9 @@ class RegistryAndDoctor(unittest.TestCase):
     def test_doctor_prints_them_and_does_not_call_an_upgrade_stale(self):
         register(self.home, "synthetic")
         shown = cli("doctor", home=self.home).stdout
-        self.assertIn("Tools %s, features: %s" % (labconstrictor_tools.__version__, "reserved_inputs_v1"), shown)
+        self.assertIn(
+            "Tools %s, features: %s" % (labconstrictor_tools.__version__, "reserved_inputs_v1"), shown
+        )
         path = self.home / "apps" / "synthetic.schema.json"
         schema = json.loads(path.read_text())
         schema["tools_version"] = "0.1.0"

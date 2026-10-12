@@ -6,7 +6,8 @@ from typing import Any, TypedDict
 
 
 class _EntryOptional(TypedDict, total=False):
-    tools_version: str  # the Tools version that generated the schema (absent in entries written by Tools before 0.2)
+    # the Tools version that generated the schema (absent in entries written by Tools before 0.2)
+    tools_version: str
     features: list[str]  # its feature ids (absent: unknown/old)
 
 

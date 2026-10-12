@@ -27,7 +27,9 @@ class Fixtures(unittest.TestCase):
     def test_fixtures_are_frozen_and_loadable(self):
         for name, digest in SHA256.items():
             data = (FIXTURES / name).read_bytes().replace(b"\r\n", b"\n")
-            self.assertEqual(hashlib.sha256(data).hexdigest(), digest, name + " was edited: add a new fixture instead")
+            self.assertEqual(
+                hashlib.sha256(data).hexdigest(), digest, name + " was edited: add a new fixture instead"
+            )
             registry._validated_schema(json.loads(data))
 
     def test_the_0_1_fixture_has_no_version_fields_and_the_0_2_one_has_both(self):
