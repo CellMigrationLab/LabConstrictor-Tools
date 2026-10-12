@@ -1,5 +1,6 @@
 """labconstrictor_tools: declare scientific tools with typed Python functions; hosts derive GUIs from the generated schema."""
 
+from ._version import __version__
 from .decorators import tool
 from .runtime import cancelled, check_cancel, progress
 from .types import (
@@ -41,6 +42,7 @@ from .types import (
 )
 
 __all__ = [
+    "__version__",
     "Advanced",
     "Affine",
     "ApplyTo",
