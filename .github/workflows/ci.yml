@@ -37,6 +37,31 @@ jobs:
       - name: Windows-specific suite
         if: runner.os == 'Windows'
         run: python tests/windows/test_windows.py
+  compat:
+    # Tools against its own last tag: the schema each one writes must be readable by the other, and each worker must accept the other's requests (tests/compat_matrix.py). No tag yet: the job says so and passes.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }   # the tags
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Newest tag
+        id: tag
+        run: |
+          tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          if [ -z "$tag" ]; then echo "compat: skipped, this repository has no v* tag yet (the first one is created by the maintainer, docs/OPERATIONS.md)"; fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Install this checkout and the newest tag side by side
+        if: steps.tag.outputs.tag != ''
+        run: |
+          pip install -e ".[test]"
+          git worktree add "$RUNNER_TEMP/old_src" "${{ steps.tag.outputs.tag }}"
+          python -m venv --system-site-packages "$RUNNER_TEMP/old_venv"
+          "$RUNNER_TEMP/old_venv/bin/pip" install "$RUNNER_TEMP/old_src"
+          "$RUNNER_TEMP/old_venv/bin/python" -c "import labconstrictor_tools as t; print('old Tools:', getattr(t, '__version__', 'no __version__ (before 0.2)'), t.__file__)"
+      - name: Old and new, both directions
+        if: steps.tag.outputs.tag != ''
+        run: python tests/compat_matrix.py --old-python "$RUNNER_TEMP/old_venv/bin/python"
   lint:
     runs-on: ubuntu-latest
     steps:

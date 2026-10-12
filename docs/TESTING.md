@@ -85,6 +85,9 @@ a matrix row or a test, and a row; `tests/test_roundtrip_ledger.py` checks that 
   `region.py` and `command.py`, with the round-trip tests as the test command; the surviving mutants are uploaded as an artifact.
   Each survivor is a missing test.
 
+## Compatibility with the last tag
+CI job `compat` installs the newest `v*` tag next to the checkout (when there is none it prints why and passes) and runs `tests/compat_matrix.py --old-python <old interpreter>`: the schema each Tools writes is read by the other's registry loader, a host that needs 0.2 refuses a frozen 0.1 schema (`tests/fixtures/schemas/`, never edited, a new file per Tools version), and each worker accepts the other's requests (reserved inputs one way, none the other). `tests/test_compat_matrix.py` runs the same script against the test interpreter on every system, so the script cannot rot between tags. Hosts will run their own suites against {Tools main, last tag} (host side, later).
+
 ## Platforms
 
 Linux, macOS and Windows run the whole set except the sabotage test (Linux only) and the POSIX-only checks (SIGKILL, shared-memory
