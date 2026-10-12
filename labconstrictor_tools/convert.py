@@ -15,6 +15,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from .protocol import RESERVED_INPUTS, RESERVED_PREFIX
 from .structures import OutputSchema, ParamSchema, Result, ToolSchema
 from .types import ToolError
 
@@ -65,9 +66,27 @@ def _path_text(label: str, value: Any) -> Path:
     return Path(value)
 
 
+def undeclared_inputs(schema: ToolSchema, inputs: Mapping[str, Any]) -> list[str]:
+    """Names in `inputs` that the tool does not declare and that are not reserved protocol fields (sorted).
+
+    Reserved fields (`protocol.RESERVED_INPUTS`, and any other name with a leading underscore) are accepted and ignored,
+    known to this worker or not. Rejecting the names returned here is issue #51; it may only ever look at this list."""
+    declared = {p["name"] for p in schema["inputs"]}
+    return sorted(
+        k
+        for k in inputs
+        if k not in declared and k not in RESERVED_INPUTS and not str(k).startswith(RESERVED_PREFIX)
+    )
+
+
 def load_inputs(schema: ToolSchema, inputs: dict[str, Any], fn: Any = None) -> dict[str, Any]:
     """Validate `inputs` against the tool schema and return keyword arguments for the tool function.
-    With `fn`, a `choice` parameter annotated with an Enum arrives as that Enum member (not as its value)."""
+    With `fn`, a `choice` parameter annotated with an Enum arrives as that Enum member (not as its value).
+    Reserved underscore inputs are never passed to the tool and never an error; names the tool does not declare are
+    ignored today (logged), see `undeclared_inputs`."""
+    extra = undeclared_inputs(schema, inputs)
+    if extra:
+        logging.getLogger("labconstrictor.convert").debug("tool %s: ignoring undeclared input(s) %s", schema.get("id"), extra)
     kwargs: dict[str, Any] = {}
     for param in schema["inputs"]:
         name, value = param["name"], inputs.get(param["name"])

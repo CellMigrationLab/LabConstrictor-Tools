@@ -42,6 +42,17 @@ Interaction hints (additive within protocol 1; a host that ignores them shows a 
 `folder` is a directory path (the worker checks it exists); hosts show a folder chooser. Output `type`: `image labels table values affine file message points shapes`. `message`: `{text}` (plain text, short). `points`: `{path, n, columns, apply_to?}`, a CSV whose first two columns are `y` and `x` (finite pixel coordinates in the frame of the image named by `apply_to`, else of the first image); other columns are properties of each point. `shapes`: `{path, n, apply_to?}`, a GeoJSON FeatureCollection file (`.geojson`) of Polygon / MultiPolygon features, `[x, y]` coordinates in the same frame and with pixel centres at integers; feature properties are kept (a `label` property links an outline to its label). A host that does not know `shapes` lists the file.
 Hosts must skip (and report) a schema whose `protocol` they do not support.
 
+## Reserved inputs
+A request's `inputs` may carry fields that are not tool parameters. Their names start with an underscore and belong to the protocol; a tool cannot declare a parameter with one of these names (declaration error). **A worker accepts every name that starts with an underscore and ignores the ones it does not know**: a newer host may send a field an older worker predates, and that must never fail the task. Tools never see reserved inputs. The list (`labconstrictor_tools.protocol.RESERVED_INPUTS`, tested against this table):
+
+| Name | Sent by | Meaning | Spec |
+|---|---|---|---|
+| `_job_dir` | every host | host-owned directory for outputs; the worker consumes it | this file |
+| `_calibration` | hosts that send a `PixelSizeOf` value | per-axis pixel/voxel size with provenance (`x`, `y`, later `z`, `t`) | [SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) 2.3.4 |
+| `_axes` | hosts that write a file without axes metadata | `{param: "TZCYX"}`, the axes of the file just written | [SPEC_WAVE2.md](SPEC_WAVE2.md) |
+
+Adding a name is additive within protocol 1: add it to `RESERVED_INPUTS` and to this table in the same change. **Order of work for issue #51 (reject undeclared inputs):** the worker must already tolerate the reserved names (this section) before #51 starts to refuse anything. #51 rejects exactly `convert.undeclared_inputs(schema, inputs)` (names that are neither declared nor reserved); it must not look at anything else. Until #51 lands, undeclared names are ignored (and logged at debug level).
+
 ## Wire protocol (host <-> worker)
 The worker (`python -m labconstrictor_tools serve --module M`) speaks the Appose worker protocol: one JSON object per line on stdin/stdout.
 

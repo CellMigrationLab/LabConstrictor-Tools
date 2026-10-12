@@ -8,6 +8,7 @@ from typing import Annotated, Any, Literal, Union, cast, get_args, get_origin, g
 
 from . import types as T
 from .decorators import Tool, tools_in
+from .protocol import RESERVED_INPUTS
 from .structures import AppSchema, OutputSchema, ParamSchema, ToolSchema
 
 PROTOCOL = 1
@@ -101,6 +102,11 @@ def _param(name: str, p: inspect.Parameter, hint: Any, argdoc: dict[str, str]) -
         "name": name,
         "label": (_m(meta, T.Label).value if _m(meta, T.Label) else name.replace("_", " ").capitalize()),
     }
+    if name in RESERVED_INPUTS:
+        raise DeclarationError(
+            "parameter %r: this name is reserved for the protocol (reserved inputs: %s); rename the parameter"
+            % (name, ", ".join(sorted(RESERVED_INPUTS)))
+        )
     has_default = p.default is not inspect.Parameter.empty
     if optional and has_default and p.default is not None:
         raise DeclarationError(
