@@ -310,6 +310,39 @@ def _add_dependency_fields(d: dict[str, Any], name: str, meta: list[Any]) -> Non
         d["enabled_when"] = {"param": when.param, **({"equals": when.equals} if when.equals else {})}
 
 
+_WINDOWS_DEVICE_NAMES = {
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
+    *("COM%d" % n for n in range(1, 10)),
+    *("LPT%d" % n for n in range(1, 10)),
+}
+
+
+def _check_output_name(tool_id: str, index: int, name: Any) -> None:
+    """An output name becomes a file name in the result folder (`<name>.tif`, `.csv`, `.geojson`): it must be one portable
+    file name. No separators, drive letters, traversal, control characters, characters Windows refuses, a trailing dot or
+    space, or a reserved device name (CON, NUL, COM1, ...). Documented in docs/PROTOCOL.md ("Output names").
+    """
+    where = "tool %r output %d: Name(%r)" % (tool_id, index, name)
+    if not isinstance(name, str) or not name.strip():
+        raise DeclarationError("%s must be non-empty text" % where)
+    bad = sorted({c for c in name if c in '/\\:<>"|?*' or ord(c) < 32 or ord(c) == 127})
+    if bad:
+        raise DeclarationError(
+            "%s is not a safe file name (it has %s): the name becomes a file in the result folder, so use letters, digits, "
+            "spaces, '-' or '_' only" % (where, ", ".join(repr(c) for c in bad))
+        )
+    if name in (".", "..") or name != name.rstrip(" .") or name != name.lstrip():
+        raise DeclarationError(
+            "%s is not a safe file name (a name of dots, or one that starts with a space or ends with a space or dot)"
+            % where
+        )
+    if name.split(".")[0].rstrip(" ").upper() in _WINDOWS_DEVICE_NAMES:
+        raise DeclarationError("%s is a reserved Windows device name: choose another name" % where)
+
+
 def _outputs(ret: Any, tool_id: str) -> list[OutputSchema]:
     if ret in (inspect.Signature.empty, None, type(None)):
         return []
@@ -321,6 +354,8 @@ def _outputs(ret: Any, tool_id: str) -> list[OutputSchema]:
         if b not in T.OUTPUT_TYPES:
             raise DeclarationError("tool %r output %d: unsupported return annotation %r" % (tool_id, i, it))
         o = {"name": _m(m, T.Name).value if _m(m, T.Name) else T.OUTPUT_TYPES[b], "type": T.OUTPUT_TYPES[b]}
+        if _m(m, T.Name):
+            _check_output_name(tool_id, i, o["name"])
         if _m(m, T.Replace) and _m(m, T.Replace).value:
             if o["type"] not in ("image", "labels", "table", "affine", "points", "shapes"):
                 raise DeclarationError(
