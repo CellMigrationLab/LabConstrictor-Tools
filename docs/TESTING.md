@@ -60,7 +60,9 @@ Why: a PR branch push used to run both the `push` and the `pull_request` trigger
 running. Now `push` is limited to `main`, a newer push to the same ref cancels the older run (never on `main`), the test jobs wait for
 `lint` (about 30 s) so a lint failure costs one runner instead of six, and the PR matrix drops only the combinations where a 3.10-only
 or 3.12-only difference is rare (Windows/macOS 3.10). Every job has `timeout-minutes: 60` and pip is cached. The matrix choice is the
-`include` expression in `ci.yml`.
+`include` expression in `ci.yml`. The cost: a failure that exists only on Windows or macOS with Python 3.10 reaches `main` unseen (the wheel test on an old
+setuptools did exactly that, 2026-10-12), because pull requests do not run those two jobs. To run the full matrix on a branch before merging, start `ci` by hand:
+`gh workflow run ci.yml --ref <branch>` (or Actions, ci, Run workflow, pick the branch); a `workflow_dispatch` run is not a `pull_request` event, so it gets all 6 test jobs.
 
 ## How to add a case
 
