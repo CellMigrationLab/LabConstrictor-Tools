@@ -18,6 +18,17 @@ from typing import Any, cast
 
 TOOL_PREFIX = "lc:"
 JOB_DIR_KEY = "_job_dir"  # reserved input: host-owned directory for outputs
+# Reserved inputs: names with a leading underscore belong to the protocol, never to a tool (a tool parameter cannot use them).
+# A worker accepts them and IGNORES the ones it does not know (a newer host may send a field this worker predates);
+# `convert.undeclared_inputs` is the one place that consults this list, and docs/PROTOCOL.md documents each name.
+RESERVED_INPUTS = frozenset(
+    {
+        JOB_DIR_KEY,  # host-owned output directory (consumed by the worker)
+        "_calibration",  # per-axis pixel/voxel size with provenance (SPEC_WRONG_SCIENCE 2.3.4); tools never see it
+        "_axes",  # axes of a file the host just wrote, {param: "TZCYX"} (SPEC_WAVE2); tools never see it
+    }
+)
+RESERVED_PREFIX = "_"  # any other name that starts with it is reserved for a future protocol field: accepted and ignored too
 TERMINAL = ("COMPLETION", "FAILURE", "CANCELATION")
 MAX_REQUEST_BYTES = (
     16 * 1024 * 1024

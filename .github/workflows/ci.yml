@@ -1,20 +1,46 @@
-# Runs the Python suites on Linux, Windows and macOS. First run still pending: Windows/macOS results are unknown until it does.
+# Runs the Python suites on Linux, Windows and macOS. Policy (docs/TESTING.md, "What runs when"):
+#   pull request            -> lint, then a reduced matrix of 4 test jobs (below)
+#   push to main, nightly,
+#   manual dispatch         -> lint, then the full 3 OS x {3.10, 3.12} matrix
+# A PR branch push triggers only the pull_request run (push is limited to main), and a newer push cancels the older run.
 name: ci
 on:
-  push:
   pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * *"   # full matrix every night, so Windows/macOS on 3.10 stay covered between merges
+  workflow_dispatch:
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}   # never cancel a run on main
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip, cache-dependency-path: pyproject.toml }
+      - run: pip install black==26.10.0 ruff==0.16.10 mypy==1.20.2 vulture==2.16   # mypy 1.20.2 was the newest that installed when this job was added
+      - run: black --check .
+      - run: ruff check .
+      - run: mypy labconstrictor_tools
+      - run: vulture labconstrictor_tools tests/vulture_whitelist.py --min-confidence 80
   test:
+    needs: lint   # saves 4-6 runners when lint fails; lint is ~30 s
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ["3.10", "3.12"]
+        # Matrix selection: pull_request gets the reduced list, every other event the full 3 OS x {3.10, 3.12} list.
+        # Both lists keep ubuntu 3.12 (coverage floor) and windows 3.12 (Windows-specific suite).
+        include: ${{ fromJSON(github.event_name == 'pull_request' && '[{"os":"ubuntu-latest","python":"3.10"},{"os":"ubuntu-latest","python":"3.12"},{"os":"windows-latest","python":"3.12"},{"os":"macos-latest","python":"3.12"}]' || '[{"os":"ubuntu-latest","python":"3.10"},{"os":"ubuntu-latest","python":"3.12"},{"os":"windows-latest","python":"3.10"},{"os":"windows-latest","python":"3.12"},{"os":"macos-latest","python":"3.10"},{"os":"macos-latest","python":"3.12"}]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "${{ matrix.python }}" }
+        with: { python-version: "${{ matrix.python }}", cache: pip, cache-dependency-path: pyproject.toml }
       - name: Private virtualenv (Linux)
         if: runner.os == 'Linux'
         # the runner's own Python folder and binary are world-writable, which the registry refuses by design: tests need a private interpreter (a copy, not a symlink to the runner one)
@@ -37,14 +63,30 @@ jobs:
       - name: Windows-specific suite
         if: runner.os == 'Windows'
         run: python tests/windows/test_windows.py
-  lint:
+  compat:
+    # Tools against its own last tag: the schema each one writes must be readable by the other, and each worker must accept the other's requests (tests/compat_matrix.py). No tag yet: the job says so and passes.
+    needs: lint
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }   # the tags
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
-      - run: pip install black==26.10.0 ruff==0.16.10 mypy==1.20.2 vulture==2.16   # mypy 1.20.2 was the newest that installed when this job was added
-      - run: black --check .
-      - run: ruff check .
-      - run: mypy labconstrictor_tools
-      - run: vulture labconstrictor_tools tests/vulture_whitelist.py --min-confidence 80
+        with: { python-version: "3.12", cache: pip, cache-dependency-path: pyproject.toml }
+      - name: Newest tag
+        id: tag
+        run: |
+          tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          if [ -z "$tag" ]; then echo "compat: skipped, this repository has no v* tag yet (the first one is created by the maintainer, docs/OPERATIONS.md)"; fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Install this checkout and the newest tag side by side
+        if: steps.tag.outputs.tag != ''
+        run: |
+          pip install -e ".[test]"
+          git worktree add "$RUNNER_TEMP/old_src" "${{ steps.tag.outputs.tag }}"
+          python -m venv --system-site-packages "$RUNNER_TEMP/old_venv"
+          "$RUNNER_TEMP/old_venv/bin/pip" install "$RUNNER_TEMP/old_src"
+          "$RUNNER_TEMP/old_venv/bin/python" -c "import labconstrictor_tools as t; print('old Tools:', getattr(t, '__version__', 'no __version__ (before 0.2)'), t.__file__)"
+      - name: Old and new, both directions
+        if: steps.tag.outputs.tag != ''
+        run: python tests/compat_matrix.py --old-python "$RUNNER_TEMP/old_venv/bin/python"

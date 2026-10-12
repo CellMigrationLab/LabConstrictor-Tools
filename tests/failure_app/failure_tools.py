@@ -176,6 +176,24 @@ def flood_stderr(megabytes: Annotated[int, Min(1), Max(500)] = 20) -> Scalars:
     return {"megabytes": megabytes}
 
 
+@tool("Flood stderr with one endless line")
+def flood_one_line(
+    megabytes: Annotated[int, Min(1), Max(500)] = 4,
+    pause_s: Annotated[float, Min(0), Max(60)] = 0.0,
+    crash: bool = False,
+) -> Scalars:
+    """Megabytes of stderr without a single newline, a pause (the line is still open), then a marker; optionally die."""
+    for _ in range(megabytes):
+        sys.stderr.write("X" * 1_000_000)
+    sys.stderr.flush()
+    time.sleep(pause_s)
+    sys.stderr.write("END-OF-THE-ONE-LINE-MARK")
+    sys.stderr.flush()
+    if crash:
+        os._exit(3)
+    return {"megabytes": megabytes}
+
+
 @tool("Many progress messages")
 def many_progress(n: Annotated[int, Min(1), Max(1_000_000)] = 20000) -> Scalars:
     for i in range(n):

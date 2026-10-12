@@ -50,9 +50,11 @@ class UnknownInputs(unittest.TestCase):
         self.assertEqual(omitted.status, "COMPLETE", omitted.error)
         self.assertEqual(self.calls_made(), ["sigma=5.0", "sigma=2.0"])
 
-    def test_the_reserved_job_folder_is_not_an_unknown_parameter(self):
+    def test_reserved_protocol_fields_are_not_unknown_parameters(self):
         job = tempfile.mkdtemp(prefix="lcjob_")
-        task = self.run_tool({"_job_dir": job, "sigma": 1.5})
+        task = self.run_tool(
+            {"_job_dir": job, "_calibration": {}, "_axes": {}, "_a_future_field": 1, "sigma": 1.5}
+        )
         self.assertEqual(task.status, "COMPLETE", task.error)
         self.assertEqual(self.calls_made(), ["sigma=1.5"])
 

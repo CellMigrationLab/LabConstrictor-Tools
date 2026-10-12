@@ -2032,8 +2032,22 @@ MESSAGES: dict[str, str] = {
     "quotes": 'it\'s "quoted" \\ back',
     "surrounded-by-whitespace": "  \n padded \t ",
     "crlf": "x\r\ny",
+    "long-30k": "m" * 30_000,
     "long-100k": "m" * 100_000,
 }
+
+# A Windows process start takes one command line of at most 32767 characters (CreateProcess, WinError 206): the 100k text cannot be
+# an argument there, whatever the program does with it. It still travels the worker protocol and the pasted snippet (run from a
+# file, as a notebook cell would be); the command line and the copied terminal line carry the 30k text on every system, and the
+# 100k one wherever the system allows an argument that long.
+WINDOWS_COMMAND_LINE_LIMIT = 32_767
+
+
+def _message_paths(text: str) -> tuple[str, ...]:
+    room = WINDOWS_COMMAND_LINE_LIMIT - 1_000  # the rest of the line (python, app, paths) needs the 1000
+    if os.name == "nt" and len(text) > room:
+        return ("worker", "snippet")
+    return ("worker", "cli", "snippet")
 
 
 def message_cases() -> list[Case]:
@@ -2045,7 +2059,7 @@ def message_cases() -> list[Case]:
                 "echo_message",
                 {"text": text},
                 Expect(outputs={"message": OutText(text.strip())}),
-                ("worker", "cli", "snippet"),
+                _message_paths(text),
                 False,
                 "message",
             )

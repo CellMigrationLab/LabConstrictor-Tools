@@ -370,6 +370,47 @@ class Noise(unittest.TestCase):
         finally:
             worker.close()
 
+    def test_one_endless_stderr_line_is_bounded_while_it_is_still_open(self):
+        """2026-10-12 (#50): no newline, so the old tail kept the whole line, and the reader buffered all of it before the tail saw it."""
+        megabytes = 4
+        worker = start()
+        try:
+            task = worker.task("flood_one_line", {"megabytes": megabytes, "pause_s": 6})
+            # the line is still open (the tool is pausing): the host must already have taken it in, in bounded pieces
+            self.assertTrue(
+                wait_for(lambda: worker.stderr.total >= megabytes * 1_000_000 - 100_000, 5),
+                "the host waits for the end of the line before it reads: %d characters seen"
+                % worker.stderr.total,
+            )
+            self.assertLessEqual(sum(len(x) for x in worker.stderr), client._Tail.LIMIT)
+            task.wait(60)
+            self.assertEqual(task.status, "COMPLETE", task.error)
+            worker.close()  # the last piece of an unterminated line is delivered at end of file
+            self.assertTrue(wait_for(lambda: "".join(worker.stderr).endswith("END-OF-THE-ONE-LINE-MARK"), 10))
+            self.assertLessEqual(sum(len(x) for x in worker.stderr), client._Tail.LIMIT)
+            self.assertEqual(worker.stderr.total, megabytes * 1_000_000 + len("END-OF-THE-ONE-LINE-MARK"))
+        finally:
+            worker.close()
+
+    def test_a_single_line_longer_than_the_limit_keeps_its_end_only(self):
+        tail = client._Tail()
+        tail.append("short\n")
+        tail.append("A" * (2 * client._Tail.LIMIT) + "THE-END\n")
+        kept = "".join(tail)
+        self.assertEqual(len(kept), client._Tail.LIMIT)
+        self.assertTrue(kept.endswith("THE-END\n"))
+        self.assertEqual(tail.total, len("short\n") + 2 * client._Tail.LIMIT + len("THE-END\n"))
+
+    def test_the_end_of_an_oversized_line_is_in_the_crash_details(self):
+        worker = start()
+        try:
+            task = worker.task("flood_one_line", {"megabytes": 3, "crash": True}).wait(60)
+            self.assertEqual(task.status, "CRASHED")
+            self.assertIn("END-OF-THE-ONE-LINE-MARK", task.error)
+            self.assertLessEqual(len(task.error), client.CRASH_REPORT_TAIL_CHARS + 1000)
+        finally:
+            worker.close()
+
     def test_a_crash_message_carries_the_workers_last_words(self):
         worker = start()
         try:

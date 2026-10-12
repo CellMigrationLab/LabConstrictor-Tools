@@ -15,6 +15,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from .protocol import RESERVED_INPUTS, RESERVED_PREFIX
 from .structures import OutputSchema, ParamSchema, Result, ToolSchema
 from .types import ToolError
 
@@ -65,13 +66,29 @@ def _path_text(label: str, value: Any) -> Path:
     return Path(value)
 
 
+def undeclared_inputs(schema: ToolSchema, inputs: Mapping[str, Any]) -> list[str]:
+    """Names in `inputs` that the tool does not declare and that are not reserved protocol fields (sorted).
+
+    Reserved fields (`protocol.RESERVED_INPUTS`, and any other name with a leading underscore) are accepted and ignored,
+    known to this worker or not. Rejecting the names returned here is issue #51; it may only ever look at this list.
+    """
+    declared = {p["name"] for p in schema["inputs"]}
+    return sorted(
+        k
+        for k in inputs
+        if k not in declared and k not in RESERVED_INPUTS and not str(k).startswith(RESERVED_PREFIX)
+    )
+
+
 def load_inputs(schema: ToolSchema, inputs: dict[str, Any], fn: Any = None) -> dict[str, Any]:
     """Validate `inputs` against the tool schema and return keyword arguments for the tool function.
-    With `fn`, a `choice` parameter annotated with an Enum arrives as that Enum member (not as its value)."""
-    declared = [param["name"] for param in schema["inputs"]]
-    unknown = sorted(str(name) for name in inputs if name not in declared)
-    # a misspelt, renamed or removed parameter must not silently fall back to the default of the right one
+    With `fn`, a `choice` parameter annotated with an Enum arrives as that Enum member (not as its value).
+    Reserved underscore inputs are never passed to the tool and never an error; a name the tool does not declare is
+    refused with `invalid_parameter` (see `undeclared_inputs`): a misspelt, renamed or removed parameter must not
+    silently fall back to the default of the right one."""
+    unknown = undeclared_inputs(schema, inputs)
     if unknown:
+        declared = [param["name"] for param in schema["inputs"]]
         raise ToolError(
             "invalid_parameter",
             "unknown parameter%s %s; this tool takes: %s"
@@ -477,9 +494,16 @@ def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
         import tifffile
 
         array = portable_dtype(_as_array(kind, name, value), name)
+        declared = out.get("axes")
+        if declared and array.ndim != len(declared):
+            raise ToolError(
+                "bad_return",
+                "the %s output '%s' is declared %s (%dD) but the tool returned a %dD array of shape %s"
+                % (kind, name, declared, len(declared), array.ndim, tuple(array.shape)),
+            )
         path = job_dir / (name + ".tif")
         tifffile.imwrite(path, array)
-        axes = out.get("axes") or DEFAULT_AXES.get(array.ndim, "")
+        axes = declared or DEFAULT_AXES.get(array.ndim, "")
         return {"type": kind, "name": name, "path": str(path), "axes": axes}
     if kind == "table":
         frame = _as_frame("table", name, value)

@@ -5,7 +5,13 @@ and what a worker sends back. They are plain dicts at run time (they come from J
 from typing import Any, TypedDict
 
 
-class RegistryEntry(TypedDict):
+class _EntryOptional(TypedDict, total=False):
+    # the Tools version that generated the schema (absent in entries written by Tools before 0.2)
+    tools_version: str
+    features: list[str]  # its feature ids (absent: unknown/old)
+
+
+class RegistryEntry(_EntryOptional):
     """`<registry>/<name>.json`, written by `register`."""
 
     schema: int
@@ -86,6 +92,8 @@ class AppSchema(_AppRequired, total=False):
 
     application: str
     version: str
+    tools_version: str  # absent in schemas written by Tools before 0.2: unknown/old
+    features: list[str]  # stable feature ids (labconstrictor_tools.features); absent: unknown/old
 
 
 # a result as the worker reports it: {"type": ..., "name": ..., plus "path" / "values" / "matrix_yx" ...}

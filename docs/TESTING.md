@@ -45,6 +45,21 @@ transports that can carry it (`Case.paths`).
 Run a slice: `LC_ROUNDTRIP_FILTER='echo_bounded' python -m unittest test_roundtrip_matrix` (a regular expression on case ids),
 `python -m unittest test_roundtrip_properties -k identity`.
 
+## What runs when
+
+| Trigger | Workflow | What runs |
+|---|---|---|
+| Pull request | `ci` | `lint`, then `compat` (Tools against its newest `v*` tag, see below; skips with a printed reason when there is no tag) and 4 test jobs: ubuntu 3.10, ubuntu 3.12 (coverage floor 85), windows 3.12 (plus the Windows-specific suite), macos 3.12 |
+| Push to `main`, manual dispatch, nightly (03:17 UTC) | `ci` | `lint`, then `compat` and the full 3 OS x {3.10, 3.12} matrix, so Windows and macOS on 3.10 are still covered, at the latest the next night |
+| Nightly (02:41 UTC), manual dispatch | `nightly` | heavy round-trip profile on 3 OS, mutation testing |
+| Manual, or pushes to their own branches | `smoke`, `smoke_install` | end-to-end and install smoke tests (unchanged) |
+
+Why: a PR branch push used to run both the `push` and the `pull_request` trigger, each with 6 test jobs, and a superseded push kept
+running. Now `push` is limited to `main`, a newer push to the same ref cancels the older run (never on `main`), the test jobs wait for
+`lint` (about 30 s) so a lint failure costs one runner instead of six, and the PR matrix drops only the combinations where a 3.10-only
+or 3.12-only difference is rare (Windows/macOS 3.10). Every job has `timeout-minutes: 60` and pip is cached. The matrix choice is the
+`include` expression in `ci.yml`.
+
 ## How to add a case
 
 1. A new **value** of an existing type: add a row to the generator of that type in `tests/roundtrip_cases.py` (for instance an entry
@@ -84,6 +99,9 @@ a matrix row or a test, and a row; `tests/test_roundtrip_ledger.py` checks that 
 * **Mutation testing** (nightly, `.github/workflows/nightly.yml`): `mutmut` on `convert.py`, `introspection.py`, `shapes.py`,
   `region.py` and `command.py`, with the round-trip tests as the test command; the surviving mutants are uploaded as an artifact.
   Each survivor is a missing test.
+
+## Compatibility with the last tag
+CI job `compat` installs the newest `v*` tag next to the checkout (when there is none it prints why and passes) and runs `tests/compat_matrix.py --old-python <old interpreter>`: the schema each Tools writes is read by the other's registry loader, a host that needs 0.2 refuses a frozen 0.1 schema (`tests/fixtures/schemas/`, never edited, a new file per Tools version), and each worker accepts the other's requests (reserved inputs one way, none the other). `tests/test_compat_matrix.py` runs the same script against the test interpreter on every system, so the script cannot rot between tags. Hosts will run their own suites against {Tools main, last tag} (host side, later).
 
 ## Platforms
 

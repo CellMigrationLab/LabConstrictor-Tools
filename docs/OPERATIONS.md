@@ -6,6 +6,34 @@
 * Fiji (no release or update site yet): either copy `LabConstrictor_Tools.groovy` (keep the underscore: Fiji lists a script in its menus only when its name contains one) from the Fiji repository (`src/main/resources/org/cellmigrationlab/labconstrictor/`) to `Fiji.app/scripts/Plugins/LabConstrictor/` (no build), or build the jar with `mvn package` and copy `target/labconstrictor-fiji-<version>.jar` to `Fiji.app/plugins/`, then restart: Plugins > LabConstrictor > LabConstrictor Tools... (jar) or Plugins > LabConstrictor > LabConstrictor Tools (script). The macro recorder needs the jar.
 * Fiji and Napari never import an app's packages, so apps with conflicting dependencies can coexist.
 
+## Releases and tags
+The version lives in one place, `labconstrictor_tools/_version.py` (`__version__`); `pyproject.toml` and `labconstrictor_tools.__version__` both read it. `describe`, the registry and `doctor` report it as `tools_version` ([PROTOCOL.md](PROTOCOL.md#tools-version-and-features)).
+* **Tag names:** `vX.Y.Z` for a release (`v0.2.0`), `vX.Y.Z-rc.N` for a pre-release (`v0.2.0-rc.1`), always on a commit of `main`. The tag has a leading `v`; the Python version in `_version.py` has not, and spells the pre-release PEP 440 style: tag `v0.2.0-rc.1` <-> `__version__ = "0.2.0rc1"`. Beta or alpha work uses `-beta.N` / `-alpha.N` (`0.2.0b1`, `0.2.0a1`) and is never pinned by an app.
+* **Who tags:** the maintainer tags. Claude and CI never create tags or GitHub releases; a pull request that wants a release says so in its description and the maintainer tags after merging.
+* **Procedure:** (1) CI is green on `main` on all three systems (and the nightly of the same commit); (2) a pull request sets `_version.py` to the new number and moves the "unreleased" notes of the ledger; merge it; (3) `git tag -a v0.2.0-rc.1 -m "Tools 0.2.0 release candidate 1" <merge commit>` and `git push origin v0.2.0-rc.1`; (4) on GitHub create the release from the tag (tick "pre-release" for `-rc.N`); (5) check `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.2.0-rc.1.zip` in a clean environment and `labconstrictor-tools --help`; (6) a new `main` commit after the tag keeps the tag's version until the next bump PR (so `main` between releases reports the last number: `doctor` shows what is installed, not where it came from).
+* **Moving a tag is forbidden.** A broken release is fixed with the next number (`-rc.2`, `0.2.1`); installers pin tags, and a moved tag would change what a pinned installer installs.
+* **The CI `compat` job** installs the newest tag (if one exists) and reads schemas across versions, see [TESTING.md](TESTING.md).
+
+### Pinning Tools in app installers
+An app installer must install a **tagged** Tools, never `main`: `main` moves, so two installs of the same app a week apart would run different workers, and a breaking change (for example issue #51) would reach installed apps without any release. The installer already reads the source from `LC_TOOLS_SPEC` and installs it with one `pip install` ([LABCONSTRICTOR_INTEGRATION.md](LABCONSTRICTOR_INTEGRATION.md)); pinning only changes the default:
+* Default value: `https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.2.0.zip` (a release) or `.../refs/tags/v0.2.0-rc.1.zip` while only a release candidate exists. Never `refs/heads/main.zip`, never a bare branch or a commit that is not a tag. An app moves to a newer Tools by a pull request that changes this one string (and runs its `lc_tests`), not by anybody tagging.
+* `LC_TOOLS_SPEC` stays the override (a local wheel for tests, a mirror, a branch for a developer).
+* After installing, the hook may record the version by running `labconstrictor-tools doctor`, which shows `Tools <version>`; a test of the installer checks that the version equals the pinned tag.
+* A tag is only pinned after the maintainer created it ([Releases and tags](#releases-and-tags)); an installer that pins a tag that does not exist fails at `pip install`, which the hook already reports without stopping the rest of the install.
+
+Files that must change in the apps (the template-repository change is a later task; the lists come from a search for `refs/heads/main.zip` and `LC_TOOLS_SPEC`; search again before editing, other branches may carry more):
+
+| Repository | File and line (at the time of writing) | Change |
+|---|---|---|
+| `labconstrictor-vlab4mic` | `app/bash_bat_scripts/post_install.sh` (the `pip install "${LC_TOOLS_SPEC:-...refs/heads/main.zip}"` line, about 88) | the default URL, to the tag |
+| `labconstrictor-vlab4mic` | `app/bash_bat_scripts/post_install.bat` (`IF NOT DEFINED LC_TOOLS_SPEC SET "LC_TOOLS_SPEC=..."`, about 111) | the same URL |
+| `guessthecondition` | `app/bash_bat_scripts/post_install.sh` (about 88) and `post_install.bat` (about 111) | the same |
+| `labconstrictor-playground` | `app/bash_bat_scripts/post_install.sh` (about 98) and `post_install.bat` (about 120) | the same |
+| `labconstrictor-playground` | `notebooks/LabConstrictorPlayground/LabConstrictorPlayground.ipynb` (the `!pip install -q ...main.zip` cell) | the same URL |
+| `NucleiSky`, `CellTracksColab` | `app/bash_bat_scripts/post_install.sh` and `.bat` once their bridge PRs are merged (not present on `main` of the local clones when this was written) | the same |
+| `LabConstrictor` (template) | `app/bash_bat_scripts/post_install.sh` and `.bat` of the template, so new apps start pinned | the same (later task) |
+| docs and READMEs that tell people to `pip install` Tools | `LabConstrictor-Tools/README.md` (about line 35), `napari-labconstrictor/README.md` (about 13), `labconstrictor-vlab4mic/README.md` (about 56), `docs/OPERATIONS.md` Install, above | say `refs/tags/<tag>.zip` (or keep `main` and label it "development version") |
+
 ## Many apps, many users, network shares
 * Any number of apps can be registered; hosts list them all. Same name registered twice: the higher-priority directory wins
   (the per-user entry overrides a shared one); two versions of one app side by side are not supported.

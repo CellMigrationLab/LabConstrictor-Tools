@@ -122,6 +122,9 @@ def register(
 ) -> RegistryEntry:
     """Register an installed app: generate its schema with the app's own interpreter, cache it, write the entry."""
     _check_name(name)
+    # a relative path is only meaningful from the folder the person registered in: store absolute ones (not resolved, a venv's python is a symlink)
+    prefix = os.path.abspath(prefix)
+    pythonpath = [os.path.abspath(x) for x in pythonpath]
     interpreter = python_for(prefix)
     runtime = runtime_path() if _runtime_needed(interpreter) else ""
     env = {
@@ -131,10 +134,11 @@ def register(
         "PYTHONSAFEPATH": "1",
     }
     schema_text = _generate_schema(name, interpreter, module, env, display_name or name, version)
-    target = Path(directory) if directory else apps_dir()
+    target = Path(os.path.abspath(directory)) if directory else apps_dir()
     target.mkdir(parents=True, exist_ok=True)
     schema_path = target / (name + ".schema.json")
     _write_atomic(schema_path, schema_text)
+    generated = json.loads(schema_text)  # what the app's own Tools said about itself
     entry: RegistryEntry = {
         "schema": 1,
         "name": name,
@@ -146,6 +150,8 @@ def register(
         "pythonpath": [str(x) for x in pythonpath],
         "runtime_path": runtime,
         "schema_path": str(schema_path),
+        "tools_version": str(generated.get("tools_version", "")),
+        "features": [str(x) for x in generated.get("features", [])],
     }
     _write_atomic(
         target / (name + ".json"), json.dumps(entry, indent=2)
