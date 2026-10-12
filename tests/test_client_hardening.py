@@ -9,7 +9,7 @@ from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
 
-from labconstrictor_tools import client, log, runs
+from labconstrictor_tools import client, log
 
 
 def reset_logger():
@@ -138,25 +138,6 @@ class ClientHardening(PrivateHome):
             t.join()
         self.assertEqual(worker.proc.stdin.overlaps, 0)
         self.assertEqual(len(Slow.lines), 80)
-
-
-class RunRecordPruning(PrivateHome):
-    def test_a_folder_that_cannot_be_removed_is_logged_and_the_others_still_go(self):
-        folder = runs.runs_dir()
-        folder.mkdir(parents=True)
-        for name in ("a", "b", "c", "d"):
-            (folder / name).mkdir()
-        real = runs.shutil.rmtree
-
-        def picky(path, *args, **kwargs):
-            if path.name == "a":
-                raise PermissionError("held open")
-            return real(path, *args, **kwargs)
-
-        with mock.patch.object(runs.shutil, "rmtree", side_effect=picky):
-            runs._prune(keep=1)
-        self.assertEqual(sorted(p.name for p in folder.iterdir()), ["a", "d"])
-        self.assertIn("could not remove the old run record", log.tail(20))
 
 
 class StderrTail(unittest.TestCase):

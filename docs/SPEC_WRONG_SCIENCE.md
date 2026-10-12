@@ -1,6 +1,6 @@
 # Spec (proposal): the "wrong-science" fix wave
 
-Status: **for review, nothing is implemented.** Maintainer decisions are recorded in section 8.
+Status: **for review; the retention rules of section 3 are implemented in Tools (`labconstrictor_tools.retention`, `labconstrictor-tools prune`, feature `retention_prune`), nothing else is.** Maintainer decisions are recorded in section 8.
 
 **v1: 2D. N-D (T/Z stacks) and the QuPath resolution (downsample) choice follow in Wave 2.** The frame (1.1.2) and the placement formula (1.1.3) already have their final shape, so Wave 2 adds fixtures, not rules. Wave 2 fixtures still needed: `TYX` and `ZYX` results with `t`/`z` columns, a 2D result on a `TYX` layer (Napari), a per-axis `_calibration` with z and t, and QuPath export at downsample 2 and 4 on a real pyramid (CF-14 is the data, the GUI harness is the missing part). Same conventions as [SPEC_WAVE2.md](SPEC_WAVE2.md) and [HOST_PARITY.md](HOST_PARITY.md): additive within `protocol: 1`, rules are host-neutral, a rule is "done" when its fixtures pass in every host that claims the feature. The fixtures below are data, meant to live in `labconstrictor_tools/conformance.json` under the key `wrong_science` and to be reused by the conformance suite (Tools #87).
 
@@ -283,6 +283,16 @@ All use a temporary `LC_HOME`; every survivor is checked **by file contents** (a
 | RET-10 | job folder with `report.txt` ("data") returned as `FileOut` | run to success, close the widget | reported path exists under `results/`, contents "data"; job folder gone |
 | RET-11 | failed or cancelled run | finish | temporary job folder removed; an owned folder, if any, has `failed` / `cancelled` |
 | RET-14 | undisplayable (over the display limit) `ImageOut` | run | file stays at a stable owned path, the path is shown |
+
+### 3.8 Reference implementation: how the unstated details were settled
+`labconstrictor_tools.retention` follows 3.1-3.5. Where the text is silent it takes the safe side (when in doubt a folder is kept); a host that writes markers must produce what is listed here, or its folders are simply never removed:
+1. A valid `.lc-owner.json` has `lc_marker` equal to the integer 1 (not `true`), the `kind` of the root, `name` equal to the folder name, a `token` of 8-64 characters of `A-Za-z0-9_-` (it becomes part of `.lc-deleting-<token>`) and a `created` of the form `YYYY-MM-DDTHH:MM:SS[.fraction]Z` (UTC, `Z`; it is the sort key). A marker larger than 64 KiB, not JSON, not an object, or a symlink is not a marker.
+2. A valid `.lc-done.json` is a plain file holding a JSON object whose `status` is `ok`, `failed` or `cancelled`. An unreadable or malformed done file keeps the folder, like a missing one.
+3. A `.lc-deleting-<token>` leftover is finished only when its name is made from the token of its own owner marker and it has a done marker; its owner `name` is the original folder name, so the name check of 3.3.2 does not apply to it. It is not counted in the quota.
+4. A root that is itself a link (`results` pointing to another disk) is the person's own layout: its entries are still checked one by one against the real path of the root. The names `.` and `..` and names with other characters are never removed.
+5. `--dry-run` takes no lock and creates nothing. If neither root exists, `prune` creates nothing, not even the lock file.
+6. Exit code: 0 also when the lock is held or cannot be taken (3.5); 1 when a removal failed (hosts ignore the code, 3.1.3). A removal that fails keeps the folder (already renamed to `.lc-deleting-<token>`), and the next `prune` retries it.
+7. The CLI creates its result folder with the owner marker, writes the done marker when `run` ends (`ok`, `failed` or `cancelled`), removes a failed or cancelled run's folder when it holds nothing but its marker (a successful run that wrote nothing keeps its folder, as before), and then calls `prune results`. `runs.record` does the same for run records (`prune runs`). Both ignore a retention problem (it goes to the log). The `host` of a run record written by the Python client is `cli`.
 
 ---
 

@@ -393,6 +393,258 @@ BREAKS = [
         "if False:",
         matrix("region_box/(wrong-size|3d)"),
     ),
+    # ---- retention (docs/SPEC_WRONG_SCIENCE.md section 3): what prune may delete
+    Break(
+        "retention: a copied or renamed folder is taken for ours",
+        "retention.py",
+        '    elif owner.get("name") != name:\n',
+        "    elif False:\n",
+        unittest_slice("test_retention.Eligibility.test_RET_06_a_copied_and_renamed_folder_is_foreign"),
+    ),
+    Break(
+        "retention: a folder without a done marker is eligible",
+        "retention.py",
+        "    done = _read_marker(path / DONE_FILE, DONE_FILE)\n",
+        '    done = {"status": "ok"}\n',
+        unittest_slice(
+            "test_retention.Eligibility.test_RET_03_folders_without_a_done_file_are_never_removed"
+        ),
+    ),
+    Break(
+        "retention: a done marker with any content counts",
+        "retention.py",
+        '    if done.get("status") not in STATUSES:\n',
+        "    if False:\n",
+        unittest_slice(
+            "test_retention.UnsafePaths.test_a_done_file_that_is_not_a_done_marker_keeps_the_folder"
+        ),
+    ),
+    Break(
+        "retention: a folder of the wrong kind is eligible",
+        "retention.py",
+        '    if owner.get("kind") != kind:\n',
+        "    if False:\n",
+        unittest_slice(
+            "test_retention.UnsafePaths.test_a_marker_of_the_wrong_kind_or_version_or_without_time_or_token_is_not_ownership"
+        ),
+    ),
+    Break(
+        "retention: a folder with no marker at all is eligible (legacy)",
+        "retention.py",
+        "    owner = _read_marker(path / OWNER_FILE, OWNER_FILE)\n",
+        '    owner = {"lc_marker": 1, "kind": kind, "name": name, "token": "0" * 8, "created": "2000-01-01T00:00:00Z"}\n',
+        unittest_slice(
+            "test_retention.Eligibility.test_RET_07_legacy_folders_without_a_marker_are_never_removed"
+        ),
+    ),
+    Break(
+        "retention: links and files in the root are examined like folders",
+        "retention.py",
+        '    if _is_link_or_reparse_point(info.st_mode, getattr(info, "st_file_attributes", 0)):\n'
+        '        raise _Refused("is a link (symlink or junction)")\n'
+        "    if not stat.S_ISDIR(info.st_mode):\n"
+        '        raise _Refused("is a file, not a folder")\n'
+        "    if not _same_place(os.path.dirname(os.path.realpath(path)), root):\n"
+        '        raise _Refused("does not resolve to a direct child of %s" % root.name)\n',
+        "",
+        unittest_slice(
+            "test_retention.UnsafePaths.test_RET_05_a_symlink_to_an_owned_looking_folder_outside_is_left_alone"
+        ),
+    ),
+    Break(
+        "retention: a name with other characters is eligible",
+        "retention.py",
+        '    if not _NAME.match(name) or not name.strip("."):\n',
+        "    if False:\n",
+        unittest_slice(
+            "test_retention.UnsafePaths.test_a_name_outside_the_allowed_characters_is_left_alone_even_with_valid_markers"
+        ),
+    ),
+    Break(
+        "retention: a marker that is a symlink is read",
+        "retention.py",
+        "    if not stat.S_ISREG(info.st_mode) or _is_link_or_reparse_point(\n"
+        '        info.st_mode, getattr(info, "st_file_attributes", 0)\n'
+        "    ):\n",
+        "    if False:\n",
+        unittest_slice(
+            "test_retention.UnsafePaths.test_a_symlinked_owner_marker_does_not_make_a_folder_eligible"
+        ),
+    ),
+    Break(
+        "retention: the order is by folder name, not by the marker's created",
+        "retention.py",
+        "key=lambda e: (e.created, e.name))",
+        "key=lambda e: e.name)",
+        unittest_slice(
+            "test_retention.Eligibility.test_the_order_is_by_created_in_the_marker_not_by_the_folder_name"
+        ),
+    ),
+    Break(
+        "retention: one folder too many is removed",
+        "retention.py",
+        "cut = max(0, len(live) - report.keep)",
+        "cut = max(0, len(live) - report.keep + 1)",
+        unittest_slice(
+            "test_retention.Eligibility.test_RET_04_thirty_finished_folders_keep_the_latest_20_by_created"
+        ),
+    ),
+    Break(
+        "retention: the quota counts foreign and crashed folders too",
+        "retention.py",
+        "    live = sorted((e for e in entries if not e.leftover), key=lambda e: (e.created, e.name))\n",
+        "    live = [None] * len(report.skipped) + sorted((e for e in entries if not e.leftover), key=lambda e: (e.created, e.name))\n",
+        unittest_slice("test_retention.Eligibility.test_the_quota_counts_only_eligible_folders"),
+    ),
+    Break(
+        "retention: the policy numbers are not 20 and 50",
+        "retention.py",
+        "RUN_RECORDS_KEPT = 50",
+        "RUN_RECORDS_KEPT = 5",
+        unittest_slice(
+            "test_retention.Eligibility.test_RET_02_runs_keep_50_and_a_foreign_run_folder_survives"
+        ),
+    ),
+    Break(
+        "retention: a dry run removes the folders",
+        "retention.py",
+        "            report.deleted.append(entry.name)\n            continue\n",
+        "            report.deleted.append(entry.name)\n",
+        unittest_slice(
+            "test_retention.DryRunAndReport.test_a_dry_run_changes_nothing_and_names_exactly_what_a_real_run_removes"
+        ),
+    ),
+    Break(
+        "retention: files are removed before the folder is renamed",
+        "retention.py",
+        "    target = entry.path if current.leftover else root / (DELETING_PREFIX + current.token)\n",
+        "    target = entry.path\n",
+        unittest_slice("test_retention.Deleting.test_the_rename_happens_before_any_file_is_removed"),
+    ),
+    Break(
+        "retention: the folder is not examined again right before it is removed",
+        "retention.py",
+        "    current = _inspect(entry.path, root, kind)  # raises _Refused when anything changed since the plan\n",
+        "    current = entry\n",
+        unittest_slice(
+            "test_retention.Deleting.test_a_folder_swapped_for_a_link_after_the_plan_is_not_followed"
+        ),
+    ),
+    Break(
+        "retention: a link inside a removed folder is followed",
+        "retention.py",
+        "        info = child.stat(follow_symlinks=False)\n",
+        "        info = child.stat()\n",
+        unittest_slice(
+            "test_retention.UnsafePaths.test_a_link_inside_a_removed_folder_is_removed_as_a_link_and_its_target_survives"
+        ),
+    ),
+    Break(
+        "retention: a leftover of an interrupted removal is not finished",
+        "retention.py",
+        "    for entry in leftovers + live[:cut]:\n",
+        "    for entry in live[:cut]:\n",
+        unittest_slice(
+            "test_retention.Deleting.test_a_removal_goes_through_a_deleting_folder_and_a_leftover_is_finished_next_time"
+        ),
+    ),
+    Break(
+        "retention: the lock is not taken",
+        "retention.py",
+        "            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)\n",
+        "            pass\n",
+        unittest_slice(
+            "test_retention.Lock.test_RET_09_a_lock_held_by_another_process_means_exit_0_and_nothing_deleted"
+        ),
+    ),
+    Break(
+        "retention: a prune that cannot lock goes ahead anyway",
+        "retention.py",
+        "        if not held:\n            report.locked_out = True\n            return report\n",
+        "",
+        unittest_slice("test_retention.Lock.test_a_file_system_without_locks_means_nothing_is_deleted"),
+    ),
+    Break(
+        "retention: a failed removal does not make the exit code 1",
+        "retention.py",
+        "        return not any(r.failed for r in self.roots)",
+        "        return True",
+        unittest_slice(
+            "test_retention.Deleting.test_a_folder_swapped_for_a_link_after_the_plan_is_not_followed"
+        ),
+    ),
+    Break(
+        "retention: a folder that holds only its marker is not discarded",
+        "retention.py",
+        "        if [p.name for p in folder.iterdir()] != [OWNER_FILE]:\n",
+        "        if False:\n",
+        unittest_slice(
+            "test_retention.Writers.test_a_folder_that_held_nothing_is_discarded_and_one_with_files_is_not"
+        ),
+    ),
+    Break(
+        "retention: the owner marker names another folder",
+        "retention.py",
+        '        "name": folder.name,\n',
+        '        "name": folder.name + "_",\n',
+        unittest_slice(
+            "test_retention.Writers.test_the_owner_marker_is_valid_and_the_folder_is_not_yet_eligible"
+        ),
+    ),
+    Break(
+        "cli: a results folder made by run has no owner marker",
+        "cli.py",
+        '        retention.write_owner(folder, "result", "cli")\n',
+        "",
+        unittest_slice(
+            "test_retention.CliCreatesOwnedFolders.test_a_results_folder_made_by_run_has_its_owner_marker_and_never_removes_anything"
+        ),
+    ),
+    Break(
+        "cli: a finished run is not marked done",
+        "cli.py",
+        "        retention.write_done(folder, status)\n",
+        "        pass\n",
+        unittest_slice(
+            "test_retention.CliCreatesOwnedFolders.test_finishing_a_run_marks_it_done_and_prunes_afterwards"
+        ),
+    ),
+    Break(
+        "cli: a successful run that wrote nothing loses its reported folder",
+        "cli.py",
+        '        if status != "ok" and retention.discard_unused(folder):\n',
+        "        if retention.discard_unused(folder):\n",
+        unittest_slice(
+            "test_retention.CliCreatesOwnedFolders.test_a_successful_run_that_wrote_nothing_keeps_its_folder"
+        ),
+    ),
+    Break(
+        "cli: a finished run does not prune",
+        "cli.py",
+        '        retention.prune("results")\n',
+        "        pass\n",
+        unittest_slice(
+            "test_retention.CliCreatesOwnedFolders.test_finishing_a_run_marks_it_done_and_prunes_afterwards"
+        ),
+    ),
+    Break(
+        "runs: a run record is not marked done",
+        "runs.py",
+        '        retention.write_done(folder, _DONE_STATUS.get(task.status, "failed"))\n',
+        "        pass\n",
+        unittest_slice(
+            "test_retention.CliCreatesOwnedFolders.test_a_run_record_has_markers_and_old_records_are_pruned_without_touching_foreign_ones"
+        ),
+    ),
+    Break(
+        "runs: a crashed run record is marked ok",
+        "runs.py",
+        '_DONE_STATUS = {"COMPLETE": "ok", "CANCELED": "cancelled"}',
+        '_DONE_STATUS = {"COMPLETE": "ok", "CANCELED": "cancelled", "CRASHED": "ok"}',
+        unittest_slice(
+            "test_retention.CliCreatesOwnedFolders.test_a_cancelled_or_crashed_run_record_says_so"
+        ),
+    ),
 ]
 
 

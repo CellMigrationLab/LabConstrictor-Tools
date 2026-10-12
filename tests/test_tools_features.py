@@ -55,7 +55,9 @@ class RegistryAndDoctor(unittest.TestCase):
         register(self.home, "synthetic")
         shown = cli("doctor", home=self.home).stdout
         self.assertIn(
-            "Tools %s, features: %s" % (labconstrictor_tools.__version__, "reserved_inputs_v1"), shown
+            "Tools %s, features: %s"
+            % (labconstrictor_tools.__version__, ", ".join(sorted(features.FEATURES))),
+            shown,
         )
         path = self.home / "apps" / "synthetic.schema.json"
         schema = json.loads(path.read_text())
