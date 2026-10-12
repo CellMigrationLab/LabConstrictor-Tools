@@ -7,7 +7,9 @@ import re
 from typing import Annotated, Any, Literal, Union, cast, get_args, get_origin, get_type_hints
 
 from . import types as T
+from ._version import __version__
 from .decorators import Tool, tools_in
+from .features import FEATURES
 from .protocol import RESERVED_INPUTS
 from .structures import AppSchema, OutputSchema, ParamSchema, ToolSchema
 
@@ -408,7 +410,12 @@ def describe_tools(
 ) -> AppSchema:
     """Deterministic JSON-compatible schema for all tools declared by `module_name`."""
     ts = sorted(tools_in(module_name), key=lambda t: t.id)
-    out: AppSchema = {"protocol": PROTOCOL, "tools": [describe_tool(t) for t in ts]}
+    out: AppSchema = {
+        "protocol": PROTOCOL,
+        "tools_version": __version__,
+        "features": sorted(FEATURES),
+        "tools": [describe_tool(t) for t in ts],
+    }
     _check_choice_sources(out["tools"])
     if application:
         out["application"] = application

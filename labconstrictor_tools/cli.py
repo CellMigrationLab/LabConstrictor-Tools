@@ -379,7 +379,19 @@ def _live_schema(entry: RegistryEntry) -> tuple[subprocess.CompletedProcess[str]
 
 
 def _strip(schema: Mapping[str, Any]) -> dict[str, Any]:
-    return {k: v for k, v in schema.items() if k not in ("application", "version")}
+    return {k: v for k, v in schema.items() if k not in ("application", "version", "tools_version", "features")}
+
+
+def tools_summary(schema: Mapping[str, Any]) -> str:
+    """`tools 0.2.0rc1, features: a, b` - or what is known when an older Tools wrote the schema."""
+    version = schema.get("tools_version")
+    features = schema.get("features")
+    if not isinstance(version, str) or not version:
+        return "Tools version unknown (schema written by Tools before 0.2)"
+    return "Tools %s, features: %s" % (
+        version,
+        ", ".join(str(f) for f in features) if isinstance(features, list) and features else "none listed",
+    )
 
 
 def diagnose() -> list[tuple[str, str, str]]:
@@ -434,8 +446,8 @@ def _diagnose_app(name: str, entry: RegistryEntry) -> tuple[str, str, str]:
     return (
         name,
         "ok",
-        "%d tool(s), schema current, interpreter %s (%.2f s)"
-        % (len(cached["tools"]), entry["python"], seconds),
+        "%d tool(s), schema current, interpreter %s (%.2f s); %s"
+        % (len(cached["tools"]), entry["python"], seconds, tools_summary(cached)),
     )
 
 

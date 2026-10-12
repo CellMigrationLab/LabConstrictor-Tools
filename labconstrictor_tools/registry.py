@@ -135,6 +135,7 @@ def register(
     target.mkdir(parents=True, exist_ok=True)
     schema_path = target / (name + ".schema.json")
     _write_atomic(schema_path, schema_text)
+    generated = json.loads(schema_text)  # what the app's own Tools said about itself
     entry: RegistryEntry = {
         "schema": 1,
         "name": name,
@@ -146,6 +147,8 @@ def register(
         "pythonpath": [str(x) for x in pythonpath],
         "runtime_path": runtime,
         "schema_path": str(schema_path),
+        "tools_version": str(generated.get("tools_version", "")),
+        "features": [str(x) for x in generated.get("features", [])],
     }
     _write_atomic(
         target / (name + ".json"), json.dumps(entry, indent=2)
