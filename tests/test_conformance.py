@@ -10,6 +10,7 @@ import contextlib
 import copy
 import io
 import json
+import os
 import re
 import shutil
 import string
@@ -55,20 +56,25 @@ class Loader(unittest.TestCase):
 
     def test_the_command_line_gives_the_path_and_validates(self):
         env = {"PYTHONPATH": str(ROOT), "PATH": ""}
+        if os.name == "nt":
+            # Python on Windows cannot start without SYSTEMROOT (random numbers, DLL search); it is not a PATH lookup
+            env["SYSTEMROOT"] = os.environ.get("SYSTEMROOT", "")
         path = subprocess.run(
             [sys.executable, "-m", "labconstrictor_tools.conformance", "--path"],
             capture_output=True,
             text=True,
             env=env,
         )
-        self.assertEqual(Path(path.stdout.strip()), conformance.path())
+        self.assertEqual(Path(path.stdout.strip()), conformance.path(), path.stderr)
         valid = subprocess.run(
             [sys.executable, "-m", "labconstrictor_tools.conformance", "--validate"],
             capture_output=True,
             text=True,
             env=env,
         )
-        self.assertEqual((valid.returncode, valid.stdout.strip()), (0, "conformance.json is valid"))
+        self.assertEqual(
+            (valid.returncode, valid.stdout.strip()), (0, "conformance.json is valid"), valid.stderr
+        )
         usage = subprocess.run(
             [sys.executable, "-m", "labconstrictor_tools.conformance"],
             capture_output=True,
@@ -838,6 +844,11 @@ class Documented(unittest.TestCase):
             self.assertIn(name, text, name)
 
 
+BDIST_WHEEL_MISSING = (
+    "invalid command 'bdist_wheel'"  # what an old setuptools says when it cannot build a wheel
+)
+
+
 class Packaging(unittest.TestCase):
     def test_pyproject_ships_the_file(self):
         text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
@@ -862,15 +873,18 @@ class Packaging(unittest.TestCase):
             out.mkdir()
             cwd = Path.cwd()
             try:
-                import os
-
                 os.chdir(tree)
                 with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
                     wheel = build_meta.build_wheel(str(out))
-            except (
-                Exception
-            ) as error:  # noqa: BLE001 - an offline or odd build environment is a skip, not a failure of the data
-                self.skipTest("the wheel could not be built here (%s: %s)" % (type(error).__name__, error))
+            except SystemExit as error:
+                # setuptools before 70.1 has no built-in bdist_wheel (it came with the `wheel` package) and exits instead of raising;
+                # only that one condition is a skip, any other exit is a real failure
+                if BDIST_WHEEL_MISSING not in str(error):
+                    raise
+                self.skipTest(
+                    "this setuptools cannot build a wheel (no bdist_wheel: needs setuptools>=70.1 or the `wheel` package; "
+                    "the `test` extra of pyproject.toml asks for it)"
+                )
             finally:
                 os.chdir(cwd)
             import zipfile
