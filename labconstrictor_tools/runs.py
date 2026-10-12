@@ -1,22 +1,22 @@
 """Run records: what was run, with what, by which interpreter, and what came back - for support and reproducibility.
 
-One folder per run under <LC_HOME>/runs/, newest kept (default 50). Everything stays on the local machine. A record holds
+One folder per run under <LC_HOME>/runs/, carrying the owner and done markers of docs/SPEC_WRONG_SCIENCE.md section 3;
+`retention.prune` keeps the newest 50 finished ones and never touches a folder it did not make. Everything stays on the local machine. A record holds
 file *paths* and parameter values you passed, never image or table contents.
 """
 
 import json
 import re
-import shutil
 from collections.abc import Mapping
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from . import log, registry
+from . import log, registry, retention
 from .protocol import JOB_DIR_KEY
 
-KEEP = 50
 STDERR_TAIL_CHARS = 4000
+_DONE_STATUS = {"COMPLETE": "ok", "CANCELED": "cancelled"}  # every other task status is "failed"
 
 
 def runs_dir() -> Path:
@@ -30,7 +30,9 @@ def record(
     try:
         started = datetime.now(timezone.utc)
         folder = runs_dir() / ("%s_%s_%s" % (started.strftime("%Y%m%dT%H%M%S%f"), _safe(app), _safe(tool_id)))
-        folder.mkdir(parents=True, exist_ok=True)
+        runs_dir().mkdir(parents=True, exist_ok=True)
+        folder.mkdir()  # never an existing folder: it would be marked as ours
+        retention.write_owner(folder, "run", "cli")
         entry: Mapping[str, Any] = registry.load_all().get(app) or {}
         content = {
             "app": app,
@@ -53,7 +55,8 @@ def record(
             "stderr_tail": stderr[-STDERR_TAIL_CHARS:],
         }
         (folder / "run.json").write_text(json.dumps(content, indent=2, default=str), encoding="utf-8")
-        _prune()
+        retention.write_done(folder, _DONE_STATUS.get(task.status, "failed"))
+        retention.prune("runs")
         return folder
     except (
         Exception  # noqa: BLE001 - a record must never break a run, but its absence must be visible
@@ -66,17 +69,3 @@ def record(
 
 def _safe(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", text)
-
-
-def _prune(keep: int = KEEP) -> None:
-    folders = sorted(p for p in runs_dir().iterdir() if p.is_dir())
-    for old in folders[:-keep]:
-        try:
-            shutil.rmtree(old)
-        except OSError as error:  # keep going: one stuck folder must not stop the others from being pruned
-            log.warning(
-                "could not remove the old run record %s (%s: %s); old records will accumulate",
-                old,
-                type(error).__name__,
-                error,
-            )

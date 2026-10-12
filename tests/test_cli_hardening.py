@@ -4,7 +4,6 @@ import argparse
 import contextlib
 import io
 import os
-import re
 import subprocess
 import sys
 import tempfile
@@ -103,7 +102,7 @@ class ResultsFolders(PrivateHome):
         self.assertNotEqual(first, second)
         self.assertTrue(first.is_dir() and second.is_dir())
 
-    def test_only_folders_this_command_made_are_pruned(self):
+    def test_creating_a_results_folder_removes_nothing(self):
         base = self.home / "results"
         base.mkdir()
         (base / "000_keep").mkdir()
@@ -112,8 +111,9 @@ class ResultsFolders(PrivateHome):
             (base / ("20200101T0000%02d_x" % i)).mkdir()
         lc_cli._new_results_dir("app", "tool")
         self.assertEqual((base / "000_keep" / "mine.txt").read_text(), "precious")
-        made = [p for p in base.iterdir() if re.match(r"\d{8}T\d{6}_", p.name)]
-        self.assertEqual(len(made), lc_cli.RESULTS_KEPT)
+        self.assertEqual(
+            len(list(base.iterdir())), 27
+        )  # pruning is `labconstrictor-tools prune` (tests/test_retention.py)
 
     def test_a_tool_name_with_separators_cannot_leave_the_results_folder(self):
         folder = lc_cli._new_results_dir("../../app", "../../../outside")

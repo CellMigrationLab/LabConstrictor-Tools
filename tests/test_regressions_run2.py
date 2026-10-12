@@ -133,18 +133,17 @@ class Hardening(unittest.TestCase):
         self.assertIn("filesystem root", reason or "")
 
     def test_cli_results_go_to_a_known_folder_and_old_ones_are_pruned(self):
-        from labconstrictor_tools import cli, registry
+        from labconstrictor_tools import cli, registry, retention
 
         os.environ["LC_HOME"] = tempfile.mkdtemp()
         try:
-            for _ in range(cli.RESULTS_KEPT + 5):
+            for _ in range(retention.RESULTS_KEPT + 5):
                 folder = cli._new_results_dir("a", "t")
-                folder.mkdir(parents=True, exist_ok=True)
                 (folder / "x").write_text("1")
+                cli._finish_results_dir(str(folder), "ok")  # marks it done, then prunes the old ones
                 time.sleep(0.002)
-                folder.rename(folder.with_name(folder.name + "_%d" % int(time.time() * 1000)))
             kept = list((registry.home() / "results").iterdir())
-            self.assertLessEqual(len(kept), cli.RESULTS_KEPT)
+            self.assertEqual(len(kept), retention.RESULTS_KEPT)
         finally:
             os.environ.pop("LC_HOME", None)
 
@@ -218,7 +217,7 @@ class QuietFailuresAreVisible(unittest.TestCase):
         task = _types.SimpleNamespace(
             status="COMPLETE", error=None, code=None, traceback=None, outputs={}, cancel_requested=False
         )
-        with mock.patch.object(runs, "_prune", side_effect=OSError("disk full")):
+        with mock.patch.object(runs.retention, "prune", side_effect=OSError("disk full")):
             self.assertIsNone(runs.record("app", "tool", {}, task, 1.0))
         self.assertIn("could not write the run record", log.tail(20))
         self.assertIn("disk full", log.tail(20))

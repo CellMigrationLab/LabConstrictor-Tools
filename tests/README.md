@@ -12,8 +12,9 @@ interpreter that runs them (needs `pip install -e ".[test]"`).
 | test_environments | concurrency, duplicate/broken/future-protocol apps, orphaned workers (optional read-only prefix: `LC_TEST_RO_PREFIX`) |
 | test_notebook_form | the ipywidgets form |
 | test_author_tools | `%%lc_tool`, `export-notebook`, `labconstrictor-tools test` |
-| test_regressions_run2 | worker pipes closed, `--pythonpath` precedence, damaged TIFF, nullable/folder/group/advanced/enabled_when in the schema, host cwd not on the worker's path, root prefix refused, CLI results folder pruned |
+| test_regressions_run2 | worker pipes closed, `--pythonpath` precedence, damaged TIFF, nullable/folder/group/advanced/enabled_when in the schema, host cwd not on the worker's path, root prefix refused, CLI results folder pruned (after `_finish_results_dir`) |
 | test_hardening | NaN/inf rejected, strict-JSON results, registry priority and trust, unsafe app names, skipped-app explanations, message after a forced kill on Cancel |
+| test_retention | `retention` and `labconstrictor-tools prune`: marker-based ownership, foreign and legacy folders kept, unsafe paths, the lock, dry run, the report, the folders `run` and the run records create |
 | test_conformance | `conformance.json`: loader, schema, the data against the code and against plain-Python oracles, packaging |
 | test_cli_hardening | support bundle never follows symlinks, doctor survives broken apps, unique results folders, duplicate arguments |
 | test_convert_hardening | dtype narrowing never changes values, invalid defaults refused, strict booleans/choices, enums restored, empty images refused |

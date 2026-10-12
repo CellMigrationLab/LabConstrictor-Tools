@@ -2,6 +2,7 @@
 
 Used by installers : register | unregister
 Used by hosts      : describe | serve                (internal: schema generation and the tool worker)
+Used by hosts, after a run : prune          (removes old results/runs folders, see retention.py)
 Used by people     : list | run | check | test | doctor     (see cli.py)
 """
 
@@ -35,6 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_logs_command(sub)
     _add_bundle_command(sub)
     _add_doctor_command(sub)
+    _add_prune_command(sub)
     return parser
 
 
@@ -146,6 +148,16 @@ def _add_doctor_command(sub: "Subparsers") -> None:
     doctor.add_argument("--json", action="store_true")
 
 
+def _add_prune_command(sub: "Subparsers") -> None:
+    prune = sub.add_parser(
+        "prune",
+        help="remove old result folders and run records under LC_HOME (only folders LabConstrictor made and finished)",
+    )
+    prune.add_argument("--root", choices=("results", "runs", "all"), default="all")
+    prune.add_argument("--dry-run", action="store_true", help="say what would be removed, change nothing")
+    prune.add_argument("--json", action="store_true")
+
+
 def _tolerant_streams() -> None:
     """Windows consoles/pipes often use cp1252/cp437: printing the status symbols (check, cross, warning) must never crash a command."""
     for stream in (sys.stdout, sys.stderr):
@@ -225,6 +237,7 @@ def _main(argv: list[str] | None = None) -> int:
             "support-bundle": cli.cmd_support_bundle,
             "export-notebook": cli.cmd_export_notebook,
             "doctor": cli.cmd_doctor,
+            "prune": cli.cmd_prune,
             "init": cli.cmd_init,
         }[args.command](args)
     return 0

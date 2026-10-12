@@ -57,9 +57,9 @@ Files that must change in the apps (the template-repository change is a later ta
 ## Troubleshooting
 * `labconstrictor-tools doctor` checks every entry (interpreter, schema, protocol, staleness) and prints what to fix.
 * Stale tool list after an app update: run `labconstrictor-tools register ...` again (the installer does this).
-* `labconstrictor-tools run` without `--out` writes its results to `<LC_HOME>/results/<time>_<app>_<tool>` (the newest 20 completed ones are kept by `labconstrictor-tools prune`, which the hosts start after a run; Napari and Fiji use their own temporary folders and remove them).
+* `labconstrictor-tools run` without `--out` writes its results to `<LC_HOME>/results/<time>_<app>_<tool>` (the newest 20 finished ones are kept by `labconstrictor-tools prune`, which the hosts start after a run; Napari and Fiji use their own temporary folders and remove them). `prune` removes only folders that carry LabConstrictor's own marker files (`.lc-owner.json` and `.lc-done.json`): a folder you made yourself, or one from an older version without markers, is never touched. Look first with `labconstrictor-tools prune --dry-run`; the rules are in [PROTOCOL.md](PROTOCOL.md#result-folders-and-run-records-retention).
 * Every run writes `<LC_HOME>/runs/<time>_<app>_<tool>/run.json` (parameters as file paths and values, never pixel data; status,
-  error, traceback, interpreter, worker output). Napari's *Details...* button shows it; attach it to bug reports. The newest 50 are kept.
+  error, traceback, interpreter, worker output). Napari's *Details...* button shows it; attach it to bug reports. The newest 50 finished records are kept (`prune`, same rules).
 * First run slow? Imports dominate (a repeat run in a kept worker is ~10x faster). Napari keeps the worker for 10 minutes by default.
 * Tool hangs on Windows? Please report with the run record; two such hangs (numpy/scipy imports vs a pending stdin read) were found
   and fixed during development.
