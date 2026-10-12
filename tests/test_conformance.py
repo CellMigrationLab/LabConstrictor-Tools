@@ -349,6 +349,62 @@ class CoordinateData(unittest.TestCase):
             rotated, [[float(a), float(b)] for a, b in self.cases["CF-04"]["shapes_layer"]["vertices_world"]]
         )
 
+    def test_a_rect_is_y_then_x_like_the_image_arrays(self):
+        coordinate = WRONG["coordinate"]
+        rows, columns = coordinate["image"]["shape"]
+        rect = coordinate["rect"]
+        self.assertIn("[y, x]", coordinate["axis_order"]["rect"])
+        self.assertIn("[x, y]", coordinate["axis_order"]["protocol_shapes"])
+        # read as [y, x] the vertices give the listed mask; read as [x, y] (swapped) they would give another one
+        as_yx = [[y, x] for y in range(rows) for x in range(columns) if inside(rect, y, x)]
+        swapped = [[x, y] for y, x in rect]
+        as_xy = [[y, x] for y in range(rows) for x in range(columns) if inside(swapped, y, x)]
+        self.assertEqual(as_yx, coordinate["rect_mask_pixels"])
+        self.assertNotEqual(as_xy, coordinate["rect_mask_pixels"])
+        self.assertEqual(
+            [
+                [min(v[0] for v in rect), max(v[0] for v in rect)],
+                [min(v[1] for v in rect), max(v[1] for v in rect)],
+            ],
+            [[1.5, 3.5], [2.5, 5.5]],
+        )
+
+    def test_width_height_is_only_the_server_size_and_every_other_pair_is_y_first(self):
+        order = WRONG["coordinate"]["axis_order"]
+        self.assertIn("[width, height]", order["server_wh"])
+        for key in ("image_shape", "export_shape", "offset_yx", "c_yx", "rect", "points"):
+            self.assertTrue(order[key].startswith("[rows") or order[key].startswith("[y"), key)
+        cf09 = self.cases["CF-09"]
+        self.assertEqual(cf09["source"]["server_shape_yx"], cf09["source"]["server_wh"][::-1])
+        self.assertEqual(cf09["source"]["server_shape_yx"], WRONG["coordinate"]["image"]["shape"])
+        self.assertEqual(
+            cf09["expect"]["export_shape"], [4, 6], "rows, columns: 4 rows (y 2..6), 6 columns (x 4..10)"
+        )
+        for variant in self.cases["CF-14"]["variants"]:
+            if "server_wh" not in variant:
+                continue
+            rows, columns = variant["server_shape_yx"]
+            self.assertEqual([columns, rows], variant["server_wh"], variant)
+            (y0, x0), (height, width), d = (
+                variant["offset_yx"],
+                variant["export_shape"],
+                variant["downsample"],
+            )
+            self.assertLessEqual(
+                y0 + height * d, rows, variant
+            )  # export_shape [rows, columns] fits in the server rows/columns
+            self.assertLessEqual(x0 + width * d, columns, variant)
+
+    def test_the_decisions_are_recorded_in_the_spec_and_no_longer_listed_as_gaps(self):
+        text = spec()
+        section_8 = text[text.index("## 8. Decisions and follow-ups") :]
+        self.assertIn("the axis order of a `rect` region is `[y, x]`", section_8)
+        self.assertIn("`millimeter` and `millimetre`", section_8)
+        self.assertIn("unknown unit and means unknown calibration", section_8)
+        gaps = (ROOT / "docs" / "CONFORMANCE.md").read_text(encoding="utf-8").split("## Gaps:")[1]
+        self.assertNotIn("Axis order of `rect`", gaps)
+        self.assertNotIn("**Length units**", gaps)
+
     def test_the_qupath_crop(self):
         case = self.cases["CF-09"]
         x0, x1 = case["selection_annotation"]["x"]
@@ -396,20 +452,53 @@ class CalibrationData(unittest.TestCase):
         return scale * self.calibration["length_units_um"][unit]
 
     def test_unit_spellings_convert_to_the_listed_answers(self):
-        self.assertAlmostEqual(
-            self.um(1, "millimeter") if "millimeter" in self.calibration["length_units_um"] else 1000.0,
-            1000.0,
-        )
+        self.assertAlmostEqual(self.um(1, "millimeter"), 1000.0)
+        self.assertAlmostEqual(self.um(1, "millimetre"), 1000.0)
         variants = self.cases["CAL-05"]["input"]["variants"]
         for variant in variants:
             self.assertAlmostEqual(self.um(variant["scale"], variant["unit"]) / 0.325, 1.0, delta=1e-9)
         for variant in self.cases["CAL-15"]["input"]["variants"]:
             self.assertEqual(self.um(variant["scale"], variant["unit"]), 0.5)
-        for variant in self.cases["CAL-17"]["input"]["variants"]:
-            self.assertAlmostEqual(self.um(variant["scale"], variant["unit"]), 0.0001, places=12)
+        for variant in self.cases["CAL-17"]["input"][
+            "variants"
+        ]:  # the Angstrom is not an accepted name (section 8)
+            self.assertIsNone(self.um(variant["scale"], variant["unit"]))
         damaged = self.cases["CAL-16"]["input"]
         self.assertIsNone(self.um(damaged["scale"], damaged["unit"]))
         self.assertIn(damaged["unit"], self.cases["CAL-16"]["expect"]["warning"])
+
+    ACCEPTED = {"nm", "um", "\u00b5m", "\u03bcm", "mm", "cm", "m", "millimeter", "millimetre"}
+
+    def test_the_accepted_unit_names_are_exactly_the_decided_ones(self):
+        # SPEC_WRONG_SCIENCE 8 (user, 12 Oct): the short forms and the two long forms of the millimetre, nothing else
+        self.assertEqual(set(self.calibration["length_units_um"]), self.ACCEPTED)
+        self.assertEqual(
+            {name: self.calibration["length_units_um"][name] for name in ("nm", "mm", "cm", "m")},
+            {"nm": 0.001, "mm": 1000.0, "cm": 10000.0, "m": 1000000.0},
+        )
+
+    def test_every_other_unit_name_is_an_unknown_unit(self):
+        names = self.calibration["unit_names"]
+        refused = names["refused"]
+        self.assertEqual(len(refused), len(set(refused)), "a name listed twice")
+        self.assertFalse(
+            set(refused) & set(self.calibration["length_units_um"]), "a refused name is also accepted"
+        )
+        for name in refused:
+            with self.subTest(name=name):
+                self.assertIsNone(self.um(1.0, name))
+        # the families the decision names are all there: micron(s), micrometer(s)/-metre(s), the Angstrom spellings, ...
+        for name in ("micron", "microns", "micrometer", "micrometres", "Angstrom", "\u00c5", "\u212b", "u m"):
+            self.assertIn(name, refused)
+        # ... and, for every accepted ASCII name, its case variants, its plural and its spaced forms
+        for name in sorted(n for n in self.ACCEPTED if n.isascii()):
+            for variant in (name.upper(), name.capitalize(), name + "s", " " + name, name + " "):
+                self.assertIn(variant, refused, "%r (from %r)" % (variant, name))
+        # CAL-19 asks for 'unknown' once per refused name, and says where the names are
+        case = self.cases["CAL-19"]
+        self.assertEqual(case["input"]["units_from"], "unit_names.refused")
+        self.assertEqual(case["expect"]["um_per_px_each"], ["unknown"] * len(refused))
+        self.assertIn("exact text", names["match"])
 
     def test_the_three_micro_spellings_are_the_ones_of_the_spec(self):
         self.assertEqual(self.calibration["micro_sign_spellings"], ["\u00b5", "\u03bc", "u"])
@@ -457,7 +546,7 @@ class CalibrationData(unittest.TestCase):
         self.assertEqual(
             [t["id"] for t in self.calibration["transitions"]], ["CAL-T%d" % i for i in range(1, 10)]
         )
-        self.assertEqual(sorted(self.cases), ["CAL-%02d" % i for i in range(1, 19)])
+        self.assertEqual(sorted(self.cases), ["CAL-%02d" % i for i in range(1, 20)])
 
 
 @unittest.skipIf(

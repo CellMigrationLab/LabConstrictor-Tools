@@ -67,7 +67,7 @@ Note on the Napari row: a lower-dimensional result on a higher-dimensional sourc
 New host-side codes `frame_unsupported_transform`, `selection_mixed_planes`, `selection_plane_mismatch`, `target_unavailable` go into `host_internal_codes` of the conformance file; wording is one sentence naming the source and the reason, always followed by `(nothing was changed; files are in <path>)` when files exist.
 
 ### 1.5 Fixtures: coordinate frame
-Base image `ASYM`: uint16, 8 rows by 12 columns, `value(y, x) = 100*y + x`. Rectangles have vertices on half pixels, so no pixel centre lies on an edge. `world` is Napari only; `target_px` is `c - 0.5` on the target image in its own full-resolution data pixels (so Fiji and QuPath draw at `target_px + 0.5`), the check in every host.
+Base image `ASYM`: uint16, 8 rows by 12 columns, `value(y, x) = 100*y + x`. Rectangles have vertices on half pixels, so no pixel centre lies on an edge. **Axis order (decided, section 8): the vertices of `rect` are `[y, x]`, like the image arrays and `rect_mask_pixels`; protocol shapes stay `[x, y]`, as GeoJSON requires.** In the cases below `server_wh` is `[width, height]` (the file also gives `server_shape_yx`, the same size as `[rows, columns]`), while `export_shape`, `offset_yx` and `c_yx` are y first, and the shape of `ASYM` is `[rows, columns]`. `world` is Napari only; `target_px` is `c - 0.5` on the target image in its own full-resolution data pixels (so Fiji and QuPath draw at `target_px + 0.5`), the check in every host.
 
 ```json
 {
@@ -142,8 +142,8 @@ Checks that every case also makes: the **worker's input file** (exported pixels 
 ### 2.1 What "calibrated" means
 1. A source is **calibrated** only if the host can state a physical length per pixel **from explicit metadata**: a length unit plus a numeric size. The number alone (`1.0`, `0.25`) is never evidence, in either direction.
 2. **Unknown is a first-class value.** Pixel, empty, dimensionless or missing units give *unknown*, whatever the number. The host never assumes 1 um/px, and **a bare scale with default pixel units is unknown, never assumed to be um** (this removes the Napari behaviour recorded in HOST_PARITY C19).
-3. Explicit units win even when the scale is exactly 1: `1 micrometer` is 1.0 um/px; `1 millimeter` is 1000.0 um/px.
-4. Unit conversion is to **micrometres per pixel** (the contract of `PixelSizeOf`, SPEC_WAVE2 1.4). Length units known to the host: at least `um`, `micron(s)`, `micrometer/-metre`, `nm`, `mm`, `cm`, `m`, and the Angstrom (`Angstrom`, `angstrom`, U+00C5, U+212B; 1 Angstrom = 1e-4 um). The micro sign has three accepted spellings: U+00B5 (micro sign), U+03BC (Greek mu) and ASCII `u`, each followed by `m`. **U+FFFD (the replacement character, a damaged micro sign) followed by `m` is not accepted**: the result is unknown with the warning `unit text 'X' is damaged; enter the pixel size`.
+3. Explicit units win even when the scale is exactly 1: `1 um` is 1.0 um/px; `1 millimeter` is 1000.0 um/px.
+4. Unit conversion is to **micrometres per pixel** (the contract of `PixelSizeOf`, SPEC_WAVE2 1.4). Length unit names accepted by the host (decided, section 8; **exact text**, case-sensitive, no plural, no spaces, nothing is trimmed or lower-cased): `nm`, `um`, `mm`, `cm`, `m` and the long forms `millimeter` and `millimetre`. The micro sign has three accepted spellings: U+00B5 (micro sign), U+03BC (Greek mu) and ASCII `u`, each followed by `m`. **Every other unit name is an unknown unit and means unknown calibration**: `micron(s)`, `micrometer(s)`, `micrometre(s)`, the Angstrom spellings, case variants (`UM`, `Millimeter`), plurals (`mms`) and names with spaces (`micro meter`, ` um`). **U+FFFD (the replacement character, a damaged micro sign) followed by `m` is not accepted**: the result is unknown with the warning `unit text 'X' is damaged; enter the pixel size`.
 5. Anisotropic pixels (Y and X differ by more than 1e-3, relative to the larger) and non-length units give *unknown* plus a warning (`pixels are not square` / `unit 's' is not a length`); the scalar field is not filled (within the tolerance the field takes the mean of the X and Y sizes). **This is a behaviour change** in every host that fills the field from one axis today. Release-note line: *"A pixel size is no longer filled in automatically when the image's pixels are not square (X and Y differ by more than 0.1 %) or its unit is not a length; enter the pixel size yourself."*
 6. Sources: Napari layer `scale` + `units`; Fiji `Calibration` (`scaled()`, `getUnit()`, `pixelWidth`); QuPath `PixelCalibration` (`hasPixelSizeMicrons()`); a file input by its TIFF/OME metadata with a length unit (`ResolutionUnit` NONE is unknown). **TIFF resolution tags alone are not a calibration when they look like a default:** `ResolutionUnit` INCH or CENTIMETER with a resolution equal (within 0.5 %) to 72 or 96 dpi (28.35 or 37.80 per cm) is unknown, not 352.8 or 264.6 um/px. An ImageJ `unit=` or OME `PhysicalSizeX` unit in the file wins over the tags.
 
@@ -169,8 +169,8 @@ Precedence of the source is the precedence of what is exported: file input first
 4. The request carries two things. The value in the manifest parameter, in um/px (unchanged). And a reserved input `_calibration`, like `_job_dir` and `_axes`, which tools never see. It is **per axis**, keyed by manifest parameter, with overall provenance:
 ```json
 {"_calibration": {"pixel_size": {"of": "image", "source": "image|file|user",
-  "axes": {"x": {"value": 1.0, "unit": "um", "source": "image", "raw": {"scale": 1.0, "unit": "micrometer"}},
-           "y": {"value": 1.0, "unit": "um", "source": "image", "raw": {"scale": 1.0, "unit": "micrometer"}}}}}}
+  "axes": {"x": {"value": 1.0, "unit": "um", "source": "image", "raw": {"scale": 1.0, "unit": "um"}},
+           "y": {"value": 1.0, "unit": "um", "source": "image", "raw": {"scale": 1.0, "unit": "um"}}}}}}
 ```
    `value` is in the canonical unit of the link (`um` per pixel for x, y and z; `s` for t); `unit` is that canonical unit; `source` is `image`, `file` or `user` per axis (an entered value is `user`); `raw` keeps the original scale and unit text when there was one. **Phase 1 fills `x` and `y` only** (a scalar `PixelSizeOf` needs an isotropic pair, 2.1.5); `z` (`ZStepOf`) and `t` (`TimeIntervalOf`) are added by Wave 2 with the same entry shape. The worker only copies the object into `run.json`; hosts write it into the run record too. A request with a `PixelSizeOf` value and no `_calibration` entry is a host bug and a test failure.
 5. CLI and notebook: the same rule. The value comes from `--pixel-size` / the argument, or from the file's own calibration if linking is implemented; otherwise the run fails with the sentence of 2.3.1. They never default silently.
@@ -180,24 +180,25 @@ Known answers (`um_per_px`, or `unknown`); the first run of the form must produc
 
 | id | source | expected |
 |---|---|---|
-| CAL-01 | Napari scale (1,1), units (micrometer, micrometer) | 1.0, source image |
+| CAL-01 | Napari scale (1,1), units (um, um) | 1.0, source image |
 | CAL-02 | Napari scale (1,1), units default (pixel) | unknown |
 | CAL-03 | Napari scale (1,1), units millimeter | 1000.0 |
 | CAL-04 | Napari scale (0.25,0.25), units pixel or none | unknown (never read as um) |
 | CAL-05 | 0.325 um, 325 nm, 0.000325 mm (any host) | 0.325 each (relative error < 1e-9) |
 | CAL-06 | scale (0.5, 0.25), units um | unknown + `not square` warning |
 | CAL-07 | scale (1,1), units second | unknown + `not a length` warning |
-| CAL-08 | Fiji unit `micron`, pixelWidth 1.0 / unit `pixel`, width 1.0 / unit empty | 1.0 / unknown / unknown |
+| CAL-08 | Fiji unit `um`, pixelWidth 1.0 / unit `pixel`, width 1.0 / unit empty | 1.0 / unknown / unknown |
 | CAL-09 | QuPath `hasPixelSizeMicrons()` true with 1.0 / false | 1.0 / unknown |
-| CAL-10 | TIFF with ImageJ `unit=micron` spacing 1.0 / no resolution tags / `ResolutionUnit` NONE | 1.0 / unknown / unknown |
+| CAL-10 | TIFF with ImageJ `unit=um` spacing 1.0 / no resolution tags / `ResolutionUnit` NONE | 1.0 / unknown / unknown |
 | CAL-11 | TIFF `ResolutionUnit` INCH, 72 dpi, no ImageJ/OME unit | unknown (not 352.78) |
 | CAL-12 | TIFF `ResolutionUnit` INCH, 96 dpi, no ImageJ/OME unit | unknown (not 264.58) |
 | CAL-13 | TIFF `ResolutionUnit` CENTIMETER, 28.35 and 37.80 per cm, no unit text | unknown, unknown |
 | CAL-14 | TIFF `ResolutionUnit` INCH, 25400 dpi (not default-looking), no unit text | 1.0, source file |
 | CAL-15 | unit text `"\u00B5m"` (micro sign), `"\u03BCm"` (Greek mu), `"um"`, each with scale 0.5 | 0.5 for all three |
 | CAL-16 | unit text `"\uFFFDm"`, scale 0.5 | unknown + `damaged` warning |
-| CAL-17 | unit text `"Angstrom"`, `"\u00C5"`, `"\u212B"`, scale 1.0 | 0.0001 each |
+| CAL-17 | unit text `"Angstrom"`, `"\u00C5"`, `"\u212B"`, scale 1.0 | unknown each (not accepted names) |
 | CAL-18 | scale (0.5, 0.5004) um / scale (0.5, 0.5006) um | 0.5002 (difference 8e-4 is within 1e-3, the field takes the mean of x and y) / unknown + warning (difference 1.2e-3) |
+| CAL-19 | scale 1.0 with each refused name of `unit_names.refused` in the file (`micron`, `microns`, `micrometer`, `UM`, `Millimeter`, `mms`, `meter`, ` um`, `micro meter`, ...) | unknown each |
 
 Transitions (each asserts the field **and** the request/worker input):
 
@@ -364,6 +365,8 @@ Decided by the maintainers:
 * The per-axis `_calibration` shape (x, y, z, t; phase 1 fills x, y) is final.
 * Decided (user, 12 Oct): a damaged micro sign (U+FFFD followed by `m`) is unknown with a warning, never read as micrometres (2.1.4).
 * Decided (user, 12 Oct): TIFF resolution tags equal to 72 or 96 dpi (within 0.5 %) with INCH units are unknown (2.1.6).
+* Decided (user, 12 Oct): the axis order of a `rect` region is `[y, x]`, like the image arrays (1.5); protocol shapes stay `[x, y]` as GeoJSON requires. In the fixtures `server_wh` is `[width, height]` and `export_shape` is `[rows, columns]`.
+* Decided (user, 12 Oct): the accepted length-unit names for calibration are exactly `nm`, `um` (and the micro sign spellings, 2.1.4), `mm`, `cm`, `m`, plus the long forms `millimeter` and `millimetre`. Everything else (`micron(s)`, `micrometer(s)`, the Angstrom spellings, case variants, plurals, names with spaces) is an unknown unit and means unknown calibration (2.1.4). This replaces the longer list of the first draft of 2.1.4; CAL-01, 08, 10 and 17 changed with it, CAL-19 is new.
 * Decided (user, 12 Oct): the unknown-calibration rule applies to `TimeIntervalOf` and `ZStepOf` as well as `PixelSizeOf` (2.3.1; SPEC_WAVE2 1.4).
 
 Follow-up item: an explicit `labconstrictor-tools clean --legacy` command with a dry run (lists, then deletes only on confirmation). Not part of this wave.

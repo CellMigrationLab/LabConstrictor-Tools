@@ -709,6 +709,39 @@ BREAKS = [
         "        print(path().parent)\n",
         unittest_slice("test_conformance.Loader.test_the_command_line_gives_the_path_and_validates"),
     ),
+    # ---- the data of the decisions of 12 Oct (SPEC_WRONG_SCIENCE section 8): the file itself is the thing that can break
+    Break(
+        "conformance data: 'micron' is an accepted length unit",
+        "conformance.json",
+        '"length_units_um": {\n    "um": 1.0,\n',
+        '"length_units_um": {\n    "um": 1.0,\n    "micron": 1.0,\n',
+        unittest_slice(
+            "test_conformance.CalibrationData.test_the_accepted_unit_names_are_exactly_the_decided_ones"
+        ),
+    ),
+    Break(
+        "conformance data: a refused unit name is also in the unit table",
+        "conformance.json",
+        '    "millimetre": 1000.0,\n',
+        '    "millimetre": 1000.0,\n    "MM": 1000.0,\n',
+        unittest_slice("test_conformance.CalibrationData.test_every_other_unit_name_is_an_unknown_unit"),
+    ),
+    Break(
+        "conformance data: the first vertex of the rect is [x, y]",
+        "conformance.json",
+        '   "rect": [\n    [\n     1.5,\n     2.5\n    ],',
+        '   "rect": [\n    [\n     2.5,\n     1.5\n    ],',
+        unittest_slice("test_conformance.CoordinateData.test_a_rect_is_y_then_x_like_the_image_arrays"),
+    ),
+    Break(
+        "conformance data: the QuPath server size of CF-09 is [rows, columns] where the file says [width, height]",
+        "conformance.json",
+        '"server_shape_yx": [\n       8,\n       12\n      ]',
+        '"server_shape_yx": [\n       12,\n       8\n      ]',
+        unittest_slice(
+            "test_conformance.CoordinateData.test_width_height_is_only_the_server_size_and_every_other_pair_is_y_first"
+        ),
+    ),
 ]
 
 

@@ -221,6 +221,19 @@
     "dtype": "uint16",
     "value": "100*y + x"
    },
+   "axis_order": {
+    "decision": "SPEC_WRONG_SCIENCE section 8 (confirmed): a rect region is [y, x], like the image arrays; protocol shapes stay [x, y] (GeoJSON)",
+    "rect": "[y, x] per vertex",
+    "points": "[y, x]",
+    "protocol_shapes": "[x, y] (GeoJSON)",
+    "image_shape": "[rows, columns]",
+    "export_shape": "[rows, columns]",
+    "offset_yx": "[y, x]",
+    "c_yx": "[y, x]",
+    "server_wh": "[width, height] (the one place that is not y first; server_shape_yx gives the same size as [rows, columns])",
+    "server_shape_yx": "[rows, columns] = server_wh reversed",
+    "selection_annotation": "keyed: x is [x0, x1], y is [y0, y1], in full-resolution pixels"
+   },
    "rect": [
     [
      1.5,
@@ -542,6 +555,10 @@
       "server_wh": [
        12,
        8
+      ],
+      "server_shape_yx": [
+       8,
+       12
       ]
      },
      "selection_annotation": {
@@ -711,6 +728,10 @@
         24,
         16
        ],
+       "server_shape_yx": [
+        16,
+        24
+       ],
        "downsample": 2,
        "offset_yx": [
         0,
@@ -736,6 +757,10 @@
         48,
         32
        ],
+       "server_shape_yx": [
+        32,
+        48
+       ],
        "downsample": 4,
        "offset_yx": [
         0,
@@ -760,6 +785,10 @@
        "server_wh": [
         48,
         32
+       ],
+       "server_shape_yx": [
+        32,
+        48
        ],
        "downsample": 2,
        "offset_yx": [
@@ -807,22 +836,12 @@
    "unit": "um per pixel",
    "length_units_um": {
     "um": 1.0,
-    "micron": 1.0,
-    "microns": 1.0,
-    "micrometer": 1.0,
-    "micrometre": 1.0,
-    "micrometers": 1.0,
-    "micrometres": 1.0,
     "nm": 0.001,
     "mm": 1000.0,
     "millimeter": 1000.0,
     "millimetre": 1000.0,
     "cm": 10000.0,
     "m": 1000000.0,
-    "Angstrom": 0.0001,
-    "angstrom": 0.0001,
-    "\u00c5": 0.0001,
-    "\u212b": 0.0001,
     "\u00b5m": 1.0,
     "\u03bcm": 1.0
    },
@@ -871,7 +890,7 @@
         "source": "image",
         "raw": {
          "scale": 1.0,
-         "unit": "micrometer"
+         "unit": "um"
         }
        },
        "y": {
@@ -880,7 +899,7 @@
         "source": "image",
         "raw": {
          "scale": 1.0,
-         "unit": "micrometer"
+         "unit": "um"
         }
        }
       }
@@ -898,15 +917,15 @@
    "cases": [
     {
      "id": "CAL-01",
-     "source": "Napari scale (1,1), units (micrometer, micrometer)",
+     "source": "Napari scale (1,1), units (um, um)",
      "input": {
       "scale": [
        1,
        1
       ],
       "units": [
-       "micrometer",
-       "micrometer"
+       "um",
+       "um"
       ]
      },
      "expect": {
@@ -1033,12 +1052,12 @@
     },
     {
      "id": "CAL-08",
-     "source": "Fiji unit micron, pixelWidth 1.0 / unit pixel, width 1.0 / unit empty",
+     "source": "Fiji unit um, pixelWidth 1.0 / unit pixel, width 1.0 / unit empty",
      "input": {
       "variants": [
        {
         "pixelWidth": 1.0,
-        "unit": "micron"
+        "unit": "um"
        },
        {
         "pixelWidth": 1.0,
@@ -1081,11 +1100,11 @@
     },
     {
      "id": "CAL-10",
-     "source": "TIFF with ImageJ unit=micron spacing 1.0 / no resolution tags / ResolutionUnit NONE",
+     "source": "TIFF with ImageJ unit=um spacing 1.0 / no resolution tags / ResolutionUnit NONE",
      "input": {
       "variants": [
        {
-        "imagej_unit": "micron",
+        "imagej_unit": "um",
         "spacing": 1.0
        },
        {
@@ -1218,7 +1237,7 @@
     },
     {
      "id": "CAL-17",
-     "source": "unit text Angstrom, U+00C5, U+212B, scale 1.0",
+     "source": "unit text Angstrom, U+00C5, U+212B, scale 1.0 (not accepted names)",
      "input": {
       "variants": [
        {
@@ -1237,9 +1256,9 @@
      },
      "expect": {
       "um_per_px_each": [
-       0.0001,
-       0.0001,
-       0.0001
+       "unknown",
+       "unknown",
+       "unknown"
       ]
      }
     },
@@ -1270,6 +1289,82 @@
        "unknown"
       ],
       "note": "difference 8e-4 is within 1e-3 (mean of x and y); 1.2e-3 is not (unknown + warning)"
+     }
+    },
+    {
+     "id": "CAL-19",
+     "source": "scale 1.0 with each refused unit name (micron(s), micrometer(s), case variants, plurals, long forms other than millimeter/millimetre, names with spaces)",
+     "input": {
+      "scale": 1.0,
+      "units_from": "unit_names.refused"
+     },
+     "expect": {
+      "um_per_px_each": [
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown",
+       "unknown"
+      ]
      }
     }
    ],
@@ -1319,7 +1414,78 @@
      "sequence": "user types 0.25 equal to the last auto value, then switch to uncalibrated B",
      "expect": "stays 0.25, source user (flag, not comparison)"
     }
-   ]
+   ],
+   "unit_names": {
+    "decision": "SPEC_WRONG_SCIENCE section 8 (confirmed): the accepted names are exactly the keys of length_units_um (nm, um and the micro sign spellings, mm, cm, m, and the long forms millimeter and millimetre)",
+    "match": "exact text: case-sensitive, no plural, no surrounding or inner spaces (nothing is trimmed or lower-cased)",
+    "refused": [
+     "micron",
+     "microns",
+     "micrometer",
+     "micrometers",
+     "micrometre",
+     "micrometres",
+     "Angstrom",
+     "angstrom",
+     "\u00c5",
+     "\u212b",
+     "UM",
+     "Um",
+     "ums",
+     " um",
+     "um ",
+     "NM",
+     "Nm",
+     "nms",
+     " nm",
+     "nm ",
+     "MM",
+     "Mm",
+     "mms",
+     " mm",
+     "mm ",
+     "MILLIMETER",
+     "Millimeter",
+     "millimeters",
+     " millimeter",
+     "millimeter ",
+     "MILLIMETRE",
+     "Millimetre",
+     "millimetres",
+     " millimetre",
+     "millimetre ",
+     "CM",
+     "Cm",
+     "cms",
+     " cm",
+     "cm ",
+     "M",
+     "ms",
+     " m",
+     "m ",
+     "\u00b5m ",
+     " \u00b5m",
+     "\u03bcm ",
+     "\u00b5 m",
+     "\u03bc m",
+     "u m",
+     "milli meter",
+     "micro meter",
+     "micro metre",
+     "centimeter",
+     "centimetre",
+     "nanometer",
+     "nanometre",
+     "meter",
+     "metre",
+     "meters",
+     "metres",
+     "MICRON",
+     "Micron",
+     "\u00b5ms"
+    ],
+    "result": "an unknown unit name gives unknown calibration; the wording of a warning for it is not decided"
+   }
   },
   "retention": {
    "markers": {
