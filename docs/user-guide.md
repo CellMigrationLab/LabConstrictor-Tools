@@ -2,7 +2,7 @@
 
 Some apps declare **tools**: scientific functions with typed inputs. A plugin for your image software turns each tool into a form, runs it, and puts the result back into your software: images become layers or windows, outlines become overlays, points become point ROIs, numbers go to a log or a table.
 
-The tool runs in the app's own Python environment, in a separate process. Your image software never imports the app's packages, so apps with conflicting dependencies can live side by side. Fiji and QuPath need no Python at all; napari is itself a Python program, and its plugin is installed into the environment where napari runs.
+The tool runs in the app's own Python environment, in a separate process. Your image software never imports the app's packages, so apps with conflicting dependencies can live side by side. Fiji (ImageJ) and QuPath need no Python at all; napari is itself a Python program, and its plugin is installed into the environment where napari runs.
 
 > [!WARNING]
 > **Under heavy construction.** The napari, Fiji and QuPath plugins are untested and unlikely to be stable. Expect bugs, missing features and changes without notice. Each plugin's own guide says what stage it is at.
@@ -15,6 +15,8 @@ The tool runs in the app's own Python environment, in a separate process. Your i
    - [napari](https://napari.org): Plugins > LabConstrictor tools
    - [Fiji](https://fiji.sc): Plugins > LabConstrictor > LabConstrictor Tools...
    - [QuPath](https://qupath.github.io): Extensions > LabConstrictor tools...
+
+A first run needs step 1: an installed LabConstrictor app that declares tools. With none registered, the plugin has no app to list.
 
 Then pick an app and a tool. Parameters become fields with their ranges and units, and each image input accepts an image you have open or a file.
 
