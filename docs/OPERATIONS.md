@@ -29,7 +29,7 @@
 ## Troubleshooting
 * `labconstrictor-tools doctor` checks every entry (interpreter, schema, protocol, staleness) and prints what to fix.
 * Stale tool list after an app update: run `labconstrictor-tools register ...` again (the installer does this).
-* `labconstrictor-tools run` without `--out` writes its results to `<LC_HOME>/results/<time>_<app>_<tool>` (the newest 20 are kept; Napari and Fiji use their own temporary folders and remove them).
+* `labconstrictor-tools run` without `--out` writes its results to `<LC_HOME>/results/<time>_<app>_<tool>` (the newest 20 completed ones are kept by `labconstrictor-tools prune`, which the hosts start after a run; Napari and Fiji use their own temporary folders and remove them).
 * Every run writes `<LC_HOME>/runs/<time>_<app>_<tool>/run.json` (parameters as file paths and values, never pixel data; status,
   error, traceback, interpreter, worker output). Napari's *Details...* button shows it; attach it to bug reports. The newest 50 are kept.
 * First run slow? Imports dominate (a repeat run in a kept worker is ~10x faster). Napari keeps the worker for 10 minutes by default.
