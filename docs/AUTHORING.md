@@ -103,6 +103,8 @@ labconstrictor-tools run myapp blur --usage
 
 In a notebook: `from labconstrictor_tools.notebook import form; form(blur)`.
 
+Note for tools that take long texts: on Windows a command line longer than about 32,000 characters cannot start (the operating system's limit), so a terminal line, including the one a host copies, cannot carry a text parameter that long. The protocol, the notebook form, the Python snippet (`client.run_once`) and the worker have no such limit: use one of those for such texts, and say so in your tool's description if your inputs can get that long.
+
 Note: with `--pythonpath`, the folder you give is searched **before** anything installed in the same Python, so you test your working copy, not an older installed copy of the same module.
 
 ## Keep the logic in your notebook: `%%lc_tool`

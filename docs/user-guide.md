@@ -22,6 +22,10 @@ Then pick an app and a tool. Parameters become fields with their ranges and unit
 
 Help with testing is welcome: the [human test protocol](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/docs/HUMAN_TEST_PROTOCOL.md) says what to try.
 
+## Very long texts on Windows
+
+A terminal line copied from a plugin (the "copy as command" button) carries your parameter values. On Windows a line longer than about 32,000 characters cannot start, because of the operating system's command-line limit, so a text parameter longer than that cannot be run from a copied terminal line. Run such a text from the plugin's form, or from the notebook or worker path (the Python snippet), which have no such limit.
+
 ## Check that everything works
 
 Install the **LabConstrictor Playground** app and press **Check everything**. It tests your machine and every plugin feature, and writes a report you can attach to an issue.
