@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "labconstrictor-tools"
-version = "0.1.0"
+dynamic = ["version"]   # single source: labconstrictor_tools/_version.py
 description = "Declare scientific tools as typed Python functions; Napari, Fiji and notebooks build their GUIs from the generated schema"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -18,6 +18,9 @@ Repository = "https://github.com/CellMigrationLab/LabConstrictor-Tools"
 
 [project.scripts]
 labconstrictor-tools = "labconstrictor_tools.__main__:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "labconstrictor_tools._version.__version__"}
 
 [tool.setuptools]
 packages = ["labconstrictor_tools", "labconstrictor_tools.examples"]
