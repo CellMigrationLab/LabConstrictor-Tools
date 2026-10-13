@@ -2,7 +2,8 @@
 
 An id means: "this Tools version implements the rule" (a worker/CLI behaviour), so a host that needs the rule can check for it
 instead of comparing version numbers. Rules: an id is never renamed or reused; it is added in the same change that implements
-the behaviour (never ahead of it); an id is listed in docs/PROTOCOL.md (tested). Hosts treat an unknown id as a newer feature
+the behaviour (never ahead of it), with one exception: an id added later for a behaviour that has already shipped is allowed when it
+is the only way for a host to tell the versions apart (`shm_order_v1`, added after the behaviour of 0.3.0a1's #125 landed); an id is listed in docs/PROTOCOL.md (tested). Hosts treat an unknown id as a newer feature
 and a missing `features` list as "unknown/old".
 """
 

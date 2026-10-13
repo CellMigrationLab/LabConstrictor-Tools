@@ -156,6 +156,12 @@ class Worker:
         """The host is gone and the tool ignored the cancel request: leave, but not without removing our temp folders."""
         for path in list(self._owned_dirs):
             shutil.rmtree(path, ignore_errors=True)
+            # nobody reads our stderr any more (the host is gone): the log file is the only place to say it
+            if path.exists():
+                log.warning(
+                    "worker: the host is gone and the temporary folder %s could not be removed completely",
+                    path,
+                )
         self._end_process_group()
         os._exit(1)
 

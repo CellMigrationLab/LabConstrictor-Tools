@@ -231,8 +231,8 @@ BREAKS = [
     Break(
         "convert: the pages of a TIFF stack are not checked for gaps before mapping",
         "convert.py",
-        "                or not _pages_are_one_block(series.pages, series.dataoffset)\n",
-        "                or False\n",
+        "            if not _pages_are_one_block(series.pages, series.dataoffset):\n",
+        "            if False:\n",
         unittest_slice("test_input_loading.MappedTiff"),
     ),
     Break(
@@ -249,7 +249,28 @@ BREAKS = [
         "if True:",
         unittest_slice("test_input_loading.MappedTiff", "test_input_loading.MappedTiffThroughAWorker"),
     ),
+    Break(
+        "convert: a big TIFF that could not be mapped is read without saying why (silent fallback)",
+        "convert.py",
+        '        log.warning("convert: %s", text)\n',
+        "        pass\n",
+        unittest_slice("test_input_loading.MappedTiff"),
+    ),
+    Break(
+        "convert: a small TIFF read the plain way is reported as a fallback too",
+        "convert.py",
+        "        big = path.stat().st_size >= MEMMAP_MIN_BYTES\n",
+        "        big = True\n",
+        unittest_slice("test_input_loading.MappedTiff"),
+    ),
     # ---- protocol and worker
+    Break(
+        "worker: a temp folder that cannot be removed when the host is gone is not logged",
+        "worker.py",
+        '            if path.exists():\n                log.warning(\n                    "worker: the host is gone',
+        '            if False:\n                log.warning(\n                    "worker: the host is gone',
+        unittest_slice("test_worker_orphan_exit"),
+    ),
     Break(
         "protocol: NaN is sent as the NaN constant",
         "protocol.py",

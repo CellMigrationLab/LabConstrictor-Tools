@@ -25,6 +25,6 @@ interpreter that runs them (needs `pip install -e ".[test]"`).
 | test_roundtrip_* | the generated round-trip matrix, properties, geometry, hints, failure injection, known failures, sabotage: see [../docs/TESTING.md](../docs/TESTING.md) |
 | windows/test_windows.py | the same layer on Windows: `python tests/windows/test_windows.py` (also run under Wine via run_suite.sh) |
 
-Run everything: `cd tests && python -m unittest discover -p "test_*.py"` (about 80 s; 78 tests, 2 skipped: the read-only-prefix test needs `LC_TEST_RO_PREFIX`, the foreign-owned-entry test needs root).
+Run everything: `cd tests && python -m unittest discover -p "test_*.py"` (several minutes; the number of tests is whatever `unittest` reports, it is not kept here. Some tests skip on purpose and say why: the read-only-prefix test needs `LC_TEST_RO_PREFIX`, the foreign-owned-entry test needs root, the torch probe needs torch, and the vulture and coverage report tests need those tools).
 
 Real apps are tested in the apps' own repositories (`lc_tests/`), with `labconstrictor-tools test`. A checklist for people testing on a real computer: [../docs/HUMAN_TEST_PROTOCOL.md](../docs/HUMAN_TEST_PROTOCOL.md).

@@ -72,7 +72,7 @@ jobs:
           bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.os_name }}.log" "bump_version.py" .tools/python/bump_version.py python .tools/python/bump_version.py "${RELEASE_VERSION}"
           bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.os_name }}.log" "bump_constructor.py" .tools/python/bump_constructor.py python .tools/python/bump_constructor.py
           bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.os_name }}.log" "bump_Welcome_notebook.py" .tools/python/bump_Welcome_notebook.py python .tools/python/bump_Welcome_notebook.py "${APP_REPO%%/*}" "${APP_REPO##*/}"
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: conda-incubator/setup-miniconda@fc2d68f6413eb2d87b895e92f8584b5b94a10167 # v3.3.0
         with:
           auto-activate: true
           miniforge-version: latest

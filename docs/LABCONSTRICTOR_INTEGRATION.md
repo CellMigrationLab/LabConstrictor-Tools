@@ -12,7 +12,7 @@ The Linux (`.sh`) hooks were run inside real installers built with `constructor`
 ## `post_install.sh` / `post_install.bat` (after the app's own `pip install`)
 1. Looks for `<package>_lc_tools` in the app's Python (`importlib.util.find_spec`); the `.sh` also requires the bundled `setup.py`.
 2. Reads the app version from the top-level `version:` line of the bundled `construct.yaml` (quotes removed; `0` if missing).
-3. Installs `labconstrictor-tools`: `pip install "${LC_TOOLS_SPEC:-https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip}"`. The default is the GitHub source archive of the package
+3. Installs `labconstrictor-tools`: `pip install "${LC_TOOLS_SPEC:-https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip}"`. The default is the GitHub source archive of the package at a pinned tag (never `main`, see [OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers); an installer that still pins an older tag installs that older Tools)
    (a plain zip: the user's computer needs internet access at that moment but no `git`), because the package is not on PyPI yet; once it is,
    the default becomes `labconstrictor-tools`. `LC_TOOLS_SPEC` overrides it: a wheel, a git URL (for example
    `git+https://github.com/CellMigrationLab/LabConstrictor-Tools@main`), a mirror. If this step fails (no internet, unreachable source) the

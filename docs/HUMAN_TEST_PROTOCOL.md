@@ -204,7 +204,7 @@ PowerShell: `.\napari-env\Scripts\Activate.ps1`, or with cmd.exe: `napari-env\Sc
 ```
 python -m venv napari-env
 source napari-env/bin/activate
-pip install "napari[pyqt5]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/heads/main.zip
+pip install "napari[pyqt5]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/heads/main.zip
 napari
 ```
 (The two long web addresses are the project's source archives: pip downloads them like any package, no `git` program is needed.)
