@@ -15,7 +15,7 @@ from roundtrip_known_failures import is_known
 PARALLEL = 4  # subprocess transports run this many cases at a time
 
 
-def key(transport, case):
+def key(transport: str, case: rc.Case) -> str:
     return "%s:%s" % (transport, case.id)
 
 
@@ -23,14 +23,14 @@ class Matrix(unittest.TestCase):
     session = None
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls.session = harness.Session()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         cls.session.close()
 
-    def attempt(self, transport, case):
+    def attempt(self, transport: str, case: rc.Case) -> list[str]:
         try:
             return harness.run_case(self.session, transport, case)
         except (
@@ -38,7 +38,7 @@ class Matrix(unittest.TestCase):
         ):  # noqa: BLE001 - a harness or transport error is a failure of that case, reported with its traceback
             return ["the run itself raised:\n" + traceback.format_exc()[-1500:]]
 
-    def walk(self, transport, parallel=1):
+    def walk(self, transport: str, parallel: int = 1) -> None:
         todo = [c for c in rc.selected(transport) if not is_known(key(transport, c))]
         self.assertGreater(
             len(todo), 0 if os.environ.get("LC_ROUNDTRIP_FILTER") else 10
@@ -52,23 +52,23 @@ class Matrix(unittest.TestCase):
             with self.subTest(key(transport, case)):
                 self.assertEqual(problems, [])
 
-    def test_worker_protocol(self):
+    def test_worker_protocol(self) -> None:
         self.walk("worker")
 
-    def test_command_line(self):
+    def test_command_line(self) -> None:
         self.walk("cli", PARALLEL)
 
-    def test_copied_python_snippet(self):
+    def test_copied_python_snippet(self) -> None:
         self.walk("snippet", PARALLEL)
 
-    def test_copied_terminal_line(self):
+    def test_copied_terminal_line(self) -> None:
         self.walk("terminal", PARALLEL)
 
-    def test_notebook_form(self):
+    def test_notebook_form(self) -> None:
         self.walk("notebook")
 
 
-def tearDownModule():
+def tearDownModule() -> None:
     """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
     raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
     import gc

@@ -22,7 +22,7 @@ TOOLS_APP = Path(__file__).resolve().parent / "failure_app"
 class NonUtf8Line(unittest.TestCase):
     """2026-10-08, macOS: a request line that was not valid UTF-8 killed the worker's reader on a strict-UTF-8 stdin."""
 
-    def test_a_line_that_is_not_utf8_is_skipped_and_the_next_task_still_runs(self):
+    def test_a_line_that_is_not_utf8_is_skipped_and_the_next_task_still_runs(self) -> None:
         env = {
             **os.environ,
             "PYTHONPATH": os.pathsep.join([str(ROOT), str(TOOLS_APP)]),
@@ -61,7 +61,7 @@ class NonUtf8Line(unittest.TestCase):
 class BrokenPipeOnExit(unittest.TestCase):
     """2026-10-08: `labconstrictor-tools ... | head` printed a traceback when the buffered output was flushed at exit."""
 
-    def test_the_reader_of_the_output_going_away_is_not_an_error(self):
+    def test_the_reader_of_the_output_going_away_is_not_an_error(self) -> None:
         env = {**os.environ, "PYTHONPATH": str(ROOT), "LC_HOME": tempfile.mkdtemp(), "LC_APPS_PATH": ""}
         proc = subprocess.Popen(
             [sys.executable, "-m", "labconstrictor_tools", "doctor", "--json"],
@@ -78,14 +78,14 @@ class BrokenPipeOnExit(unittest.TestCase):
         self.assertNotIn("BrokenPipeError", error)
 
 
-def ledger_guards():
+def ledger_guards() -> list[tuple[str, str, str]]:
     """Every `tests/<file>.py::<Class>.<method>` named in the ledger's guard column."""
     text = LEDGER.read_text(encoding="utf-8")
     return sorted(set(re.findall(r"`(test_[a-z0-9_]+\.py)::([A-Za-z0-9_]+)\.([a-z0-9_]+)`", text)))
 
 
 class TheLedgerIsTrue(unittest.TestCase):
-    def test_every_guard_named_in_the_ledger_exists(self):
+    def test_every_guard_named_in_the_ledger_exists(self) -> None:
         guards = ledger_guards()
         self.assertGreaterEqual(len(guards), 4)
         for file, cls, method in guards:
@@ -93,12 +93,12 @@ class TheLedgerIsTrue(unittest.TestCase):
                 module = importlib.import_module(file[:-3])
                 self.assertTrue(callable(getattr(getattr(module, cls), method, None)))
 
-    def test_the_four_seed_bugs_are_in_the_ledger(self):
+    def test_the_four_seed_bugs_are_in_the_ledger(self) -> None:
         text = LEDGER.read_text(encoding="utf-8").lower()
         for fragment in ("job object", "utf-8", "broken pipe", "cancel"):
             self.assertIn(fragment, text)
 
-    def test_every_row_has_five_cells(self):
+    def test_every_row_has_five_cells(self) -> None:
         rows = [r for r in LEDGER.read_text(encoding="utf-8").splitlines() if r.startswith("| 20")]
         self.assertGreaterEqual(len(rows), 4)
         for row in rows:
@@ -107,7 +107,7 @@ class TheLedgerIsTrue(unittest.TestCase):
             )
 
 
-def tearDownModule():
+def tearDownModule() -> None:
     """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
     raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
     import gc

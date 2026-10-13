@@ -14,6 +14,7 @@ import json
 import math
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -25,6 +26,10 @@ from hypothesis.extra import numpy as hnp
 
 from labconstrictor_tools import region, shapes
 from labconstrictor_tools.types import ToolError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from typing import Any
 
 HAVE_SKIMAGE = importlib.util.find_spec("skimage") is not None
 
@@ -40,36 +45,36 @@ BLOBS = st.lists(
 ).map(lambda boxes: _paint(boxes))
 
 
-def _paint(boxes):
+def _paint(boxes: "Sequence[tuple[int, int, int, int, int]]") -> np.ndarray:
     image = np.zeros((20, 20), np.uint8)
     for label, y, x, h, w in boxes:
         image[y : y + h, x : x + w] = label
     return image
 
 
-def boundary_edges(mask):
+def boundary_edges(mask: np.ndarray) -> int:
     """P: the number of pixel edges between a pixel of the mask and a pixel outside it (or the image edge)."""
     padded = np.pad(mask, 1).astype(np.int8)
     return int(sum(np.count_nonzero(np.diff(padded, axis=axis)) for axis in (0, 1)))
 
 
-def features_by_label(collection):
+def features_by_label(collection: "dict[str, Any]") -> "dict[int, dict[str, Any]]":
     return {f["properties"]["label"]: f for f in collection["features"]}
 
 
-def all_vertices(feature):
+def all_vertices(feature: "dict[str, Any]") -> set[tuple[float, float]]:
     geometry = feature["geometry"]
     polygons = [geometry["coordinates"]] if geometry["type"] == "Polygon" else geometry["coordinates"]
     return {(x, y) for polygon in polygons for ring in polygon for x, y in ring}
 
 
-def moved(coordinates, dx, dy):
+def moved(coordinates: "Any", dx: float, dy: float) -> "Any":
     if isinstance(coordinates[0], (int, float)):
         return [coordinates[0] + dx, coordinates[1] + dy]
     return [moved(c, dx, dy) for c in coordinates]
 
 
-def mapped(coordinates, function):
+def mapped(coordinates: "Any", function: "Callable[..., Sequence[float]]") -> "Any":
     if isinstance(coordinates[0], (int, float)):
         return list(function(*coordinates))
     return [mapped(c, function) for c in coordinates]
@@ -78,7 +83,7 @@ def mapped(coordinates, function):
 @unittest.skipUnless(HAVE_SKIMAGE, "scikit-image is needed for labels_to_shapes")
 class Outlines(unittest.TestCase):
     @given(st.one_of(LABELS, BLOBS))
-    def test_rasterised_back_equals_the_labels_exactly(self, labels):
+    def test_rasterised_back_equals_the_labels_exactly(self, labels: np.ndarray) -> None:
         collection = shapes.labels_to_shapes(labels, simplify=0)
         found = features_by_label(collection)
         self.assertEqual(sorted(found), sorted(int(v) for v in np.unique(labels) if v))
@@ -90,7 +95,9 @@ class Outlines(unittest.TestCase):
             self.assertEqual(feature["properties"]["area"], int(mask.sum()))
 
     @given(BLOBS, st.sampled_from([0.25, 0.5, 1.0]))
-    def test_simplified_outlines_stay_within_the_stated_tolerance(self, labels, simplify):
+    def test_simplified_outlines_stay_within_the_stated_tolerance(
+        self, labels: np.ndarray, simplify: float
+    ) -> None:
         found = features_by_label(shapes.labels_to_shapes(labels, simplify=simplify))
         for label, feature in found.items():
             mask = labels == label
@@ -100,7 +107,9 @@ class Outlines(unittest.TestCase):
             )
 
     @given(st.one_of(LABELS, BLOBS), st.integers(0, 7), st.integers(0, 7), st.sampled_from([0, 0.5]))
-    def test_translating_the_labels_translates_the_outlines(self, labels, dy, dx, simplify):
+    def test_translating_the_labels_translates_the_outlines(
+        self, labels: np.ndarray, dy: int, dx: int, simplify: float
+    ) -> None:
         shifted = np.pad(labels, ((dy, 0), (dx, 0)))
         before = features_by_label(shapes.labels_to_shapes(labels, simplify=simplify))
         after = features_by_label(shapes.labels_to_shapes(shifted, simplify=simplify))
@@ -111,7 +120,7 @@ class Outlines(unittest.TestCase):
             )
 
     @given(st.one_of(LABELS, BLOBS))
-    def test_transposing_the_labels_swaps_x_and_y(self, labels):
+    def test_transposing_the_labels_swaps_x_and_y(self, labels: np.ndarray) -> None:
         before = features_by_label(shapes.labels_to_shapes(labels, simplify=0))
         after = features_by_label(shapes.labels_to_shapes(labels.T, simplify=0))
         self.assertEqual(sorted(before), sorted(after))
@@ -128,7 +137,7 @@ class Outlines(unittest.TestCase):
             self.assertTrue(np.array_equal(harness.rasterise(swapped, labels.T.shape), labels.T == label))
 
     @given(st.one_of(LABELS, BLOBS))
-    def test_flipping_the_labels_mirrors_the_outlines(self, labels):
+    def test_flipping_the_labels_mirrors_the_outlines(self, labels: np.ndarray) -> None:
         width = labels.shape[1]
         flipped = labels[:, ::-1]
         before = features_by_label(shapes.labels_to_shapes(labels, simplify=0))
@@ -141,8 +150,8 @@ class Outlines(unittest.TestCase):
 
     @given(st.integers(1, 6), st.integers(1, 6), st.integers(0, 5), st.integers(0, 5))
     def test_pixel_centres_are_at_integers_and_outlines_run_along_pixel_edges(
-        self, height, width, row, column
-    ):
+        self, height: int, width: int, row: int, column: int
+    ) -> None:
         labels = np.zeros((row + height + 1, column + width + 1), np.uint8)
         labels[row : row + height, column : column + width] = 1
         feature = features_by_label(shapes.labels_to_shapes(labels, simplify=0))[1]
@@ -157,13 +166,13 @@ class Outlines(unittest.TestCase):
                     bool(inside), bool(labels[r, c]), "pixel centre (row %d, column %d)" % (r, c)
                 )
 
-    def test_a_single_pixel_is_a_diamond_around_its_centre(self):
+    def test_a_single_pixel_is_a_diamond_around_its_centre(self) -> None:
         labels = np.zeros((5, 7), np.uint8)
         labels[2, 3] = 1  # row 2, column 3
         feature = features_by_label(shapes.labels_to_shapes(labels, simplify=0))[1]
         self.assertEqual(all_vertices(feature), {(3.0, 1.5), (3.0, 2.5), (2.5, 2.0), (3.5, 2.0)})
 
-    def test_a_label_with_a_hole_keeps_the_hole(self):
+    def test_a_label_with_a_hole_keeps_the_hole(self) -> None:
         labels = np.zeros((9, 9), np.uint8)
         labels[1:8, 1:8] = 1
         labels[3:6, 3:6] = 0
@@ -175,7 +184,7 @@ class Outlines(unittest.TestCase):
         self.assertEqual(int(raster.sum()), 49 - 9)
         self.assertEqual(feature["properties"]["area"], 40)
 
-    def test_parts_make_a_multipolygon_and_each_part_keeps_its_own_hole(self):
+    def test_parts_make_a_multipolygon_and_each_part_keeps_its_own_hole(self) -> None:
         labels = np.zeros((9, 20), np.uint8)
         labels[1:8, 1:8] = 1
         labels[3:6, 3:6] = 0
@@ -186,7 +195,7 @@ class Outlines(unittest.TestCase):
         self.assertEqual(sorted(len(polygon) for polygon in feature["geometry"]["coordinates"]), [2, 2])
         self.assertTrue(np.array_equal(harness.rasterise(feature, labels.shape), labels == 1))
 
-    def test_an_island_inside_a_hole_is_its_own_label_and_does_not_fill_the_hole(self):
+    def test_an_island_inside_a_hole_is_its_own_label_and_does_not_fill_the_hole(self) -> None:
         labels = np.zeros((9, 9), np.uint8)
         labels[1:8, 1:8] = 1
         labels[3:6, 3:6] = 0
@@ -195,7 +204,7 @@ class Outlines(unittest.TestCase):
         self.assertFalse(harness.rasterise(found[1], labels.shape)[4, 4])
         self.assertTrue(harness.rasterise(found[2], labels.shape)[4, 4])
 
-    def test_default_simplification_never_drops_a_label(self):
+    def test_default_simplification_never_drops_a_label(self) -> None:
         for height, width in ((1, 1), (1, 2), (2, 1), (2, 2), (1, 3), (3, 1)):
             labels = np.zeros((7, 7), np.uint8)
             labels[2 : 2 + height, 2 : 2 + width] = 1
@@ -209,7 +218,9 @@ class Outlines(unittest.TestCase):
                     )
 
     @given(LABELS, st.integers(1, 40))
-    def test_min_area_only_removes_labels_and_never_changes_the_rest(self, labels, area):
+    def test_min_area_only_removes_labels_and_never_changes_the_rest(
+        self, labels: np.ndarray, area: int
+    ) -> None:
         everything = features_by_label(shapes.labels_to_shapes(labels, simplify=0, min_area=1))
         some = features_by_label(shapes.labels_to_shapes(labels, simplify=0, min_area=area))
         areas = {int(v): int((labels == v).sum()) for v in np.unique(labels) if v}
@@ -218,7 +229,7 @@ class Outlines(unittest.TestCase):
             self.assertEqual(feature, everything[label])
 
     @given(LABELS)
-    def test_min_area_is_monotone(self, labels):
+    def test_min_area_is_monotone(self, labels: np.ndarray) -> None:
         counts = [
             len(shapes.labels_to_shapes(labels, simplify=0, min_area=a)["features"]) for a in range(1, 30)
         ]
@@ -230,7 +241,7 @@ class Outlines(unittest.TestCase):
         for bigger, smaller in zip(sets[1:], sets[:-1]):
             self.assertTrue(bigger <= smaller)
 
-    def test_the_same_checks_through_a_worker(self):
+    def test_the_same_checks_through_a_worker(self) -> None:
         """The host's view: the GeoJSON file a real worker writes obeys the same translation and transposition rules."""
         session = harness.Session()
         try:
@@ -266,7 +277,7 @@ class Outlines(unittest.TestCase):
             session.close()
 
 
-def _case(array):
+def _case(array: np.ndarray) -> "Any":
     from roundtrip_cases import Case, Expect
 
     return Case("geometry", "outline_labels", {"labels": array}, Expect())
@@ -280,7 +291,7 @@ class RegionBox(unittest.TestCase):
             elements=st.integers(0, 2),
         )
     )
-    def test_the_box_of_a_mask_is_numpys_box(self, mask):
+    def test_the_box_of_a_mask_is_numpys_box(self, mask: np.ndarray) -> None:
         if not mask.any():
             with self.assertRaises(ToolError) as caught:
                 region.bbox(mask)
@@ -301,7 +312,9 @@ class RegionBox(unittest.TestCase):
         )
 
     @given(st.integers(1, 9), st.integers(1, 9), st.integers(0, 3), st.integers(0, 3))
-    def test_transposing_the_mask_swaps_the_rows_and_columns_of_the_box(self, height, width, row, column):
+    def test_transposing_the_mask_swaps_the_rows_and_columns_of_the_box(
+        self, height: int, width: int, row: int, column: int
+    ) -> None:
         mask = np.zeros((row + height + 2, column + width + 2), np.uint8)
         mask[row : row + height, column : column + width] = 1
         rows, columns = region.bbox(mask)
@@ -309,7 +322,7 @@ class RegionBox(unittest.TestCase):
         self.assertEqual((rows, columns), (t_columns, t_rows))
 
     @given(st.integers(0, 4), st.integers(0, 4))
-    def test_translating_the_mask_translates_the_box(self, dy, dx):
+    def test_translating_the_mask_translates_the_box(self, dy: int, dx: int) -> None:
         mask = np.zeros((6, 7), np.uint8)
         mask[1:4, 2:6] = 1
         shifted = np.pad(mask, ((dy, 0), (dx, 0)))
@@ -321,7 +334,7 @@ class RegionBox(unittest.TestCase):
             (rows.stop - rows.start, columns.stop - columns.start),
         )
 
-    def test_the_messages_a_person_reads_say_what_is_wrong_in_numbers(self):
+    def test_the_messages_a_person_reads_say_what_is_wrong_in_numbers(self) -> None:
         with self.assertRaises(ToolError) as caught:
             region.bbox(np.zeros((2, 3, 3), np.uint8))
         self.assertEqual(
@@ -342,7 +355,7 @@ class RegionBox(unittest.TestCase):
             "The selected region is empty: select an object, or untick 'use the selection'.",
         )
 
-    def test_a_mask_the_size_of_a_3d_image_plane_is_accepted_and_other_sizes_are_refused(self):
+    def test_a_mask_the_size_of_a_3d_image_plane_is_accepted_and_other_sizes_are_refused(self) -> None:
         mask = np.zeros((7, 9), np.uint8)
         mask[2, 3] = 1
         self.assertEqual(region.bbox(mask, np.zeros((4, 7, 9))), (slice(2, 3), slice(3, 4)))
@@ -351,7 +364,7 @@ class RegionBox(unittest.TestCase):
         self.assertEqual(caught.exception.code, "bad_input")
 
 
-def tearDownModule():
+def tearDownModule() -> None:
     """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
     raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
     import gc

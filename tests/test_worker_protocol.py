@@ -11,10 +11,14 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 
 from labconstrictor_tools import protocol
+
+if TYPE_CHECKING:
+    from typing import Any
 
 APP = Path(__file__).parent / "protocol_app"
 
@@ -22,7 +26,7 @@ APP = Path(__file__).parent / "protocol_app"
 class RawWorker:
     closed_stderr = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         env = {
             **os.environ,
             "PYTHONPATH": os.pathsep.join([str(_paths.ROOT), str(APP)]),
@@ -33,12 +37,12 @@ class RawWorker:
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env,
         )  # fmt: skip
 
-    def send(self, *lines):
+    def send(self, *lines: "str | dict[str, Any]") -> None:
         for line in lines:
             self.proc.stdin.write((line if isinstance(line, str) else json.dumps(line)) + "\n")
         self.proc.stdin.flush()
 
-    def read_until(self, task, timeout=20):
+    def read_until(self, task: str, timeout: float = 20) -> "list[dict[str, Any]]":
         """Responses for `task` up to and including its terminal one."""
         got, end = [], time.time() + timeout
         while time.time() < end:
@@ -53,7 +57,7 @@ class RawWorker:
         self.fail_to_finish = got
         raise AssertionError("no terminal response for %r, got %r" % (task, got))
 
-    def close(self):
+    def close(self) -> str:
         if self.closed_stderr is not None:
             return self.closed_stderr
         self.proc.stdin.close()
@@ -68,7 +72,7 @@ class RawWorker:
         return err
 
 
-def execute(task, tool, inputs=None, **extra):
+def execute(task: str, tool: str, inputs: "dict[str, Any] | None" = None, **extra: "Any") -> "dict[str, Any]":
     return {
         "task": task,
         "requestType": "EXECUTE",
@@ -79,36 +83,36 @@ def execute(task, tool, inputs=None, **extra):
 
 
 class WorkerProtocol(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.w = RawWorker()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.stderr = self.w.close()
 
-    def test_a_tool_calling_sys_exit_gets_a_structured_failure_and_the_worker_lives(self):
+    def test_a_tool_calling_sys_exit_gets_a_structured_failure_and_the_worker_lives(self) -> None:
         self.w.send(execute("1", "exits"), execute("2", "defaults"))
         failure = self.w.read_until("1")[-1]
         self.assertEqual((failure["responseType"], failure["code"]), ("FAILURE", "SystemExit"))
         self.assertEqual(self.w.read_until("2")[-1]["responseType"], "COMPLETION")
 
-    def test_a_malformed_task_id_does_not_kill_the_reader(self):
+    def test_a_malformed_task_id_does_not_kill_the_reader(self) -> None:
         self.w.send(
             {"task": [], "requestType": "EXECUTE", "script": "lc:defaults", "inputs": {}},
             execute("ok", "defaults"),
         )
         self.assertEqual(self.w.read_until("ok")[-1]["responseType"], "COMPLETION")
 
-    def test_inputs_that_are_not_an_object_are_rejected_not_replaced_by_defaults(self):
-        for bad in ([], "", 0, False):
+    def test_inputs_that_are_not_an_object_are_rejected_not_replaced_by_defaults(self) -> None:
+        for bad in ([], "", 0, False):  # type: ignore[var-annotated]  # four different literals: nothing to infer
             self.w.send(execute("b", "defaults", bad))
             last = self.w.read_until("b")[-1]
             self.assertEqual((last["responseType"], last["code"]), ("FAILURE", "bad_request"), bad)
 
-    def test_a_non_text_script_is_rejected(self):
+    def test_a_non_text_script_is_rejected(self) -> None:
         self.w.send({"task": "s", "requestType": "EXECUTE", "script": 5, "inputs": {}})
         self.assertEqual(self.w.read_until("s")[-1]["code"], "bad_request")
 
-    def test_a_duplicate_task_id_does_not_corrupt_the_running_task(self):
+    def test_a_duplicate_task_id_does_not_corrupt_the_running_task(self) -> None:
         self.w.send(execute("d", "waits", {"seconds": 1.5}), execute("d", "defaults"))
         responses = self.w.read_until("d")
         self.assertEqual(
@@ -118,30 +122,30 @@ class WorkerProtocol(unittest.TestCase):
         self.assertEqual(self.w.read_until("after")[-1]["responseType"], "COMPLETION")
         self.assertIn("still in use", self.w.close())
 
-    def test_a_cancel_for_an_unknown_task_is_reported_and_does_not_cancel_a_later_task(self):
+    def test_a_cancel_for_an_unknown_task_is_reported_and_does_not_cancel_a_later_task(self) -> None:
         self.w.send({"task": "A", "requestType": "CANCEL"}, execute("A", "defaults"))
         self.assertEqual(self.w.read_until("A")[-1]["responseType"], "COMPLETION")
         self.assertIn("not running", self.w.close())
 
-    def test_unknown_request_types_and_garbage_lines_are_reported_on_stderr(self):
+    def test_unknown_request_types_and_garbage_lines_are_reported_on_stderr(self) -> None:
         self.w.send({"task": "u", "requestType": "EXPLODE"}, "not json", "[1, 2]", execute("ok", "defaults"))
         self.assertEqual(self.w.read_until("ok")[-1]["responseType"], "COMPLETION")
         err = self.w.close()
         for text in ("unknown type", "not JSON", "not an object"):
             self.assertIn(text, err)
 
-    def test_a_result_json_cannot_carry_fails_explicitly_instead_of_becoming_text(self):
+    def test_a_result_json_cannot_carry_fails_explicitly_instead_of_becoming_text(self) -> None:
         self.w.send(execute("o", "odd"))
         last = self.w.read_until("o")[-1]
         self.assertEqual((last["responseType"], last["code"]), ("FAILURE", "unserializable_result"))
 
-    def test_nan_travels_as_null_as_documented(self):
+    def test_nan_travels_as_null_as_documented(self) -> None:
         self.w.send(execute("n", "nan"))
         last = self.w.read_until("n")[-1]
         self.assertEqual(last["responseType"], "COMPLETION")
         self.assertIsNone(last["outputs"]["results"][0]["values"]["v"])
 
-    def test_no_progress_after_the_terminal_response(self):
+    def test_no_progress_after_the_terminal_response(self) -> None:
         from labconstrictor_tools import runtime
 
         runtime.install(progress=lambda *a: self.fail("sink must be cleared"))
@@ -150,11 +154,11 @@ class WorkerProtocol(unittest.TestCase):
 
 
 class OversizedLines(unittest.TestCase):
-    def test_bounded_lines_drops_an_oversized_line_and_keeps_the_next(self):
+    def test_bounded_lines_drops_an_oversized_line_and_keeps_the_next(self) -> None:
         stream = io.StringIO("ok1\n" + "x" * 50 + "\nok2\n" + "y" * 45)
         self.assertEqual(list(protocol._bounded_lines(stream.readline, limit=10)), ["ok1\n", "ok2\n"])
 
-    def test_line_splitter_drops_an_oversized_line_even_across_chunks(self):
+    def test_line_splitter_drops_an_oversized_line_even_across_chunks(self) -> None:
         splitter = protocol.LineSplitter(limit=10)
         out = splitter.feed(b"ok1\n" + b"x" * 8)
         out += splitter.feed(b"x" * 8)  # now 16 > limit without newline

@@ -6,28 +6,32 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import V3
 
 from labconstrictor_tools import client, log
 
+if TYPE_CHECKING:
+    from typing import Any
+
 APPS = V3 / "tests"
 
 
-def run_tool(module_dir, tool, **kw):
+def run_tool(module_dir: str, tool: str, **kw: "Any") -> tuple[client.Task, str]:
     with client.WorkerProcess(module="tools", pythonpath=[str(APPS / module_dir)], **kw) as worker:
         return worker.task(tool, {}).wait(60), "".join(worker.stderr)
 
 
 class FailureDiagnostics(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls.home = tempfile.mkdtemp(prefix="lchome_")
         os.environ["LC_HOME"] = cls.home
         log._logger = None  # re-open the log in the temporary home
 
-    def test_import_error_shows_traceback_and_context(self):
+    def test_import_error_shows_traceback_and_context(self) -> None:
         task, _ = run_tool("import_error_app", "never")
         self.assertEqual(task.status, "CRASHED")
         self.assertIn("a_package_that_is_not_installed", task.error)
@@ -35,7 +39,7 @@ class FailureDiagnostics(unittest.TestCase):
         self.assertIn("ModuleNotFoundError", task.error)
         self.assertIn("package is missing", task.error)  # hint
 
-    def test_import_error_gets_the_import_hint_from_its_stderr_not_from_exit_code_3_alone(self):
+    def test_import_error_gets_the_import_hint_from_its_stderr_not_from_exit_code_3_alone(self) -> None:
         task, _ = run_tool("import_error_app", "never")
         self.assertIn("(code %d)" % log.EXIT_TOOL_IMPORT_FAILED, task.error)
         self.assertIn(log.IMPORT_FAILED_MARKER, task.error)  # the marker is what worker.py really prints
@@ -49,19 +53,19 @@ class FailureDiagnostics(unittest.TestCase):
         )
 
     @unittest.skipUnless(os.name == "posix", "a SIGKILL exit code (-9) does not exist on Windows")
-    def test_killed_worker_is_explained(self):
+    def test_killed_worker_is_explained(self) -> None:
         task, _ = run_tool("crashy_app", "killed")
         self.assertEqual(task.status, "CRASHED")
         self.assertIn("code -9", task.error)
         self.assertIn("out of memory", task.error)
 
-    def test_missing_interpreter_is_explained(self):
+    def test_missing_interpreter_is_explained(self) -> None:
         with self.assertRaises(client.WorkerStartError) as caught:
             run_tool("crashy_app", "raises", python="/nonexistent/prefix/bin/python")
         self.assertIn("was not found at /nonexistent/prefix/bin/python", str(caught.exception))
         self.assertIn("labconstrictor.log", str(caught.exception))
 
-    def test_log_records_the_story_with_traceback(self):
+    def test_log_records_the_story_with_traceback(self) -> None:
         task, stderr = run_tool("crashy_app", "raises")
         self.assertEqual(task.status, "FAILED")
         self.assertIn("ZeroDivisionError", task.traceback)
@@ -76,7 +80,7 @@ class FailureDiagnostics(unittest.TestCase):
         ):
             self.assertIn(expected, text)
 
-    def test_support_bundle_and_logs_command(self):
+    def test_support_bundle_and_logs_command(self) -> None:
         import subprocess
         import sys
 

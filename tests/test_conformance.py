@@ -20,14 +20,19 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import ROOT
 
 from labconstrictor_tools import compat, conformance, notebook, retention
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
-def spec():
+
+def spec() -> str:
     """The spec text, read when a test needs it (the sabotage run copies the package and the tests, not the docs)."""
     return (ROOT / "docs" / "SPEC_WRONG_SCIENCE.md").read_text(encoding="utf-8")
 
@@ -36,7 +41,7 @@ DATA = conformance.load()
 WRONG = DATA["wrong_science"]
 
 
-def broken(change):
+def broken(change: "Callable[[dict[str, Any]], object]") -> list[str]:
     """A deep copy of the data after `change(copy)`; the problems `validate` finds in it."""
     data = copy.deepcopy(DATA)
     change(data)
@@ -44,13 +49,13 @@ def broken(change):
 
 
 class Loader(unittest.TestCase):
-    def test_the_file_is_in_the_package_and_valid(self):
+    def test_the_file_is_in_the_package_and_valid(self) -> None:
         self.assertTrue(conformance.path().is_file())
         self.assertEqual(conformance.path().parent, ROOT / "labconstrictor_tools")
         self.assertEqual(conformance.validate(DATA), [])
         self.assertIs(conformance.load(), conformance.load())
 
-    def test_the_command_line_gives_the_path_and_validates(self):
+    def test_the_command_line_gives_the_path_and_validates(self) -> None:
         env = {"PYTHONPATH": str(ROOT), "PATH": ""}
         if os.name == "nt":
             # Python on Windows cannot start without SYSTEMROOT (random numbers, DLL search); it is not a PATH lookup
@@ -79,7 +84,7 @@ class Loader(unittest.TestCase):
         )
         self.assertEqual(usage.returncode, 2)
 
-    def test_the_data_is_plain_json_that_survives_a_round_trip(self):
+    def test_the_data_is_plain_json_that_survives_a_round_trip(self) -> None:
         text = conformance.path().read_text(encoding="utf-8")
         self.assertEqual(json.loads(json.dumps(DATA)), json.loads(text))
         self.assertTrue(
@@ -87,7 +92,7 @@ class Loader(unittest.TestCase):
             "write non-ASCII characters as \\u escapes: the damaged micro sign must stay visible in review",
         )
 
-    def test_a_malformed_file_raises_with_every_problem(self):
+    def test_a_malformed_file_raises_with_every_problem(self) -> None:
         original = conformance.path
         with tempfile.TemporaryDirectory() as folder:
             bad = Path(folder) / "conformance.json"
@@ -106,7 +111,7 @@ class Loader(unittest.TestCase):
 
 
 class Schema(unittest.TestCase):
-    def test_each_kind_of_damage_is_named(self):
+    def test_each_kind_of_damage_is_named(self) -> None:
         cases = {
             "not an object": (lambda d: None, None),
             "missing key": (lambda d: d.pop("messages"), "missing top-level key 'messages'"),
@@ -285,8 +290,8 @@ class Schema(unittest.TestCase):
                 problems = broken(change)
                 self.assertTrue(any(expected in p for p in problems), "%r not in %r" % (expected, problems))
 
-    def test_validate_never_raises_on_odd_data(self):
-        for odd in (
+    def test_validate_never_raises_on_odd_data(self) -> None:
+        for odd in (  # type: ignore[var-annotated]  # a tuple of different literals: nothing to infer
             None,
             3,
             "x",
@@ -305,7 +310,7 @@ class Schema(unittest.TestCase):
 
 
 class AgainstTheCode(unittest.TestCase):
-    def test_limits_match_the_code_and_the_spec(self):
+    def test_limits_match_the_code_and_the_spec(self) -> None:
         limits = DATA["limits"]
         self.assertEqual(limits["form_integer_max"]["value"], notebook.MAX_FORM_INTEGER)
         self.assertEqual(limits["form_integer_max"]["value"], 2**53 - 1)
@@ -314,7 +319,7 @@ class AgainstTheCode(unittest.TestCase):
         self.assertEqual((limits["results_kept"]["value"], limits["run_records_kept"]["value"]), kept)
         self.assertIn("`RESULTS_KEPT = 20`, `RUN_RECORDS_KEPT = 50`", spec())
 
-    def test_every_limit_marked_default_is_marked_so_in_the_spec(self):
+    def test_every_limit_marked_default_is_marked_so_in_the_spec(self) -> None:
         for name, entry in DATA["limits"].items():
             if entry["status"] == "default":
                 self.assertIn(
@@ -325,7 +330,7 @@ class AgainstTheCode(unittest.TestCase):
             spec(),
         )
 
-    def test_the_host_internal_codes_are_the_ones_the_spec_names(self):
+    def test_the_host_internal_codes_are_the_ones_the_spec_names(self) -> None:
         for code in DATA["host_internal_codes"]:
             self.assertIn("`%s`" % code, spec())
         self.assertEqual(
@@ -337,7 +342,7 @@ class AgainstTheCode(unittest.TestCase):
             ),
         )
 
-    def test_the_compat_vectors_give_the_same_answer_as_the_reference(self):
+    def test_the_compat_vectors_give_the_same_answer_as_the_reference(self) -> None:
         compat_data = DATA["compat"]
         for case in compat_data["cases"]:
             with self.subTest(case["case"]):
@@ -349,13 +354,13 @@ class AgainstTheCode(unittest.TestCase):
         ordered = [compat.parse_version(v) for v in compat_data["version_order"]]
         self.assertEqual(ordered, sorted(ordered))
 
-    def test_the_message_templates_format(self):
+    def test_the_message_templates_format(self) -> None:
         for name, entry in DATA["messages"].items():
             names = {f for _, f, _, _ in string.Formatter().parse(entry["template"]) if f}
             entry["template"].format(**{n: "x" for n in names})
             self.assertTrue(entry["spec"], name)
 
-    def test_every_message_template_is_a_sentence_of_the_spec(self):
+    def test_every_message_template_is_a_sentence_of_the_spec(self) -> None:
         flat = spec().replace("\\u00B5", "") + (ROOT / "docs" / "HOST_PARITY.md").read_text(
             encoding="utf-8"
         )  # I06 has the >= form
@@ -365,7 +370,7 @@ class AgainstTheCode(unittest.TestCase):
             self.assertTrue(re.search(pattern, flat), "%s: %r is not in the spec" % (name, entry["template"]))
 
 
-def evaluate(point, source):
+def evaluate(point: tuple[float, float], source: "dict[str, Any]") -> list[float]:
     """Napari data (y, x) -> world, plain Python: scale, then translate, or the 3x3 affine on [y, x, 1]."""
     y, x = point
     if "affine" in source:
@@ -375,7 +380,7 @@ def evaluate(point, source):
     return [y * scale[0] + translate[0], x * scale[1] + translate[1]]
 
 
-def inside(polygon_yx, y, x):
+def inside(polygon_yx: list[tuple[float, float]], y: float, x: float) -> bool:
     """Even-odd rule for a pixel centre (y, x)."""
     hit = False
     for (y1, x1), (y2, x2) in zip(polygon_yx, polygon_yx[1:] + polygon_yx[:1]):
@@ -387,7 +392,7 @@ def inside(polygon_yx, y, x):
 class CoordinateData(unittest.TestCase):
     cases = {c["id"]: c for c in WRONG["coordinate"]["cases"]}
 
-    def test_the_base_image_and_the_rectangle_mask(self):
+    def test_the_base_image_and_the_rectangle_mask(self) -> None:
         coordinate = WRONG["coordinate"]
         rows, columns = coordinate["image"]["shape"]
         value = lambda y, x: 100 * y + x  # noqa: E731  (the 'value' formula of the file, written out)
@@ -400,7 +405,7 @@ class CoordinateData(unittest.TestCase):
                 vy % 1 == 0.5 and vx % 1 == 0.5, "vertices are on half pixels: no centre lies on an edge"
             )
 
-    def test_the_world_coordinates_of_the_napari_cases(self):
+    def test_the_world_coordinates_of_the_napari_cases(self) -> None:
         for ident in ("CF-01", "CF-02", "CF-03", "CF-04", "CF-05", "CF-06"):
             case = self.cases[ident]
             with self.subTest(ident):
@@ -408,7 +413,7 @@ class CoordinateData(unittest.TestCase):
                     evaluate(case["point"], case["source"]), [float(v) for v in case["expect"]["world"]]
                 )
 
-    def test_the_rotated_and_translated_shapes_layer_gives_the_same_mask(self):
+    def test_the_rotated_and_translated_shapes_layer_gives_the_same_mask(self) -> None:
         # CF-02: vertices_world "rect + [100, 0]"; CF-04: the listed world vertices; both map back to the rect through the source
         rect = WRONG["coordinate"]["rect"]
         self.assertEqual(self.cases["CF-02"]["shapes_layer"]["vertices_world"], "rect + [100, 0]")
@@ -420,7 +425,7 @@ class CoordinateData(unittest.TestCase):
             rotated, [[float(a), float(b)] for a, b in self.cases["CF-04"]["shapes_layer"]["vertices_world"]]
         )
 
-    def test_a_rect_is_y_then_x_like_the_image_arrays(self):
+    def test_a_rect_is_y_then_x_like_the_image_arrays(self) -> None:
         coordinate = WRONG["coordinate"]
         rows, columns = coordinate["image"]["shape"]
         rect = coordinate["rect"]
@@ -440,7 +445,7 @@ class CoordinateData(unittest.TestCase):
             [[1.5, 3.5], [2.5, 5.5]],
         )
 
-    def test_width_height_is_only_the_server_size_and_every_other_pair_is_y_first(self):
+    def test_width_height_is_only_the_server_size_and_every_other_pair_is_y_first(self) -> None:
         order = WRONG["coordinate"]["axis_order"]
         self.assertIn("[width, height]", order["server_wh"])
         for key in ("image_shape", "export_shape", "offset_yx", "c_yx", "rect", "points"):
@@ -466,7 +471,7 @@ class CoordinateData(unittest.TestCase):
             )  # export_shape [rows, columns] fits in the server rows/columns
             self.assertLessEqual(x0 + width * d, columns, variant)
 
-    def test_the_decisions_are_recorded_in_the_spec_and_no_longer_listed_as_gaps(self):
+    def test_the_decisions_are_recorded_in_the_spec_and_no_longer_listed_as_gaps(self) -> None:
         text = spec()
         section_8 = text[text.index("## 8. Decisions and follow-ups") :]
         self.assertIn("the axis order of a `rect` region is `[y, x]`", section_8)
@@ -480,7 +485,7 @@ class CoordinateData(unittest.TestCase):
         self.assertNotIn("Axis order of `rect`", gaps)
         self.assertNotIn("**Length units**", gaps)
 
-    def test_the_qupath_crop(self):
+    def test_the_qupath_crop(self) -> None:
         case = self.cases["CF-09"]
         x0, x1 = case["selection_annotation"]["x"]
         y0, y1 = case["selection_annotation"]["y"]
@@ -495,14 +500,14 @@ class CoordinateData(unittest.TestCase):
             case["result_expect"]["target_px"], [offset[0] + case["point"][0], offset[1] + case["point"][1]]
         )
 
-    def test_the_placement_formula_for_every_downsample_variant(self):
+    def test_the_placement_formula_for_every_downsample_variant(self) -> None:
         self.assertEqual(WRONG["coordinate"]["placement"]["formula"], "c = x0 + (x + 0.5) * downsample")
         for variant in self.cases["CF-14"]["variants"]:
             y, x = variant["point"]
             (y0, x0), d = variant["offset_yx"], variant["downsample"]
             self.assertEqual(variant["expect"]["c_yx"], [y0 + (y + 0.5) * d, x0 + (x + 0.5) * d], variant)
 
-    def test_the_refusals_use_declared_host_internal_codes(self):
+    def test_the_refusals_use_declared_host_internal_codes(self) -> None:
         mentioned = set(
             re.findall(r"refuse (\w+)", json.dumps(self.cases["CF-10"]) + json.dumps(self.cases["CF-13"]))
         )
@@ -517,7 +522,7 @@ class CalibrationData(unittest.TestCase):
     calibration = WRONG["calibration"]
     cases = {c["id"]: c for c in calibration["cases"]}
 
-    def um(self, scale, unit):
+    def um(self, scale: float, unit: str) -> float | None:
         """Plain unit conversion by the rule of the file (symbols exact, words case-insensitive after trimming); None for
         unknown. Written here from the rule, never by calling the validator."""
         if unit.startswith("\ufffd"):
@@ -541,7 +546,7 @@ class CalibrationData(unittest.TestCase):
         "angstrom": (0.0001, {"\u00c5", "\u212b"}, {"angstrom", "angstroms"}),
     }
 
-    def test_unit_spellings_convert_to_the_listed_answers(self):
+    def test_unit_spellings_convert_to_the_listed_answers(self) -> None:
         self.assertAlmostEqual(self.um(1, "millimeter"), 1000.0)
         self.assertAlmostEqual(self.um(1, "millimetre"), 1000.0)
         variants = self.cases["CAL-05"]["input"]["variants"]
@@ -559,7 +564,7 @@ class CalibrationData(unittest.TestCase):
         self.assertIsNone(self.um(damaged["scale"], damaged["unit"]))
         self.assertIn(damaged["unit"], self.cases["CAL-16"]["expect"]["warning"])
 
-    def test_every_catalog_name_converts_to_the_factor_of_the_oracle(self):
+    def test_every_catalog_name_converts_to_the_factor_of_the_oracle(self) -> None:
         catalog = self.calibration["length_units"]
         self.assertEqual(set(catalog), set(self.ORACLE))
         for canonical, (factor, symbols, words) in self.ORACLE.items():
@@ -577,12 +582,12 @@ class CalibrationData(unittest.TestCase):
                         self.assertAlmostEqual(self.um(2.0, spelling), 2.0 * factor, places=12)
                     self.assertIsNone(self.um(2.0, name[:3] + " " + name[3:]), "a space inside a word")
 
-    def test_the_same_physical_length_in_every_unit_agrees(self):
+    def test_the_same_physical_length_in_every_unit_agrees(self) -> None:
         # 1 mm written five ways, from the oracle's factors
         for scale, unit in ((1000.0, "um"), (1e6, "nm"), (1.0, "mm"), (0.1, "cm"), (0.001, "m"), (1e7, "Å")):
             self.assertAlmostEqual(self.um(scale, unit), 1000.0, places=6, msg=unit)
 
-    def test_every_refused_name_is_an_unknown_unit(self):
+    def test_every_refused_name_is_an_unknown_unit(self) -> None:
         refused = self.calibration["unit_match_refused"]
         self.assertEqual(len(refused), len(set(refused)), "a name listed twice")
         for name in refused:
@@ -599,14 +604,14 @@ class CalibrationData(unittest.TestCase):
         self.assertEqual(case["expect"]["um_per_px_each"], ["unknown"] * len(refused))
         self.assertIn("case-insensitively after trimming", self.calibration["unit_match"]["rule"])
 
-    def test_the_three_micro_spellings_are_the_ones_of_the_spec(self):
+    def test_the_three_micro_spellings_are_the_ones_of_the_spec(self) -> None:
         self.assertEqual(self.calibration["micro_sign_spellings"], ["\u00b5", "\u03bc", "u"])
         for prefix in self.calibration["micro_sign_spellings"]:
             self.assertEqual(self.um(1.0, prefix + "m"), 1.0)
         self.assertEqual(self.calibration["damaged_micro_prefix"], "\ufffd")
         self.assertIsNone(self.um(1.0, "\ufffdm"))
 
-    def test_the_catalog_is_the_one_place_to_add_a_unit(self):
+    def test_the_catalog_is_the_one_place_to_add_a_unit(self) -> None:
         # a new unit or alias is a data change only: the validator accepts it, and the oracle resolves it with no code change
         data = copy.deepcopy(DATA)
         catalog = data["wrong_science"]["calibration"]["length_units"]
@@ -615,7 +620,7 @@ class CalibrationData(unittest.TestCase):
         catalog["pm"] = {"um_per_unit": 1e-6, "symbols": ["pm"], "words": ["picometer"]}
         self.assertEqual(conformance.validate(data), [])
 
-    def test_anisotropy_rule(self):
+    def test_anisotropy_rule(self) -> None:
         tolerance = self.calibration["anisotropy_tolerance"]["relative_to_larger"]
         within, beyond = self.cases["CAL-18"]["input"]["variants"]
         for variant, expected in ((within, 0.5002), (beyond, "unknown")):
@@ -623,7 +628,7 @@ class CalibrationData(unittest.TestCase):
             isotropic = abs(x - y) / max(x, y) <= tolerance
             self.assertEqual(round((x + y) / 2, 10) if isotropic else "unknown", expected)
 
-    def test_default_looking_resolutions(self):
+    def test_default_looking_resolutions(self) -> None:
         defaults = self.calibration["default_resolution_dpi"]
         for ident, dpi in (("CAL-11", 72), ("CAL-12", 96)):
             resolution = self.cases[ident]["input"]["resolution"][0]
@@ -640,7 +645,7 @@ class CalibrationData(unittest.TestCase):
         )
         self.assertAlmostEqual(2.54 * 1e4 / not_default, 1.0)  # 1 inch = 25400 um
 
-    def test_the_request_shape_is_per_axis_with_x_and_y_in_phase_one(self):
+    def test_the_request_shape_is_per_axis_with_x_and_y_in_phase_one(self) -> None:
         shape = self.calibration["request_shape"]
         self.assertEqual(shape["phase_1_axes"], ["x", "y"])
         entry = shape["_calibration"]["pixel_size"]
@@ -650,7 +655,7 @@ class CalibrationData(unittest.TestCase):
 
         self.assertIn(self.calibration["reserved_input"], RESERVED_INPUTS)
 
-    def test_the_transitions_are_the_nine_of_the_spec(self):
+    def test_the_transitions_are_the_nine_of_the_spec(self) -> None:
         self.assertEqual(
             [t["id"] for t in self.calibration["transitions"]], ["CAL-T%d" % i for i in range(1, 10)]
         )
@@ -660,7 +665,7 @@ class CalibrationData(unittest.TestCase):
 class RetentionFixturesAgainstTheReference(unittest.TestCase):
     """The `fixtures_tools` of the file, built and run for real against `retention.prune` and the CLI."""
 
-    def build_and_run(self, fixture):
+    def build_and_run(self, fixture: "dict[str, Any]") -> "tuple[Path, dict[str, Any], list[int]]":
         import os
 
         tmp = Path(tempfile.mkdtemp(prefix="lc_conf_"))
@@ -680,10 +685,10 @@ class RetentionFixturesAgainstTheReference(unittest.TestCase):
         }
         counter = [0]
 
-        def stamp(i):
+        def stamp(i: int) -> str:
             return "2026-10-01T08:%02d:%02d.%03dZ" % (i // 60 % 60, i % 60, 7)
 
-        def make(root, name, i, done=True, marker_name=None):
+        def make(root: str, name: str, i: int, done: bool = True, marker_name: str | None = None) -> Path:
             folder = home / root / name
             folder.mkdir()
             (folder / "data.txt").write_text("keep " + name)
@@ -798,7 +803,7 @@ class RetentionFixturesAgainstTheReference(unittest.TestCase):
             codes.append(done.returncode)
         return home, made, codes
 
-    def test_every_tools_fixture_of_the_file(self):
+    def test_every_tools_fixture_of_the_file(self) -> None:
         fixtures = WRONG["retention"]["fixtures_tools"]
         self.assertEqual(
             sorted(f["id"] for f in fixtures), ["RET-%02d" % i for i in (1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13)]
@@ -855,7 +860,7 @@ class DecidedOn13Oct(unittest.TestCase):
     """The two decisions of 13 Oct: a source that changed size has its own sentence (RUN-07), and a crash after Cancel is
     `cancelled` (HRET-05, HRET-06). Expected sentences and statuses are written out here by hand."""
 
-    def test_the_changed_size_sentence_is_exact_and_its_own(self):
+    def test_the_changed_size_sentence_is_exact_and_its_own(self) -> None:
         messages = DATA["messages"]
         gone, resized = (
             messages["target_unavailable"]["template"],
@@ -870,7 +875,7 @@ class DecidedOn13Oct(unittest.TestCase):
             "run 3f2a on 'A': 'A' is no longer open; results are in /home/x/results/r1",
         )
 
-        def names(template):
+        def names(template: str) -> set[str]:
             return {f for _, f, _, _ in string.Formatter().parse(template) if f}
 
         self.assertEqual(names(resized), {"run_id", "source", "path"})
@@ -878,7 +883,7 @@ class DecidedOn13Oct(unittest.TestCase):
         self.assertNotIn("no longer open", resized)
         self.assertNotIn("changed size", gone)
 
-    def test_RUN_04_and_RUN_07_name_their_own_sentence_and_the_one_code(self):
+    def test_RUN_04_and_RUN_07_name_their_own_sentence_and_the_one_code(self) -> None:
         fixtures = {f["id"]: f for f in WRONG["run_identity"]["fixtures"]}
         self.assertEqual(fixtures["RUN-04"]["message"], "target_unavailable")
         self.assertEqual(fixtures["RUN-07"]["message"], "target_changed_size")
@@ -888,7 +893,7 @@ class DecidedOn13Oct(unittest.TestCase):
         self.assertIn("changed", fixtures["RUN-07"]["sequence"] + fixtures["RUN-07"]["expect"])
         self.assertNotIn("message", fixtures["RUN-05"])  # a moved layer is drawn, not refused
 
-    def test_the_done_status_map_agrees_with_the_code(self):
+    def test_the_done_status_map_agrees_with_the_code(self) -> None:
         from labconstrictor_tools import cli, client, runs
 
         rule = WRONG["retention"]["done_status"]
@@ -905,7 +910,7 @@ class DecidedOn13Oct(unittest.TestCase):
         self.assertIn(rule["crashed_after_cancel"], WRONG["retention"]["markers"]["done_statuses"])
         self.assertIn("cancel_requested", inspect.getsource(client.Task.__init__))  # the flag a host reads
 
-    def test_HRET_05_and_HRET_06_are_a_crash_with_and_without_cancel(self):
+    def test_HRET_05_and_HRET_06_are_a_crash_with_and_without_cancel(self) -> None:
         rule = WRONG["retention"]["done_status"]
         fixtures = {f["id"]: f for f in WRONG["retention"]["fixtures_hosts"]}
         for ident, cancelled, done in (("HRET-05", True, "cancelled"), ("HRET-06", False, "failed")):
@@ -923,7 +928,7 @@ class DecidedOn13Oct(unittest.TestCase):
         self.assertEqual(conformance.prescribed_done_status(rule, "COMPLETE", True), "ok")
         self.assertEqual(conformance.prescribed_done_status(rule, "CANCELED", True), "cancelled")
 
-    def test_the_spec_records_both_decisions(self):
+    def test_the_spec_records_both_decisions(self) -> None:
         text = spec()
         flat = " ".join(text.split())
         self.assertEqual(flat.count("Decided (user, 13 Oct)"), 2)
@@ -942,7 +947,7 @@ class DecidedOn13Oct(unittest.TestCase):
 
 
 class Documented(unittest.TestCase):
-    def test_every_key_of_the_file_is_in_the_layout_table_of_the_doc(self):
+    def test_every_key_of_the_file_is_in_the_layout_table_of_the_doc(self) -> None:
         text = (ROOT / "docs" / "CONFORMANCE.md").read_text(encoding="utf-8")
         for key in (k for k in DATA if not k.startswith("_")):
             self.assertIn("`%s`" % key, text, key)
@@ -960,12 +965,12 @@ BDIST_WHEEL_MISSING = (
 
 
 class Packaging(unittest.TestCase):
-    def test_pyproject_ships_the_file(self):
+    def test_pyproject_ships_the_file(self) -> None:
         text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
         section = text.split("[tool.setuptools.package-data]", 1)[1].split("\n[", 1)[0]
         self.assertIn('labconstrictor_tools = ["conformance.json"]', section)
 
-    def test_the_built_wheel_contains_the_file_and_the_loader_reads_it_from_there(self):
+    def test_the_built_wheel_contains_the_file_and_the_loader_reads_it_from_there(self) -> None:
         try:
             from setuptools import build_meta
         except ImportError:

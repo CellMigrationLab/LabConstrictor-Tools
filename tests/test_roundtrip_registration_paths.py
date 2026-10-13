@@ -23,7 +23,7 @@ def origin(x: float = 1.0) -> Scalars:
 """
 
 
-def lc(*args, home, cwd):
+def lc(*args: str, home: str | Path, cwd: str | Path) -> subprocess.CompletedProcess[str]:
     env = {**os.environ, "LC_HOME": str(home), "LC_APPS_PATH": "", "PYTHONPATH": str(ROOT), "PYTHONUTF8": "1"}
     return subprocess.run(
         [sys.executable, "-m", "labconstrictor_tools", *args],
@@ -32,7 +32,7 @@ def lc(*args, home, cwd):
 
 
 class RelativeRegistration(unittest.TestCase):
-    def test_a_relative_prefix_and_pythonpath_still_work_from_another_folder(self):
+    def test_a_relative_prefix_and_pythonpath_still_work_from_another_folder(self) -> None:
         home = Path(tempfile.mkdtemp(prefix="lchome_"))
         folder_a = Path(tempfile.mkdtemp(prefix="lc_a_")).resolve()
         folder_b = Path(tempfile.mkdtemp(prefix="lc_b_")).resolve()

@@ -6,7 +6,7 @@ message, never a raw Python exception. The exact texts are the contract the Groo
 import unittest
 import warnings
 from multiprocessing import shared_memory
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -16,16 +16,20 @@ from labconstrictor_tools import types as T
 from labconstrictor_tools.introspection import DeclarationError, describe_tool
 from labconstrictor_tools.types import ToolError
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
-def param(kind, **extra):
+
+def param(kind: str, **extra: "Any") -> "dict[str, Any]":
     return {"name": "n", "label": "N", "type": kind, "required": True, **extra}
 
 
-def load(kind, value, **extra):
+def load(kind: str, value: "Any", **extra: "Any") -> "Any":
     return convert._load_one(param(kind, **extra), value)
 
 
-def refused(call, *args, **kwargs):
+def refused(call: "Callable[..., object]", *args: "Any", **kwargs: "Any") -> ToolError:
     with warnings.catch_warnings():
         warnings.simplefilter("error")  # an out-of-range cast would warn on x86 and be silent on ARM
         try:
@@ -35,7 +39,7 @@ def refused(call, *args, **kwargs):
     raise AssertionError("accepted")
 
 
-def result(kind, value, **extra):
+def result(kind: str, value: "Any", **extra: "Any") -> "list[Any]":
     import tempfile
 
     with tempfile.TemporaryDirectory() as folder:
@@ -43,27 +47,27 @@ def result(kind, value, **extra):
 
 
 class NumbersMustBeNumbers(unittest.TestCase):
-    def test_integer_given_something_else_is_invalid_parameter_naming_what_arrived(self):
+    def test_integer_given_something_else_is_invalid_parameter_naming_what_arrived(self) -> None:
         for value, arrived in (("abc", "text"), ([1], "a list"), ({}, "an object"), (None, "nothing (None)")):
             with self.subTest(value=value):
                 error = refused(load, "integer", value)
                 self.assertEqual(error.code, "invalid_parameter")
                 self.assertEqual(error.message, "'N' must be an integer, got %s" % arrived)
 
-    def test_integer_that_is_not_whole_or_not_finite(self):
+    def test_integer_that_is_not_whole_or_not_finite(self) -> None:
         for value in (1.5, float("inf"), float("nan"), True):
             with self.subTest(value=value):
                 self.assertEqual(refused(load, "integer", value).code, "invalid_parameter")
         self.assertEqual(load("integer", 3.0), 3)
 
-    def test_float_given_something_else_or_beyond_the_float_range(self):
+    def test_float_given_something_else_or_beyond_the_float_range(self) -> None:
         self.assertEqual(refused(load, "float", "1.5").message, "'N' must be a number, got text")
         self.assertEqual(refused(load, "float", 10**400).message, "'N' must be a finite number")
         self.assertEqual(load("float", 2), 2.0)
 
 
 class PathsMustBeText(unittest.TestCase):
-    def test_file_folder_and_image_given_a_non_text_value(self):
+    def test_file_folder_and_image_given_a_non_text_value(self) -> None:
         for kind in ("file", "folder", "image"):
             for value, arrived in (([1], "a list"), (5, "an integer"), ({}, "an object")):
                 with self.subTest(kind=kind, value=value):
@@ -77,7 +81,7 @@ class PathsMustBeText(unittest.TestCase):
 
 
 class SharedMemoryDescriptors(unittest.TestCase):
-    def descriptor(self, **changes):
+    def descriptor(self, **changes: "Any") -> "dict[str, Any]":
         base = {
             "appose_type": "ndarray",
             "shm": {"name": "lc_no_such_block"},
@@ -86,7 +90,7 @@ class SharedMemoryDescriptors(unittest.TestCase):
         }
         return {**base, **changes}
 
-    def test_a_block_that_is_gone_or_a_descriptor_with_missing_or_wrong_fields(self):
+    def test_a_block_that_is_gone_or_a_descriptor_with_missing_or_wrong_fields(self) -> None:
         cases = {
             "gone": self.descriptor(),
             "no-shm": {"appose_type": "ndarray", "shape": [1], "dtype": "uint8"},
@@ -105,7 +109,7 @@ class SharedMemoryDescriptors(unittest.TestCase):
                 self.assertIn("the shared-memory image for 'N' is gone or malformed", error.message)
                 self.assertIn("the host must keep the block alive until the task ends", error.message)
 
-    def test_a_shape_larger_than_the_block_or_negative(self):
+    def test_a_shape_larger_than_the_block_or_negative(self) -> None:
         block = shared_memory.SharedMemory(create=True, size=16)
         try:
             too_big = block.size + (
@@ -123,8 +127,8 @@ class SharedMemoryDescriptors(unittest.TestCase):
 
 
 class WrongReturns(unittest.TestCase):
-    def test_each_kind_of_wrong_value_names_the_output_and_what_was_expected(self):
-        cases = [
+    def test_each_kind_of_wrong_value_names_the_output_and_what_was_expected(self) -> None:
+        cases: list[tuple[str, Any, str]] = [
             ("image", None, "the image output 'o' must be an array of numbers, got nothing (None)"),
             ("image", "text", "the image output 'o' must be an array of numbers, got text"),
             ("labels", {}, "the labels output 'o' must be an array of numbers, got an object"),
@@ -147,7 +151,7 @@ class WrongReturns(unittest.TestCase):
                 error = refused(result, kind, value)
                 self.assertEqual((error.code, error.message), ("bad_return", message))
 
-    def test_table_like_mistakes_are_bad_return_whatever_the_pandas_version(self):
+    def test_table_like_mistakes_are_bad_return_whatever_the_pandas_version(self) -> None:
         mistakes = [
             [{}, None],
             [1, 2],
@@ -171,7 +175,7 @@ class WrongReturns(unittest.TestCase):
                     self.assertEqual(refused(result, kind, value).code, "bad_return")
         self.assertIn("different lengths", refused(result, "table", {"a": [1, 2], "b": [1]}).message)
 
-    def test_a_nul_or_a_surrogate_in_a_csv_result_is_refused_the_same_on_every_python(self):
+    def test_a_nul_or_a_surrogate_in_a_csv_result_is_refused_the_same_on_every_python(self) -> None:
         import pandas as pd
 
         for kind, base in (("table", {}), ("points", {"y": [1.0], "x": [2.0]})):
@@ -194,21 +198,21 @@ class WrongReturns(unittest.TestCase):
             ok = {**base, "t": ["x\r\ny", 'q"uote', "c,omma"]} if kind == "table" else {**base}
             self.assertEqual(result(kind, pd.DataFrame(ok if kind == "table" else base))[0]["type"], kind)
 
-    def test_affine_that_is_ragged_text_or_not_a_matrix(self):
-        for value in ([[1, 0, 0], [0, 1], [0, 0, 1]], [["a", 0, 0], [0, 1, 0], [0, 0, 1]], {}):
+    def test_affine_that_is_ragged_text_or_not_a_matrix(self) -> None:
+        for value in ([[1, 0, 0], [0, 1], [0, 0, 1]], [["a", 0, 0], [0, 1, 0], [0, 0, 1]], {}):  # type: ignore[var-annotated]  # three different literals: nothing to infer
             with self.subTest(value=value):
                 error = refused(result, "affine", value)
                 self.assertEqual(error.code, "bad_return")
                 self.assertIn("the affine output 'o' must be a 3x3 matrix of numbers", error.message)
 
-    def test_affine_with_nan_or_infinity_is_refused(self):
+    def test_affine_with_nan_or_infinity_is_refused(self) -> None:
         for bad in (float("nan"), float("inf"), float("-inf")):
             with self.subTest(bad=bad):
                 error = refused(result, "affine", [[1, 0, bad], [0, 1, 0], [0, 0, 1]])
                 self.assertEqual(error.code, "bad_return")
                 self.assertIn("the affine output 'o' has a value that is not a finite number", error.message)
 
-    def test_two_outputs_given_one_array_or_a_scalar_is_bad_return_not_a_crash(self):
+    def test_two_outputs_given_one_array_or_a_scalar_is_bad_return_not_a_crash(self) -> None:
         schema = {"outputs": [{"name": "a", "type": "image"}, {"name": "b", "type": "table"}]}
         for returned in (np.zeros((2, 2), np.uint8), 5, "ab"):
             with self.subTest(returned=type(returned).__name__):
@@ -218,14 +222,14 @@ class WrongReturns(unittest.TestCase):
 
 
 class ImagesNoHostCanOpen(unittest.TestCase):
-    def test_empty_arrays_are_bad_return(self):
+    def test_empty_arrays_are_bad_return(self) -> None:
         for shape in ((0, 3), (0,), (2, 0, 2)):
             with self.subTest(shape=shape):
                 error = refused(convert.portable_dtype, np.zeros(shape, np.uint8), "image")
                 self.assertEqual(error.code, "bad_return")
                 self.assertIn("image is empty (shape %s)" % (shape,), error.message)
 
-    def test_complex_object_and_text_arrays_are_unsupported_dtype(self):
+    def test_complex_object_and_text_arrays_are_unsupported_dtype(self) -> None:
         arrays = {
             "complex": np.zeros((2, 2), np.complex64),
             "object": np.array([[None, 1]], dtype=object),
@@ -244,13 +248,13 @@ class Float32Exactness(unittest.TestCase):
     stays inside the range is exact on every CPU. numpy warns about the bad cast on x86, which these tests turn into failures.
     """
 
-    def test_uint64_beyond_float32_is_refused_with_unsupported_dtype_on_every_cpu(self):
+    def test_uint64_beyond_float32_is_refused_with_unsupported_dtype_on_every_cpu(self) -> None:
         for value in (2**64 - 1, 2**64 - 2**39, 2**63 + 1):
             with self.subTest(value=value):
                 error = refused(convert.portable_dtype, np.array([[value, 1]], np.uint64))
                 self.assertEqual(error.code, "unsupported_dtype")
 
-    def test_int64_extremes_are_refused_or_exact_without_a_bad_cast(self):
+    def test_int64_extremes_are_refused_or_exact_without_a_bad_cast(self) -> None:
         info = np.iinfo(np.int64)
         self.assertEqual(
             refused(convert.portable_dtype, np.array([info.max], np.int64)).code, "unsupported_dtype"
@@ -260,19 +264,19 @@ class Float32Exactness(unittest.TestCase):
             out = convert.portable_dtype(np.array([info.min, 2**40], np.int64))  # powers of two are exact
         self.assertEqual((out.dtype, out.tolist()), (np.float32, [float(info.min), float(2**40)]))
 
-    def test_uint64_that_float32_holds_exactly_is_kept(self):
+    def test_uint64_that_float32_holds_exactly_is_kept(self) -> None:
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             out = convert.portable_dtype(np.array([2**63, 2**40 * 3], np.uint64))
         self.assertEqual((out.dtype, out.tolist()), (np.float32, [float(2**63), float(2**40 * 3)]))
 
 
-def describe(fn):
+def describe(fn: "Callable[..., Any]") -> "dict[str, Any]":
     """The real @tool decorator, then the real describe_tool: the DeclarationError an author sees at registration."""
     return describe_tool(tool("t")(fn).__lc_tool__)
 
 
-def declaration_error(fn):
+def declaration_error(fn: "Callable[..., Any]") -> str:
     try:
         describe(fn)
     except DeclarationError as error:
@@ -283,7 +287,7 @@ def declaration_error(fn):
 class HintMisuse(unittest.TestCase):
     """The wording of each refusal: it names the parameter (or tool), the hint and the fix."""
 
-    def test_bounds_on_text_and_an_empty_range(self):
+    def test_bounds_on_text_and_an_empty_range(self) -> None:
         def min_on_text(p: Annotated[str, T.Min(0)]) -> T.Scalars: ...
 
         def min_above_max(p: Annotated[int, T.Min(5), T.Max(1)]) -> T.Scalars: ...
@@ -302,7 +306,7 @@ class HintMisuse(unittest.TestCase):
             declaration_error(bound_not_a_number), "parameter 'p': Min('a') must be a finite number"
         )
 
-    def test_axes_and_pixel_size_on_the_wrong_type(self):
+    def test_axes_and_pixel_size_on_the_wrong_type(self) -> None:
         def axes_on_text(p: Annotated[str, T.Axes("YX")]) -> T.Scalars: ...
 
         def axes_on_table(p: Annotated[T.Table, T.Axes("YX")]) -> T.Scalars: ...
@@ -328,7 +332,7 @@ class HintMisuse(unittest.TestCase):
             "tool 'axes_on_a_table_output' output 0: Axes describes an image or labels output; this one is of type table: remove it",
         )
 
-    def test_output_markers_on_an_input(self):
+    def test_output_markers_on_an_input(self) -> None:
         def name_on_input(p: Annotated[str, T.Name("x")]) -> T.Scalars: ...
 
         def replace_on_input(p: Annotated[T.Image, T.Replace()]) -> T.Scalars: ...
@@ -347,7 +351,7 @@ class HintMisuse(unittest.TestCase):
                     % marker,
                 )
 
-    def test_duplicate_output_names(self):
+    def test_duplicate_output_names(self) -> None:
         def same(
             image: T.Image,
         ) -> tuple[Annotated[T.ImageOut, T.Name("same")], Annotated[T.TableOut, T.Name("same")]]: ...
@@ -362,7 +366,7 @@ class HintMisuse(unittest.TestCase):
         )
         self.assertIn("duplicate output names", declaration_error(collides))
 
-    def test_unnamed_outputs_of_one_type_still_get_a_numeric_suffix(self):
+    def test_unnamed_outputs_of_one_type_still_get_a_numeric_suffix(self) -> None:
         def two(image: T.Image) -> tuple[T.ImageOut, T.ImageOut]: ...
 
         self.assertEqual([o["name"] for o in describe(two)["outputs"]], ["image", "image2"])

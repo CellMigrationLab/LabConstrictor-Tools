@@ -9,6 +9,10 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 POC = (
     Path(__file__).resolve().parents[2]
@@ -27,13 +31,13 @@ R = {
 }
 
 
-def tmpdirs():
+def tmpdirs() -> set[str]:
     return set(glob.glob(os.path.join(tempfile.gettempdir(), "lc*")))
 
 
 class W(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         # never wipe a real registry: without an explicit LC_HOME use a private one
         if not os.environ.get("LC_HOME"):
             os.environ["LC_HOME"] = tempfile.mkdtemp(prefix="lc_windows_test_home_")
@@ -41,12 +45,12 @@ class W(unittest.TestCase):
         cls.e2 = registry.register("synthetic", PREFIX, SYNTHETIC, "0", [], "Synthetic")
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         (Path(tempfile.gettempdir()) / "labconstrictor_windows_report.json").write_text(
             json.dumps(R, indent=2, default=str)
         )
 
-    def test_01_layout_and_registry(self):
+    def test_01_layout_and_registry(self) -> None:
         R["registry_entry"] = self.e2
         self.assertTrue(os.name != "nt" or self.e2["python"].lower().endswith("python.exe"))
         self.assertTrue(Path(self.e2["python"]).exists())
@@ -56,27 +60,27 @@ class W(unittest.TestCase):
         self.assertIn("kitchen_sink", [t["id"] for t in s["tools"]])
         R["schema_cached_bytes"] = Path(self.e2["schema_path"]).stat().st_size
 
-    def run_tool(self, app, tool, inputs, **kw):
+    def run_tool(self, app: str, tool: str, inputs: "dict[str, Any]", **kw: "Any") -> "Any":
         w = client.WorkerProcess(app)
         try:
             return w.task(tool, inputs, **kw).wait(600)
         finally:
             w.close()
 
-    def test_02_isolation_and_scalar(self):
+    def test_02_isolation_and_scalar(self) -> None:
         t = self.run_tool("synthetic", "scalar_echo", {"a": 1.5, "b": 2.0})
         self.assertEqual(t.status, "COMPLETE", t.error)
         d = t.outputs["diagnostics"]
         R["worker_diagnostics"] = d
         self.assertTrue(os.name != "nt" or d["sys.executable"].lower().endswith("python.exe"))
 
-    def test_03_unicode_stdout_and_text(self):
+    def test_03_unicode_stdout_and_text(self) -> None:
         t = self.run_tool("synthetic", "unicode_echo", {"text": "µm → ✓ naïve"})
         self.assertEqual(t.status, "COMPLETE", t.error)
         self.assertEqual(t.outputs["results"][0]["values"]["text"], "µm → ✓ naïve")
         R["unicode_roundtrip"] = True
 
-    def test_04_paths_with_spaces_and_unicode(self):
+    def test_04_paths_with_spaces_and_unicode(self) -> None:
         d = Path(tempfile.mkdtemp(prefix="lc dir µ "))
         f = d / "tráck ß data µ.csv"
         f.write_text(
@@ -98,7 +102,7 @@ class W(unittest.TestCase):
         shutil.rmtree(d, True)
         shutil.rmtree(t.outputs["job_dir"], True)
 
-    def test_05_image_roundtrip(self):
+    def test_05_image_roundtrip(self) -> None:
         import numpy as np
         import tifffile
 
@@ -117,7 +121,7 @@ class W(unittest.TestCase):
         shutil.rmtree(t.outputs["job_dir"], True)
         shutil.rmtree(d, True)
 
-    def test_06_progress_and_cooperative_cancel(self):
+    def test_06_progress_and_cooperative_cancel(self) -> None:
         ups = []
         w = client.WorkerProcess("synthetic")
         t = w.task("slow", {"seconds": 1.2, "steps": 6}, on_update=lambda m, f: ups.append(m))
@@ -140,7 +144,7 @@ class W(unittest.TestCase):
         w.close()
         R["worker_exit_code_after_stdin_close"] = w.proc.returncode
 
-    def test_07_forced_kill(self):
+    def test_07_forced_kill(self) -> None:
         w = client.WorkerProcess("synthetic")
         self.assertEqual(
             w.task("scalar_echo", {}).wait(600).status, "COMPLETE"
@@ -161,7 +165,7 @@ class W(unittest.TestCase):
         self.assertIsNotNone(w.proc.returncode)
         self.assertEqual(t.status, "CRASHED")
 
-    def test_08_errors_and_no_arbitrary_code(self):
+    def test_08_errors_and_no_arbitrary_code(self) -> None:
         t = self.run_tool("synthetic", "explode", {"kind": "exception"})
         self.assertEqual((t.status, t.code), ("FAILED", "ZeroDivisionError"))
         self.assertIn("Traceback", t.traceback)

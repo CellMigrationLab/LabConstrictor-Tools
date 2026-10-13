@@ -1112,7 +1112,7 @@ def run_slice(tree: Path, guard: Slice) -> subprocess.CompletedProcess:
 
 @unittest.skipUnless(sys.platform.startswith("linux"), "the sabotage run is part of the Linux CI job")
 class Sabotage(unittest.TestCase):
-    def test_every_break_is_caught(self):
+    def test_every_break_is_caught(self) -> None:
         chosen = [b for b in BREAKS if not ONLY or re.search(ONLY, b.id)]
         ids = [b.id for b in BREAKS]
         self.assertEqual(len(ids), len(set(ids)), "break ids must be unique")
@@ -1141,7 +1141,7 @@ class Sabotage(unittest.TestCase):
                     % (guard.name, (done.stderr + done.stdout)[-3000:]),
                 )
 
-            def attempt(index_break):
+            def attempt(index_break: tuple[int, Break]) -> tuple[Break, subprocess.CompletedProcess[str]]:
                 index, break_ = index_break
                 tree = build_tree(base / ("break%d" % index))
                 apply(break_, tree)
@@ -1175,7 +1175,7 @@ class Sabotage(unittest.TestCase):
 class TheTableIsHonest(unittest.TestCase):
     """Runs everywhere and quickly: every break still applies to the source and is valid Python."""
 
-    def test_every_break_applies_to_the_current_source_and_compiles(self):
+    def test_every_break_applies_to_the_current_source_and_compiles(self) -> None:
         with tempfile.TemporaryDirectory(prefix="lc_sabotage_table_") as folder:
             for index, break_ in enumerate(BREAKS):
                 with self.subTest(break_.id):
@@ -1188,7 +1188,7 @@ class TheTableIsHonest(unittest.TestCase):
                     apply(break_, tree)
                     self.assertNotEqual(break_.old, break_.new)
 
-    def test_the_table_names_a_guard_for_each_family_the_task_lists(self):
+    def test_the_table_names_a_guard_for_each_family_the_task_lists(self) -> None:
         files = {b.file for b in BREAKS}
         self.assertTrue(
             {

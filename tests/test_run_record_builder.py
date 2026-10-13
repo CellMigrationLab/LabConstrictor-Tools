@@ -12,6 +12,7 @@ import types
 import unittest
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
@@ -19,8 +20,11 @@ from _paths import ROOT
 
 from labconstrictor_tools import retention, runs
 
+if TYPE_CHECKING:
+    from typing import Any
 
-def task(status="COMPLETE", **extra):
+
+def task(status: str = "COMPLETE", **extra: "Any") -> types.SimpleNamespace:
     values = {
         "status": status,
         "error": None,
@@ -67,7 +71,7 @@ EXPECTED = {
 
 
 class Home(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory(prefix="lc_runrec_")
         self.addCleanup(self._tmp.cleanup)
         self.home = Path(self._tmp.name) / "home"
@@ -77,7 +81,7 @@ class Home(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
-    def build(self, **extra):
+    def build(self, **extra: "Any") -> "dict[str, Any]":
         return runs.build_record(
             "synthetic",
             "blur",
@@ -91,11 +95,11 @@ class Home(unittest.TestCase):
 
 
 class BuildRecord(Home):
-    def test_the_content_is_what_a_run_record_holds_and_nothing_else(self):
+    def test_the_content_is_what_a_run_record_holds_and_nothing_else(self) -> None:
         self.assertEqual(self.build(), EXPECTED)
         self.assertEqual(list(self.build()), list(EXPECTED))  # the same keys in the same order
 
-    def test_it_writes_nothing_and_prunes_nothing(self):
+    def test_it_writes_nothing_and_prunes_nothing(self) -> None:
         with (
             mock.patch.object(retention, "prune") as prune,
             mock.patch.object(retention, "write_owner") as owner,
@@ -105,7 +109,7 @@ class BuildRecord(Home):
         owner.assert_not_called()
         self.assertEqual(sorted(p.name for p in self.home.iterdir() if p.name != "apps"), [])
 
-    def test_record_writes_the_same_content(self):
+    def test_record_writes_the_same_content(self) -> None:
         folder = runs.record("synthetic", "blur", INPUTS, task(), 1.2345, "oops")
         written = json.loads((folder / "run.json").read_text(encoding="utf-8"))
         finished = written.pop("finished_utc")
@@ -116,7 +120,7 @@ class BuildRecord(Home):
         self.assertNotIn("run_id", written)  # the CLI's record has no run_id and no started_utc
         self.assertNotIn("started_utc", written)
 
-    def test_the_text_is_what_record_writes(self):
+    def test_the_text_is_what_record_writes(self) -> None:
         content = self.build()
         with mock.patch.object(runs, "build_record", return_value=content):
             folder = runs.record("synthetic", "blur", INPUTS, task(), 1.2345, "oops")
@@ -124,20 +128,20 @@ class BuildRecord(Home):
         self.assertEqual(runs.record_json(content), json.dumps(content, indent=2, default=str))
         self.assertEqual(json.loads(runs.record_json(content)), content)
 
-    def test_a_host_gets_its_run_id_and_start_in_the_record(self):
+    def test_a_host_gets_its_run_id_and_start_in_the_record(self) -> None:
         content = self.build(run_id="3f2a9c", started_utc="2026-10-13T07:59:58+00:00")
         self.assertEqual(list(content)[:5], ["run_id", "app", "app_version", "tool", "started_utc"])
         self.assertEqual((content["run_id"], content["started_utc"]), ("3f2a9c", "2026-10-13T07:59:58+00:00"))
         rest = {k: v for k, v in content.items() if k not in ("run_id", "started_utc")}
         self.assertEqual(rest, EXPECTED)
 
-    def test_without_finished_utc_it_is_now_in_utc(self):
+    def test_without_finished_utc_it_is_now_in_utc(self) -> None:
         content = runs.build_record("synthetic", "blur", INPUTS, task(), 1.0)
         finished = datetime.fromisoformat(content["finished_utc"])
         self.assertEqual(finished.utcoffset().total_seconds(), 0)
         self.assertLess(abs((datetime.now(finished.tzinfo) - finished).total_seconds()), 60)
 
-    def test_the_stderr_tail_is_cut_and_the_input_dict_is_left_alone(self):
+    def test_the_stderr_tail_is_cut_and_the_input_dict_is_left_alone(self) -> None:
         inputs = dict(INPUTS)
         content = runs.build_record("synthetic", "blur", inputs, task(), 1.0, "x" * 9000 + "end")
         self.assertEqual(len(content["stderr_tail"]), runs.STDERR_TAIL_CHARS)
@@ -145,16 +149,16 @@ class BuildRecord(Home):
         self.assertEqual(inputs, INPUTS)
         self.assertIn("_job_dir", inputs)
 
-    def test_an_app_that_is_not_registered_has_no_version(self):
+    def test_an_app_that_is_not_registered_has_no_version(self) -> None:
         self.assertIsNone(runs.build_record("nobody", "t", {}, task(), 1.0)["app_version"])
 
-    def test_values_that_are_not_json_are_written_as_text(self):
+    def test_values_that_are_not_json_are_written_as_text(self) -> None:
         content = runs.build_record("synthetic", "blur", {"folder": Path("/data/x")}, task(), 1.0)
         self.assertEqual(json.loads(runs.record_json(content))["inputs"], {"folder": str(Path("/data/x"))})
 
 
 class DoneStatus(unittest.TestCase):
-    def test_every_way_a_task_ends(self):
+    def test_every_way_a_task_ends(self) -> None:
         table = {
             ("COMPLETE", False): "ok",
             ("COMPLETE", True): "ok",
@@ -172,14 +176,14 @@ class DoneStatus(unittest.TestCase):
                 self.assertEqual(runs.done_status(status, cancelled), expected)
         self.assertEqual(runs.done_status("CRASHED"), "failed")  # no Cancel unless said so
 
-    def test_every_answer_is_a_status_a_done_marker_may_hold(self):
+    def test_every_answer_is_a_status_a_done_marker_may_hold(self) -> None:
         for status in ("COMPLETE", "CANCELED", "FAILED", "CRASHED", "RUNNING"):
             for cancelled in (False, True):
                 self.assertIn(runs.done_status(status, cancelled), retention.STATUSES)
 
 
 class RecordKeepsItsBehaviour(Home):
-    def test_every_status_gets_the_done_status_it_always_had(self):
+    def test_every_status_gets_the_done_status_it_always_had(self) -> None:
         for status, expected in (
             ("COMPLETE", "ok"),
             ("CANCELED", "cancelled"),
@@ -190,13 +194,13 @@ class RecordKeepsItsBehaviour(Home):
             self.assertEqual(json.loads((folder / ".lc-done.json").read_text())["status"], expected, status)
             self.assertEqual(json.loads((folder / ".lc-owner.json").read_text())["host"], "cli")
 
-    def test_a_crash_after_cancel_is_cancelled_in_the_record_folder_too(self):
+    def test_a_crash_after_cancel_is_cancelled_in_the_record_folder_too(self) -> None:
         folder = runs.record("synthetic", "blur", {}, task("CRASHED", cancel_requested=True), 1.0)
         self.assertEqual(json.loads((folder / ".lc-done.json").read_text())["status"], "cancelled")
         folder = runs.record("synthetic", "blur", {}, task("CRASHED", cancel_requested=False), 1.0)
         self.assertEqual(json.loads((folder / ".lc-done.json").read_text())["status"], "failed")
 
-    def test_record_still_prunes_and_still_never_raises(self):
+    def test_record_still_prunes_and_still_never_raises(self) -> None:
         with mock.patch.object(retention, "prune") as prune:
             runs.record("synthetic", "blur", {}, task(), 1.0)
         prune.assert_called_once_with("runs")
@@ -207,14 +211,14 @@ class RecordKeepsItsBehaviour(Home):
 class HostFlow(Home):
     """What Napari does, with the three functions: the folder exists from the start, the host finishes it, nothing is pruned."""
 
-    def make_old_records(self, count):
+    def make_old_records(self, count: int) -> None:
         for index in range(count):
             folder = self.home / "runs" / ("20260101T0000%02d_old_tool" % index)
             folder.mkdir(parents=True, exist_ok=True)
             retention.write_owner(folder, "run", "napari")
             retention.write_done(folder, "ok")
 
-    def test_a_host_record_is_finished_without_a_prune_and_pruned_later_by_tools_only(self):
+    def test_a_host_record_is_finished_without_a_prune_and_pruned_later_by_tools_only(self) -> None:
         self.make_old_records(55)
         folder = self.home / "runs" / "20261013T080000000000_synthetic_blur"
         folder.mkdir()
@@ -235,7 +239,7 @@ class HostFlow(Home):
 
 
 class Documented(unittest.TestCase):
-    def test_protocol_and_operations_describe_the_three_functions_and_the_version(self):
+    def test_protocol_and_operations_describe_the_three_functions_and_the_version(self) -> None:
         protocol = (ROOT / "docs" / "PROTOCOL.md").read_text(encoding="utf-8")
         operations = (ROOT / "docs" / "OPERATIONS.md").read_text(encoding="utf-8")
         for name in ("runs.build_record(", "runs.record_json(", "runs.done_status("):
@@ -247,7 +251,7 @@ class Documented(unittest.TestCase):
         self.assertIn("There is no `features` id for them", protocol)
         self.assertIn("There is no feature id for them", operations)
 
-    def test_there_is_no_feature_id_for_them(self):
+    def test_there_is_no_feature_id_for_them(self) -> None:
         from labconstrictor_tools import features
 
         self.assertEqual(sorted(features.FEATURES), ["reserved_inputs_v1", "retention_prune", "shm_order_v1"])

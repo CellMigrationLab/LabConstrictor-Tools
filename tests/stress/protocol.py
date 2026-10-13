@@ -7,8 +7,12 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import psutil
+
+if TYPE_CHECKING:
+    from typing import Any
 
 os.environ["LC_HOME"] = tempfile.mkdtemp(prefix="lcfuzz_")
 HERE = str(Path(__file__).resolve().parent)
@@ -22,14 +26,20 @@ env = {
 }
 
 
-def raw_worker():
+def raw_worker() -> subprocess.Popen[bytes]:
     return subprocess.Popen(
         [sys.executable, "-m", "labconstrictor_tools", "serve", "--module", "hostile_tools"],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env,
     )  # fmt: skip
 
 
-def exchange(p, task="t1", tool="slow", inputs=None, timeout=15):
+def exchange(
+    p: subprocess.Popen[bytes],
+    task: str = "t1",
+    tool: str = "slow",
+    inputs: "dict[str, Any] | None" = None,
+    timeout: float = 15,
+) -> str:
     p.stdin.write(
         (
             json.dumps(

@@ -18,8 +18,8 @@ from labconstrictor_tools import types as T
 
 
 class Diagnostics(unittest.TestCase):
-    def test_a_probe_that_raises_is_logged_with_its_traceback_and_still_reported(self):
-        def broken():
+    def test_a_probe_that_raises_is_logged_with_its_traceback_and_still_reported(self) -> None:
+        def broken() -> None:
             raise RuntimeError("probe exploded")
 
         with self.assertLogs("labconstrictor.diagnostics", "ERROR") as logs:
@@ -31,10 +31,10 @@ class Diagnostics(unittest.TestCase):
             "RuntimeError: probe exploded", "\n".join(logs.output)
         )  # the traceback is in the record
 
-    def test_torch_devices_logs_a_failing_cuda_query_instead_of_hiding_it(self):
+    def test_torch_devices_logs_a_failing_cuda_query_instead_of_hiding_it(self) -> None:
         torch = fake_torch(cuda=True)
 
-        def boom():
+        def boom() -> None:
             raise RuntimeError("driver mismatch")
 
         torch.cuda.is_available = boom
@@ -44,19 +44,19 @@ class Diagnostics(unittest.TestCase):
         self.assertEqual(names, ["cpu"])
         self.assertIn("driver mismatch", "\n".join(logs.output))
 
-    def test_torch_devices_logs_a_broken_import(self):
+    def test_torch_devices_logs_a_broken_import(self) -> None:
         with mock.patch.object(d, "_torch_module", side_effect=ImportError("libcudart missing")):
             with self.assertLogs("labconstrictor.diagnostics", "ERROR") as logs:
                 self.assertEqual(d.torch_devices(), [])
         self.assertIn("libcudart missing", "\n".join(logs.output))
 
-    def test_a_broken_torch_import_is_logged_and_reported(self):
+    def test_a_broken_torch_import_is_logged_and_reported(self) -> None:
         with mock.patch.object(d, "_torch_module", side_effect=ImportError("libcudart missing")):
             with self.assertLogs("labconstrictor.diagnostics", "ERROR"):
                 checks = d.probe_torch()
         self.assertEqual(checks[0].status, d.FAIL)
 
-    def test_missing_package_metadata_is_the_only_thing_swallowed_in_the_worker_probe(self):
+    def test_missing_package_metadata_is_the_only_thing_swallowed_in_the_worker_probe(self) -> None:
         # a source tree: the fallback is announced in the log, not silent
         from importlib import metadata
 
@@ -68,7 +68,7 @@ class Diagnostics(unittest.TestCase):
 
 
 class LogModule(unittest.TestCase):
-    def test_version_fallback_is_logged_once(self):
+    def test_version_fallback_is_logged_once(self) -> None:
         from importlib import metadata
 
         with mock.patch.object(metadata, "version", side_effect=metadata.PackageNotFoundError("x")):
@@ -78,7 +78,7 @@ class LogModule(unittest.TestCase):
                     log.version()
         self.assertEqual(len(logs.output), 1)
 
-    def test_unreadable_log_tail_says_why(self):
+    def test_unreadable_log_tail_says_why(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             with mock.patch.object(log, "log_path", return_value=Path(tmp) / "missing.log"):
                 with self.assertLogs("labconstrictor", "DEBUG") as logs:
@@ -87,12 +87,12 @@ class LogModule(unittest.TestCase):
 
 
 class Channel(unittest.TestCase):
-    def test_a_host_that_is_gone_is_reported_once_on_stderr(self):
+    def test_a_host_that_is_gone_is_reported_once_on_stderr(self) -> None:
         class Gone:
-            def write(self, text):
+            def write(self, text: str) -> None:
                 raise BrokenPipeError(32, "Broken pipe")
 
-            def flush(self):
+            def flush(self) -> None:
                 pass
 
         channel = object.__new__(protocol.Channel)  # not __init__: it would redirect this process's stdout
@@ -105,7 +105,7 @@ class Channel(unittest.TestCase):
 
 
 class ClientPipes(unittest.TestCase):
-    def test_a_pipe_that_cannot_be_closed_is_logged(self):
+    def test_a_pipe_that_cannot_be_closed_is_logged(self) -> None:
         pipe = mock.Mock()
         pipe.close.side_effect = OSError("bad descriptor")
         with self.assertLogs("labconstrictor", "DEBUG") as logs:
@@ -114,7 +114,7 @@ class ClientPipes(unittest.TestCase):
 
 
 class Readers(unittest.TestCase):
-    def test_an_unreadable_image_is_logged_with_its_cause_and_still_a_tool_error(self):
+    def test_an_unreadable_image_is_logged_with_its_cause_and_still_a_tool_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             bad = Path(tmp, "bad.tif")
             bad.write_bytes(b"this is not a tiff")
@@ -124,7 +124,7 @@ class Readers(unittest.TestCase):
         self.assertEqual(caught.exception.code, "unreadable_image")
         self.assertIn("Traceback", "\n".join(logs.output))
 
-    def test_a_cell_that_fails_on_its_own_is_logged_with_its_traceback(self):
+    def test_a_cell_that_fails_on_its_own_is_logged_with_its_traceback(self) -> None:
         source = "import nothing_like_this_exists\ndef f(x: int) -> int:\n    return x\n"
         with self.assertLogs("labconstrictor.exporter", "ERROR") as logs:
             prepared = exporter.check(exporter.prepare(source))

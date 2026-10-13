@@ -21,7 +21,7 @@ SYN = "labconstrictor_tools.examples.synthetic"
 registry.register("synthetic", sys.prefix, SYN, "0")
 
 
-def workers():
+def workers() -> list[psutil.Process]:
     return [
         p
         for p in psutil.process_iter(["cmdline"])
@@ -68,7 +68,7 @@ wp = psutil.Process(w.proc.pid)
 me = psutil.Process()
 
 
-def snap():
+def snap() -> dict[str, int]:
     return dict(
         worker_rss_mb=wp.memory_info().rss >> 20,
         worker_fds=wp.num_fds(),
@@ -98,7 +98,7 @@ w.close()
 errors, stop, reads = [], threading.Event(), [0]
 
 
-def reader():
+def reader() -> None:
     while not stop.is_set():
         try:
             s, p = registry.load_schemas()

@@ -12,12 +12,12 @@ import roundtrip_harness as harness
 from roundtrip_known_failures import FINDINGS, KNOWN, is_known
 
 
-def matrix_keys():
+def matrix_keys() -> list[str]:
     return sorted(k for k in KNOWN if k.split(":")[0] in harness.TRANSPORTS and is_known(k))
 
 
 class KnownFailuresDoNotRot(unittest.TestCase):
-    def test_findings_are_complete_and_used(self):
+    def test_findings_are_complete_and_used(self) -> None:
         for name, finding in FINDINGS.items():
             with self.subTest(name):
                 for field in ("title", "repro", "expected", "observed"):
@@ -27,7 +27,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                 )
         self.assertEqual(sorted(set(KNOWN.values()) - set(FINDINGS)), [])
 
-    def test_matrix_entries_name_cases_that_exist(self):
+    def test_matrix_entries_name_cases_that_exist(self) -> None:
         by_id = {c.id: c for c in rc.all_cases()}
         for key in KNOWN:
             transport, _, case_id = key.partition(":")
@@ -38,13 +38,13 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                 carried_by = "cli" if transport == "terminal" else transport
                 self.assertIn(carried_by, by_id[case_id].paths)
 
-    def test_matrix_entries_still_fail(self):
+    def test_matrix_entries_still_fail(self) -> None:
         session = harness.Session()
         try:
             by_id = {c.id: c for c in rc.all_cases()}
             keys = [k for k in matrix_keys() if k.split(":", 1)[1] in by_id]
 
-            def attempt(key):
+            def attempt(key: str) -> list[str]:
                 transport, _, case_id = key.partition(":")
                 try:
                     return harness.run_case(session, transport, by_id[case_id])
@@ -65,7 +65,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                     "%s now PASSES: delete it from roundtrip_known_failures.py (%s)" % (key, KNOWN[key]),
                 )
 
-    def test_property_entries_still_fail(self):
+    def test_property_entries_still_fail(self) -> None:
         names = [k.split(":", 1)[1] for k in KNOWN if k.startswith("property:") and is_known(k)]
         if not names:
             return
@@ -82,7 +82,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                     continue
                 self.fail("property %s now PASSES: delete it from roundtrip_known_failures.py" % name)
 
-    def test_hint_entries_are_still_accepted(self):
+    def test_hint_entries_are_still_accepted(self) -> None:
         import test_roundtrip_hints as hints
 
         by_id = {c.id: c for c in hints.invalid_cells()}
@@ -94,7 +94,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                         hints.refused(by_id[key.split(":", 1)[1]]), "now REFUSED: delete the entry"
                     )
 
-    def test_unit_test_entries_still_fail(self):
+    def test_unit_test_entries_still_fail(self) -> None:
         import io
 
         import roundtrip_known_failures as module
@@ -114,7 +114,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
         finally:
             module.META = False
 
-    def test_lifecycle_entries_still_fail(self):
+    def test_lifecycle_entries_still_fail(self) -> None:
         import test_roundtrip_failures as failures
         from test_roundtrip_shared_memory import shared_memory_problems
 
@@ -131,7 +131,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                 with self.subTest(name):
                     self.assertTrue(check(), "%s now PASSES: delete the entry" % name)
 
-    def test_failure_entries_still_fail(self):
+    def test_failure_entries_still_fail(self) -> None:
         import test_roundtrip_failures as failures
 
         for key in KNOWN:
@@ -141,7 +141,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                         failures.toolerror_problems(key.split(":", 1)[1]), "now PASSES: delete the entry"
                     )
 
-    def test_windows_quoting_entries_still_fail(self):
+    def test_windows_quoting_entries_still_fail(self) -> None:
         from test_roundtrip_command import TEXTS, parse_windows_command_line
 
         from labconstrictor_tools import command
@@ -159,7 +159,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                     )
 
     @unittest.skipUnless(os.name == "nt", "the real Windows process start")
-    def test_windows_process_entries_still_fail(self):
+    def test_windows_process_entries_still_fail(self) -> None:
         from test_roundtrip_command import TEXTS, windows_process_problems
 
         for key in KNOWN:
@@ -168,7 +168,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
                 with self.subTest(key):
                     self.assertTrue(windows_process_problems(TEXTS[label]), "now passes: delete the entry")
 
-    def test_the_skip_is_exactly_the_list(self):
+    def test_the_skip_is_exactly_the_list(self) -> None:
         self.assertFalse(is_known("worker:echo_int/ok/0"))
         # the sentinel is any listed key (the list shrinks as findings are fixed, so no id is named here)
         listed_here = [key for key in KNOWN if is_known(key)]
@@ -177,7 +177,7 @@ class KnownFailuresDoNotRot(unittest.TestCase):
             self.assertTrue(is_known(key))
 
 
-def tearDownModule():
+def tearDownModule() -> None:
     """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
     raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
     import gc

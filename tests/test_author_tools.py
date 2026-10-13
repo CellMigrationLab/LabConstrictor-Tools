@@ -6,15 +6,19 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import GENERIC_PYTHON, SYNTHETIC_MODULE, V3, ensure_fixtures
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 NUCLEISKY = GENERIC_PYTHON  # any interpreter with numpy, pandas, tifffile, scipy, ipywidgets, IPython
 SYNTHETIC = SYNTHETIC_MODULE
 
 
-def lc(python, *args, cwd=None):
+def lc(python: str | Path, *args: str, cwd: str | Path | None = None) -> tuple[int, str]:
     env = {
         **os.environ,
         "PYTHONPATH": str(V3),
@@ -34,7 +38,7 @@ def lc(python, *args, cwd=None):
 
 
 class TestCommand(unittest.TestCase):
-    def test_case_file_passes_and_reports(self):
+    def test_case_file_passes_and_reports(self) -> None:
         code, out = lc(
             NUCLEISKY,
             "test", "--module", SYNTHETIC, "--cases", str(V3 / "tests/data/synthetic_cases.json"),
@@ -42,7 +46,7 @@ class TestCommand(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("4 run, 0 failed", out)
 
-    def test_wrong_expectation_fails_the_run(self):
+    def test_wrong_expectation_fails_the_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             cases = Path(tmp) / "cases.json"
             cases.write_text(
@@ -66,7 +70,7 @@ class TestCommand(unittest.TestCase):
         self.assertIn("sum is 3.0, expected 99", reports[0]["problems"][0])
         self.assertIn("status FAILED, expected COMPLETE", reports[1]["problems"][0])
 
-    def test_contract_violations_and_skips(self):
+    def test_contract_violations_and_skips(self) -> None:
         code, out = lc(
             NUCLEISKY,
             "test", "--module", "tools", "--pythonpath", str(V3 / "tests/broken_app"),
@@ -81,7 +85,7 @@ class TestCommand(unittest.TestCase):
         fine = [ln for ln in out.splitlines() if ln.startswith("✔ fine_image")]
         self.assertTrue(fine, out)  # float64 is converted, so it passes the Fiji-safe dtype check
 
-    def test_deaf_tool_is_flagged_by_check_cancel(self):
+    def test_deaf_tool_is_flagged_by_check_cancel(self) -> None:
         code, out = lc(
             NUCLEISKY,
             "test", "--module", "tools", "--pythonpath", str(V3 / "tests/broken_app"),
@@ -92,7 +96,7 @@ class TestCommand(unittest.TestCase):
         )  # --check-cancel asked for a verdict: a tool that ignores Cancel fails it
         self.assertIn("ignored a cancel request", out)
 
-    def test_samples_feed_required_inputs(self):
+    def test_samples_feed_required_inputs(self) -> None:
         code, out = lc(
             NUCLEISKY,
             "test", "--module", "tools", "--pythonpath", str(V3 / "tests/broken_app"),
@@ -130,7 +134,7 @@ print("DONE")
 """
 
 
-def notebook(path, cells):
+def notebook(path: Path, cells: "Sequence[str]") -> None:
     path.write_text(
         json.dumps(
             {
@@ -147,7 +151,7 @@ def notebook(path, cells):
 
 
 class TestNotebookHelper(unittest.TestCase):
-    def magic(self, tmp, cells):
+    def magic(self, tmp: str, cells: "Sequence[tuple[str, str]]") -> str:
         env = {
             **os.environ,
             "PYTHONPATH": str(V3),
@@ -160,7 +164,7 @@ class TestNotebookHelper(unittest.TestCase):
         self.assertIn("DONE", run.stdout, run.stderr[-2000:])
         return run.stdout
 
-    def test_magic_exports_a_module_that_passes_check_and_test(self):
+    def test_magic_exports_a_module_that_passes_check_and_test(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             out = self.magic(tmp, [('"Blur stats" --export lc_tools.py --no-form', CELL_GOOD)] * 2)  # twice
             self.assertIn("exported to lc_tools.py", out)
@@ -176,19 +180,19 @@ class TestNotebookHelper(unittest.TestCase):
             )  # fmt: skip
             self.assertEqual(code, 0, report)
 
-    def test_magic_refuses_names_from_elsewhere_in_the_notebook(self):
+    def test_magic_refuses_names_from_elsewhere_in_the_notebook(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             out = self.magic(tmp, [("--export lc_tools.py --no-form", CELL_GLOBAL)])
             self.assertIn("uses 'helper', defined elsewhere in the notebook", out)
             self.assertFalse((Path(tmp) / "lc_tools.py").exists())
 
-    def test_ambiguous_cell_and_unknown_function(self):
+    def test_ambiguous_cell_and_unknown_function(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             out = self.magic(tmp, [("--no-form", CELL_TWO), ("--no-form --function b", CELL_TWO)])
             self.assertIn("defines 2 functions (a, b)", out)
             self.assertNotIn("✖ b", out)
 
-    def test_export_notebook_cli(self):
+    def test_export_notebook_cli(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             nb = Path(tmp) / "nb.ipynb"
             notebook(

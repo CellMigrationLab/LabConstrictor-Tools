@@ -3,11 +3,15 @@ here; reading the input is the worker's and the converter's job."""
 
 import hashlib
 import mmap
+from typing import TYPE_CHECKING
 
 from labconstrictor_tools import Image, Scalars, tool
 
+if TYPE_CHECKING:
+    from typing import Any
 
-def _is_mapped(array) -> bool:
+
+def _is_mapped(array: "Any") -> bool:
     base = array
     while base is not None:
         if isinstance(base, mmap.mmap):
@@ -16,7 +20,7 @@ def _is_mapped(array) -> bool:
     return False
 
 
-def _report(array) -> dict:
+def _report(array: "Any") -> dict:
     return {
         "mapped": _is_mapped(array),
         "writeable": bool(array.flags.writeable),

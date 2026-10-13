@@ -56,7 +56,7 @@ class CoverageReport(unittest.TestCase):
         )
         return package
 
-    def test_it_lists_what_only_tests_reach_and_what_nothing_reaches(self):
+    def test_it_lists_what_only_tests_reach_and_what_nothing_reaches(self) -> None:
         with tempfile.TemporaryDirectory() as name:
             folder = Path(name)
             package = self.build(folder)

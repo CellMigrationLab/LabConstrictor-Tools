@@ -20,6 +20,10 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = ROOT / "tests" / "fixtures" / "schemas"
@@ -32,13 +36,15 @@ READ_OLD = (
 )  # what a host of protocol 1 does with a cached schema
 
 
-def clean_env(**extra):
+def clean_env(**extra: str) -> dict[str, str]:
     env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "PYTHONSAFEPATH")}
     env.update(LC_HOME=tempfile.mkdtemp(prefix="lc_compat_"), PYTHONUTF8="1", **extra)
     return env
 
 
-def run_python(python, args, cwd, new):
+def run_python(
+    python: str | Path, args: list[str], cwd: str | Path, new: bool
+) -> subprocess.CompletedProcess[str]:
     """Run `python args` from a neutral folder; NEW also sees this checkout, OLD only its own site-packages."""
     env = clean_env(**({"PYTHONPATH": str(ROOT)} if new else {}))
     return subprocess.run(
@@ -46,17 +52,17 @@ def run_python(python, args, cwd, new):
     )  # noqa: S603
 
 
-def ids(schema):
+def ids(schema: "dict[str, Any]") -> list[str]:
     return [t["id"] for t in schema["tools"]]
 
 
-def step(name, ok, detail=""):
+def step(name: str, ok: bool, detail: str = "") -> None:
     print("%s  %s%s" % ("ok  " if ok else "FAIL", name, ("  -- " + detail) if detail else ""))
     if not ok:
         sys.exit(1)
 
 
-def worker_completes(python, new, inputs):
+def worker_completes(python: str | Path, new: bool, inputs: "dict[str, Any]") -> "dict[str, Any] | None":
     """EXECUTE scalar_echo with `inputs` on that interpreter's worker -> the terminal response type."""
     proc = subprocess.Popen(  # noqa: S603
         [str(python), "-m", "labconstrictor_tools", "serve", "--module", MODULE],

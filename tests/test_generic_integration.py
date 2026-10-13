@@ -7,6 +7,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -15,27 +16,30 @@ from _paths import EVIDENCE as EV
 
 from labconstrictor_tools import client
 
-REPORT = {}
+if TYPE_CHECKING:
+    from typing import Any
+
+REPORT: "dict[str, Any]" = {}
 
 
-def jobdirs():
+def jobdirs() -> set[str]:
     return set(glob.glob(os.path.join(tempfile.gettempdir(), "lcjob_*")))
 
 
 class T(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls.w = client.WorkerProcess("synthetic")
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         cls.w.close()
         (EV / "generic_integration.json").write_text(json.dumps(REPORT, indent=2, default=str))
 
-    def run_tool(self, tool, inputs, **kw):
+    def run_tool(self, tool: str, inputs: "dict[str, Any]", **kw: "Any") -> client.Task:
         return self.w.task(tool, inputs, **kw).wait(60)
 
-    def test_1_scalar_to_scalar(self):
+    def test_1_scalar_to_scalar(self) -> None:
         t = self.run_tool("scalar_echo", {"a": 1.5, "b": 2.0})
         self.assertEqual(t.status, "COMPLETE")
         self.assertEqual(t.outputs["results"][0]["values"]["sum"], 3.5)
@@ -44,7 +48,7 @@ class T(unittest.TestCase):
         self.assertTrue(t.outputs["diagnostics"]["sys.executable"])
         self.assertNotEqual(t.outputs["diagnostics"].get("pid"), os.getpid())
 
-    def test_2_image_table_scalars(self):
+    def test_2_image_table_scalars(self) -> None:
         d = Path(tempfile.mkdtemp())
         a = np.arange(12, dtype=np.uint16).reshape(3, 4)
         tifffile.imwrite(d / "i.tif", a)
@@ -70,13 +74,13 @@ class T(unittest.TestCase):
         self.assertFalse(r["summary"]["values"]["had_optional_image"])
         self.assertTrue(os.path.isdir(t.outputs["job_dir"]))  # host owns cleanup of successful jobs
 
-    def test_3_table_in(self):
+    def test_3_table_in(self) -> None:
         d = Path(tempfile.mkdtemp())
         (d / "t.csv").write_text("a,b\n1,2\n3,4\n")
         t = self.run_tool("table_sum", {"tab": str(d / "t.csv")})
         self.assertEqual(t.outputs["results"][0]["values"], {"columns": ["a", "b"], "total": 10.0})
 
-    def test_4_validation_errors(self):
+    def test_4_validation_errors(self) -> None:
         d = Path(tempfile.mkdtemp())
         tifffile.imwrite(d / "i.tif", np.zeros((2, 2), np.uint8))
         base = {"required_string": "x", "image": str(d / "i.tif")}
@@ -92,7 +96,7 @@ class T(unittest.TestCase):
         self.assertEqual((t.status, t.code), ("FAILED", "missing_parameter"))
         REPORT["validation_example"] = t.error
 
-    def test_5_errors(self):
+    def test_5_errors(self) -> None:
         t = self.run_tool("explode", {"kind": "tool_error"})
         self.assertEqual((t.status, t.code), ("FAILED", "expected_failure"))
         t = self.run_tool("explode", {"kind": "exception"})
@@ -100,7 +104,7 @@ class T(unittest.TestCase):
         self.assertIn("Traceback", t.traceback)
         self.assertEqual(self.run_tool("scalar_echo", {}).status, "COMPLETE")  # worker survives failures
 
-    def test_6_progress(self):
+    def test_6_progress(self) -> None:
         ups = []
         t = self.run_tool("slow", {"seconds": 1.2, "steps": 6}, on_update=lambda m, f: ups.append((m, f)))
         self.assertEqual(t.status, "COMPLETE")
@@ -109,7 +113,7 @@ class T(unittest.TestCase):
         self.assertEqual(ups[-1][1], 1.0)
         REPORT["progress_events"] = ups
 
-    def test_7_cooperative_cancel_no_leaks(self):
+    def test_7_cooperative_cancel_no_leaks(self) -> None:
         before = jobdirs()
         t = self.w.task("slow", {"seconds": 20, "steps": 40})
         time.sleep(1.0)
@@ -123,7 +127,7 @@ class T(unittest.TestCase):
         self.assertEqual(self.run_tool("scalar_echo", {}).status, "COMPLETE")  # same worker still usable
         REPORT["cooperative_cancel_seconds"] = round(dt, 3)
 
-    def test_8_stubborn_cancel_kill(self):
+    def test_8_stubborn_cancel_kill(self) -> None:
         w = client.WorkerProcess("synthetic")
         t = w.task("stubborn", {"seconds": 60})
         time.sleep(1.0)
@@ -139,7 +143,7 @@ class T(unittest.TestCase):
         self.assertFalse(os.path.exists("/proc/%d" % pid))
         REPORT["forced_kill_seconds"] = round(time.time() - t0, 3)
 
-    def test_8b_declared_axes_are_enforced(self):
+    def test_8b_declared_axes_are_enforced(self) -> None:
         d = Path(tempfile.mkdtemp())
         tifffile.imwrite(d / "stack.tif", np.zeros((3, 4, 5), np.uint8))
         tifffile.imwrite(d / "plane.tif", np.ones((4, 5), np.uint8))
@@ -150,7 +154,7 @@ class T(unittest.TestCase):
         self.assertEqual(good.status, "COMPLETE")
         REPORT["wrong_dimensions_message"] = bad.error
 
-    def test_9_no_arbitrary_code(self):
+    def test_9_no_arbitrary_code(self) -> None:
         marker = Path(tempfile.gettempdir()) / "lc_pwned"
         marker.unlink(missing_ok=True)
         task = self.w.task.__self__  # noqa

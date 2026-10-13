@@ -9,6 +9,7 @@ import threading
 import time
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import EVIDENCE as EV
@@ -17,24 +18,27 @@ from _paths import GENERIC_PREFIX, SYNTHETIC_MODULE, V3
 
 from labconstrictor_tools import client, registry
 
-REPORT = {}
+if TYPE_CHECKING:
+    from typing import Any
+
+REPORT: "dict[str, Any]" = {}
 RO_PREFIX = (
     Path(os.environ["LC_TEST_RO_PREFIX"]) if os.environ.get("LC_TEST_RO_PREFIX") else None
 )  # read-only mount of an environment with numpy+pandas (optional)
 
 
-def alive(pid):
+def alive(pid: int) -> bool:
     return Path("/proc/%d" % pid).exists() and "Z" not in Path("/proc/%d/stat" % pid).read_text().split()[2]
 
 
 class Environments(unittest.TestCase):
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         (EV / "environments.json").write_text(json.dumps(REPORT, indent=2, default=str))
         for name in ("ro_app", "dup", "broken_schema", "future_protocol", "copy_a", "copy_b", "copy_c"):
             registry.unregister(name)
 
-    def test_1_several_apps_run_concurrently(self):
+    def test_1_several_apps_run_concurrently(self) -> None:
         names = (
             "copy_a",
             "copy_b",
@@ -44,7 +48,7 @@ class Environments(unittest.TestCase):
             registry.register(name, GENERIC_PREFIX, SYNTHETIC_MODULE, "1")
         results, started = {}, time.time()
 
-        def go(app):
+        def go(app: str) -> None:
             t0 = time.time()
             task = client.run_once(app, "slow", {"seconds": 3.0, "steps": 6}, timeout=120)
             results[app] = (task.status, round(time.time() - t0, 1))
@@ -61,7 +65,7 @@ class Environments(unittest.TestCase):
         self.assertTrue(all(status == "COMPLETE" for status, _ in results.values()), results)
         self.assertLess(wall, 0.8 * sum(v[1] for v in results.values()), "apps did not run in parallel")
 
-    def test_2_read_only_install_prefix(self):
+    def test_2_read_only_install_prefix(self) -> None:
         if RO_PREFIX is None or not RO_PREFIX.exists():
             self.skipTest(
                 "set LC_TEST_RO_PREFIX to a read-only mounted environment (numpy + pandas) to run this"
@@ -75,7 +79,7 @@ class Environments(unittest.TestCase):
         }
         self.assertEqual(task.status, "COMPLETE", task.error)
 
-    def test_3_duplicate_app_names_collide(self):
+    def test_3_duplicate_app_names_collide(self) -> None:
         registry.register("dup", GENERIC_PREFIX, SYNTHETIC_MODULE, "1", [], "App v1")
         registry.register("dup", GENERIC_PREFIX, SYNTHETIC_MODULE, "2", [], "App v2")
         entry = registry.load_all()["dup"]
@@ -88,7 +92,7 @@ class Environments(unittest.TestCase):
             entry["version"], "2"
         )  # documents the behaviour: the later install silently replaces the earlier one
 
-    def test_4_one_broken_app_must_not_hide_the_others(self):
+    def test_4_one_broken_app_must_not_hide_the_others(self) -> None:
         registry.register("broken_schema", GENERIC_PREFIX, SYNTHETIC_MODULE, "1", [], "Broken")
         Path(registry.load_all()["broken_schema"]["schema_path"]).write_text("{ not json")
         schemas, problems = registry.load_schemas()
@@ -97,7 +101,7 @@ class Environments(unittest.TestCase):
         self.assertNotIn("broken_schema", schemas)
         self.assertTrue(any(name == "broken_schema" for name, _ in problems))
 
-    def test_5_unsupported_protocol_is_skipped_with_a_reason(self):
+    def test_5_unsupported_protocol_is_skipped_with_a_reason(self) -> None:
         registry.register("future_protocol", GENERIC_PREFIX, SYNTHETIC_MODULE, "1", [], "Future")
         path = Path(registry.load_all()["future_protocol"]["schema_path"])
         schema = json.loads(path.read_text())
@@ -110,7 +114,7 @@ class Environments(unittest.TestCase):
         )
 
     @unittest.skipUnless(Path("/proc/self").exists(), "needs /proc (Linux)")
-    def test_6_worker_dies_when_the_host_dies(self):
+    def test_6_worker_dies_when_the_host_dies(self) -> None:
         code = (
             "import sys, time; sys.path.insert(0, %r); import os; os.environ['LC_HOME'] = %r\n"
             "from labconstrictor_tools import client\n"

@@ -1,7 +1,7 @@
 import enum
 import json
 import unittest
-from typing import Annotated, Literal
+from typing import TYPE_CHECKING, Annotated, Literal
 
 import _paths  # noqa: F401  (must come first)
 
@@ -34,6 +34,10 @@ from labconstrictor_tools import (
 )
 from labconstrictor_tools.introspection import DeclarationError, describe_tool, describe_tools
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
+
 
 class Color(enum.Enum):
     RED = "red"
@@ -41,10 +45,10 @@ class Color(enum.Enum):
 
 
 class IntrospectionTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         decorators.clear()
 
-    def test_scalar_types_defaults_required(self):
+    def test_scalar_types_defaults_required(self) -> None:
         @tool("T")
         def t(
             a: str,
@@ -53,7 +57,7 @@ class IntrospectionTests(unittest.TestCase):
             d: bool = True,
             e: str | None = None,
             f: "int | None" = None,
-        ):
+        ) -> None:
             "Doc."
 
         s = {i["name"]: i for i in describe_tool(t.__lc_tool__)["inputs"]}
@@ -64,9 +68,9 @@ class IntrospectionTests(unittest.TestCase):
         self.assertFalse(s["e"]["required"])
         self.assertNotIn("default", s["e"])
 
-    def test_literal_enum_choices(self):
+    def test_literal_enum_choices(self) -> None:
         @tool()
-        def t(m: Literal["A", "B"] = "B", c: Color = Color.BLUE, req: Literal["x", "y"] = "x"):
+        def t(m: Literal["A", "B"] = "B", c: Color = Color.BLUE, req: Literal["x", "y"] = "x") -> None:
             pass
 
         s = {i["name"]: i for i in describe_tool(t.__lc_tool__)["inputs"]}
@@ -75,12 +79,12 @@ class IntrospectionTests(unittest.TestCase):
         self.assertEqual(s["c"]["choices"], ["red", "blue"])
         self.assertEqual(s["c"]["default"], "blue")
 
-    def test_annotated_metadata(self):
+    def test_annotated_metadata(self) -> None:
         @tool()
         def t(
             x: Annotated[float, Min(0), Max(1), Unit("um/px"), Description("thr"), Label("Threshold")] = 0.5,
             n: Annotated[int, Min(1)] = 2,
-        ):
+        ) -> None:
             pass
 
         s = {i["name"]: i for i in describe_tool(t.__lc_tool__)["inputs"]}
@@ -91,9 +95,9 @@ class IntrospectionTests(unittest.TestCase):
         self.assertEqual(s["n"]["minimum"], 1)
         self.assertNotIn("maximum", s["n"])
 
-    def test_docstring_args_become_descriptions(self):
+    def test_docstring_args_become_descriptions(self) -> None:
         @tool()
-        def t(a: int = 1, b: int = 2):
+        def t(a: int = 1, b: int = 2) -> None:
             """Summary line.
 
             Args:
@@ -108,7 +112,7 @@ class IntrospectionTests(unittest.TestCase):
         self.assertEqual(s["a"]["description"], "first one")
         self.assertEqual(s["b"]["description"], "second continues here")
 
-    def test_image_table_file_types(self):
+    def test_image_table_file_types(self) -> None:
         from pathlib import Path as P
 
         @tool()
@@ -119,7 +123,7 @@ class IntrospectionTests(unittest.TestCase):
             f: File = None,
             p: P = None,
             lab: Labels = None,
-        ):
+        ) -> None:
             pass
 
         s = {i["name"]: i for i in describe_tool(t.__lc_tool__)["inputs"]}
@@ -129,7 +133,7 @@ class IntrospectionTests(unittest.TestCase):
             [s[k]["type"] for k in ("tab", "f", "p", "lab")], ["table", "file", "file", "labels"]
         )
 
-    def test_outputs(self):
+    def test_outputs(self) -> None:
         @tool()
         def t(q: Image, r: Image) -> tuple[
             Annotated[Affine, ApplyTo("q", "r"), Name("alignment")],
@@ -145,49 +149,49 @@ class IntrospectionTests(unittest.TestCase):
         self.assertEqual(o[1]["axes"], "YX")
         self.assertEqual([x["name"] for x in o], ["alignment", "aligned", "table", "values"])
 
-    def test_single_and_no_output(self):
+    def test_single_and_no_output(self) -> None:
         @tool()
         def a() -> TableOut:
             pass
 
         @tool()
-        def b():
+        def b() -> None:
             pass
 
         self.assertEqual(describe_tool(a.__lc_tool__)["outputs"][0]["name"], "table")
         self.assertEqual(describe_tool(b.__lc_tool__)["outputs"], [])
 
-    def test_pixel_size_link(self):
+    def test_pixel_size_link(self) -> None:
         @tool()
-        def t(img: Image, px: Annotated[float, PixelSizeOf("img")] = 1.0):
+        def t(img: Image, px: Annotated[float, PixelSizeOf("img")] = 1.0) -> None:
             pass
 
         self.assertEqual(describe_tool(t.__lc_tool__)["inputs"][1]["pixel_size_of"], "img")
 
-    def test_invalid_declarations(self):
+    def test_invalid_declarations(self) -> None:
         @tool()
-        def bad1(x):
+        def bad1(x):  # type: ignore[no-untyped-def]  # lc-annotations: skip - the missing annotation is what this test declares
             pass
 
         with self.assertRaisesRegex(DeclarationError, "no type annotation"):
             describe_tool(bad1.__lc_tool__)
 
         @tool()
-        def bad2(x: list):
+        def bad2(x: list) -> None:
             pass
 
         with self.assertRaisesRegex(DeclarationError, "unsupported annotation"):
             describe_tool(bad2.__lc_tool__)
 
         @tool()
-        def bad3(x: Annotated[int, Min(5)] = 1):
+        def bad3(x: Annotated[int, Min(5)] = 1) -> None:
             pass
 
         with self.assertRaisesRegex(DeclarationError, "violates minimum"):
             describe_tool(bad3.__lc_tool__)
 
         @tool()
-        def bad4(x: Annotated[float, PixelSizeOf("nope")] = 1.0):
+        def bad4(x: Annotated[float, PixelSizeOf("nope")] = 1.0) -> None:
             pass
 
         with self.assertRaisesRegex(DeclarationError, "names no parameter"):
@@ -207,24 +211,24 @@ class IntrospectionTests(unittest.TestCase):
         with self.assertRaisesRegex(DeclarationError, "unsupported return"):
             describe_tool(bad6.__lc_tool__)
 
-    def test_duplicate_ids(self):
+    def test_duplicate_ids(self) -> None:
         @tool(id="same")
-        def a():
+        def a() -> None:
             pass
 
         with self.assertRaisesRegex(ValueError, "duplicate tool id"):
 
             @tool(id="same")
-            def b():
+            def b() -> None:
                 pass
 
-    def test_deterministic_and_json(self):
+    def test_deterministic_and_json(self) -> None:
         @tool("Z")
-        def zz(a: int = 1):
+        def zz(a: int = 1) -> None:
             pass
 
         @tool("A")
-        def aa(b: Literal["u"] = "u"):
+        def aa(b: Literal["u"] = "u") -> None:
             pass
 
         s1, s2 = describe_tools(), describe_tools()
@@ -232,11 +236,11 @@ class IntrospectionTests(unittest.TestCase):
         self.assertEqual([t["id"] for t in s1["tools"]], ["aa", "zz"])
         self.assertEqual(s1["protocol"], 1)
 
-    def test_describe_does_not_call_tool(self):
+    def test_describe_does_not_call_tool(self) -> None:
         called = []
 
         @tool()
-        def t(a: int = 1):
+        def t(a: int = 1) -> None:
             called.append(1)
 
         describe_tools()
@@ -244,13 +248,13 @@ class IntrospectionTests(unittest.TestCase):
 
 
 class InteractionHintTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         decorators.clear()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         decorators.clear()
 
-    def _app(self):
+    def _app(self) -> "dict[str, Any]":
         @tool
         def conditions(folder: str, user: str = "me") -> Scalars:
             return {"choices": ["a", "b"]}
@@ -268,7 +272,7 @@ class InteractionHintTests(unittest.TestCase):
 
         return describe_tools()
 
-    def test_schema_keys(self):
+    def test_schema_keys(self) -> None:
         play = {t["id"]: t for t in self._app()["tools"]}["play"]
         inputs = {i["name"]: i for i in play["inputs"]}
         self.assertEqual(
@@ -280,13 +284,13 @@ class InteractionHintTests(unittest.TestCase):
         self.assertTrue(play["outputs"][0]["replace"])
         json.dumps(play)
 
-    def test_plain_parameters_carry_no_hint_keys(self):
+    def test_plain_parameters_carry_no_hint_keys(self) -> None:
         play = {t["id"]: t for t in self._app()["tools"]}["play"]
         folder = {i["name"]: i for i in play["inputs"]}["folder"]
         for key in ("choices_from", "clear_after_run", "group_collapsed"):
             self.assertNotIn(key, folder)
 
-    def test_unknown_source_tool_refused(self):
+    def test_unknown_source_tool_refused(self) -> None:
         @tool
         def play(g: Annotated[str, ChoicesFrom("nope")] = "") -> Scalars:
             return {}
@@ -294,7 +298,7 @@ class InteractionHintTests(unittest.TestCase):
         with self.assertRaisesRegex(DeclarationError, "names no tool"):
             describe_tools()
 
-    def test_source_must_be_callable_from_depends(self):
+    def test_source_must_be_callable_from_depends(self) -> None:
         @tool
         def conditions(folder: str) -> Scalars:
             return {"choices": []}
@@ -306,7 +310,7 @@ class InteractionHintTests(unittest.TestCase):
         with self.assertRaisesRegex(DeclarationError, "required parameter 'folder'"):
             describe_tools()
 
-    def test_depends_must_exist_in_both(self):
+    def test_depends_must_exist_in_both(self) -> None:
         @tool
         def conditions(folder: str) -> Scalars:
             return {"choices": []}
@@ -320,7 +324,7 @@ class InteractionHintTests(unittest.TestCase):
         with self.assertRaisesRegex(DeclarationError, "ghost"):
             describe_tools()
 
-    def test_source_must_return_scalars(self):
+    def test_source_must_return_scalars(self) -> None:
         @tool
         def conditions() -> ImageOut:
             return None
@@ -332,7 +336,7 @@ class InteractionHintTests(unittest.TestCase):
         with self.assertRaisesRegex(DeclarationError, "must return Scalars"):
             describe_tools()
 
-    def test_choices_only_for_strings_collapsed_needs_group_replace_only_for_data(self):
+    def test_choices_only_for_strings_collapsed_needs_group_replace_only_for_data(self) -> None:
         @tool
         def a(n: Annotated[int, ChoicesFrom("a")] = 1) -> Scalars:
             return {}
@@ -356,7 +360,7 @@ class InteractionHintTests(unittest.TestCase):
         with self.assertRaisesRegex(DeclarationError, "Replace applies"):
             describe_tools()
 
-    def test_replace_applies_to_an_affine_output(self):
+    def test_replace_applies_to_an_affine_output(self) -> None:
         import numpy as np
 
         @tool
@@ -368,13 +372,13 @@ class InteractionHintTests(unittest.TestCase):
 
 
 class PickChannelTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         decorators.clear()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         decorators.clear()
 
-    def test_schema_key(self):
+    def test_schema_key(self) -> None:
         @tool
         def one(image: Annotated[Image, Axes("YX"), PickChannel()]) -> Scalars:
             return {}
@@ -383,14 +387,14 @@ class PickChannelTests(unittest.TestCase):
         self.assertTrue(param["pick_channel"])
         self.assertEqual(param["axes"], "YX")
 
-    def test_absent_without_the_marker(self):
+    def test_absent_without_the_marker(self) -> None:
         @tool
         def one(image: Image) -> Scalars:
             return {}
 
         self.assertNotIn("pick_channel", describe_tools()["tools"][0]["inputs"][0])
 
-    def test_only_for_images(self):
+    def test_only_for_images(self) -> None:
         @tool
         def bad(n: Annotated[int, PickChannel()] = 1) -> Scalars:
             return {}
@@ -398,7 +402,7 @@ class PickChannelTests(unittest.TestCase):
         with self.assertRaisesRegex(DeclarationError, "applies to an Image input"):
             describe_tools()
 
-    def test_the_tool_must_want_a_2d_image(self):
+    def test_the_tool_must_want_a_2d_image(self) -> None:
         @tool
         def bad(image: Annotated[Image, Axes("ZYX"), PickChannel()]) -> Scalars:
             return {}
@@ -412,13 +416,13 @@ if __name__ == "__main__":
 
 
 # ---- Widget hint (slider / radio)
-def _desc(fn):
+def _desc(fn: "Callable[..., Any]") -> "list[dict[str, Any]]":
     from labconstrictor_tools.introspection import describe_tool
 
     return describe_tool(fn.__lc_tool__)["inputs"]
 
 
-def test_widget_slider_and_radio_reach_the_schema():
+def test_widget_slider_and_radio_reach_the_schema() -> None:
     from typing import Annotated, Literal
 
     from labconstrictor_tools import Max, Min, Scalars, Widget, tool
@@ -434,7 +438,7 @@ def test_widget_slider_and_radio_reach_the_schema():
     assert ins["x"]["widget"] == "slider" and ins["mode"]["widget"] == "radio"
 
 
-def test_widget_declaration_errors_are_readable():
+def test_widget_declaration_errors_are_readable() -> None:
     from typing import Annotated, Literal
 
     import pytest

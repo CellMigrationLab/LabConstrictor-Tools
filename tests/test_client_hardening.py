@@ -5,14 +5,19 @@ import tempfile
 import threading
 import time
 import unittest
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
 
 from labconstrictor_tools import client, log
 
+if TYPE_CHECKING:
+    import subprocess
+    from typing import Any
 
-def reset_logger():
+
+def reset_logger() -> None:
     """The log file is chosen when the logger is first used: forget it so the next use follows LC_HOME."""
     import logging
 
@@ -24,12 +29,12 @@ def reset_logger():
 
 
 class PrivateHome(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self._saved = os.environ.get("LC_HOME")
         os.environ["LC_HOME"] = tempfile.mkdtemp(prefix="lchome_")
         reset_logger()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         if self._saved is None:
             os.environ.pop("LC_HOME", None)
         else:
@@ -38,11 +43,11 @@ class PrivateHome(unittest.TestCase):
 
 
 class ClientHardening(PrivateHome):
-    def worker(self):
+    def worker(self) -> client.WorkerProcess:
         return client.WorkerProcess(module="labconstrictor_tools.examples.synthetic")
 
-    def test_a_progress_callback_that_raises_does_not_stop_the_task(self):
-        def boom(message, fraction):
+    def test_a_progress_callback_that_raises_does_not_stop_the_task(self) -> None:
+        def boom(message: str, fraction: float | None) -> None:
             raise ZeroDivisionError("callback bug")
 
         with self.worker() as w:
@@ -54,7 +59,7 @@ class ClientHardening(PrivateHome):
         self.assertIn("progress callback failed", log.tail(50))
         self.assertIn("callback bug", log.tail(50))
 
-    def test_cancel_escalates_to_a_kill_when_the_tool_ignores_it(self):
+    def test_cancel_escalates_to_a_kill_when_the_tool_ignores_it(self) -> None:
         with self.worker() as w:
             task = w.task("stubborn", {"seconds": 60})
             time.sleep(1.0)
@@ -64,7 +69,7 @@ class ClientHardening(PrivateHome):
             self.assertIn("did not stop when Cancel was pressed", task.error)
         self.assertIn("ignored the cancel request", log.tail(50))
 
-    def test_a_cooperative_cancel_does_not_kill_the_worker(self):
+    def test_a_cooperative_cancel_does_not_kill_the_worker(self) -> None:
         with self.worker() as w:
             task = w.task("slow", {"seconds": 20, "steps": 40})
             time.sleep(1.0)
@@ -74,13 +79,13 @@ class ClientHardening(PrivateHome):
             time.sleep(2.5)  # past the grace period: the timer must find the task done and do nothing
             self.assertTrue(w.alive)
 
-    def test_finished_tasks_are_forgotten_by_the_worker(self):
+    def test_finished_tasks_are_forgotten_by_the_worker(self) -> None:
         with self.worker() as w:
             for _ in range(3):
                 self.assertEqual(w.task("scalar_echo", {}).wait(30).status, "COMPLETE")
             self.assertEqual(w.tasks, {})
 
-    def test_close_that_has_to_kill_says_so(self):
+    def test_close_that_has_to_kill_says_so(self) -> None:
         w = self.worker()
         w.task("stubborn", {"seconds": 60})
         time.sleep(1.0)
@@ -88,11 +93,11 @@ class ClientHardening(PrivateHome):
         self.assertFalse(w.alive)
         self.assertIn("did not exit within", log.tail(50))
 
-    def test_a_failed_initialisation_does_not_leave_the_process_running(self):
+    def test_a_failed_initialisation_does_not_leave_the_process_running(self) -> None:
         started = []
         real_popen = client.subprocess.Popen
 
-        def spy(*args, **kwargs):
+        def spy(*args: "Any", **kwargs: "Any") -> "subprocess.Popen[Any]":
             proc = real_popen(*args, **kwargs)
             started.append(proc)
             return proc
@@ -111,11 +116,11 @@ class ClientHardening(PrivateHome):
         self.assertEqual(len(workers), 1)
         workers[0].wait(timeout=10)  # stopped, not orphaned (raises TimeoutExpired otherwise)
 
-    def test_requests_from_several_threads_are_written_one_at_a_time(self):
+    def test_requests_from_several_threads_are_written_one_at_a_time(self) -> None:
         class Slow:
             busy, overlaps, lines = False, 0, []
 
-            def write(self, text):
+            def write(self, text: str) -> None:
                 if self.busy:
                     self.overlaps += 1
                 self.busy = True
@@ -123,7 +128,7 @@ class ClientHardening(PrivateHome):
                 self.lines.append(text)
                 self.busy = False
 
-            def flush(self):
+            def flush(self) -> None:
                 pass
 
         worker = client.WorkerProcess.__new__(client.WorkerProcess)
@@ -141,7 +146,7 @@ class ClientHardening(PrivateHome):
 
 
 class StderrTail(unittest.TestCase):
-    def test_total_counts_everything_ever_received_even_after_trimming(self):
+    def test_total_counts_everything_ever_received_even_after_trimming(self) -> None:
         tail = client._Tail()
         tail.append("a" * 10)
         mark = tail.total

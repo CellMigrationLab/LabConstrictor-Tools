@@ -16,29 +16,33 @@ import os
 import subprocess
 import sys
 import time
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 RESULTS = []
 
 
-def record(name, ok, note=""):
+def record(name: str, ok: bool, note: object = "") -> None:
     RESULTS.append((name, "PASS" if ok else "FAIL", " ".join(str(note).split())[:300]))
 
 
-def cli(*args, timeout=180):
+def cli(*args: str, timeout: float = 180) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, "-m", "labconstrictor_tools", *args],
         capture_output=True, text=True, timeout=timeout, env={**os.environ, "PYTHONIOENCODING": "utf-8"},
     )  # fmt: skip
 
 
-def first_json(text):
+def first_json(text: str) -> "Any":
     start = text.find("{")
     if start < 0:
         raise ValueError("no JSON object in the output: %r" % text[:200])
     return json.JSONDecoder().raw_decode(text[start:])[0]
 
 
-def pid_alive(pid):
+def pid_alive(pid: int) -> bool:
     if os.name == "nt":
         out = subprocess.run(["tasklist", "/FI", "PID eq %d" % pid], capture_output=True, text=True).stdout
         return str(pid) in out
@@ -52,21 +56,21 @@ def pid_alive(pid):
     return bool(state) and not state.startswith("Z")
 
 
-def wait_gone(pid, seconds=15):
+def wait_gone(pid: int, seconds: float = 15) -> bool:
     end = time.time() + seconds
     while pid_alive(pid) and time.time() < end:
         time.sleep(0.2)
     return not pid_alive(pid)
 
 
-def check_environment():
+def check_environment() -> None:
     import labconstrictor_tools
 
     record("environment", True, "python %s on %s, labconstrictor_tools %s" % (
         sys.version.split()[0], sys.platform, getattr(labconstrictor_tools, "__version__", "?")))  # fmt: skip
 
 
-def check_list(args):
+def check_list(args: argparse.Namespace) -> None:
     done = cli("list")
     ok = done.returncode == 0 and args.app in done.stdout and args.tool in done.stdout
     record(
@@ -76,12 +80,12 @@ def check_list(args):
     )
 
 
-def check_doctor():
+def check_doctor() -> None:
     done = cli("doctor", timeout=300)
     record("doctor finds nothing wrong", done.returncode == 0, "rc=%s %s" % (done.returncode, (done.stdout + done.stderr)[-250:]))  # fmt: skip
 
 
-def check_run(args):
+def check_run(args: argparse.Namespace) -> None:
     done = cli("run", args.app, args.tool, *args.param, "--no-record")
     try:
         report = first_json(done.stdout)
@@ -95,7 +99,7 @@ def check_run(args):
         )
 
 
-def check_failing_run(args):
+def check_failing_run(args: argparse.Namespace) -> None:
     if args.fail_tool:
         arguments = [args.fail_tool]
     elif args.bad_param:
@@ -111,7 +115,7 @@ def check_failing_run(args):
         record("run: a failing tool is explained", False, "%s: %s | stderr: %s" % (type(error).__name__, error, done.stderr[-200:]))  # fmt: skip
 
 
-def check_worker_lifecycle(args):
+def check_worker_lifecycle(args: argparse.Namespace) -> None:
     from labconstrictor_tools import client
 
     try:
@@ -139,7 +143,7 @@ def check_worker_lifecycle(args):
         )
 
 
-def check_kill(args):
+def check_kill(args: argparse.Namespace) -> None:
     if not args.slow_tool:
         return
     from labconstrictor_tools import client
@@ -159,12 +163,12 @@ def check_kill(args):
         record("worker: a killed worker leaves no process and the task ends", False, "%s: %s" % (type(error).__name__, error))  # fmt: skip
 
 
-def check_log():
+def check_log() -> None:
     done = cli("logs")
     record("logs: the log file is readable", done.returncode == 0 and bool((done.stdout + done.stderr).strip()), "rc=%s" % done.returncode)  # fmt: skip
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--app", required=True)
     parser.add_argument("--tool", required=True, help="a tool id that works with --param")

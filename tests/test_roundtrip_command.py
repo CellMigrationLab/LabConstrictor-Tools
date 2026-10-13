@@ -8,6 +8,7 @@ import subprocess
 import sys
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 import roundtrip_cases as rc
@@ -15,6 +16,9 @@ import roundtrip_harness as harness
 from roundtrip_known_failures import is_known
 
 from labconstrictor_tools import command
+
+if TYPE_CHECKING:
+    from typing import Any
 
 ARGV_PRINTER = "import sys, json; sys.stdout.buffer.write(json.dumps(sys.argv[1:]).encode('ascii'))"
 TEXTS = {**rc.STRINGS}
@@ -32,7 +36,7 @@ TEXTS.update(
 )
 
 
-def parse_windows_command_line(text):
+def parse_windows_command_line(text: str) -> list[str]:
     """The documented rules of the Microsoft C runtime (and CommandLineToArgvW) for splitting a command line into arguments:
     2n backslashes before a quote give n backslashes and the quote toggles quoting; 2n+1 give n backslashes and a literal quote;
     backslashes elsewhere are literal; white space separates arguments outside quotes. Written here as the independent oracle.
@@ -74,7 +78,7 @@ def parse_windows_command_line(text):
 class WindowsParser(unittest.TestCase):
     """The parser itself must agree with Python's own writer of Windows command lines (subprocess.list2cmdline)."""
 
-    def test_the_oracle_inverts_the_standard_library_writer(self):
+    def test_the_oracle_inverts_the_standard_library_writer(self) -> None:
         for label, text in TEXTS.items():
             with self.subTest(label):
                 self.assertEqual(
@@ -82,7 +86,7 @@ class WindowsParser(unittest.TestCase):
                 )
 
 
-def windows_process_problems(text):
+def windows_process_problems(text: str) -> list[str]:
     """Start a real process with the line command.quote(windows=True) builds and read back the argument it received."""
     line = "%s -c %s %s" % (
         command.quote(sys.executable, True),
@@ -98,7 +102,7 @@ def windows_process_problems(text):
 
 
 class QuotingHelper(unittest.TestCase):
-    def test_windows_quoting_keeps_every_text_one_argument(self):
+    def test_windows_quoting_keeps_every_text_one_argument(self) -> None:
         for label, text in TEXTS.items():
             if is_known("winquote:" + label):
                 continue
@@ -107,7 +111,7 @@ class QuotingHelper(unittest.TestCase):
                 self.assertEqual(parse_windows_command_line(line), ["prog", text])
 
     @unittest.skipUnless(os.name == "posix", "needs /bin/sh")
-    def test_posix_quoting_survives_a_real_shell(self):
+    def test_posix_quoting_survives_a_real_shell(self) -> None:
         for label, text in TEXTS.items():
             if "\x00" in text:
                 continue
@@ -122,7 +126,7 @@ class QuotingHelper(unittest.TestCase):
                 self.assertEqual(json.loads(done.stdout), [text])
 
     @unittest.skipUnless(os.name == "nt", "the real Windows process start")
-    def test_windows_quoting_survives_the_real_process_start(self):
+    def test_windows_quoting_survives_the_real_process_start(self) -> None:
         for label, text in TEXTS.items():
             if is_known("winproc:" + label):
                 continue
@@ -133,10 +137,10 @@ class QuotingHelper(unittest.TestCase):
 class CopiedText(unittest.TestCase):
     """The text a host puts on the clipboard has a documented format (docs/HOST_FEATURES.md): the same in every host."""
 
-    def tool(self, tool_id):
+    def tool(self, tool_id: str) -> "dict[str, Any]":
         return harness.roundtrip_app.schemas(rc.APP_MODULE)[tool_id]
 
-    def test_booleans_are_lower_case_in_the_terminal_line_and_real_booleans_in_the_snippet(self):
+    def test_booleans_are_lower_case_in_the_terminal_line_and_real_booleans_in_the_snippet(self) -> None:
         for flag, word in ((True, "true"), (False, "false")):
             line = command.command_line("app", self.tool("echo_bool"), {"value": flag}, windows=False)
             self.assertEqual(shlex.split(line)[-1], "value=" + word)
@@ -144,7 +148,7 @@ class CopiedText(unittest.TestCase):
                 "'value': %s," % flag, command.python_snippet("app", self.tool("echo_bool"), {"value": flag})
             )
 
-    def test_numbers_and_text_are_written_as_they_are_and_unset_values_are_left_out(self):
+    def test_numbers_and_text_are_written_as_they_are_and_unset_values_are_left_out(self) -> None:
         tool = self.tool("echo_defaults")
         values = {"number": 12, "ratio": 0.1, "text": "two words", "flag": None, "mode": "a"}
         words = shlex.split(command.command_line("app", tool, values, windows=False))
@@ -152,7 +156,7 @@ class CopiedText(unittest.TestCase):
         self.assertEqual(words[:6], ["python", "-m", "labconstrictor_tools", "run", "app", "echo_defaults"])
         self.assertNotIn("flag", " ".join(words))
 
-    def test_a_missing_file_gets_a_placeholder_and_a_note_in_both_forms(self):
+    def test_a_missing_file_gets_a_placeholder_and_a_note_in_both_forms(self) -> None:
         tool = self.tool("echo_image")
         line = command.command_line("app", tool, {}, windows=False)
         self.assertTrue(line.startswith("# replace the file for: image\n"))
@@ -171,7 +175,7 @@ class AppNameWithSpacesAndQuotes(unittest.TestCase):
     )
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls.session = harness.Session()
         env = {**os.environ, "PYTHONPATH": str(_paths.ROOT)}
         for name in cls.NAMES:
@@ -183,17 +187,17 @@ class AppNameWithSpacesAndQuotes(unittest.TestCase):
             assert done.returncode == 0, done.stderr
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         cls.session.close()
 
-    def run_line(self, line):
+    def run_line(self, line: str) -> tuple[str, str]:
         shell = os.name != "nt"
         done = subprocess.run(
             line, shell=shell, capture_output=True, env=self.session.subprocess_env(), timeout=180
         )
         return done.stdout.decode("utf-8", errors="replace"), done.stderr.decode("utf-8", errors="replace")
 
-    def test_terminal_line_and_snippet_give_the_direct_values(self):
+    def test_terminal_line_and_snippet_give_the_direct_values(self) -> None:
         tool = self.session.tools["echo_string"]
         text = 'it\'s "quoted" \\ é µm'
         direct = (
@@ -225,7 +229,7 @@ class AppNameWithSpacesAndQuotes(unittest.TestCase):
                 )
                 self.assertIn(repr(direct["codepoints"]), out)
 
-    def test_a_placeholder_is_marked_and_the_line_still_parses(self):
+    def test_a_placeholder_is_marked_and_the_line_still_parses(self) -> None:
         tool = self.session.tools["echo_image"]
         line = command.command_line("round trip app", tool, {}, python=sys.executable, windows=False)
         first, second = line.split("\n")
@@ -234,7 +238,7 @@ class AppNameWithSpacesAndQuotes(unittest.TestCase):
         self.assertEqual(Path(shlex.split(second)[0]).name, Path(sys.executable).name)
 
 
-def tearDownModule():
+def tearDownModule() -> None:
     """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
     raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
     import gc

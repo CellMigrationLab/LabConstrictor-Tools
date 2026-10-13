@@ -12,7 +12,7 @@ import itertools
 import json
 import unittest
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 import _paths  # noqa: F401  (must come first)
 import roundtrip_app
@@ -23,6 +23,9 @@ from labconstrictor_tools import convert, decorators
 from labconstrictor_tools import types as T
 from labconstrictor_tools.introspection import DeclarationError, describe_tools
 from labconstrictor_tools.types import ToolError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator, Sequence
 
 REQUIRED = inspect.Parameter.empty
 
@@ -170,7 +173,7 @@ MARKER_CLASSES = {
 }
 
 
-def discovered_markers():
+def discovered_markers() -> set[str]:
     """Every marker class types.py defines: subclasses of its marker base, plus the three that carry several values."""
     found = {
         n
@@ -184,12 +187,17 @@ def discovered_markers():
 COUNTER = itertools.count(1)
 
 
-def declare(params, returns=None, extra=(), module=None):
+def declare(
+    params: list[tuple[str, Any, Any]],
+    returns: Any = None,
+    extra: "Sequence[tuple[str, list[tuple[str, Any, Any]], Any]]" = (),
+    module: str | None = None,
+) -> str:
     """Declare a tool (and `extra` ones) from annotations through the real @tool decorator -> (module name, its tool id)."""
     module = module or "lc_generated_hints_%d" % next(COUNTER)
 
-    def make(name, plist, ret):
-        def fn(*args, **kwargs):
+    def make(name: str, plist: list[tuple[str, Any, Any]], ret: Any) -> None:
+        def fn(*args: Any, **kwargs: Any) -> None:
             return None
 
         fn.__name__ = fn.__qualname__ = name
@@ -216,19 +224,19 @@ def declare(params, returns=None, extra=(), module=None):
     return module
 
 
-def describe(module):
+def describe(module: str) -> dict[str, Any]:
     try:
         return describe_tools(module)
     finally:
         decorators.forget_module(module)
 
 
-def companions():
+def companions() -> tuple[list[tuple[str, Any, Any]], list[tuple[str, Any, Any]]]:
     """The parameters around the one under test: an image to refer to, a flag to depend on."""
     return [("image", T.Image, REQUIRED)], [("other", bool, False)]
 
 
-def under_test(base, optional, markers):
+def under_test(base: str, optional: bool | str, markers: "Sequence[Any]") -> tuple[str, Any, Any]:
     annotation = BASES[base][0]
     default = REQUIRED
     if optional:  # True: `T | None = None`; "bare": `T | None` with no default (optional all the same)
@@ -239,11 +247,13 @@ def under_test(base, optional, markers):
     return ("p", annotation, default)
 
 
-def source_tool():
+def source_tool() -> tuple[str, list[tuple[str, Any, Any]], Any]:
     return ("src", [("q", str, "q")], T.Scalars)
 
 
-def schema_for(base, optional, marker_names, with_default=False):
+def schema_for(
+    base: str, optional: bool | str, marker_names: "Sequence[str]", with_default: bool = False
+) -> tuple[dict[str, Any], dict[str, Any]]:
     markers = [INPUT_MARKERS[n]["makes"]() for n in marker_names]
     first, last = companions()
     p = under_test(base, optional, markers)
@@ -270,7 +280,7 @@ INPUT_TYPE_NAMES = {
 OUTPUT_TYPE_NAMES = {"image", "labels", "table", "values", "affine", "file", "message", "points", "shapes"}
 
 
-def manifest_problems(tool):
+def manifest_problems(tool: dict[str, Any]) -> list[str]:
     """Every way a tool schema breaks the semantics of docs/MANIFEST.md and docs/PROTOCOL.md (empty list: it conforms)."""
     problems = []
     by_name = {i["name"]: i for i in tool["inputs"]}
@@ -360,7 +370,7 @@ def manifest_problems(tool):
 
 
 # ------------------------------------------------------------------------------------------------- valid combinations
-def valid_marker_pool(base, optional):
+def valid_marker_pool(base: str, optional: bool | str) -> list[str]:
     pool = []
     for name, rule in INPUT_MARKERS.items():
         if base not in rule["fits"]:
@@ -373,7 +383,7 @@ def valid_marker_pool(base, optional):
     return pool
 
 
-def with_needs(names):
+def with_needs(names: "Sequence[str]") -> list[str]:
     out = list(names)
     for n in names:
         for need in INPUT_MARKERS[n]["needs"]:
@@ -382,7 +392,7 @@ def with_needs(names):
     return out
 
 
-def valid_combinations():
+def valid_combinations() -> "Iterator[tuple[str, bool | str, tuple[str, ...]]]":
     """Every pair of applicable markers (companions added), every single one, and all of them together, for every base."""
     for base in ALL:
         for optional in (False, True, "bare"):
@@ -398,7 +408,7 @@ def valid_combinations():
 
 
 class ValidCombinations(unittest.TestCase):
-    def test_every_accepted_combination_obeys_the_manifest(self):
+    def test_every_accepted_combination_obeys_the_manifest(self) -> None:
         count = 0
         for base, optional, names in valid_combinations():
             label = "%s%s+%s" % (
@@ -443,7 +453,7 @@ class ValidCombinations(unittest.TestCase):
             count += 1
         self.assertGreater(count, 200)
 
-    def test_bounds_declared_by_min_and_max_are_enforced_by_the_converter(self):
+    def test_bounds_declared_by_min_and_max_are_enforced_by_the_converter(self) -> None:
         """Min and Max are 'bounds, enforced everywhere': the converter must refuse the neighbours and accept the bounds."""
         for base in NUMERIC:
             for names in (("Min",), ("Max",), ("Min", "Max"), ("Min", "Max", "Widget:slider")):
@@ -471,7 +481,7 @@ class ValidCombinations(unittest.TestCase):
                             convert.load_inputs(_without_image(tool), {"p": kind(10) + kind(step)})
                         self.assertEqual(caught.exception.code, "invalid_parameter")
 
-    def test_defaults_travel_into_the_schema_and_must_be_valid(self):
+    def test_defaults_travel_into_the_schema_and_must_be_valid(self) -> None:
         for base in DEFAULTS:
             tool, _ = schema_for(base, False, ())
             self.assertEqual(manifest_problems(tool), [])
@@ -482,7 +492,7 @@ class ValidCombinations(unittest.TestCase):
             self.assertFalse(param["required"])
             self.assertEqual(manifest_problems(tool), [])
 
-    def test_outputs_with_their_markers(self):
+    def test_outputs_with_their_markers(self) -> None:
         for out_name, rule in OUTPUT_MARKERS.items():
             for type_name in rule["fits"]:
                 label = "%s on %s" % (out_name, type_name)
@@ -501,7 +511,7 @@ class ValidCombinations(unittest.TestCase):
                     if out_name == "ApplyTo":
                         self.assertEqual(output["display"], {"apply_to": "image"})
 
-    def test_the_marker_table_covers_every_marker_in_types_py(self):
+    def test_the_marker_table_covers_every_marker_in_types_py(self) -> None:
         in_table = {n.split(":")[0] for n in INPUT_MARKERS} | set(OUTPUT_MARKERS)
         self.assertEqual(
             sorted(discovered_markers() - in_table), [], "a marker of types.py has no generated combinations"
@@ -510,7 +520,7 @@ class ValidCombinations(unittest.TestCase):
         self.assertEqual(discovered_markers(), MARKER_CLASSES)
         self.assertEqual(set(T.WIDGETS), {"slider", "radio"})
 
-    def test_example_apps_conform_to_the_manifest(self):
+    def test_example_apps_conform_to_the_manifest(self) -> None:
         for module in (
             "labconstrictor_tools.examples.synthetic",
             "labconstrictor_tools.examples.interactions",
@@ -522,12 +532,12 @@ class ValidCombinations(unittest.TestCase):
                 with self.subTest("%s %s" % (module, tool["id"])):
                     self.assertEqual(manifest_problems(tool), [])
 
-    def test_the_schema_is_deterministic(self):
+    def test_the_schema_is_deterministic(self) -> None:
         first = schema_for("float", True, ("Min", "Max", "Unit", "Widget:slider", "Group", "Collapsed"))[1]
         second = schema_for("float", True, ("Min", "Max", "Unit", "Widget:slider", "Group", "Collapsed"))[1]
         self.assertEqual(json.dumps(first, sort_keys=False), json.dumps(second, sort_keys=False))
 
-    def test_hint_pairs_in_both_orders_give_the_same_schema(self):
+    def test_hint_pairs_in_both_orders_give_the_same_schema(self) -> None:
         pool = valid_marker_pool("float", False)
         for a, b in itertools.combinations(pool, 2):
             names_ab, names_ba = with_needs((a, b)), with_needs((b, a))
@@ -567,7 +577,7 @@ class TheValidatorHasTeeth(unittest.TestCase):
         "outputs": [{"name": "m", "type": "affine", "display": {"apply_to": "image"}}],
     }
 
-    def broken(self, **changes):
+    def broken(self, **changes: Any) -> list[str]:
         tool = json.loads(json.dumps(self.GOOD))
         for path, value in changes.items():
             target = tool
@@ -580,10 +590,10 @@ class TheValidatorHasTeeth(unittest.TestCase):
                 target[int(last) if last.isdigit() else last] = value
         return manifest_problems(tool)
 
-    def test_the_good_schema_is_clean(self):
+    def test_the_good_schema_is_clean(self) -> None:
         self.assertEqual(manifest_problems(self.GOOD), [])
 
-    def test_each_rule_is_enforced(self):
+    def test_each_rule_is_enforced(self) -> None:
         rules = {
             "inputs.1.maximum": (-1, "minimum above maximum"),
             "inputs.1.default": (9, "default outside the bounds"),
@@ -603,11 +613,11 @@ class TheValidatorHasTeeth(unittest.TestCase):
                 problems = self.broken(**{path: value})
                 self.assertTrue(any(fragment in p for p in problems), problems)
 
-    def test_nan_in_a_schema_is_not_strict_json(self):
+    def test_nan_in_a_schema_is_not_strict_json(self) -> None:
         self.assertTrue(any("strict JSON" in p for p in self.broken(**{"inputs.1.default": float("nan")})))
 
 
-def _without_image(tool):
+def _without_image(tool: dict[str, Any]) -> dict[str, Any]:
     return {**tool, "inputs": [i for i in tool["inputs"] if i["name"] == "p"]}
 
 
@@ -615,11 +625,17 @@ def _without_image(tool):
 class Cell:
     """One invalid declaration: how to build it, what it is called, and the exception that must refuse it."""
 
-    def __init__(self, cell_id, build, why, errors=(DeclarationError,)):
+    def __init__(
+        self,
+        cell_id: str,
+        build: "Callable[[], object]",
+        why: str,
+        errors: tuple[type[BaseException], ...] = (DeclarationError,),
+    ) -> None:
         self.id, self.build, self.why, self.errors = cell_id, build, why, errors
 
 
-def refused(cell):
+def refused(cell: Cell) -> str | None:
     """The text of the error that refuses the declaration, or None when it is accepted."""
     try:
         cell.build()
@@ -628,11 +644,13 @@ def refused(cell):
     return None
 
 
-def _param_cell(cell_id, base, optional, names, why, **kwargs):
+def _param_cell(
+    cell_id: str, base: str, optional: bool | str, names: "Sequence[str]", why: str, **kwargs: Any
+) -> Cell:
     return Cell(cell_id, lambda: schema_for(base, optional, names, **kwargs), why)
 
 
-def invalid_cells():
+def invalid_cells() -> list[Cell]:
     cells = []
     not_numeric = ("str", "bool", "literal3", "image", "file")
     for marker in ("Min", "Max"):
@@ -898,7 +916,12 @@ def invalid_cells():
     return cells
 
 
-def _custom(name, annotation, default=REQUIRED, extra=None):
+def _custom(
+    name: str,
+    annotation: Any,
+    default: Any = REQUIRED,
+    extra: "Sequence[tuple[str, list[tuple[str, Any, Any]], Any]] | None" = None,
+) -> dict[str, Any]:
     first = [("image", T.Image, REQUIRED)]
     module = declare(
         first + [(name, annotation, default), ("other", bool, False)],
@@ -907,13 +930,13 @@ def _custom(name, annotation, default=REQUIRED, extra=None):
     return describe(module)
 
 
-def _custom_out(annotation):
+def _custom_out(annotation: Any) -> dict[str, Any]:
     module = declare([("image", T.Image, REQUIRED)], annotation)
     return describe(module)
 
 
 class InvalidCombinations(unittest.TestCase):
-    def test_every_invalid_combination_is_refused_with_a_message_that_names_the_culprit(self):
+    def test_every_invalid_combination_is_refused_with_a_message_that_names_the_culprit(self) -> None:
         cells = invalid_cells()
         self.assertGreater(len(cells), 70)
         self.assertEqual(len({c.id for c in cells}), len(cells))
@@ -950,7 +973,7 @@ class InvalidCombinations(unittest.TestCase):
                     "the message names neither the parameter nor the hint: %r" % message,
                 )
 
-    def test_a_refusal_is_a_declaration_error_and_never_a_crash(self):
+    def test_a_refusal_is_a_declaration_error_and_never_a_crash(self) -> None:
         for cell in invalid_cells():
             if is_known("hint:" + cell.id):
                 continue
@@ -961,7 +984,7 @@ class InvalidCombinations(unittest.TestCase):
             except Exception as error:  # noqa: BLE001 - the point of the test: any other exception is a crash
                 self.fail("%s: %s: %s" % (cell.id, type(error).__name__, error))
 
-    def test_known_misuse_still_accepted_is_listed(self):
+    def test_known_misuse_still_accepted_is_listed(self) -> None:
         listed = {k.split(":", 1)[1] for k in KNOWN if k.startswith("hint:")}
         self.assertLessEqual(listed, {c.id for c in invalid_cells()})
 

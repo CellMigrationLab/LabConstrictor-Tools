@@ -8,15 +8,21 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import FIXTURES as FX
 from _paths import GENERIC_PREFIX, SYNTHETIC_MODULE, V3
 
+if TYPE_CHECKING:
+    from typing import Any
+
 CLI = [sys.executable, "-m", "labconstrictor_tools"]
 
 
-def cli(*args, home, extra_env=None, input_dir=None):
+def cli(
+    *args: str, home: str | Path, extra_env: dict[str, str] | None = None, input_dir: str | Path | None = None
+) -> subprocess.CompletedProcess[str]:
     env = {
         **os.environ,
         "LC_HOME": str(home),
@@ -30,7 +36,7 @@ def cli(*args, home, extra_env=None, input_dir=None):
     )
 
 
-def register(home, name, *extra):
+def register(home: str | Path, name: str, *extra: str) -> "dict[str, Any]":
     """Register the example app (synthetic tools, interpreter = the one running the tests) under `name`."""
     result = cli(
         "register", "--name", name, "--prefix", str(GENERIC_PREFIX), "--module", SYNTHETIC_MODULE,
@@ -41,10 +47,10 @@ def register(home, name, *extra):
 
 
 class CliAndRegistry(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.home = Path(tempfile.mkdtemp(prefix="lchome_"))
 
-    def test_list_and_run_without_a_gui(self):
+    def test_list_and_run_without_a_gui(self) -> None:
         register(self.home, "synthetic")
         listed = json.loads(cli("list", "--json", home=self.home).stdout)
         self.assertIn("table_sum", [t["id"] for t in listed["apps"]["synthetic"]["tools"]])
@@ -63,7 +69,7 @@ class CliAndRegistry(unittest.TestCase):
             json.loads(again.stdout)["status"], "FAILED"
         )  # a CSV is not an image: a clear failure, not a crash
 
-    def test_every_run_leaves_a_record(self):
+    def test_every_run_leaves_a_record(self) -> None:
         register(self.home, "synthetic")
         cli("run", "synthetic", "scalar_echo", "a=1", "b=2", home=self.home)
         cli("run", "synthetic", "explode", "kind=tool_error", home=self.home)
@@ -79,7 +85,7 @@ class CliAndRegistry(unittest.TestCase):
         self.assertEqual(norecord.returncode, 0)
         self.assertEqual(len(list((self.home / "runs").glob("*/run.json"))), 2)
 
-    def test_run_errors_are_helpful(self):
+    def test_run_errors_are_helpful(self) -> None:
         register(self.home, "synthetic")
         missing = cli(
             "run", "synthetic", "kitchen_sink", "required_string=x", home=self.home
@@ -93,7 +99,7 @@ class CliAndRegistry(unittest.TestCase):
         self.assertIn("expected a float", badnumber.stderr)
         self.assertNotIn("Traceback", badnumber.stderr)
 
-    def test_check_flags_heavy_imports_and_bad_declarations(self):
+    def test_check_flags_heavy_imports_and_bad_declarations(self) -> None:
         d = Path(tempfile.mkdtemp())
         (d / "heavy_tools.py").write_text(
             "import numpy\nfrom labconstrictor_tools import tool, Scalars\n@tool()\ndef t(a: int = 1) -> Scalars:\n    return {}\n"
@@ -108,7 +114,7 @@ class CliAndRegistry(unittest.TestCase):
         self.assertEqual(bad.returncode, 1)
         self.assertIn("no type annotation", bad.stdout)
 
-    def test_doctor_reports_healthy_stale_and_broken_installs(self):
+    def test_doctor_reports_healthy_stale_and_broken_installs(self) -> None:
         register(self.home, "synthetic")
         self.assertEqual(cli("doctor", home=self.home).returncode, 0)
         schema_path = self.home / "apps" / "synthetic.schema.json"
@@ -129,7 +135,7 @@ class CliAndRegistry(unittest.TestCase):
     @unittest.skipUnless(
         os.name == "posix", "file ownership and permission checks are POSIX-only (see docs/OPERATIONS.md)"
     )
-    def test_entries_pointing_outside_their_prefix_or_writable_by_others_are_ignored(self):
+    def test_entries_pointing_outside_their_prefix_or_writable_by_others_are_ignored(self) -> None:
         register(self.home, "synthetic")
         entry_path = self.home / "apps" / "synthetic.json"
         original = entry_path.read_text()
@@ -143,7 +149,7 @@ class CliAndRegistry(unittest.TestCase):
         out = cli("doctor", "--json", home=self.home)
         self.assertIn("writable by other users", out.stdout)
 
-    def test_shared_registry_directory_and_user_override(self):
+    def test_shared_registry_directory_and_user_override(self) -> None:
         shared = Path(tempfile.mkdtemp(prefix="shared_"))
         register(self.home, "shared_app", "--dir", str(shared))
         none_visible = cli("list", home=self.home)
@@ -158,7 +164,7 @@ class CliAndRegistry(unittest.TestCase):
             override["apps"]["shared_app"]["application"], "my own copy"
         )  # the per-user entry wins
 
-    def test_init_writes_a_module_that_passes_check(self):
+    def test_init_writes_a_module_that_passes_check(self) -> None:
         d = Path(tempfile.mkdtemp())
         made = cli("init", str(d / "starter_tools.py"), home=self.home)
         self.assertEqual(made.returncode, 0, made.stderr)

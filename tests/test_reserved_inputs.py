@@ -23,19 +23,19 @@ SCHEMA = {
 }
 
 
-def documented_reserved_names():
+def documented_reserved_names() -> set[str]:
     text = (ROOT / "docs" / "PROTOCOL.md").read_text(encoding="utf-8")
     section = text.split("## Reserved inputs", 1)[1].split("\n## ", 1)[0]
     return set(re.findall(r"^\| `(_\w+)` \|", section, re.M))
 
 
 class ReservedList(unittest.TestCase):
-    def test_the_documented_list_is_the_code_list(self):
+    def test_the_documented_list_is_the_code_list(self) -> None:
         self.assertEqual(documented_reserved_names(), set(protocol.RESERVED_INPUTS))
         for name in ("_job_dir", "_calibration", "_axes"):
             self.assertIn(name, protocol.RESERVED_INPUTS)
 
-    def test_load_inputs_consults_the_reserved_list(self):
+    def test_load_inputs_consults_the_reserved_list(self) -> None:
         """Failing-if-missing: if the list is not what decides, #51 would reject `_calibration` and `_axes`."""
         sent = {"size": 5, "_calibration": {"pixel_size": {}}, "_axes": {"image": "YX"}, "_job_dir": "x"}
         self.assertEqual(convert.undeclared_inputs(SCHEMA, sent), [])
@@ -46,14 +46,14 @@ class ReservedList(unittest.TestCase):
         ):
             self.assertEqual(convert.undeclared_inputs(SCHEMA, sent), ["_axes", "_calibration"])
 
-    def test_undeclared_inputs_names_only_what_a_tool_does_not_declare(self):
+    def test_undeclared_inputs_names_only_what_a_tool_does_not_declare(self) -> None:
         self.assertEqual(convert.undeclared_inputs(SCHEMA, {"size": 1, "oops": 2, "_future": 3}), ["oops"])
 
-    def test_load_inputs_never_hands_reserved_inputs_to_the_tool(self):
+    def test_load_inputs_never_hands_reserved_inputs_to_the_tool(self) -> None:
         sent = {"size": 5, "_calibration": {"a": 1}, "_axes": {"i": "YX"}, "_from_the_future": 1}
         self.assertEqual(convert.load_inputs(SCHEMA, sent), {"size": 5})
 
-    def test_a_tool_cannot_declare_a_reserved_name(self):
+    def test_a_tool_cannot_declare_a_reserved_name(self) -> None:
         for name in sorted(protocol.RESERVED_INPUTS):
             module = "reserved_name_test_" + name
             namespace = {"__name__": module}
@@ -68,7 +68,7 @@ class ReservedList(unittest.TestCase):
 
 
 class WorkerAcceptsThem(unittest.TestCase):
-    def test_a_real_worker_ignores_reserved_inputs_it_knows_and_those_it_does_not(self):
+    def test_a_real_worker_ignores_reserved_inputs_it_knows_and_those_it_does_not(self) -> None:
         w = RawWorker()
         try:
             reserved = {
