@@ -1,0 +1,417 @@
+# Smoke test of the template 0.1.16 migration (LabConstrictor PR "Template 0.1.16"): an app at an OLD template version is built and
+# installed (no tools bridge), the migration of the template branch is applied to the app repository exactly as the template sync
+# workflow does (sync.py), a NEW installer is built from the migrated repository and the old install is updated to it (in place with -u on
+# Linux; uninstall, then install on macOS and Windows, which refuse an install over an existing one), then the
+# hooks, `labconstrictor-tools list` and `labconstrictor-tools doctor` are checked and the app is uninstalled. Nothing is released
+# or merged; the app repository is only read. Linux, macOS (Apple silicon) and Windows.
+#
+# "Old" app = the app at app_ref with the installer scripts (app/bash_bat_scripts) of the OLD template (old_template_ref, a commit of
+# the template at version 0.1.15, before the hooks) with the app's names filled in, as the template's initialisation does. (The app's
+# own main cannot be the old state: its post_install.* still has an unreplaced PYTHON_PROJ_NAME.) Default app: NucleiSky on its bridge branch (it has a <package>_lc_tools module); heavy ML packages are dropped from its
+# requirements by default (trim_requirements) because the hooks do not need them.
+name: smoke-migration
+on:
+  workflow_dispatch:
+    inputs:
+      template_repo:
+        description: "Template repository that holds the migration"
+        required: false
+        default: CellMigrationLab/LabConstrictor
+      template_ref:
+        description: "Branch or tag of the template with the migration"
+        required: false
+        default: claude/migration-0.1.16
+      app_repo:
+        description: "Repository of the LabConstrictor app"
+        required: false
+        default: CellMigrationLab/NucleiSky
+      app_ref:
+        description: "Branch or tag of the app that has the tools module"
+        required: false
+        default: claude/merge-bridge-test
+      old_template_ref:
+        description: "Commit, tag or branch of the template whose installer scripts are the old ones (version 0.1.15, no hooks)"
+        required: false
+        default: 900d0cac40ad503642e6b0d94b6e5337f38117d8
+      python_package:
+        description: "Python package of the app (the PYTHON_PROJ_NAME of the scripts)"
+        required: false
+        default: nucleisky
+      app_name:
+        description: "Name of the app as registered (construct.yaml name)"
+        required: false
+        default: NucleiSky
+      tools_module:
+        description: "Name of the tools module the hook must find (<package>_lc_tools)"
+        required: false
+        default: nucleisky_lc_tools
+      trim_requirements:
+        description: "Comma separated packages dropped from the app's requirements before building (keeps the test light)"
+        required: false
+        default: "torch,cellpose,instanseg-torch"
+  push:
+    branches: [claude/smoke-migration]
+
+env:
+  TEMPLATE_REPO: ${{ inputs.template_repo || 'CellMigrationLab/LabConstrictor' }}
+  TEMPLATE_REF: ${{ inputs.template_ref || 'claude/migration-0.1.16' }}
+  APP_REPO: ${{ inputs.app_repo || 'CellMigrationLab/NucleiSky' }}
+  APP_REF: ${{ inputs.app_ref || 'claude/merge-bridge-test' }}
+  OLD_TEMPLATE_REF: ${{ inputs.old_template_ref || '900d0cac40ad503642e6b0d94b6e5337f38117d8' }}
+  PYTHON_PACKAGE: ${{ inputs.python_package || 'nucleisky' }}
+  APP_NAME: ${{ inputs.app_name || 'NucleiSky' }}
+  TOOLS_MODULE: ${{ inputs.tools_module || 'nucleisky_lc_tools' }}
+  TRIM: ${{ inputs.trim_requirements || 'torch,cellpose,instanseg-torch' }}
+
+jobs:
+  migrate:
+    name: Migrate the app repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.APP_REPO }}
+          ref: ${{ env.APP_REF }}
+          path: app
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TEMPLATE_REPO }}
+          ref: ${{ env.TEMPLATE_REF }}
+          path: template
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TEMPLATE_REPO }}
+          ref: ${{ env.OLD_TEMPLATE_REF }}
+          path: template_old
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Versions
+        run: |
+          FROM="$(sed -n 's/^template_version: *//p' app/.template_sync/manifest.yaml | head -1 | tr -d '\r')"
+          TO="$(sed -n 's/^template_version: *//p' template/.template_sync/manifest.yaml | head -1 | tr -d '\r')"
+          echo "FROM=$FROM" >> "$GITHUB_ENV"; echo "TO=$TO" >> "$GITHUB_ENV"
+          echo "app template version $FROM, template under test $TO"
+          test "$TO" = "0.1.16" || { echo "FAIL: the template branch is not at 0.1.16"; exit 1; }
+
+      - name: Apps that already carry the hooks are left alone (the app as it is)
+        run: |
+          cp -r app app_asis
+          cp -r template/.template_sync/. app_asis/.template_sync/
+          if grep -q labconstrictor_tools app_asis/app/bash_bat_scripts/post_install.sh; then
+            cp -r app_asis/app/bash_bat_scripts /tmp/asis_scripts
+            python3 app_asis/.template_sync/sync.py --from-version 0.1.15 --to-version "$TO" --repository-root app_asis | tee asis.log
+            diff -r /tmp/asis_scripts app_asis/app/bash_bat_scripts && echo "scripts of the app with hooks: unchanged"
+            grep -c "already has the Tools bridge hook" asis.log
+          else
+            echo "NOTE: $APP_REF has no hooks in post_install.sh; this check does not apply"
+          fi
+
+      - name: Put the old template scripts (no hooks) into the app and keep that tree as the old app
+        run: |
+          test "$(sed -n 's/^template_version: *//p' template_old/.template_sync/manifest.yaml | head -1 | tr -d '\r')" = "0.1.15" || { echo "FAIL: old_template_ref is not template 0.1.15"; exit 1; }
+          VERSION="$(sed -n 's/^version: *//p' app/construct.yaml | head -1 | tr -d "\"'\r")"
+          OWNER="${APP_REPO%%/*}"
+          for f in post_install.sh post_install.bat pre_uninstall.sh pre_uninstall.bat uninstall.sh; do
+            # the template's token replacement (BASE_PATH stays: post_install fills it in at install time); sed keeps CRLF
+            sed -e "s/UNDERSCORED_PROJECT_NAME/$APP_NAME/g" -e "s/PYTHON_PROJ_NAME/$PYTHON_PACKAGE/g" -e "s/PROJECT_NAME/$APP_NAME/g" \
+                -e "s/VERSION_NUMBER/$VERSION/g" -e "s/GITHUB_OWNER/$OWNER/g" "template_old/app/bash_bat_scripts/$f" > "app/app/bash_bat_scripts/$f"
+          done
+          ! grep -rn "PYTHON_PROJ_NAME\|PROJECT_NAME" app/app/bash_bat_scripts || { echo "FAIL: unreplaced token in the old scripts"; exit 1; }
+          for f in post_install.sh post_install.bat pre_uninstall.sh pre_uninstall.bat; do
+            ! grep -q labconstrictor_tools "app/app/bash_bat_scripts/$f" || { echo "FAIL: old $f already has a hook"; exit 1; }
+          done
+          echo "old scripts have no hook"
+          test -d "app/src/$TOOLS_MODULE" -o -f "app/src/$TOOLS_MODULE.py" || { echo "FAIL: the app has no src/$TOOLS_MODULE"; exit 1; }
+          tar --exclude=.git -czf app_old.tgz -C app .
+
+      - name: Run the migration the way the sync workflow does
+        run: |
+          cp -r template/.template_sync/. app/.template_sync/
+          python3 app/.template_sync/sync.py --from-version "$FROM" --to-version "$TO" --repository-root app 2>&1 | tee migrate.log
+          grep -q "hook added" migrate.log || { echo "FAIL: no hook was added"; exit 1; }
+          for f in post_install.sh post_install.bat pre_uninstall.sh pre_uninstall.bat; do
+            grep -q labconstrictor_tools "app/app/bash_bat_scripts/$f" || { echo "FAIL: $f has no hook after the migration"; exit 1; }
+          done
+          bash -n app/app/bash_bat_scripts/post_install.sh
+          bash -n app/app/bash_bat_scripts/pre_uninstall.sh
+          bash -n app/app/bash_bat_scripts/uninstall.sh
+          git -C app add -A
+          git -C app diff --cached --stat | tail -20
+          git -C app diff --cached > first.diff
+          # Windows scripts: keep the line endings the app had
+          for f in post_install.bat pre_uninstall.bat; do
+            git -C app diff --cached --numstat -- "app/bash_bat_scripts/$f"
+          done
+          # an installed app of the old version has no hook and the new one has it, nothing else changed in the scripts' folder
+          git -C app diff --cached --name-only -- app/bash_bat_scripts
+
+      - name: Running the migration a second time changes nothing
+        run: |
+          python3 app/.template_sync/sync.py --from-version 0.1.15 --to-version "$TO" --repository-root app 2>&1 | tee second.log
+          grep -q "no repository changes were required" second.log || { echo "FAIL: the second run changed something"; exit 1; }
+          git -C app add -A
+          git -C app diff --cached > second.diff
+          cmp first.diff second.diff && echo "second run: identical tree"
+          tar --exclude=.git -czf app_new.tgz -C app .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: migrated-apps
+          path: |
+            app_old.tgz
+            app_new.tgz
+          retention-days: 3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: migration-logs
+          path: |
+            migrate.log
+            second.log
+            first.diff
+            asis.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+  build:
+    name: Build ${{ matrix.variant }} installer (${{ matrix.target.os_name }})
+    needs: migrate
+    runs-on: ${{ matrix.target.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [old, new]
+        target:
+          - { os_name: linux, runner: ubuntu-latest }
+          - { os_name: macos-arm64, runner: macos-15 }
+          - { os_name: windows, runner: windows-latest }
+    defaults:
+      run:
+        shell: bash -l {0}
+        working-directory: app
+    env:
+      CONSTRUCTOR_ENV: constructor-env
+      OUTPUT_DIR: dist/${{ matrix.variant }}-${{ matrix.target.os_name }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: migrated-apps
+          path: ${{ github.workspace }}/artifacts_in
+      - name: Unpack the ${{ matrix.variant }} app
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir app
+          tar -xzf artifacts_in/app_${{ matrix.variant }}.tgz -C app
+          ls app
+          if grep -q labconstrictor_tools app/app/bash_bat_scripts/post_install.sh; then echo "hooks: present"; else echo "hooks: absent"; fi
+      - uses: actions/setup-python@v4
+        with: { python-version: "3.11" }
+      - run: pip install -r .tools/requirements.txt
+      - name: Sync versioned files
+        run: |
+          RELEASE_VERSION="$(sed -n 's/^version: *"\{0,1\}\([0-9.]*\)"\{0,1\}.*/\1/p' construct.yaml | head -1)"
+          echo "version $RELEASE_VERSION"
+          mkdir -p artifacts
+          bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.variant }}_${{ matrix.target.os_name }}.log" "bump_version.py" .tools/python/bump_version.py python .tools/python/bump_version.py "${RELEASE_VERSION}"
+          bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.variant }}_${{ matrix.target.os_name }}.log" "bump_constructor.py" .tools/python/bump_constructor.py python .tools/python/bump_constructor.py
+          bash .tools/bash/run_with_context.sh "artifacts/log_${{ matrix.variant }}_${{ matrix.target.os_name }}.log" "bump_Welcome_notebook.py" .tools/python/bump_Welcome_notebook.py python .tools/python/bump_Welcome_notebook.py "${APP_REPO%%/*}" "${APP_REPO##*/}"
+      - name: Keep the test light (drop heavy packages from the requirements)
+        run: |
+          python - <<'PY'
+          import glob, os, re
+          drop = [p.strip().lower() for p in os.environ["TRIM"].split(",") if p.strip()]
+          for path in glob.glob("requirements*.txt"):
+              lines = open(path, encoding="utf-8").read().splitlines(keepends=True)
+              keep = [l for l in lines if not any(re.match(r"\s*%s\s*([=<>!~;\[#]|$)" % re.escape(p), l.lower()) for p in drop)]
+              print(path, "dropped", len(lines) - len(keep), "lines")
+              open(path, "w", encoding="utf-8").write("".join(keep))
+          PY
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate: true
+          miniforge-version: latest
+          use-mamba: true
+      - name: Create constructor environment
+        run: bash .tools/bash/create_constructor_environment.sh
+      - name: Build installer with constructor
+        run: bash .tools/bash/build_installer_with_constructor.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.variant }}-${{ matrix.target.os_name }}
+          path: app/dist/${{ matrix.variant }}-${{ matrix.target.os_name }}/*
+          retention-days: 3
+      - name: Keep the build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ matrix.variant }}-${{ matrix.target.os_name }}
+          path: app/artifacts/
+          if-no-files-found: ignore
+
+  update:
+    name: Install old, update to new, check, uninstall (${{ matrix.target.os_name }})
+    needs: build
+    runs-on: ${{ matrix.target.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { os_name: linux, runner: ubuntu-latest }
+          - { os_name: macos-arm64, runner: macos-15 }
+          - { os_name: windows, runner: windows-latest }
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: installer-old-${{ matrix.target.os_name }}
+          path: installer_old
+      - uses: actions/download-artifact@v4
+        with:
+          name: installer-new-${{ matrix.target.os_name }}
+          path: installer_new
+      - name: Where things are
+        run: |
+          echo "PREFIX_DIR=$HOME/mig" >> "$GITHUB_ENV"
+          if [ "$RUNNER_OS" = "Windows" ]; then echo "PY=$HOME/mig/python.exe" >> "$GITHUB_ENV"; else echo "PY=$HOME/mig/bin/python" >> "$GITHUB_ENV"; fi
+          echo "REGISTRY=$HOME/.labconstrictor/apps/$APP_NAME.json" >> "$GITHUB_ENV"
+          ls -la installer_old installer_new
+
+      - name: Install the OLD installer (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: bash "$(ls installer_old/*.sh | head -1)" -b -p "$PREFIX_DIR"
+      - name: Install the OLD installer (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem installer_old\*.exe | Select-Object -First 1).FullName
+          $p = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0','/S',"/D=$env:USERPROFILE\mig" -Wait -PassThru
+          Write-Host "installer exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { exit 1 }
+      - name: The old install has no tools bridge
+        run: |
+          cat "$PREFIX_DIR/menuinst_debug.log" | tail -20 || true
+          ! grep -q "Found $TOOLS_MODULE" "$PREFIX_DIR/menuinst_debug.log" || { echo "FAIL: the OLD installer registered the tools"; exit 1; }
+          test ! -f "$REGISTRY" || { echo "FAIL: registry entry exists after the OLD install"; exit 1; }
+          if [ "$RUNNER_OS" = "Windows" ]; then PRE="$PREFIX_DIR/pre_uninstall.bat"; else PRE="$PREFIX_DIR/pre_uninstall.sh"; fi
+          test -f "$PRE" || { echo "FAIL: $PRE missing in the old install"; exit 1; }
+          ! grep -q labconstrictor_tools "$PRE" || { echo "FAIL: old pre-uninstall script already has the hook"; exit 1; }
+          echo "old install: no tools registered, no hook in $(basename "$PRE")"
+
+      # How a user moves to the new installer differs by system (found by the first run of this workflow, 38298832113):
+      #  Linux: `installer.sh -u` updates the existing prefix in place (works).
+      #  macOS: `-u` stops in post_install (menuinst: "App already exists at ~/Applications/NucleiSky.app"), so the old app is uninstalled first.
+      #  Windows: the silent installer exits with code 2 on an existing install folder, so the old app is uninstalled first.
+      - name: Update to the NEW installer (Linux, in place with -u)
+        if: runner.os == 'Linux'
+        run: bash "$(ls installer_new/*.sh | head -1)" -b -u -p "$PREFIX_DIR"
+      - name: Update to the NEW installer (macOS, uninstall the old one, then install)
+        if: runner.os == 'macOS'
+        run: |
+          bash "$PREFIX_DIR/uninstall.sh" 2> uninstall_old.err; echo "old uninstall exit code $?"; cat uninstall_old.err
+          test ! -d "$PREFIX_DIR" || { echo "FAIL: old prefix still there"; exit 1; }
+          bash "$(ls installer_new/*.sh | head -1)" -b -p "$PREFIX_DIR"
+      - name: Update to the NEW installer (Windows, uninstall the old one, then install)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dir = "$env:USERPROFILE\mig"
+          $u = (Get-ChildItem "$dir\Uninstall-*.exe" | Select-Object -First 1).FullName
+          Write-Host "uninstalling the old install with $u"
+          $p = Start-Process -FilePath $u -ArgumentList '/S',"_?=$dir" -Wait -PassThru
+          Write-Host "old uninstaller exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) {
+            # Known on the runner (run 38343696294): the NSIS uninstaller of a constructor installer exits 2 in its conda step ("needs sudo
+            # ...conda.exe", .step.log), with or without this change. Do what its pre-uninstall step does, then remove the folder.
+            Write-Host "::warning title=Windows uninstaller exit code $($p.ExitCode)::the constructor uninstaller failed in its conda step; running pre_uninstall.bat by hand and removing the folder"
+            Get-Content "$dir\.step.log" -Tail 15 -ErrorAction SilentlyContinue
+            $env:PREFIX = $dir
+            cmd /c "`"$dir\pre_uninstall.bat`" 2>&1"
+          }
+          Remove-Item -Recurse -Force $dir -ErrorAction SilentlyContinue
+          if (Test-Path $dir) { Write-Host "FAIL: old folder still there"; exit 1 }
+          $exe = (Get-ChildItem installer_new\*.exe | Select-Object -First 1).FullName
+          $p = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0','/S',"/D=$dir" -Wait -PassThru
+          Write-Host "installer exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { exit 1 }
+      - name: The installer's own log
+        if: always()
+        run: cat "$PREFIX_DIR/menuinst_debug.log" || echo "no menuinst_debug.log"
+
+      - name: The hooks are in the updated install and registered the app
+        run: |
+          LOG="$PREFIX_DIR/menuinst_debug.log"
+          ! grep -q "WARNING: tool registration failed" "$LOG" || { echo "FAIL: the hook reported 'tool registration failed'"; exit 1; }
+          grep -q "Found $TOOLS_MODULE: registering" "$LOG" || { echo "FAIL: 'Found $TOOLS_MODULE: registering' not in the log"; exit 1; }
+          if [ "$RUNNER_OS" != "Windows" ]; then grep -q "Tools registered" "$LOG" || { echo "FAIL: 'Tools registered' not in the log"; exit 1; }; fi
+          if [ "$RUNNER_OS" = "Windows" ]; then PRE="$PREFIX_DIR/pre_uninstall.bat"; else PRE="$PREFIX_DIR/pre_uninstall.sh"; fi
+          grep -q labconstrictor_tools "$PRE" || { echo "FAIL: the installed $(basename "$PRE") was not replaced by the new one"; exit 1; }
+          test -f "$REGISTRY" || { echo "FAIL: no registry entry $REGISTRY"; exit 1; }
+          echo "hooks present and app registered"
+      - name: labconstrictor-tools list and doctor see the app
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          "$PY" -m labconstrictor_tools list | tee list.txt
+          grep -q "$APP_NAME" list.txt || { echo "FAIL: list does not show $APP_NAME"; exit 1; }
+          "$PY" -m labconstrictor_tools doctor --json > doctor.json || echo "doctor exit code $?"
+          cat doctor.json
+          "$PY" - <<'PY'
+          import json, os, sys
+          findings = json.load(open("doctor.json", encoding="utf-8"))
+          mine = [f for f in findings if f["app"] == os.environ["APP_NAME"]]
+          print("doctor findings for the app:", mine)
+          if not mine:
+              sys.exit("FAIL: doctor has no finding for the app")
+          if any(f["level"] == "error" for f in findings):
+              sys.exit("FAIL: doctor reports an error")
+          PY
+          {
+            echo "### ${{ matrix.target.os_name }}: migrated app registered"
+            echo; echo '```'; cat list.txt; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Uninstall (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          bash "$PREFIX_DIR/uninstall.sh" 2> uninstall.err; echo "uninstall exit code $?"; cat uninstall.err
+          test ! -d "$PREFIX_DIR" && echo "prefix removed" || { echo "FAIL: prefix still there"; exit 1; }
+          test ! -f "$REGISTRY" && echo "registry entry removed" || { echo "FAIL: registry entry still there"; exit 1; }
+          ! grep -q WARNING uninstall.err || { echo "FAIL: uninstall printed a warning"; exit 1; }
+      - name: Uninstall (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dir = "$env:USERPROFILE\mig"
+          $u = (Get-ChildItem "$dir\Uninstall-*.exe" | Select-Object -First 1).FullName
+          Write-Host "uninstalling with $u"
+          # _?= keeps the uninstaller in place so that -Wait waits for the real uninstall (NSIS)
+          $p = Start-Process -FilePath $u -ArgumentList '/S',"_?=$dir" -Wait -PassThru
+          Write-Host "uninstaller exit code: $($p.ExitCode)"
+          $entry = "$env:USERPROFILE\.labconstrictor\apps\$env:APP_NAME.json"
+          if (Test-Path $entry) {
+            # The constructor uninstaller exits 2 in its conda step on the runner (also for the old, hook-less install). If it did not get to
+            # pre_uninstall.bat, run that script by hand; the result then proves the script, not the uninstaller's call of it.
+            Write-Host "::warning title=Windows uninstaller did not remove the registry entry (exit code $($p.ExitCode))::running pre_uninstall.bat by hand"
+            $env:PREFIX = $dir
+            cmd /c "`"$dir\pre_uninstall.bat`" 2>&1"
+          } else { Write-Host "the uninstaller removed the registry entry (pre_uninstall.bat ran)" }
+          if (Test-Path $entry) { Write-Host "FAIL: registry entry still there: $entry"; exit 1 } else { Write-Host "registry entry removed" }
+
+      - name: Collect the logs
+        if: always()
+        run: |
+          mkdir -p logs
+          cp "$PREFIX_DIR/menuinst_debug.log" logs/ 2>/dev/null || true
+          cp -r "$HOME/.labconstrictor/logs" logs/labconstrictor_logs 2>/dev/null || true
+          cp list.txt doctor.json uninstall.err uninstall_old.err logs/ 2>/dev/null || true
+      - name: Keep the logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-logs-${{ matrix.target.os_name }}
+          path: logs
+          if-no-files-found: ignore
