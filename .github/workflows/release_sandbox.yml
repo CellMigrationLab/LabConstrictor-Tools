@@ -1,0 +1,434 @@
+# Clean-sandbox test of a RELEASED LabConstrictor app, dispatch only. The installers are downloaded from the release (nothing is built),
+# installed for real as a plain user into a fresh prefix with a scratch LC_HOME on fresh Linux / macOS (Apple silicon) / Windows runners, and
+# exercised with tests/release_sandbox/sandbox_checks.py (the app's own Python). What is checked comes from the app itself: its registered
+# schema, its lc_tests/cases.json and construct.yaml. Extras that only make sense for the LabConstrictor Playground (its own tool runs and
+# failure paths, the Fiji and QuPath host runs) are switched on with `playground_extras`.
+# Nothing is released, pushed or merged; the app repository is only read. See docs/TESTING.md ("Release sandbox").
+name: release-sandbox
+on:
+  workflow_dispatch:
+    inputs:
+      app_repo:
+        description: "Repository of the released app (owner/name)"
+        required: false
+        default: CellMigrationLab/LabConstrictor-Playground
+      tag:
+        description: "Release tag under test (its installers are downloaded)"
+        required: true
+        default: "0.0.3"
+      old_tag:
+        description: "Optional older release of the SAME app for the update test (empty: no update test)"
+        required: false
+        default: ""
+      tools_pin:
+        description: "Tag of labconstrictor-tools the installed app must carry (empty: not checked)"
+        required: false
+        default: v0.2.0-rc.1
+      hosts_napari:
+        description: "Run the Napari host check (LabConstrictor-napari) on all three systems"
+        required: false
+        type: boolean
+        default: true
+      napari_ref:
+        description: "Ref of LabConstrictor-napari"
+        required: false
+        default: main
+      playground_extras:
+        description: "Playground only: its own tool runs and failure paths, Fiji (Linux) and QuPath (Linux) host runs"
+        required: false
+        type: boolean
+        default: false
+      hosts_qupath:
+        description: "With playground_extras: also run the QuPath GUI bodies (Linux)"
+        required: false
+        type: boolean
+        default: true
+
+env:
+  APP_REPO: ${{ inputs.app_repo }}
+  TAG: ${{ inputs.tag }}
+  OLD_TAG: ${{ inputs.old_tag }}
+  GH_TOKEN: ${{ github.token }}
+  PYTHONIOENCODING: utf-8
+  TOOLS_PIN: ${{ inputs.tools_pin }}
+  EXTRAS: ${{ inputs.playground_extras && 'playground' || '' }}
+  RS: tests/release_sandbox
+
+jobs:
+  sandbox:
+    name: Sandbox (${{ matrix.os_name }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os_name: linux, runner: ubuntu-latest, pat: "*Linux-x86_64.sh" }
+          - { os_name: macos-arm64, runner: macos-15, pat: "*MacOSX-arm64.sh" }
+          - { os_name: windows, runner: windows-latest, pat: "*Windows-x86_64.exe" }
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.APP_REPO }}
+          ref: ${{ env.TAG }}
+          path: app_src
+          sparse-checkout: |
+            lc_tests
+            construct.yaml
+            src
+            labconstrictor-app.yaml
+
+      - name: Where things are (fresh prefix, scratch LC_HOME) and what the app says about itself
+        run: |
+          H="$HOME"; if [ "$RUNNER_OS" = "Windows" ]; then H="$(cygpath -m "$HOME")"; fi   # forward slashes: native Windows programs read them too
+          APP_NAME="$(sed -n 's/^name: *//p' app_src/construct.yaml | head -1 | tr -d "\"'\r ")"
+          MODULE="$(ls app_src/src | grep '_lc_tools$' | head -1 | sed 's/\.py$//')"
+          echo "app: $APP_NAME module: $MODULE cases: $(ls app_src/lc_tests/cases.json 2>&1)"
+          test -n "$APP_NAME" && test -n "$MODULE" && test -f app_src/lc_tests/cases.json
+          { echo "H=$H"; echo "APP_NAME=$APP_NAME"; echo "MODULE=$MODULE"; echo "CASES=$PWD/app_src/lc_tests/cases.json"
+            echo "PREFIX_DIR=$H/lcsandbox/app"; echo "UPD_DIR=$H/lcsandbox/upd"; echo "LC_HOME=$H/lcsandbox/lc_home"; echo "USER_SENTINEL=$H/lcsandbox/user_sentinel"; } >> "$GITHUB_ENV"
+          if [ "$RUNNER_OS" = "Windows" ]; then echo "PY=$H/lcsandbox/app/python.exe" >> "$GITHUB_ENV"; echo "UPD_PY=$H/lcsandbox/upd/python.exe" >> "$GITHUB_ENV"
+          else echo "PY=$H/lcsandbox/app/bin/python" >> "$GITHUB_ENV"; echo "UPD_PY=$H/lcsandbox/upd/bin/python" >> "$GITHUB_ENV"; fi
+          mkdir -p "$HOME/lcsandbox"
+          echo "== earlier installs? =="; ls -la "$HOME" | head -30; ls "$HOME/.labconstrictor" 2>&1 | head -3 || true
+          df -h . | tail -2 || true
+
+      - name: Download the released installers and list what the release carries
+        run: |
+          gh release view "$TAG" -R "$APP_REPO" --json assets,tagName,publishedAt --jq '"release \(.tagName) published \(.publishedAt)", (.assets[]|"  asset \(.name) \(.size)")' | tee assets_new.txt
+          mkdir -p inst_new inst_old
+          gh release download "$TAG" -R "$APP_REPO" -p "${{ matrix.pat }}" -D inst_new
+          if [ -n "$OLD_TAG" ]; then gh release download "$OLD_TAG" -R "$APP_REPO" -p "${{ matrix.pat }}" -D inst_old; fi
+          ls -la inst_new inst_old
+
+      - name: "(W1) Windows: the installer refuses a destination folder whose path contains a space (constructor default, kept by decision)"
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # /D= must be the last argument and unquoted (NSIS). Silent mode shows no dialog, so the evidence is the exit code and that nothing is written.
+          $dir = "$env:USERPROFILE\lc sandbox\Play Ground"
+          $exe = (Get-ChildItem inst_new\*.exe | Select-Object -First 1).FullName
+          $sw = [Diagnostics.Stopwatch]::StartNew()
+          $p = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0','/S',"/D=$dir" -Wait -PassThru
+          $n = if (Test-Path $dir) { (Get-ChildItem $dir -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count } else { 0 }
+          Write-Host "silent install into '$dir': exit code $($p.ExitCode) after $($sw.Elapsed); files written: $n"
+          $r = if ($p.ExitCode -ne 0 -and $n -eq 0) { "CHECK W1a_space_in_path_is_refused_and_nothing_is_written PASS exit=$($p.ExitCode), 0 files" } else { "CHECK W1a_space_in_path_is_refused_and_nothing_is_written FAIL exit=$($p.ExitCode), $n files" }
+          $r | Tee-Object -Append checks_install.txt
+          # best effort: the wizard itself says why; read its text with UI Automation (needs an interactive desktop)
+          Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+          $wiz = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0',"/D=$dir" -PassThru
+          $found = $null
+          for ($i = 0; $i -lt 40 -and -not $found; $i++) {
+            Start-Sleep -Seconds 1
+            try {
+              $root = [Windows.Automation.AutomationElement]::RootElement
+              $win = $root.FindFirst([Windows.Automation.TreeScope]::Children, (New-Object Windows.Automation.PropertyCondition([Windows.Automation.AutomationElement]::ProcessIdProperty, $wiz.Id)))
+              if ($win) {
+                $all = $win.FindAll([Windows.Automation.TreeScope]::Descendants, [Windows.Automation.Condition]::TrueCondition)
+                foreach ($e in $all) { if ($e.Current.Name -match 'Destination Folder contains') { $found = $e.Current.Name; break } }
+                if (-not $found) { foreach ($e in $all) { if ($e.Current.ControlType.ProgrammaticName -eq 'ControlType.Button' -and $e.Current.Name -match '^(Next|I Agree|&Next|&I Agree)') { try { $e.GetCurrentPattern([Windows.Automation.InvokePattern]::Pattern).Invoke(); break } catch {} } } }
+              }
+            } catch {}
+          }
+          Stop-Process -Id $wiz.Id -Force -ErrorAction SilentlyContinue
+          if ($found) { "CHECK W1b_wizard_message PASS '$found'" | Tee-Object -Append checks_install.txt } else { "NOTE W1b_wizard_message not captured (no interactive desktop or the page was not reached): the exit code above is the evidence" | Tee-Object -Append checks_install.txt }
+          exit 0
+
+      - name: (1) Install the release under test, silently as a plain user (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          set +e
+          mkdir -p "$LC_HOME"
+          START=$(date +%s)
+          bash "$(ls inst_new/*.sh | head -1)" -b -p "$PREFIX_DIR" > install.out 2>&1; RC=$?
+          tail -25 install.out
+          echo "install seconds: $(( $(date +%s) - START )), exit code $RC"
+          if [ $RC = 0 ]; then echo "CHECK 1_installer_succeeds PASS exit=0" | tee -a checks_install.txt; else echo "CHECK 1_installer_succeeds FAIL exit=$RC: $(grep -m1 ERROR install.out)" | tee -a checks_install.txt; fi
+          exit 0
+      - name: (1) Install the release under test, silently (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:LC_HOME | Out-Null
+          $exe = (Get-ChildItem inst_new\*.exe | Select-Object -First 1).FullName
+          $sw = [Diagnostics.Stopwatch]::StartNew()
+          $p = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0','/S',"/D=$env:USERPROFILE\lcsandbox\app" -Wait -PassThru
+          Write-Host "installer exit code: $($p.ExitCode) after $($sw.Elapsed)"
+          if ($p.ExitCode -eq 0) { "CHECK 1_installer_succeeds PASS exit=0" | Tee-Object -Append checks_install.txt } else { "CHECK 1_installer_succeeds FAIL exit=$($p.ExitCode)" | Tee-Object -Append checks_install.txt }
+          exit 0
+      - name: The installer's own log
+        if: always()
+        run: cat "$PREFIX_DIR/menuinst_debug.log" || echo "no menuinst_debug.log"
+
+      - name: (1,2,3) Log lines, list, doctor, version, pinned Tools
+        run: |
+          "$PY" $RS/sandbox_checks.py basic --app "$APP_NAME" --prefix "$PREFIX_DIR" --expect-version "$TAG" --tools-pin "$TOOLS_PIN" | tee checks_basic.txt || true
+      - name: (4) The app's own cases (lc_tests/cases.json) through the worker, the CLI and the notebook form
+        run: |
+          "$PY" $RS/sandbox_checks.py cases --app "$APP_NAME" --module "$MODULE" --cases "$CASES" | tee checks_cases.txt || true
+      - name: (6) Retention markers and prune (60 CLI runs, newest 20 results, 50 run records)
+        run: |
+          "$PY" $RS/sandbox_checks.py retention --app "$APP_NAME" --cases "$CASES" --n-runs 60 | tee checks_retention.txt || true
+          "$PY" -m labconstrictor_tools prune --dry-run --json > prune_dry.json || true
+          head -c 1500 prune_dry.json || true
+      - name: (4,5) Playground extras, its explicit tool runs and failure paths (missing pixel size, cancel, kill after cancel, crash)
+        if: env.EXTRAS == 'playground'
+        run: |
+          "$PY" $RS/playground_extras.py tools --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_tools.txt || true
+          "$PY" $RS/playground_extras.py failures --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_failures.txt || true
+
+      - name: Windows-only checks W2, W3 and W5 with worker processes
+        if: runner.os == 'Windows'
+        run: |
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS $3"; else echo "CHECK $1 FAIL $3"; fi; }
+          BAD=0
+          for PHRASE in "The syntax of the command is incorrect" "was unexpected at this time" "is not recognized"; do
+            if grep -aqi "$PHRASE" "$PREFIX_DIR/menuinst_debug.log"; then echo "  found '$PHRASE': $(grep -ai -m1 "$PHRASE" "$PREFIX_DIR/menuinst_debug.log")"; BAD=1; fi
+          done
+          ok W2_no_cmd_syntax_errors_in_menuinst_debug_log $BAD
+          "$PY" -m labconstrictor_tools list | tee w3_list.txt | head -2
+          grep -Fq "$APP_NAME  ($TAG)" w3_list.txt; ok W3_list_shows_the_real_version $? "$(head -1 w3_list.txt)"
+          "$PY" - <<'PYEOF'
+          import json, os, time
+          from pathlib import Path
+          from labconstrictor_tools import client
+          cases = json.loads(Path(os.environ["CASES"]).read_text(encoding="utf-8"))
+          base = Path(os.environ["CASES"]).parent
+          c = next(c for c in cases if c.get("expect", {}).get("status", "COMPLETE") == "COMPLETE" and c.get("cancel_after_s") is None)
+          inputs = {k: (str((base / v).resolve()) if isinstance(v, str) and (base / v).exists() else v) for k, v in (c.get("inputs") or {}).items()}
+          with client.WorkerProcess(os.environ["APP_NAME"]) as w:
+              print("worker run:", w.task(c["tool"], inputs).wait(120).status)
+          PYEOF
+          sleep 5
+          powershell -NoProfile -Command "\$p=\$env:PREFIX_DIR.Replace('/','\\'); \$left=Get-CimInstance Win32_Process | Where-Object { \$_.ExecutablePath -and \$_.ExecutablePath.StartsWith(\$p) }; if (\$left) { \$left | ForEach-Object { Write-Host ('left over: ' + \$_.ProcessId + ' ' + \$_.CommandLine) }; Write-Host 'CHECK W5a_no_app_python_left_after_workers_closed FAIL' } else { Write-Host 'CHECK W5a_no_app_python_left_after_workers_closed PASS' }" | tee -a checks_install.txt
+
+      - name: Napari host check (software OpenGL on Windows and macOS, as the napari CI)
+        if: inputs.hosts_napari
+        continue-on-error: true
+        run: |
+          set +e
+          VBIN=bin; if [ "$RUNNER_OS" = "Windows" ]; then VBIN=Scripts; fi
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update -y >/dev/null
+            sudo apt-get install -y --no-install-recommends xvfb libegl1 libgl1 libgl1-mesa-dri libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libdbus-1-3 libfontconfig1 >/dev/null
+          fi
+          python -m venv --copies "$RUNNER_TEMP/napenv"
+          TOOLS_SPEC="https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/${TOOLS_PIN:-main}.zip"; [ -z "$TOOLS_PIN" ] && TOOLS_SPEC="https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip"
+          "$RUNNER_TEMP/napenv/$VBIN/pip" install -q "napari[pyqt6]" "$TOOLS_SPEC" "https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/heads/${{ inputs.napari_ref }}.zip" pandas scipy imageio
+          "$RUNNER_TEMP/napenv/$VBIN/pip" list 2>/dev/null | grep -i "napari\|labconstrictor\|pyqt"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            # Mesa llvmpipe (the napari CI step). A venv's python.exe is a launcher that starts the BASE interpreter, and Windows looks for
+            # opengl32.dll next to the process image: the DLLs must sit next to sys._base_executable, not next to the venv's python.exe.
+            curl -fsSL -o mesa.7z "https://github.com/pal1000/mesa-dist-win/releases/download/24.2.7/mesa3d-24.2.7-release-msvc.7z"
+            echo "adbb439c1bf833a1e24a735a6dea3c3ceaf8459dfddd811a12f5aa5c832ad3fe  mesa.7z" | sha256sum -c -
+            7z x mesa.7z -omesa -y > /dev/null
+            PYDIR="$(dirname "$("$RUNNER_TEMP/napenv/Scripts/python" -c 'import sys; print(getattr(sys, "_base_executable", sys.executable))')")"
+            cp mesa/x64/opengl32.dll mesa/x64/libgallium_wgl.dll mesa/x64/libglapi.dll "$PYDIR"/
+            export GALLIUM_DRIVER=llvmpipe QT_OPENGL=desktop
+          fi
+          if [ "$RUNNER_OS" = "macOS" ]; then export QT_OPENGL=software; fi
+          export LC_APP="$APP_NAME" LC_EXTRAS="$EXTRAS"
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            xvfb-run -a -s "-screen 0 1600x1000x24" "$RUNNER_TEMP/napenv/bin/python" $RS/napari_check.py > napari_out.txt 2>&1
+          else
+            "$RUNNER_TEMP/napenv/$VBIN/python" $RS/napari_check.py > napari_out.txt 2>&1
+          fi
+          echo "napari exit code $?"; grep -a "^CHECK\|Traceback\|Error\|NAPARI" napari_out.txt | cut -c1-300 | tee checks_napari.txt
+          tail -12 napari_out.txt | cut -c1-200
+          sleep 8
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            powershell -NoProfile -Command "\$p=\$env:PREFIX_DIR.Replace('/','\\'); \$left=Get-CimInstance Win32_Process | Where-Object { \$_.ExecutablePath -and \$_.ExecutablePath.StartsWith(\$p) }; if (\$left) { \$left | ForEach-Object { Write-Host ('left over: ' + \$_.ProcessId + ' ' + \$_.CommandLine) }; Write-Host 'CHECK W5_no_app_python_left_after_host_closed FAIL' } else { Write-Host 'CHECK W5_no_app_python_left_after_host_closed PASS' }" | tee -a checks_napari.txt
+          else
+            if pgrep -f "labconstrictor_tools.* serve" >/dev/null; then echo "CHECK no_worker_left_after_host_closed FAIL"; pgrep -af "labconstrictor_tools.* serve"; else echo "CHECK no_worker_left_after_host_closed PASS"; fi | tee -a checks_napari.txt
+          fi
+
+      - name: Fiji host check with the installed Playground (Linux, Xvfb; the Fiji repo's own case runner with Playground cases)
+        if: runner.os == 'Linux' && env.EXTRAS == 'playground'
+        continue-on-error: true
+        run: |
+          set +e
+          sudo apt-get install -y --no-install-recommends xvfb xauth libxtst6 libxrender1 libxi6 libxrandr2 libgtk-3-0t64 fonts-dejavu-core openbox >/dev/null
+          git clone -q --depth 1 https://github.com/CellMigrationLab/LabConstrictor-Fiji fiji_repo
+          curl -fsSL --retry 5 -o fiji.zip https://downloads.imagej.net/fiji/latest/fiji-latest-linux64-jdk.zip && mkdir fijid && unzip -q fiji.zip -d fijid && rm fiji.zip
+          export LC_FIJI_HOME="$(dirname "$(find "$PWD/fijid" -maxdepth 2 -name fiji-linux-x64 | head -1)")"
+          python3 -m venv "$HOME/fvenv"; "$HOME/fvenv/bin/pip" install -q "https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/$TOOLS_PIN.zip" numpy pandas tifffile scipy scikit-image
+          mkdir -p fix/playground; cp app_src/lc_tests/fixtures/data/* fix/playground/
+          cp $RS/fiji_cases/playground_*.json fiji_repo/tests/cases_real_apps/
+          cd fiji_repo
+          LC_REAL_FIXTURES="$GITHUB_WORKSPACE/fix" FIJI_TIMEOUT=300 xvfb-run -a -s "-screen 0 1600x1000x24" bash -c '(openbox >/dev/null 2>&1 &); sleep 1; "$HOME/fvenv/bin/python" tests/run_cases.py --real-apps playground_look_inside playground_summarise_table playground_feature_tour' 2>&1 | tail -40 | tee ../checks_fiji.txt
+
+      - uses: actions/setup-java@v4
+        if: runner.os == 'Linux' && env.EXTRAS == 'playground' && inputs.hosts_qupath
+        with: { distribution: temurin, java-version: "25" }
+      - name: QuPath host check with the installed Playground (Linux, Xvfb; the QuPath repo's own GUI bodies for the Playground)
+        if: runner.os == 'Linux' && env.EXTRAS == 'playground' && inputs.hosts_qupath
+        continue-on-error: true
+        run: |
+          set +e
+          sudo apt-get install -y --no-install-recommends xvfb xauth libgtk-3-0t64 libxtst6 libxrender1 libxi6 libxrandr2 libgl1 libasound2t64 fonts-dejavu-core >/dev/null
+          git clone -q --depth 1 https://github.com/CellMigrationLab/labconstrictor-qupath qupath_repo
+          QV=0.7.0; QSHA=165e27a0731d58ba039e9d0d34a54acf896bb92e81922370df295cb85418ce53
+          curl -fsSL --retry 5 -o qupath.tar.xz "https://github.com/qupath/qupath/releases/download/v$QV/QuPath-v$QV-Linux.tar.xz"
+          echo "$QSHA  qupath.tar.xz" | sha256sum -c - || exit 0
+          mkdir qupath-dist && tar -xJf qupath.tar.xz -C qupath-dist && rm qupath.tar.xz
+          export QUPATH="$PWD/qupath-dist/QuPath"
+          (cd qupath_repo && ./build.sh) 2>&1 | tail -3
+          # the second app the cancel body needs (the Tools example app), registered next to the INSTALLED Playground
+          python3 -m venv --copies "$HOME/qp_tools"; "$HOME/qp_tools/bin/pip" install -q "https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/$TOOLS_PIN.zip" numpy pandas tifffile scipy scikit-image
+          LC_HOME="$LC_HOME" "$HOME/qp_tools/bin/python" -m labconstrictor_tools register --name interactions --prefix "$HOME/qp_tools" --module labconstrictor_tools.examples.interactions
+          chmod -R go-w "$HOME/qp_tools"
+          cd qupath_repo
+          LOGS="$GITHUB_WORKSPACE/qupath-logs" LC_HOME="$LC_HOME" tests/run_gui_ci.sh gui_test_playground_body.groovy gui_test_parity_cancel_body.groovy 2>&1 | tail -40 | tee ../checks_qupath.txt
+          cd ..; LC_HOME="$LC_HOME" "$HOME/qp_tools/bin/python" -m labconstrictor_tools unregister --name interactions --prefix "$HOME/qp_tools" || true
+
+      - name: Plant user data that must survive an uninstall
+        run: |
+          mkdir -p "$USER_SENTINEL" "$LC_HOME/results/user_own_folder_kept" "$H/${APP_NAME}_user_data"
+          echo user > "$USER_SENTINEL/keep.txt"; echo user > "$LC_HOME/results/user_own_folder_kept/keep.txt"; echo user > "$H/${APP_NAME}_user_data/keep.txt"
+          echo '{"name": "OtherApp"}' > "$LC_HOME/apps/OtherApp.json"
+          echo user > "$HOME/user_dotfile_probe.txt"
+          (cd "$HOME" && find . -maxdepth 2 -not -path './lcsandbox/app*' | sort) > home_before_uninstall.txt || true
+      - name: (8) Uninstall (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          set +e
+          ENTRY="$LC_HOME/apps/$APP_NAME.json"
+          test -f "$ENTRY" && echo "registry entry present before uninstall" || echo "FAIL: registry entry missing before uninstall"
+          bash "$PREFIX_DIR/uninstall.sh" 2> uninstall.err; echo "uninstall exit code $?"; cat uninstall.err
+          test ! -d "$PREFIX_DIR" && echo "CHECK 8a_prefix_removed PASS" || echo "CHECK 8a_prefix_removed FAIL"
+          test ! -f "$ENTRY" && echo "CHECK 8b_registry_entry_removed PASS" || echo "CHECK 8b_registry_entry_removed FAIL"
+          ! grep -q WARNING uninstall.err && echo "CHECK 8c_no_warning PASS" || echo "CHECK 8c_no_warning FAIL"
+      - name: (8) Uninstall (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dir = "$env:USERPROFILE\lcsandbox\app"
+          $entry = "$env:LC_HOME\apps\$env:APP_NAME.json"
+          if (Test-Path $entry) { Write-Host "registry entry present before uninstall" } else { Write-Host "FAIL: registry entry missing before uninstall" }
+          $u = (Get-ChildItem "$dir\Uninstall-*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          if ($u) { $p = Start-Process -FilePath $u -ArgumentList '/S',"_?=$dir" -Wait -PassThru; $code = $p.ExitCode } else { Write-Host "CHECK 8_uninstaller_exists FAIL"; $code = -1 }
+          Write-Host "uninstaller exit code: $code (the NSIS uninstaller of a constructor installer is known to exit 2 in its conda step)"
+          Get-Content "$dir\.step.log" -Tail 15 -ErrorAction SilentlyContinue
+          if (Test-Path $entry) { Write-Host "CHECK 8b_registry_entry_removed_by_uninstaller FAIL (exit $code); running pre_uninstall.bat by hand"; $env:PREFIX = $dir; cmd /c "`"$dir\pre_uninstall.bat`" 2>&1" } else { Write-Host "CHECK 8b_registry_entry_removed_by_uninstaller PASS (exit $code)" }
+          Remove-Item -Recurse -Force $dir -ErrorAction SilentlyContinue
+          if (Test-Path $dir) { Write-Host "NOTE 8a_folder_left_behind_after_uninstall_and_delete" }
+      - name: (8) Nothing else of the user's was touched
+        run: |
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi; }
+          test -f "$USER_SENTINEL/keep.txt"; ok 8d_user_sentinel_kept $?
+          test -f "$LC_HOME/results/user_own_folder_kept/keep.txt"; ok 8e_user_results_kept $?
+          test -f "$LC_HOME/apps/OtherApp.json"; ok 8f_other_app_entry_kept $?
+          test -f "$HOME/user_dotfile_probe.txt"; ok 8g_home_file_kept $?
+          test -f "$H/${APP_NAME}_user_data/keep.txt"; ok 8h_app_home_data_kept $?
+          (cd "$HOME" && find . -maxdepth 2 -not -path './lcsandbox/app*' | sort) > home_after_uninstall.txt || true
+          echo "== removed from HOME by the uninstall (before minus after) =="; diff home_before_uninstall.txt home_after_uninstall.txt || true
+
+      # ------------------------------------------------------------------ (7) update from an older release of the SAME app (only with old_tag)
+      - name: (7) Install the OLD release into a new prefix and make user data
+        if: inputs.old_tag != '' && runner.os != 'Windows'
+        run: |
+          set +e
+          rm -rf "$LC_HOME"; mkdir -p "$LC_HOME"
+          bash "$(ls inst_old/*.sh | head -1)" -b -p "$UPD_DIR" > install_old.out 2>&1; RC=$?
+          tail -5 install_old.out
+          if [ $RC = 0 ]; then echo "CHECK 7_old_release_installer_succeeds PASS" | tee -a checks_update.txt; else echo "CHECK 7_old_release_installer_succeeds FAIL exit=$RC: $(grep -m1 ERROR install_old.out)" | tee -a checks_update.txt; fi
+          mkdir -p "$UPD_DIR/user_notebooks" "$LC_HOME/results/user_own_folder_kept" "$H/${APP_NAME}_user_data"
+          echo mine > "$UPD_DIR/user_notebooks/my_work.txt"; echo mine > "$LC_HOME/results/user_own_folder_kept/keep.txt"; echo mine > "$H/${APP_NAME}_user_data/keep.txt"
+          "$UPD_PY" -m labconstrictor_tools list 2>&1 | head -3
+          exit 0
+      - name: (7) Install the OLD release into a new prefix and make user data (Windows)
+        if: inputs.old_tag != '' && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dir = "$env:USERPROFILE\lcsandbox\upd"
+          Remove-Item -Recurse -Force $env:LC_HOME -ErrorAction SilentlyContinue; New-Item -ItemType Directory -Force -Path $env:LC_HOME | Out-Null
+          $exe = (Get-ChildItem inst_old\*.exe | Select-Object -First 1).FullName
+          $p = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0','/S',"/D=$dir" -Wait -PassThru
+          if ($p.ExitCode -eq 0) { "CHECK 7_old_release_installer_succeeds PASS" | Tee-Object -Append checks_update.txt } else { "CHECK 7_old_release_installer_succeeds FAIL exit=$($p.ExitCode)" | Tee-Object -Append checks_update.txt }
+          New-Item -ItemType Directory -Force -Path "$dir\user_notebooks","$env:LC_HOME\results\user_own_folder_kept","$env:USERPROFILE\$($env:APP_NAME)_user_data" | Out-Null
+          "mine" | Out-File "$dir\user_notebooks\my_work.txt"; "mine" | Out-File "$env:LC_HOME\results\user_own_folder_kept\keep.txt"; "mine" | Out-File "$env:USERPROFILE\$($env:APP_NAME)_user_data\keep.txt"
+          exit 0
+      - name: (7) Update to the release under test (Linux in place with -u)
+        if: inputs.old_tag != '' && runner.os == 'Linux'
+        run: |
+          set +e
+          bash "$(ls inst_new/*.sh | head -1)" -b -u -p "$UPD_DIR" > update.out 2>&1; RC=$?
+          tail -8 update.out
+          if [ $RC = 0 ]; then echo "CHECK 7_update_installer_succeeds PASS (-u in place)" | tee -a checks_update.txt; else echo "CHECK 7_update_installer_succeeds FAIL exit=$RC: $(grep -m1 'ERROR\|Failed to extract' update.out)" | tee -a checks_update.txt; fi
+          exit 0
+      - name: (7) Update to the release under test (macOS, uninstall first, then install)
+        if: inputs.old_tag != '' && runner.os == 'macOS'
+        run: |
+          set +e
+          bash "$UPD_DIR/uninstall.sh" 2> uninstall_old.err; echo "uninstall of the old release exit $?"; head -5 uninstall_old.err
+          bash "$(ls inst_new/*.sh | head -1)" -b -p "$UPD_DIR" > update.out 2>&1; RC=$?
+          tail -8 update.out
+          if [ $RC = 0 ]; then echo "CHECK 7_update_installer_succeeds PASS (uninstall, then install)" | tee -a checks_update.txt; else echo "CHECK 7_update_installer_succeeds FAIL exit=$RC: $(grep -m1 ERROR update.out)" | tee -a checks_update.txt; fi
+          exit 0
+      - name: (7) Update to the release under test (Windows, uninstall first, then install)
+        if: inputs.old_tag != '' && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dir = "$env:USERPROFILE\lcsandbox\upd"
+          $u = (Get-ChildItem "$dir\Uninstall-*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          $code = -1
+          if ($u) { $q = Start-Process -FilePath $u -ArgumentList '/S',"_?=$dir" -Wait -PassThru; $code = $q.ExitCode }
+          Write-Host "uninstaller of the old release, exit code: $code"
+          if ($code -ne 0) { $env:PREFIX = $dir; cmd /c "`"$dir\pre_uninstall.bat`" 2>&1" }
+          Remove-Item -Recurse -Force $dir -ErrorAction SilentlyContinue
+          $exe = (Get-ChildItem inst_new\*.exe | Select-Object -First 1).FullName
+          $p = Start-Process -FilePath $exe -ArgumentList '/InstallationType=JustMe','/RegisterPython=0','/S',"/D=$dir" -Wait -PassThru
+          if ($p.ExitCode -eq 0) { "CHECK 7_update_installer_succeeds PASS (uninstall, then install)" | Tee-Object -Append checks_update.txt } else { "CHECK 7_update_installer_succeeds FAIL exit=$($p.ExitCode)" | Tee-Object -Append checks_update.txt }
+          exit 0
+      - name: (7) Checks after the update
+        if: inputs.old_tag != ''
+        run: |
+          set +e
+          "$UPD_PY" $RS/sandbox_checks.py basic --app "$APP_NAME" --prefix "$UPD_DIR" --expect-version "$TAG" --tools-pin "$TOOLS_PIN" | sed 's/^CHECK /CHECK 7_after_update_/' | tee -a checks_update.txt
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi; }
+          test -f "$LC_HOME/results/user_own_folder_kept/keep.txt"; ok 7f_user_results_kept $?
+          test -f "$H/${APP_NAME}_user_data/keep.txt"; ok 7g_user_home_data_kept $?
+          if [ "$RUNNER_OS" = "Linux" ]; then test -f "$UPD_DIR/user_notebooks/my_work.txt"; ok 7h_user_file_in_prefix_kept_by_the_in_place_update $?; else echo "7h not applicable: the update is uninstall then install, the prefix is removed"; fi
+          true
+      - name: (7,8) Uninstall the updated app
+        if: inputs.old_tag != ''
+        run: |
+          set +e
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi; }
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            D="$(cygpath -w "$UPD_DIR")"
+            powershell -NoProfile -Command "\$d='$D'; \$u=(Get-ChildItem \"\$d\\Uninstall-*.exe\" -ErrorAction SilentlyContinue|Select -First 1).FullName; if (\$u) { \$p=Start-Process -FilePath \$u -ArgumentList '/S',\"_?=\$d\" -Wait -PassThru; Write-Host \"uninstaller exit \$(\$p.ExitCode)\" } else { Write-Host 'no uninstaller' }"
+          else
+            bash "$UPD_DIR/uninstall.sh" 2> uninstall2.err; echo "exit $?"; head -5 uninstall2.err
+          fi
+          test ! -f "$LC_HOME/apps/$APP_NAME.json"; ok 7i_registry_entry_removed_after_update_uninstall $?
+          test -f "$LC_HOME/results/user_own_folder_kept/keep.txt"; ok 7j_user_results_kept_after_uninstall $?
+          test -f "$H/${APP_NAME}_user_data/keep.txt"; ok 7k_user_home_data_kept_after_uninstall $?
+
+      - name: Summary of every CHECK line
+        if: always()
+        run: |
+          cat checks_*.txt napari_out.txt 2>/dev/null | grep -a "^CHECK \|^NOTE " | sort | uniq > all_checks.txt || true
+          { echo "### ${{ matrix.os_name }}: $(grep -c ' PASS' all_checks.txt) passed, $(grep -c ' FAIL' all_checks.txt) failed"; grep -a ' FAIL' all_checks.txt | cut -c1-200 | sed 's/^/- /'; } >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Keep the evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sandbox-${{ matrix.os_name }}
+          path: |
+            checks_*.txt
+            all_checks.txt
+            install*.out
+            update.out
+            napari_out.txt
+            prune_dry.json
+            assets_*.txt
+            home_*.txt
+            uninstall*.err
+            qupath-logs/summary.md
+          if-no-files-found: ignore
