@@ -2,12 +2,14 @@
 
 usage: python playground_extras.py <section> --prefix P --app-name LabConstrictorPlayground --fixtures lc_tests --work W
 sections: basic | tools | failures | retention
+(basic: --tools-pin TAG is the expected labconstrictor-tools tag, e.g. v0.3.0-alpha.1; without it the pin is read from the installed app's post_install hook)
 """
 
 import argparse
 import importlib.metadata as md
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -43,6 +45,35 @@ def run_tool(tool, *params, timeout=300):
 
 def home():
     return Path(os.environ.get("LC_HOME") or (Path.home() / ".labconstrictor"))
+
+
+def pep440_of_tag(tag):
+    """v0.3.0-alpha.1 -> 0.3.0a1, v0.2.0-rc.1 -> 0.2.0rc1, v0.3.0 -> 0.3.0 (docs/OPERATIONS.md, tag names)."""
+    m = re.fullmatch(r"v?(\d+\.\d+\.\d+)(?:-(alpha|beta|rc)\.(\d+))?", tag)
+    if not m:
+        return None
+    return m.group(1) + (
+        {"alpha": "a", "beta": "b", "rc": "rc"}[m.group(2)] + m.group(3) if m.group(2) else ""
+    )
+
+
+def expected_pin(a, prefix):
+    """The Tools tag the installed app must carry: --tools-pin when given, else the tag written in the app's own post_install
+    hook (the `LC_TOOLS_SPEC` default, `.../refs/tags/<tag>.zip`). Returns (tag, where it came from); ("", reason) if unknown.
+    """
+    if a.tools_pin:
+        return a.tools_pin, "--tools-pin"
+    found = []
+    for hook in sorted(prefix.rglob("post_install.*")):
+        if hook.suffix not in (".sh", ".bat"):
+            continue
+        text = hook.read_text(encoding="utf-8", errors="replace")
+        for line in text.splitlines():
+            if "LC_TOOLS_SPEC" in line:
+                found += re.findall(r"LabConstrictor-Tools/archive/refs/tags/(v[0-9][^/\"'\s]*?)\.zip", line)
+        if found:
+            return found[0], str(hook.name)
+    return "", "no pin line found in any post_install hook under %s" % prefix
 
 
 def basic(a):
@@ -114,10 +145,11 @@ def basic(a):
         du = md.distribution("labconstrictor-tools").read_text("direct_url.json") or ""
     except Exception:
         pass
+    pin, where = expected_pin(a, prefix)
     rec(
-        "3_tools_version_rc1",
-        ver in ("0.2.0rc1", "0.2.0-rc.1") and "v0.2.0-rc.1" in du,
-        "version=%s direct_url=%s" % (ver, du.strip()),
+        "3_tools_version_is_the_pin",
+        bool(ver) and bool(pin) and pin in du and pep440_of_tag(pin) == ver,
+        "version=%s expected_pin=%s (from %s) direct_url=%s" % (ver, pin, where, du.strip()),
     )
     nb = list(prefix.rglob("*.ipynb"))[:50]
     rec(
@@ -407,6 +439,9 @@ def main():
     ap.add_argument("--fixtures", default="lc_tests")
     ap.add_argument("--work", default="work")
     ap.add_argument("--n-runs", default="60")
+    ap.add_argument(
+        "--tools-pin", default="", help="expected Tools tag; default: read from the app's post_install hook"
+    )
     a = ap.parse_args()
     globals()[a.section](a)
     bad = [c for c, ok in OUT if not ok]

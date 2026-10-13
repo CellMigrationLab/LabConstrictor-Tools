@@ -242,11 +242,12 @@ class Documented(unittest.TestCase):
             self.assertIn(name, protocol)
         for name in ("runs.build_record", "runs.record_json", "runs.done_status"):
             self.assertIn(name, operations)
-        self.assertIn("not in 0.2.0rc1", protocol)
+        self.assertIn("arrive in **0.3.0a1**", protocol)
+        self.assertNotIn("not in 0.2.0rc1", protocol)  # v0.2.0-rc.1 does list retention_prune
         self.assertIn("There is no `features` id for them", protocol)
         self.assertIn("There is no feature id for them", operations)
 
     def test_there_is_no_feature_id_for_them(self):
         from labconstrictor_tools import features
 
-        self.assertEqual(sorted(features.FEATURES), ["reserved_inputs_v1", "retention_prune"])
+        self.assertEqual(sorted(features.FEATURES), ["reserved_inputs_v1", "retention_prune", "shm_order_v1"])

@@ -56,6 +56,12 @@ The toolkit is currently installed from GitHub:
 python -m pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip
 ```
 
+For the first human tests, the pre-release `v0.3.0-alpha.1` (Tools `0.3.0a1`) is installed from its tag:
+
+```bash
+python -m pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip
+```
+
 The applications you want to use must be installed and registered separately. Their installers normally handle registration.
 
 ```bash

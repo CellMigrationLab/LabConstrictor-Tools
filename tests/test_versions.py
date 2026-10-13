@@ -33,7 +33,13 @@ class VersionHasOneSource(unittest.TestCase):
     def test_tagging_procedure_is_documented(self):
         text = (ROOT / "docs" / "OPERATIONS.md").read_text(encoding="utf-8")
         self.assertTrue("## Releases and tags" in text)
-        for needle in ("vX.Y.Z", "v0.2.0-rc.1", "the maintainer tags", "Claude and CI never create tags"):
+        for needle in (
+            "vX.Y.Z",
+            "v0.2.0-rc.1",
+            "v0.3.0-alpha.1",
+            "the maintainer tags",
+            "Claude and CI never create tags",
+        ):
             self.assertTrue(needle in text, "OPERATIONS.md lacks: " + needle)
 
     def test_installer_pinning_is_documented_with_the_files_to_change(self):

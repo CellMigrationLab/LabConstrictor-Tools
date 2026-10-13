@@ -23,7 +23,7 @@ on:
       tools_pin:
         description: "Tag of labconstrictor-tools the installed app must carry (empty: not checked)"
         required: false
-        default: v0.2.0-rc.1
+        default: v0.3.0-alpha.1
       hosts_napari:
         description: "Run the Napari host check (LabConstrictor-napari) on all three systems"
         required: false
@@ -185,6 +185,7 @@ jobs:
       - name: (4,5) Playground extras, its explicit tool runs and failure paths (missing pixel size, cancel, kill after cancel, crash)
         if: env.EXTRAS == 'playground'
         run: |
+          "$PY" $RS/playground_extras.py basic --prefix "$PREFIX_DIR" --tools-pin "$TOOLS_PIN" | tee checks_pg_basic.txt || true
           "$PY" $RS/playground_extras.py tools --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_tools.txt || true
           "$PY" $RS/playground_extras.py failures --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_failures.txt || true
 

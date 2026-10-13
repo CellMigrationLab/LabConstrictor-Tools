@@ -28,6 +28,15 @@ class Schema(unittest.TestCase):
         self.assertIn("reserved_inputs_v1", schema["features"])
         self.assertEqual(schema["protocol"], 1)  # additive: still protocol 1
 
+    def test_the_ids_of_this_version(self):
+        # shm_order_v1 (PR #125) is what tells 0.3.0a1 from the rc.1 / rc.2 / main that all reported 0.2.0rc1 with the first two
+        self.assertEqual(sorted(features.FEATURES), ["reserved_inputs_v1", "retention_prune", "shm_order_v1"])
+        text = (ROOT / "docs" / "PROTOCOL.md").read_text(encoding="utf-8")
+        self.assertIn("The behaviour already existed (PR #125) before the id", text)
+        self.assertIn(
+            "Tools >= 0.3.0a1 maps big TIFF files", text
+        )  # an optimisation: documented, no feature id
+
     def test_every_feature_id_is_documented(self):
         self.assertTrue(set(features.FEATURES) <= documented_feature_ids())
 
