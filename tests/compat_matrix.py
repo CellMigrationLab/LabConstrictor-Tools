@@ -3,10 +3,10 @@
     python tests/compat_matrix.py --old-python /path/to/old/venv/python
 
 Both directions, each one a real subprocess of the real code (no mocks):
-  1. old-schema / new-host : the schema OLD's `describe` writes, and the frozen 0.1 and 0.2 fixtures, are read by NEW's
+  1. old-schema / new-host : the schema OLD's `describe` writes, and the frozen 0.1, 0.2 and 0.3 fixtures, are read by NEW's
                              registry loader and judged by NEW's `compat.check_schema` (a 0.1 schema must be refused by a
                              host that needs 0.2, and still load for one that needs nothing).
-  2. new-schema / old-host : the schema NEW's `describe` writes and the frozen 0.2 fixture are read by OLD's registry loader:
+  2. new-schema / old-host : the schema NEW's `describe` writes and the frozen 0.2 and 0.3 fixtures are read by OLD's registry loader:
                              extra fields (`tools_version`, `features`) must not break a host of protocol 1.
   3. worker                : OLD's worker accepts a request that carries reserved inputs (new host / old worker) and NEW's worker
                              accepts a request without any (old host / new worker): both end in COMPLETION.
@@ -90,7 +90,8 @@ def main() -> int:
 
     work = Path(tempfile.mkdtemp(prefix="lc_compat_work_"))
     fixture = {
-        n: json.loads((FIXTURES / ("tools_%s.schema.json" % n)).read_text("utf-8")) for n in ("0.1", "0.2")
+        n: json.loads((FIXTURES / ("tools_%s.schema.json" % n)).read_text("utf-8"))
+        for n in ("0.1", "0.2", "0.3")
     }
 
     # 1. old schema, new host
@@ -117,6 +118,18 @@ def main() -> int:
         compat.check_schema(fixture["0.2"], "0.2.0rc1", ["reserved_inputs_v1"]).status == compat.OK,
     )
 
+    step(
+        "new host accepts the 0.3 fixture and its features (0.3.0a1, shm_order_v1)",
+        compat.check_schema(
+            fixture["0.3"], "0.3.0a1", ["reserved_inputs_v1", "retention_prune", "shm_order_v1"]
+        ).status
+        == compat.OK,
+    )
+    step(
+        "host needing 0.3.0a1 refuses the frozen 0.2 fixture (0.2.0rc1)",
+        compat.check_schema(fixture["0.2"], "0.3.0a1").status == compat.REFUSE,
+    )
+
     # 2. new schema, old host
     new_text = run_python(
         sys.executable, ["-m", "labconstrictor_tools", "describe", "--module", MODULE], work, new=True
@@ -127,6 +140,7 @@ def main() -> int:
     for label, path in (
         ("the schema the new Tools writes", new_path),
         ("the frozen 0.2 fixture", FIXTURES / "tools_0.2.schema.json"),
+        ("the frozen 0.3 fixture", FIXTURES / "tools_0.3.schema.json"),
     ):
         read = run_python(old, ["-c", READ_OLD, str(path)], work, new=False)
         step(

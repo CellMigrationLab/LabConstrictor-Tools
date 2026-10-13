@@ -76,7 +76,9 @@ jobs:
       - name: Newest tag
         id: tag
         run: |
-          tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          # versionsort.suffix: without it a final v0.3.0 sorts BEFORE its own pre-releases (v0.3.0-rc.1, v0.3.0-alpha.1), because the
+          # plain version sort treats the suffix as a longer, therefore later, name. alpha is listed first so it sorts lowest, then rc.
+          tag=$(git -c versionsort.suffix=-alpha -c versionsort.suffix=-rc tag --list 'v*' --sort=-v:refname | head -n 1)
           if [ -z "$tag" ]; then echo "compat: skipped, this repository has no v* tag yet (the first one is created by the maintainer, docs/OPERATIONS.md)"; fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - name: Install this checkout and the newest tag side by side

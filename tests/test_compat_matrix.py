@@ -20,6 +20,7 @@ FIXTURES = ROOT / "tests" / "fixtures" / "schemas"
 SHA256 = {
     "tools_0.1.schema.json": "3ae96405701fffb6207bfc38b35446f0ab42d27171e04037bec82c6353d700f2",
     "tools_0.2.schema.json": "0a8d3c9ecb361bd4ce690ed42a71d0147891268c7871a77385c504044e493a36",
+    "tools_0.3.schema.json": "d79c50e47e6ac5f70e89ccec866e7ca5cfb63fe43d7c6af5e98d5defc30210dc",
 }
 
 
@@ -37,6 +38,9 @@ class Fixtures(unittest.TestCase):
         new = json.loads((FIXTURES / "tools_0.2.schema.json").read_text("utf-8"))
         self.assertFalse({"tools_version", "features"} & set(old))
         self.assertTrue({"tools_version", "features"} <= set(new))
+        newest = json.loads((FIXTURES / "tools_0.3.schema.json").read_text("utf-8"))
+        self.assertEqual(newest["tools_version"], "0.3.0a1")
+        self.assertIn("shm_order_v1", newest["features"])
 
 
 class Script(unittest.TestCase):
@@ -49,7 +53,7 @@ class Script(unittest.TestCase):
     def test_every_check_of_the_matrix_passes_against_itself(self):
         result = self.run_script(sys.executable)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertEqual(result.stdout.count("ok  "), 11, result.stdout)
+        self.assertEqual(result.stdout.count("ok  "), 14, result.stdout)
         self.assertNotIn("FAIL", result.stdout)
 
     def test_an_old_install_that_cannot_run_fails_the_matrix(self):

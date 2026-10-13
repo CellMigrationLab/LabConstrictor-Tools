@@ -8,5 +8,6 @@ and a missing `features` list as "unknown/old".
 
 FEATURES: dict[str, str] = {
     "reserved_inputs_v1": "the worker accepts and ignores reserved underscore inputs it does not know (_job_dir, _calibration, _axes, ...)",
+    "shm_order_v1": "a shared-memory image descriptor's `order` is honoured for C and F (a block is read in the order it was written) and anything else is refused with unreadable_image",
     "retention_prune": "the CLI command `prune` and the `retention` module: only marker-owned, finished folders under results/ and runs/ are removed (hosts only mark a run finished)",
 }

@@ -443,7 +443,7 @@ Two keys carry the migration: `value` is the reference and `today` is what each 
       {"case": "version not understood", "schema": {"protocol": 1, "tools_version": "banana", "features": ["reserved_inputs_v1"]}, "expect": "warn"},
       {"case": "protocol 2", "schema": {"protocol": 2}, "expect": "refuse", "reason_contains": "protocol"}
     ],
-    "version_order": ["0.2.0a1", "0.2.0b1", "0.2.0rc1", "0.2.0", "0.2.1", "0.10.0"]
+    "version_order": ["0.2.0a1", "0.2.0b1", "0.2.0rc1", "0.2.0", "0.2.1", "0.3.0a1", "0.3.0", "0.10.0"]
   }
 }
 ```

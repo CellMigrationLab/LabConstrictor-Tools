@@ -106,7 +106,7 @@ a matrix row or a test, and a row; `tests/test_roundtrip_ledger.py` checks that 
   Each survivor is a missing test.
 
 ## Compatibility with the last tag
-CI job `compat` installs the newest `v*` tag next to the checkout (when there is none it prints why and passes) and runs `tests/compat_matrix.py --old-python <old interpreter>`: the schema each Tools writes is read by the other's registry loader, a host that needs 0.2 refuses a frozen 0.1 schema (`tests/fixtures/schemas/`, never edited, a new file per Tools version), and each worker accepts the other's requests (reserved inputs one way, none the other). `tests/test_compat_matrix.py` runs the same script against the test interpreter on every system, so the script cannot rot between tags. Hosts will run their own suites against {Tools main, last tag} (host side, later).
+CI job `compat` installs the newest `v*` tag (sorted with `versionsort.suffix=-alpha` and `-rc`, so a final `v0.3.0` beats its own pre-releases and `-alpha.1` beats `-rc.2`) next to the checkout (when there is none it prints why and passes) and runs `tests/compat_matrix.py --old-python <old interpreter>`: the schema each Tools writes is read by the other's registry loader, a host that needs 0.2 refuses a frozen 0.1 schema (`tests/fixtures/schemas/`, never edited, a new file per Tools version), and each worker accepts the other's requests (reserved inputs one way, none the other). `tests/test_compat_matrix.py` runs the same script against the test interpreter on every system, so the script cannot rot between tags. Hosts will run their own suites against {Tools main, last tag} (host side, later).
 
 ## Release sandbox (a released app, on fresh runners)
 
@@ -118,7 +118,7 @@ Windows runners, exercised, and uninstalled. Run it from Actions, "release-sandb
 |---|---|
 | `app_repo`, `tag` | the released app and release under test (its `.sh` / `.exe` installers are downloaded) |
 | `old_tag` | optional older release of the **same** app: install it, make user data, update (Linux `installer.sh -u` in place; macOS and Windows uninstall, then install, as the user docs say), check, uninstall |
-| `tools_pin` | tag of labconstrictor-tools the installed app must carry (empty: not checked) |
+| `tools_pin` | tag of labconstrictor-tools the installed app must carry (empty: not checked). With `playground_extras` the Playground check of the installed Tools uses the same pin; when empty it reads the pin from the installed app's own `post_install` line (`LC_TOOLS_SPEC`) instead of a constant |
 | `hosts_napari`, `napari_ref` | run the Napari host check on all three systems (software OpenGL on macOS and Windows) |
 | `playground_extras` | LabConstrictor Playground only: its own tool runs and failure paths (`playground_extras.py`), the Fiji host (Linux) and, with `hosts_qupath`, the QuPath host (Linux) |
 
