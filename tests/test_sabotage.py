@@ -630,7 +630,7 @@ BREAKS = [
     Break(
         "runs: a run record is not marked done",
         "runs.py",
-        '        retention.write_done(folder, _DONE_STATUS.get(task.status, "failed"))\n',
+        '        retention.write_done(folder, done_status(task.status, getattr(task, "cancel_requested", False)))\n',
         "        pass\n",
         unittest_slice(
             "test_retention.CliCreatesOwnedFolders.test_a_run_record_has_markers_and_old_records_are_pruned_without_touching_foreign_ones"
@@ -643,6 +643,123 @@ BREAKS = [
         '_DONE_STATUS = {"COMPLETE": "ok", "CANCELED": "cancelled", "CRASHED": "ok"}',
         unittest_slice(
             "test_retention.CliCreatesOwnedFolders.test_a_cancelled_or_crashed_run_record_says_so"
+        ),
+    ),
+    # ---- the run record without pruning, for hosts (docs/PROTOCOL.md; SPEC_WRONG_SCIENCE 3.2)
+    Break(
+        "runs: a crash after Cancel is recorded as failed",
+        "runs.py",
+        '    if task_status == "CRASHED" and cancel_requested:\n',
+        "    if False:\n",
+        unittest_slice("test_run_record_builder.DoneStatus.test_every_way_a_task_ends"),
+    ),
+    Break(
+        "runs: a crash with no Cancel is recorded as cancelled",
+        "runs.py",
+        '    if task_status == "CRASHED" and cancel_requested:\n',
+        '    if task_status == "CRASHED":\n',
+        unittest_slice("test_run_record_builder.DoneStatus.test_every_way_a_task_ends"),
+    ),
+    Break(
+        "runs: a failed task after Cancel is recorded as cancelled",
+        "runs.py",
+        '    return _DONE_STATUS.get(task_status, "failed")\n',
+        '    return "cancelled" if cancel_requested else _DONE_STATUS.get(task_status, "failed")\n',
+        unittest_slice("test_run_record_builder.DoneStatus.test_every_way_a_task_ends"),
+    ),
+    Break(
+        "runs: record does not read the Cancel flag of the task",
+        "runs.py",
+        'getattr(task, "cancel_requested", False)',
+        "False",
+        unittest_slice(
+            "test_run_record_builder.RecordKeepsItsBehaviour.test_a_crash_after_cancel_is_cancelled_in_the_record_folder_too"
+        ),
+    ),
+    Break(
+        "runs: record no longer prunes",
+        "runs.py",
+        '        retention.prune("runs")\n        return folder\n',
+        "        return folder\n",
+        unittest_slice(
+            "test_run_record_builder.RecordKeepsItsBehaviour.test_record_still_prunes_and_still_never_raises"
+        ),
+    ),
+    Break(
+        "runs: build_record always carries a run_id",
+        "runs.py",
+        '        **({"run_id": run_id} if run_id is not None else {}),\n',
+        '        "run_id": run_id,\n',
+        unittest_slice(
+            "test_run_record_builder.BuildRecord.test_the_content_is_what_a_run_record_holds_and_nothing_else"
+        ),
+    ),
+    Break(
+        "runs: build_record always carries started_utc",
+        "runs.py",
+        '        **({"started_utc": started_utc} if started_utc is not None else {}),\n',
+        '        "started_utc": started_utc,\n',
+        unittest_slice(
+            "test_run_record_builder.BuildRecord.test_the_content_is_what_a_run_record_holds_and_nothing_else"
+        ),
+    ),
+    Break(
+        "runs: build_record ignores the finished_utc it is given",
+        "runs.py",
+        "finished_utc or datetime.now(timezone.utc).isoformat()",
+        "datetime.now(timezone.utc).isoformat()",
+        unittest_slice(
+            "test_run_record_builder.BuildRecord.test_the_content_is_what_a_run_record_holds_and_nothing_else"
+        ),
+    ),
+    Break(
+        "runs: build_record keeps the host-owned folder in the inputs",
+        "runs.py",
+        "if k != JOB_DIR_KEY",
+        "if True",
+        unittest_slice(
+            "test_run_record_builder.BuildRecord.test_the_content_is_what_a_run_record_holds_and_nothing_else"
+        ),
+    ),
+    Break(
+        "runs: build_record keeps the matrix of a result",
+        "runs.py",
+        'if k != "matrix_yx"',
+        "if True",
+        unittest_slice(
+            "test_run_record_builder.BuildRecord.test_the_content_is_what_a_run_record_holds_and_nothing_else"
+        ),
+    ),
+    Break(
+        "runs: build_record keeps the whole stderr",
+        "runs.py",
+        "stderr[-STDERR_TAIL_CHARS:]",
+        "stderr",
+        unittest_slice(
+            "test_run_record_builder.BuildRecord.test_the_stderr_tail_is_cut_and_the_input_dict_is_left_alone"
+        ),
+    ),
+    Break(
+        "runs: build_record prunes",
+        "runs.py",
+        "    entry: Mapping[str, Any] = registry.load_all().get(app) or {}\n    return {\n",
+        '    entry: Mapping[str, Any] = registry.load_all().get(app) or {}\n    retention.prune("runs")\n    return {\n',
+        unittest_slice("test_run_record_builder.BuildRecord.test_it_writes_nothing_and_prunes_nothing"),
+    ),
+    Break(
+        "runs: record_json is not indented",
+        "runs.py",
+        "json.dumps(content, indent=2, default=str)",
+        "json.dumps(content, default=str)",
+        unittest_slice("test_run_record_builder.BuildRecord.test_the_text_is_what_record_writes"),
+    ),
+    Break(
+        "runs: record_json cannot write a value that is not JSON",
+        "runs.py",
+        "json.dumps(content, indent=2, default=str)",
+        "json.dumps(content, indent=2)",
+        unittest_slice(
+            "test_run_record_builder.BuildRecord.test_values_that_are_not_json_are_written_as_text"
         ),
     ),
     # ---- the conformance loader and its schema (docs/CONFORMANCE.md)
