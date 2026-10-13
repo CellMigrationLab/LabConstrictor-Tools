@@ -35,6 +35,16 @@ class FailureDiagnostics(unittest.TestCase):
         self.assertIn("ModuleNotFoundError", task.error)
         self.assertIn("package is missing", task.error)  # hint
 
+    def test_import_error_gets_the_import_hint_from_its_stderr_not_from_exit_code_3_alone(self):
+        task, _ = run_tool("import_error_app", "never")
+        self.assertIn("(code %d)" % log.EXIT_TOOL_IMPORT_FAILED, task.error)
+        self.assertIn(log.IMPORT_FAILED_MARKER, task.error)  # the marker is what worker.py really prints
+        # Windows ends a process with code 3 for abort() and for a raised SIGSEGV: that is a crash, not an import failure
+        native = "Fatal Python error: Segmentation fault\n  File \"x.py\", line 1 in crash"
+        self.assertEqual(log.hint_for_exit(3, native), "")
+        self.assertEqual(log.hint_for_exit(3, None), "")
+        self.assertIn("failed to import", log.hint_for_exit(3, "LabConstrictor worker: cannot import tool module 'tools' (details above)"))
+
     @unittest.skipUnless(os.name == "posix", "a SIGKILL exit code (-9) does not exist on Windows")
     def test_killed_worker_is_explained(self):
         task, _ = run_tool("crashy_app", "killed")

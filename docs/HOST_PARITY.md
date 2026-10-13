@@ -357,7 +357,7 @@ Two keys carry the migration: `value` is the reference and `today` is what each 
   "worker_exit_hints": {
     "killed": {"codes": [-9, 137], "text": "the worker was killed (out of memory? the OS OOM killer ends big image jobs this way)"},
     "segfault": {"codes": [-11, 139, 3221225477, -1073741819], "text": "the worker crashed natively (segmentation fault in a compiled library)"},
-    "import_failed": {"codes": [3], "text": "the app's tool module failed to import (see the traceback above)"},
+    "import_failed": {"codes": [3], "stderr_contains": ["cannot import tool module"], "text": "the app's tool module failed to import (see the traceback above)"},
     "missing_package": {"stderr_contains": ["ModuleNotFoundError", "ImportError"], "text": "a Python package is missing or broken in the app's environment (see the traceback above)", "checked": "first"}
   },
   "number_text": {
