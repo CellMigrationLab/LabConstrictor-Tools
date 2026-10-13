@@ -323,7 +323,16 @@ jobs:
           Write-Host "uninstalling the old install with $u"
           $p = Start-Process -FilePath $u -ArgumentList '/S',"_?=$dir" -Wait -PassThru
           Write-Host "old uninstaller exit code: $($p.ExitCode)"
-          if ($p.ExitCode -ne 0) { exit 1 }
+          if ($p.ExitCode -ne 0) {
+            Write-Host "--- diagnostics: the uninstaller failed ---"
+            Get-ChildItem $dir -Force | Select-Object -First 60 Name | Format-Table -HideTableHeaders
+            Get-ChildItem $dir -Force -Include *.log,*uninstall*.txt -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Length -lt 200000 -and $_.FullName -notmatch 'site-packages|pkgs' } | ForEach-Object { Write-Host "=== $($_.FullName)"; Get-Content $_.FullName -Tail 60 }
+            Write-Host "--- pre_uninstall.bat run by hand ---"
+            $env:PREFIX = $dir
+            cmd /c "`"$dir\pre_uninstall.bat`" 2>&1"
+            Write-Host "pre_uninstall.bat exit code: $LASTEXITCODE"
+            exit 1
+          }
           Remove-Item -Recurse -Force $dir -ErrorAction SilentlyContinue
           if (Test-Path $dir) { Write-Host "FAIL: old folder still there"; exit 1 }
           $exe = (Get-ChildItem installer_new\*.exe | Select-Object -First 1).FullName
