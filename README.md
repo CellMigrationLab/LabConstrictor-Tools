@@ -112,7 +112,8 @@ All front-ends write to the shared LabConstrictor log under `~/.labconstrictor/l
 python -m pip install -e ".[test]" black ruff mypy
 black --check .
 ruff check .
-mypy labconstrictor_tools
+python scripts/check_annotations.py   # every function is annotated, tests and scripts included
+mypy                                  # package, tests, scripts; paths and flags are in pyproject.toml
 cd tests && python -m unittest discover -p "test_*.py"
 ```
 

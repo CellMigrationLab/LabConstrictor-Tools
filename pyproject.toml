@@ -81,9 +81,26 @@ pytest_add_cli_args_test_selection = [
 ]
 
 [tool.mypy]
-# the example app uses the semantic marker types (Image, ...) as annotations on purpose
+# Checked: the package (as before), the tests, the scripts, the fixtures generator and the example apps. Every function
+# in all of them is fully annotated (scripts/check_annotations.py checks the same rule without running mypy).
+files = ["labconstrictor_tools", "tests", "scripts", "fixtures"]
+exclude = ["tests/vulture_whitelist.py"]   # bare names on purpose: that is how vulture is told a name is used
+explicit_package_bases = true   # tests/*/tools.py exist four times (one per test app): each is checked under its own folder name
 ignore_missing_imports = true
-disallow_untyped_defs = true   # every function in the package is annotated; keep it that way
+disallow_untyped_defs = true   # every function is annotated; keep it that way
 disallow_incomplete_defs = true
 warn_unused_ignores = true   # a "type: ignore" that no longer silences anything is removed
-exclude = ["labconstrictor_tools/examples/"]
+
+[[tool.mypy.overrides]]
+# The example apps and the test apps declare tools with the semantic marker types (Image, Table, Scalars, ...). Those are
+# marker classes that only say what goes over the wire: the function really receives an ndarray or a DataFrame and returns
+# a dict or an array, so mypy cannot match them. Tests also build deliberately partial or invalid schemas as plain dicts,
+# poke at attributes set in setUpClass, and read the optional pipes of a Popen the test just opened. This first wave checks
+# that every function is annotated and the names in annotations resolve; the bodies of these modules are checked for
+# everything except the error codes below (each is a kind of statement the test style needs; see docs/TESTING.md).
+module = ["labconstrictor_tools.examples.*", "tests.*"]
+disable_error_code = [
+    "arg-type", "assignment", "attr-defined", "dict-item", "empty-body", "func-returns-value", "has-type", "index",
+    "list-item", "misc", "operator", "return-value", "str-format", "typeddict-item", "typeddict-unknown-key", "union-attr", "valid-type",
+]
+warn_unused_ignores = false   # the "type: ignore" comments that were already in the tests silence exactly the codes turned off here
