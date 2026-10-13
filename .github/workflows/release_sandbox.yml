@@ -30,7 +30,15 @@ on:
         type: boolean
         default: true
       napari_ref:
-        description: "Ref of LabConstrictor-napari"
+        description: "Branch or tag of LabConstrictor-napari (default main: the development version; give a tag to pin it)"
+        required: false
+        default: main
+      fiji_ref:
+        description: "Branch or tag of LabConstrictor-Fiji used with playground_extras (default main; give a tag to pin it)"
+        required: false
+        default: main
+      qupath_ref:
+        description: "Branch or tag of labconstrictor-qupath used with playground_extras (default main; give a tag to pin it)"
         required: false
         default: main
       playground_extras:
@@ -257,10 +265,12 @@ jobs:
       - name: Fiji host check with the installed Playground (Linux, Xvfb; the Fiji repo's own case runner with Playground cases)
         if: runner.os == 'Linux' && env.EXTRAS == 'playground'
         continue-on-error: true
+        env:
+          FIJI_REF: ${{ inputs.fiji_ref }}
         run: |
           set +e
           sudo apt-get install -y --no-install-recommends xvfb xauth libxtst6 libxrender1 libxi6 libxrandr2 libgtk-3-0t64 fonts-dejavu-core openbox >/dev/null
-          git clone -q --depth 1 https://github.com/CellMigrationLab/LabConstrictor-Fiji fiji_repo
+          git clone -q --depth 1 --branch "$FIJI_REF" https://github.com/CellMigrationLab/LabConstrictor-Fiji fiji_repo
           curl -fsSL --retry 5 -o fiji.zip https://downloads.imagej.net/fiji/latest/fiji-latest-linux64-jdk.zip && mkdir fijid && unzip -q fiji.zip -d fijid && rm fiji.zip
           export LC_FIJI_HOME="$(dirname "$(find "$PWD/fijid" -maxdepth 2 -name fiji-linux-x64 | head -1)")"
           python3 -m venv "$HOME/fvenv"; "$HOME/fvenv/bin/pip" install -q "https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/$TOOLS_PIN.zip" numpy pandas tifffile scipy scikit-image
@@ -275,10 +285,12 @@ jobs:
       - name: QuPath host check with the installed Playground (Linux, Xvfb; the QuPath repo's own GUI bodies for the Playground)
         if: runner.os == 'Linux' && env.EXTRAS == 'playground' && inputs.hosts_qupath
         continue-on-error: true
+        env:
+          QUPATH_REF: ${{ inputs.qupath_ref }}
         run: |
           set +e
           sudo apt-get install -y --no-install-recommends xvfb xauth libgtk-3-0t64 libxtst6 libxrender1 libxi6 libxrandr2 libgl1 libasound2t64 fonts-dejavu-core >/dev/null
-          git clone -q --depth 1 https://github.com/CellMigrationLab/labconstrictor-qupath qupath_repo
+          git clone -q --depth 1 --branch "$QUPATH_REF" https://github.com/CellMigrationLab/labconstrictor-qupath qupath_repo
           QV=0.7.0; QSHA=165e27a0731d58ba039e9d0d34a54acf896bb92e81922370df295cb85418ce53
           curl -fsSL --retry 5 -o qupath.tar.xz "https://github.com/qupath/qupath/releases/download/v$QV/QuPath-v$QV-Linux.tar.xz"
           echo "$QSHA  qupath.tar.xz" | sha256sum -c - || exit 0
