@@ -207,6 +207,48 @@ BREAKS = [
             "test_roundtrip_failures.WhatAToolReturns.test_the_wrong_number_of_values_is_bad_return_with_both_counts"
         ),
     ),
+    Break(
+        "convert: the memory order of a shared-memory block is ignored",
+        "convert.py",
+        "        order = _shared_memory_order(descriptor)\n",
+        '        order = "C"\n',
+        unittest_slice("test_input_loading.SharedMemoryOrder"),
+    ),
+    Break(
+        "convert: an unknown memory order is read as C",
+        "convert.py",
+        "        raise ValueError(\"order %r is not supported: send 'C' or 'F'\" % (order,))\n",
+        '        return "C"\n',
+        unittest_slice("test_input_loading.SharedMemoryOrder.test_any_other_order_is_refused_with_a_message"),
+    ),
+    Break(
+        "convert: a mapped TIFF input is writable through to the file",
+        "convert.py",
+        'mode="c", offset=offset',
+        'mode="r+", offset=offset',
+        unittest_slice("test_input_loading.MappedTiff", "test_input_loading.MappedTiffThroughAWorker"),
+    ),
+    Break(
+        "convert: the pages of a TIFF stack are not checked for gaps before mapping",
+        "convert.py",
+        "                or not _pages_are_one_block(series.pages, series.dataoffset)\n",
+        "                or False\n",
+        unittest_slice("test_input_loading.MappedTiff"),
+    ),
+    Break(
+        "convert: a mapped TIFF input is not released when the task ends",
+        "convert.py",
+        "    if alive:\n        import gc",
+        "    if False:\n        import gc",
+        unittest_slice("test_input_loading.MappedTiffThroughAWorker"),
+    ),
+    Break(
+        "convert: TIFF files are never mapped (the fast path silently off)",
+        "convert.py",
+        'if os.environ.get(MEMMAP_ENV, "1") == "0":',
+        "if True:",
+        unittest_slice("test_input_loading.MappedTiff", "test_input_loading.MappedTiffThroughAWorker"),
+    ),
     # ---- protocol and worker
     Break(
         "protocol: NaN is sent as the NaN constant",
@@ -1010,9 +1052,8 @@ def build_tree(destination: Path) -> Path:
     tests.mkdir()
     for path in [*(ROOT / "tests").glob("*.py"), ROOT / "tests" / "quote_vectors.json"]:
         shutil.copy2(path, tests / path.name)
-    shutil.copytree(
-        ROOT / "tests" / "failure_app", tests / "failure_app", ignore=shutil.ignore_patterns("__pycache__")
-    )
+    for app in ("failure_app", "input_app"):
+        shutil.copytree(ROOT / "tests" / app, tests / app, ignore=shutil.ignore_patterns("__pycache__"))
     (destination / "pyproject.toml").write_text(
         (ROOT / "pyproject.toml").read_text(encoding="utf-8"), encoding="utf-8"
     )

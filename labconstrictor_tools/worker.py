@@ -265,6 +265,7 @@ class Worker:
         except Exception as error:  # noqa: BLE001 - any tool failure becomes a structured FAILURE
             final = self._tool_crash_outcome(script, error)
         finally:
+            convert.release_mapped_inputs()  # a mapped TIFF input must not outlive the task (it locks the file on Windows)
             runtime.install()  # late progress()/cancelled() calls from a tool's leftover threads do nothing
         if job_dir is not None and owns_job_dir and final[0] != "COMPLETION":
             # Clean up BEFORE the terminal message: a client that sees CANCELED/FAILED may look at the temp dir at once.

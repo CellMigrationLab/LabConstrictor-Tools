@@ -11,9 +11,10 @@ import logging
 import math
 import os
 import sys
+import weakref
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from .protocol import RESERVED_INPUTS, RESERVED_PREFIX
 from .structures import OutputSchema, ParamSchema, Result, ToolSchema
@@ -31,6 +32,21 @@ IMAGE_DTYPE_KINDS = (
 SHARED_MEMORY_DTYPE_KINDS = (
     "biufc"  # what a host may put in a shared-memory block (complex is read, the tool decides)
 )
+SHARED_MEMORY_ORDERS: dict[str, Literal["C", "F"]] = {
+    "C": "C",
+    "C_ORDER": "C",
+    "F": "F",
+    "F_ORDER": "F",
+}  # descriptor `order` -> numpy order (Appose spells it *_ORDER)
+MEMMAP_MIN_BYTES = (
+    8 * 1024 * 1024
+)  # below this, reading a TIFF costs milliseconds and a mapping is not worth a file lock on Windows
+MEMMAP_ENV = "LC_TIFF_MEMMAP"  # set to 0 to always read TIFFs the plain way
+MEMMAP_SERIES_KINDS = (
+    "generic",
+    "imagej",
+    "shaped",
+)  # the writers of the hosts; OME, LSM, multi-file and other series are read, not mapped
 AFFINE_SIZE = 3
 _PLAIN_TYPE_NAMES = {
     str: "text",
@@ -304,7 +320,9 @@ def _read_image(value: Any, label: str = "image") -> Any:
         if path.suffix.lower() in (".tif", ".tiff", ".btf"):  # also .ome.tif
             import tifffile
 
-            array = tifffile.imread(path)
+            array = _memmap_tiff(path)
+            if array is None:
+                array = tifffile.imread(path)
         else:
             array = _read_other_format(path)
         if array.size == 0:  # tifffile only warns about some damaged headers and returns an empty array
@@ -317,6 +335,93 @@ def _read_image(value: Any, label: str = "image") -> Any:
     ) as error:  # readers raise anything for a bad file: becomes a ToolError for the person, traceback logged
         logging.getLogger("labconstrictor.convert").error("cannot read image %s", path, exc_info=True)
         raise ToolError("unreadable_image", "cannot read %s: %s" % (path.name, error)) from error
+
+
+_MAPPED_INPUTS: list[Any] = []  # weak references to the mapped TIFF inputs of this process
+
+
+def _memmap_tiff(path: Path) -> Any:
+    """The pixels of an uncompressed, contiguous, single-series TIFF as a copy-on-write memory map, or None to read it the plain way.
+
+    The tool gets what `tifffile.imread` would give: the same shape, dtype and values, in a plain writable array. Writing to it is
+    allowed and stays private to the worker (`mode="c"`: the pages are copied when first written), so the file, which may be a
+    person's own, can never change. Anything that is not clearly the simple case returns None: compression, tiles, several series
+    or pyramid levels, OME/LSM and other multi-file formats, a byte order other than the machine's, a file that is cut short, a
+    file under MEMMAP_MIN_BYTES, and the environment variable LC_TIFF_MEMMAP=0.
+    """
+    if os.environ.get(MEMMAP_ENV, "1") == "0":
+        return None
+    import numpy as np
+    import tifffile
+
+    try:
+        with tifffile.TiffFile(path) as tif:
+            tif.pages.useframes = (
+                True  # looking at every page's offsets must stay cheap for a stack of thousands of pages
+            )
+            native = "<" if sys.byteorder == "little" else ">"
+            if tif.byteorder != native or len(tif.series) != 1:
+                return None
+            series = tif.series[0]
+            page = series.pages[0] if series.pages else None
+            if (
+                page is None
+                or series.kind not in MEMMAP_SERIES_KINDS
+                or len(series.levels) != 1
+                or series.dataoffset is None
+                or not page.is_memmappable
+                or not _pages_are_one_block(series.pages, series.dataoffset)
+            ):
+                return None
+            shape, dtype, offset = tuple(series.shape), np.dtype(series.dtype), series.dataoffset
+            nbytes = int(np.prod(shape, dtype=np.int64)) * dtype.itemsize
+            if (
+                nbytes < MEMMAP_MIN_BYTES
+                or dtype.kind not in IMAGE_DTYPE_KINDS
+                or offset + nbytes > path.stat().st_size
+            ):
+                return None
+        mapped = np.memmap(path, dtype=dtype, mode="c", offset=offset, shape=shape, order="C")
+    except (
+        OSError,
+        ValueError,
+        MemoryError,
+        AttributeError,
+        IndexError,
+    ):  # not mappable after all: the plain reader decides
+        return None
+    _MAPPED_INPUTS.append(weakref.ref(mapped))
+    return mapped.view(
+        np.ndarray
+    )  # a plain array: results of tool arithmetic must not inherit the memmap class
+
+
+def _pages_are_one_block(pages: Any, offset: int) -> bool:
+    """True when the strips of every page of the series follow each other from `offset` with no gap. tifffile's own
+    `series.dataoffset` takes the layout of a series from its first pages and trusts the rest; a file whose later pages lie
+    elsewhere would be mapped wrongly, so every page is looked at (their offsets are in the file's IFDs, not in the pixels).
+    """
+    position = offset
+    for page in pages:
+        if page is None:
+            return False
+        for start, count in zip(page.dataoffsets, page.databytecounts):
+            if start != position:
+                return False
+            position += count
+    return True
+
+
+def release_mapped_inputs() -> None:
+    """Called when a task is over: drop the mappings a failed tool's traceback or a reference cycle may still hold. An open
+    mapping keeps a file locked on Windows (the host could not delete its job folder, nor the person the file).
+    """
+    alive = [ref for ref in _MAPPED_INPUTS if ref() is not None]
+    _MAPPED_INPUTS.clear()
+    if alive:
+        import gc
+
+        gc.collect()
 
 
 def _read_other_format(path: Path) -> Any:
@@ -366,6 +471,7 @@ def _ndarray_from_shared_memory(descriptor: dict[str, Any], label: str = "image"
         if dtype.kind not in SHARED_MEMORY_DTYPE_KINDS:
             raise ValueError("dtype %s is not a number type" % dtype)
         shape = tuple(descriptor["shape"])
+        order = _shared_memory_order(descriptor)
         shm = _attach_shared_memory(name)
     except (KeyError, TypeError, ValueError, OSError) as error:
         logging.getLogger("labconstrictor.convert").error(
@@ -373,12 +479,21 @@ def _ndarray_from_shared_memory(descriptor: dict[str, Any], label: str = "image"
         )
         raise ToolError("unreadable_image", _shared_memory_message(label, error)) from error
     try:
-        view = np.ndarray(shape, dtype=dtype, buffer=shm.buf)
-        return view.copy()
+        view = np.ndarray(shape, dtype=dtype, buffer=shm.buf, order=order)
+        return view.copy()  # a C-ordered copy of the same logical array, whichever order the block holds
     except (TypeError, ValueError) as error:  # shape/dtype larger than the block, or a negative dimension
         raise ToolError("unreadable_image", _shared_memory_message(label, error)) from error
     finally:
         shm.close()
+
+
+def _shared_memory_order(descriptor: dict[str, Any]) -> Literal["C", "F"]:
+    """The memory order of the block: absent means C (row-major, last axis fastest). Anything but C or F is refused, because
+    reading a block in an order it was not written in gives the transposed image with no error."""
+    order = descriptor.get("order", "C")
+    if not isinstance(order, str) or order not in SHARED_MEMORY_ORDERS:
+        raise ValueError("order %r is not supported: send 'C' or 'F'" % (order,))
+    return SHARED_MEMORY_ORDERS[order]
 
 
 def _shared_memory_message(label: str, error: Exception) -> str:
