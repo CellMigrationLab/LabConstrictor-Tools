@@ -108,6 +108,38 @@ a matrix row or a test, and a row; `tests/test_roundtrip_ledger.py` checks that 
 ## Compatibility with the last tag
 CI job `compat` installs the newest `v*` tag next to the checkout (when there is none it prints why and passes) and runs `tests/compat_matrix.py --old-python <old interpreter>`: the schema each Tools writes is read by the other's registry loader, a host that needs 0.2 refuses a frozen 0.1 schema (`tests/fixtures/schemas/`, never edited, a new file per Tools version), and each worker accepts the other's requests (reserved inputs one way, none the other). `tests/test_compat_matrix.py` runs the same script against the test interpreter on every system, so the script cannot rot between tags. Hosts will run their own suites against {Tools main, last tag} (host side, later).
 
+## Release sandbox (a released app, on fresh runners)
+
+`.github/workflows/release_sandbox.yml` (dispatch only) tests an app **as a person gets it**: the installers of a GitHub release are downloaded
+(nothing is built), installed silently as a plain user into a fresh prefix with a scratch `LC_HOME` on fresh Linux, macOS (Apple silicon) and
+Windows runners, exercised, and uninstalled. Run it from Actions, "release-sandbox", or `gh workflow run release_sandbox.yml -f app_repo=<owner/name> -f tag=<release> [-f old_tag=<older release>]`.
+
+| Input | Meaning |
+|---|---|
+| `app_repo`, `tag` | the released app and release under test (its `.sh` / `.exe` installers are downloaded) |
+| `old_tag` | optional older release of the **same** app: install it, make user data, update (Linux `installer.sh -u` in place; macOS and Windows uninstall, then install, as the user docs say), check, uninstall |
+| `tools_pin` | tag of labconstrictor-tools the installed app must carry (empty: not checked) |
+| `hosts_napari`, `napari_ref` | run the Napari host check on all three systems (software OpenGL on macOS and Windows) |
+| `playground_extras` | LabConstrictor Playground only: its own tool runs and failure paths (`playground_extras.py`), the Fiji host (Linux) and, with `hosts_qupath`, the QuPath host (Linux) |
+
+What is checked, for **any** app (the expectations come from the app, not from the workflow: `construct.yaml`, the registered schema and
+`lc_tests/cases.json`; `sandbox_checks.py`):
+1. the installer exits 0; `menuinst_debug.log` ends with "Post-install completed successfully." and shows the tools were registered (the `.sh` hook prints "Tools registered", the `.bat` hook "registering the tools of ...");
+2. `labconstrictor-tools list` shows every tool of the app's schema at the release version; `doctor` is clean; the installed Tools is the pin;
+3. every case of `lc_tests/cases.json` through the worker (`labconstrictor-tools test`), every COMPLETE/FAILED case again through the command line, a notebook form for every tool, and the tools that have no case are named;
+4. retention: 60 command-line runs of the first COMPLETE case leave exactly the newest 20 result folders (each with `.lc-owner.json` and `.lc-done.json`) and 50 run records, and `prune --dry-run --json` reports keep 20 / 50, nothing deleted, a user's own folders left alone;
+5. uninstall removes the registry entry and the prefix and nothing else of the user's (planted files in the home folder, in `LC_HOME/results`, another app's registry entry);
+6. update from `old_tag` keeps user data (results in `LC_HOME`, files in the home folder and, for the in-place Linux update, a file in the prefix);
+7. Windows: the installer **refuses** a destination folder whose path contains a space (the constructor default `check_path_spaces`; kept on purpose, documented). In silent mode only the exit code (2) and "nothing written" can be asserted; a UI Automation read of the wizard's text ("Destination Folder contains 1 space") is attempted and reported as a note when it works; no `cmd.exe` syntax error in `menuinst_debug.log`; the registered version is the release's, not `(0)`; no python.exe of the app is left after the Napari host (W5) or after worker processes are closed.
+
+The Napari host check (`napari_check.py`) opens the dock widget, requires the app and every tool of its schema to be listed and, for the Playground, runs
+the stress scenarios (cancel, an ignored cancel is shown as "cancelled (worker stopped)", a crash, a layer that changes size during a run).
+**Software OpenGL on Windows:** Mesa llvmpipe as in the Napari CI. A venv's `python.exe` is only a launcher that starts the base interpreter, and Windows
+looks for `opengl32.dll` next to the process image: copy the Mesa DLLs next to `sys._base_executable`, not next to the venv's `python.exe`
+(otherwise Qt gets "GDI Generic" OpenGL 1.1 and napari stops with `GLError 1280 invalid enumerant`).
+
+Not covered: Fiji and QuPath on macOS and Windows (their GUI test runners need Xvfb), Intel Macs, the `.pkg` and `.msi` installers, installers into a path with a space.
+
 ## Platforms
 
 Linux, macOS and Windows run the whole set except the sabotage test (Linux only) and the POSIX-only checks (SIGKILL, shared-memory
