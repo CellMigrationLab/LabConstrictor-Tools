@@ -21,6 +21,9 @@ TAIL_LINES = 60  # how many log lines `tail()` returns by default
 EXIT_TOOL_IMPORT_FAILED = (
     3  # the worker's exit code when the tool module cannot be imported (worker.py exits with it)
 )
+# What worker.py prints last on stderr when it exits with that code. Code 3 alone is not proof: the Windows C runtime also ends a process
+# with 3 for abort() and for a raised SIGSEGV, so a native crash there must not be called an import failure.
+IMPORT_FAILED_MARKER = "cannot import tool module"
 _FORMAT = "%(asctime)s.%(msecs)03d %(levelname)-7s pid=%(process)d %(message)s"
 _logger = None
 _version_fallback_logged = False
@@ -133,6 +136,6 @@ def hint_for_exit(returncode: int | None, stderr_tail: str | None) -> str:
         return "the worker was killed (out of memory? the OS OOM killer ends big image jobs this way)"
     if returncode in (-11, 139, 3221225477):
         return "the worker crashed natively (segmentation fault in a compiled library)"
-    if returncode == EXIT_TOOL_IMPORT_FAILED:
+    if returncode == EXIT_TOOL_IMPORT_FAILED and IMPORT_FAILED_MARKER in text:
         return "the app's tool module failed to import (see the traceback above)"
     return ""
