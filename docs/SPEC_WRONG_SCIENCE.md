@@ -229,6 +229,18 @@ Transitions (each asserts the field **and** the request/worker input):
 ### 3.2 Markers, written by hosts and the CLI
 `.lc-owner.json` is written first, when the folder is created: `{"lc_marker": 1, "kind": "result|run", "name": "<folder name>", "host": "cli|napari|fiji|qupath|notebook", "pid": 1234, "created": "2026-10-12T09:30:00.123Z", "token": "<uuid4>"}`. `.lc-done.json` is written last, atomically (temp file then rename): `{"finished": "<UTC ISO-8601>", "status": "ok|failed|cancelled"}`. A half-written folder has no done file and is therefore never eligible. Result folders are named `<YYYYMMDDTHHMMSS>_<6 hex>_<app>_<tool>` (slug of `A-Za-z0-9_.-`) in every host; run records may use any slug (Fiji's millisecond stamp stays). The name is a convenience; the marker is the authority.
 
+**Which status a finished task gets.** The host writes the status from how the task ended and from whether the person pressed Cancel before it ended (Tools' `Task.cancel_requested`; hosts that do not use the Python client keep the same flag):
+
+| the task ended | Cancel pressed before the end | `status` |
+|---|---|---|
+| `COMPLETE` | either | `ok` |
+| `CANCELED` (the tool honoured the request) | yes | `cancelled` |
+| `CRASHED` (the worker died, or was killed after the grace period or on a timeout) | **yes** | `cancelled` |
+| `CRASHED` | no | `failed` |
+| `FAILED` (the tool raised an error) | either | `failed` |
+
+A crash after Cancel is `cancelled` because the person asked for the stop and a tool that does not stop cooperatively is killed (HOST_PARITY J08: the status line says "cancelled", not "crashed"); the crash text stays in the run record. Only a crash is read this way: a tool that reports its own failure has failed even if Cancel was pressed. The same mapping applies to the run record folder and to the results folder of that run. It is data in `conformance.json` (`wrong_science.retention.done_status`) and is exercised by HRET-05 and HRET-06.
+
 ### 3.3 What `prune` may delete
 Only two roots are ever pruned: `<LC_HOME>/results` and `<LC_HOME>/runs`. An entry is **eligible** only if **all** hold:
 1. a direct child of the root, name made of `A-Za-z0-9_.-`, a real directory by `lstat` (not a symlink, not a Windows junction or other reparse point), and its real path's parent is the real path of the root;
@@ -282,6 +294,8 @@ All use a temporary `LC_HOME`; every survivor is checked **by file contents** (a
 | HRET-02 | done(60) owned results and done(120) owned run records already present | the host does 5 runs | none of the old folders is gone (counts only grow) |
 | HRET-03 | none | one run | the folder has a valid `.lc-owner.json` (name equals folder name) and, after the run, a valid `.lc-done.json` with the right status |
 | HRET-04 | `prune` replaced by a recorder, then by a command that fails | one run each | the recorder saw `labconstrictor-tools prune` started after the done file exists; a failing command does not fail the run |
+| HRET-05 | a tool that never returns, its worker killed after the person pressed Cancel (the grace period passes), so the task ends `CRASHED` with `cancel_requested` set | one run, Cancel, wait for the kill | the owned folders of the run (run record, results folder if one was made) get `.lc-done.json` with status `cancelled`, not `failed`; the host status says cancelled; the crash text is in the run record |
+| HRET-06 | the same tool, the worker killed from outside (or the tool crashes) with **no** Cancel pressed, so the task ends `CRASHED` with no `cancel_requested` | one run | the owned folders get `.lc-done.json` with status `failed` |
 | RET-10 | job folder with `report.txt` ("data") returned as `FileOut` | run to success, close the widget | reported path exists under `results/`, contents "data"; job folder gone |
 | RET-11 | failed or cancelled run | finish | temporary job folder removed; an owned folder, if any, has `failed` / `cancelled` |
 | RET-14 | undisplayable (over the display limit) `ImageOut` | run | file stays at a stable owned path, the path is shown |
@@ -303,7 +317,7 @@ All use a temporary `LC_HOME`; every survivor is checked **by file contents** (a
 1. **Snapshot at run start, on the UI thread, before any worker call.** The host builds one immutable record and carries it through export, worker call and result placement: `run_id` (uuid4), `app`, `tool`, parameter values, calibration states (2.3), and for every `Image` / `Labels` / `RegionOf` input the **source identity** and **frame** (1.1.2): the selected selection geometry copied by value (vertices, planes), not a live reference.
 2. **Source identity is an object, not a label.** Napari: the layer object (not its name). Fiji: the `ImagePlus` object and its window id (not its title). QuPath: the `ImageData` object plus project entry id. A chooser text such as `Current image: slide A` and the prefix test `startsWith("Current image")` are never identity.
 3. **Export reads the snapshot.** Changing the active image, layer selection or selected annotations after the click cannot change what is exported or which selection is used.
-4. **Placement checks identity first.** Results are placed only if the source is the same object, still open (Napari: still in `viewer.layers`; Fiji: window still open; QuPath: the same `ImageData` still accessible), and its exported shape is unchanged. If so the host applies the **current** transform of that same layer (so the result follows the layer), through 1.1.3. If not, `target_unavailable`: outputs are kept, nothing is drawn on another image, and the status says `run <run_id> on 'A': 'A' is no longer open; results are in <path>`.
+4. **Placement checks identity first.** Results are placed only if the source is the same object, still open (Napari: still in `viewer.layers`; Fiji: window still open; QuPath: the same `ImageData` still accessible), and its exported shape is unchanged. If so the host applies the **current** transform of that same layer (so the result follows the layer), through 1.1.3. If not, `target_unavailable`: outputs are kept, nothing is drawn on another image, and the status says `run <run_id> on 'A': 'A' is no longer open; results are in <path>`. A source that is **still open but has changed size** (its data shape is no longer the exported shape, on any axis) while the tool ran is the same refusal with its own sentence: the result is not drawn, its files are kept in the owned folder, the code is still `target_unavailable`, and the status says `run <run_id> on 'A': 'A' changed size while the tool ran; results are in <path>`. The two sentences are never swapped: "no longer open" is only for a source that is gone (RUN-04), "changed size while the tool ran" only for one that is still open (RUN-07). Both are templates in `conformance.json` (`messages.target_unavailable`, `messages.target_changed_size`).
 5. **Output metadata binds to the snapshot, not the widget.** The app and tool recorded on a result (layer metadata, window property, annotation property, run record) come from the snapshot; a tool or app change while running cannot rebind them. Every result drawn carries `run_id`.
 6. Fixtures:
 
@@ -315,6 +329,7 @@ All use a temporary `LC_HOME`; every survivor is checked **by file contents** (a
 | RUN-04 | start on A, close A | outputs kept, status names `run_id` and path, no exception |
 | RUN-05 | Napari: layer A is moved (translate changed) during the run | points follow A's transform at placement |
 | RUN-06 | two runs in a row on A then B | each result carries its own `run_id` and lands on its own source |
+| RUN-07 | start on A (delayed tool, returns points), A stays open but its data changes shape during the run (a different number of rows, columns or planes), then the tool returns | nothing drawn, on A or on any other image; the files are kept under an owned `results/` folder; the status is the `target_changed_size` sentence with the `run_id` and that path (not the "no longer open" one); no exception; the run record is written |
 
 ---
 
@@ -369,6 +384,8 @@ Decided by the maintainers:
 * Decided (user, 12 Oct): the axis order of a `rect` region is `[y, x]`, like the image arrays (1.5); protocol shapes stay `[x, y]` as GeoJSON requires. In the fixtures `server_wh` is `[width, height]` and `export_shape` is `[rows, columns]`.
 * Decided (user, 12 Oct): the accepted length-unit names are **a catalog in `conformance.json`, edited by data change** (2.1.4): a reasonable set (nm, um with micron(s), micrometer(s)/-metre(s) and the micro signs, mm, cm, m with their words, the Angstrom), matched as exact text for symbols and case-insensitively after trimming for words. This replaces the strict list of the first version of this decision. Everything not in the catalog is unknown calibration; the 72 / 96 dpi rule is unchanged.
 * Decided (user, 12 Oct): the unknown-calibration rule applies to `TimeIntervalOf` and `ZStepOf` as well as `PixelSizeOf` (2.3.1; SPEC_WAVE2 1.4).
+* Decided (user, 13 Oct): a source that is still open but **changed size** (shape) while the tool ran gets its own refusal: the result is not drawn, its files are kept, and the host status says `run <run_id> on '<source>': '<source>' changed size while the tool ran; results are in <path>`. It is distinct from the "no longer open" sentence of 4.4, which stays as it is. Data: `messages.target_changed_size`, fixture RUN-07 (4.4).
+* Decided (user, 13 Oct): a task that **crashes after the person pressed Cancel** is recorded with done status `cancelled` (the person asked for the stop; HOST_PARITY J08); a crash with no prior Cancel is `failed`. A task that ends `FAILED` is `failed` either way (3.2). Data: `retention.done_status`, fixtures HRET-05 and HRET-06 (3.7).
 
 Follow-up item: an explicit `labconstrictor-tools clean --legacy` command with a dry run (lists, then deletes only on confirmation). Not part of this wave.
 

@@ -104,7 +104,13 @@
   },
   "target_unavailable": {
    "template": "run {run_id} on '{source}': '{source}' is no longer open; results are in {path}",
-   "spec": "4.4"
+   "spec": "4.4",
+   "note": "decided text of 4.4: the source is gone; a source that is still open but changed size gets target_changed_size (RUN-07)"
+  },
+  "target_changed_size": {
+   "template": "run {run_id} on '{source}': '{source}' changed size while the tool ran; results are in {path}",
+   "spec": "4.4",
+   "note": "decided (user, 13 Oct): the source is still open but its data shape is not the exported shape; code is still target_unavailable; never used for a source that is gone (target_unavailable, RUN-04)"
   },
   "refusal_suffix": {
    "template": "(nothing was changed; files are in {path})",
@@ -1598,6 +1604,18 @@
     "name_characters": "A-Za-z0-9_.-",
     "result_folder_name": "<YYYYMMDDTHHMMSS>_<6 hex>_<app>_<tool>"
    },
+   "done_status": {
+    "spec": "3.2",
+    "status": "decided",
+    "note": "decided (user, 13 Oct): the status a host writes in .lc-done.json from how the task ended; a crash after the person pressed Cancel is cancelled (HOST_PARITY J08), a crash without Cancel is failed, a FAILED task is failed either way",
+    "by_task_status": {
+     "COMPLETE": "ok",
+     "CANCELED": "cancelled",
+     "FAILED": "failed",
+     "CRASHED": "failed"
+    },
+    "crashed_after_cancel": "cancelled"
+   },
    "prune_command": "labconstrictor-tools prune [--root results|runs|all] [--dry-run]",
    "fixtures_tools": [
     {
@@ -1966,6 +1984,26 @@
      "expect": "the recorder saw labconstrictor-tools prune started after the done file exists; a failing command does not fail the run"
     },
     {
+     "id": "HRET-05",
+     "scope": "host",
+     "setup": "a tool that never returns; the person presses Cancel; the worker is killed after the grace period, so the task ends CRASHED with cancel_requested set",
+     "action": "one run, Cancel, wait for the kill",
+     "expect": "the owned folders of the run (run record, results folder if one was made) get .lc-done.json with status cancelled, not failed; the host status says cancelled; the crash text is in the run record",
+     "task_status": "CRASHED",
+     "cancel_requested": true,
+     "done_status": "cancelled"
+    },
+    {
+     "id": "HRET-06",
+     "scope": "host",
+     "setup": "the same tool; its worker is killed from outside (or the tool crashes) with no Cancel pressed, so the task ends CRASHED with no cancel_requested",
+     "action": "one run",
+     "expect": "the owned folders of the run get .lc-done.json with status failed",
+     "task_status": "CRASHED",
+     "cancel_requested": false,
+     "done_status": "failed"
+    },
+    {
      "id": "RET-10",
      "scope": "host",
      "setup": "job folder with report.txt ('data') returned as FileOut",
@@ -2010,7 +2048,8 @@
     {
      "id": "RUN-04",
      "sequence": "start on A, close A",
-     "expect": "outputs kept, status names run_id and path, no exception"
+     "expect": "outputs kept, status names run_id and path, no exception",
+     "message": "target_unavailable"
     },
     {
      "id": "RUN-05",
@@ -2021,6 +2060,13 @@
      "id": "RUN-06",
      "sequence": "two runs in a row on A then B",
      "expect": "each result carries its own run_id and lands on its own source"
+    },
+    {
+     "id": "RUN-07",
+     "sequence": "start on A (delayed tool, returns points), A stays open but its data changes shape during the run (a different number of rows, columns or planes), then the tool returns",
+     "expect": "nothing drawn, on A or on any other image; the files are kept under an owned results/ folder; the status is the target_changed_size sentence with the run_id and that path (not the 'no longer open' one); no exception; the run record is written",
+     "message": "target_changed_size",
+     "code": "target_unavailable"
     }
    ]
   },
