@@ -8,6 +8,7 @@ Python from the inputs, never by calling the code under test.
 
 import contextlib
 import copy
+import inspect
 import io
 import json
 import os
@@ -243,6 +244,38 @@ class Schema(unittest.TestCase):
             "retention markers": (
                 lambda d: d["wrong_science"]["retention"]["markers"].pop("lock_file"),
                 "markers: owner_file",
+            ),
+            "done status map without a task status": (
+                lambda d: d["wrong_science"]["retention"]["done_status"]["by_task_status"].pop("CRASHED"),
+                "by_task_status: needs exactly the task statuses",
+            ),
+            "done status that a marker cannot hold": (
+                lambda d: d["wrong_science"]["retention"]["done_status"]["by_task_status"].update(
+                    CRASHED="aborted"
+                ),
+                "'aborted' is not a done status",
+            ),
+            "crash after cancel with an unknown status": (
+                lambda d: d["wrong_science"]["retention"]["done_status"].update(
+                    crashed_after_cancel="stopped"
+                ),
+                "crashed_after_cancel: must be one of",
+            ),
+            "no done status rule": (
+                lambda d: d["wrong_science"]["retention"].pop("done_status"),
+                "done_status: needs an object",
+            ),
+            "a host fixture without the task status": (
+                lambda d: d["wrong_science"]["retention"]["fixtures_hosts"][4].pop("cancel_requested"),
+                "HRET-05 needs task_status and a true/false cancel_requested",
+            ),
+            "a run fixture naming a message that does not exist": (
+                lambda d: d["wrong_science"]["run_identity"]["fixtures"][6].update(message="target_gone"),
+                "RUN-07 names the unknown message 'target_gone'",
+            ),
+            "a run fixture naming a code that does not exist": (
+                lambda d: d["wrong_science"]["run_identity"]["fixtures"][6].update(code="target_gone"),
+                "RUN-07 names the unknown code 'target_gone'",
             ),
             "number limit that does not exist": (
                 lambda d: d["wrong_science"]["number_limits"].update(limits=["nope"]),
@@ -829,6 +862,96 @@ class RetentionFixturesAgainstTheReference(unittest.TestCase):
                         self.assertEqual(names, sorted(q.name for q in made["owned"]["results"])[-2:])
                     else:
                         self.fail("the file has an expectation this test does not know: %r" % kind)
+
+
+class DecidedOn13Oct(unittest.TestCase):
+    """The two decisions of 13 Oct: a source that changed size has its own sentence (RUN-07), and a crash after Cancel is
+    `cancelled` (HRET-05, HRET-06). Expected sentences and statuses are written out here by hand."""
+
+    def test_the_changed_size_sentence_is_exact_and_its_own(self):
+        messages = DATA["messages"]
+        gone, resized = (
+            messages["target_unavailable"]["template"],
+            messages["target_changed_size"]["template"],
+        )
+        self.assertEqual(
+            resized.format(run_id="3f2a", source="A", path="/home/x/results/r1"),
+            "run 3f2a on 'A': 'A' changed size while the tool ran; results are in /home/x/results/r1",
+        )
+        self.assertEqual(  # the sentence of 4.4 is untouched
+            gone.format(run_id="3f2a", source="A", path="/home/x/results/r1"),
+            "run 3f2a on 'A': 'A' is no longer open; results are in /home/x/results/r1",
+        )
+
+        def names(template):
+            return {f for _, f, _, _ in string.Formatter().parse(template) if f}
+
+        self.assertEqual(names(resized), {"run_id", "source", "path"})
+        self.assertEqual(names(resized), names(gone))
+        self.assertNotIn("no longer open", resized)
+        self.assertNotIn("changed size", gone)
+
+    def test_RUN_04_and_RUN_07_name_their_own_sentence_and_the_one_code(self):
+        fixtures = {f["id"]: f for f in WRONG["run_identity"]["fixtures"]}
+        self.assertEqual(fixtures["RUN-04"]["message"], "target_unavailable")
+        self.assertEqual(fixtures["RUN-07"]["message"], "target_changed_size")
+        self.assertEqual(fixtures["RUN-07"]["code"], "target_unavailable")
+        self.assertIn("target_unavailable", DATA["host_internal_codes"])
+        self.assertNotIn("target_changed_size", DATA["host_internal_codes"])  # a sentence, not a second code
+        self.assertIn("changed", fixtures["RUN-07"]["sequence"] + fixtures["RUN-07"]["expect"])
+        self.assertNotIn("message", fixtures["RUN-05"])  # a moved layer is drawn, not refused
+
+    def test_the_done_status_map_agrees_with_the_code(self):
+        from labconstrictor_tools import cli, client, runs
+
+        rule = WRONG["retention"]["done_status"]
+        by_task = rule["by_task_status"]
+        self.assertEqual(rule["status"], "decided")
+        self.assertEqual(set(by_task), set(client._STATUS_BY_RESPONSE.values()))  # every way a task can end
+        for code_map in (runs._DONE_STATUS, cli._DONE_STATUS):  # "every other task status is failed"
+            for task_status, done in by_task.items():
+                self.assertEqual(code_map.get(task_status, "failed"), done, task_status)
+        self.assertEqual(
+            by_task, {"COMPLETE": "ok", "CANCELED": "cancelled", "FAILED": "failed", "CRASHED": "failed"}
+        )
+        self.assertEqual(rule["crashed_after_cancel"], "cancelled")
+        self.assertIn(rule["crashed_after_cancel"], WRONG["retention"]["markers"]["done_statuses"])
+        self.assertIn("cancel_requested", inspect.getsource(client.Task.__init__))  # the flag a host reads
+
+    def test_HRET_05_and_HRET_06_are_a_crash_with_and_without_cancel(self):
+        rule = WRONG["retention"]["done_status"]
+        fixtures = {f["id"]: f for f in WRONG["retention"]["fixtures_hosts"]}
+        for ident, cancelled, done in (("HRET-05", True, "cancelled"), ("HRET-06", False, "failed")):
+            with self.subTest(ident):
+                fixture = fixtures[ident]
+                self.assertEqual(fixture["scope"], "host")
+                self.assertEqual(
+                    (fixture["task_status"], fixture["cancel_requested"], fixture["done_status"]),
+                    ("CRASHED", cancelled, done),
+                )
+                self.assertEqual(conformance.prescribed_done_status(rule, "CRASHED", cancelled), done)
+        self.assertEqual(
+            conformance.prescribed_done_status(rule, "FAILED", True), "failed"
+        )  # only a crash is read so
+        self.assertEqual(conformance.prescribed_done_status(rule, "COMPLETE", True), "ok")
+        self.assertEqual(conformance.prescribed_done_status(rule, "CANCELED", True), "cancelled")
+
+    def test_the_spec_records_both_decisions(self):
+        text = spec()
+        flat = " ".join(text.split())
+        self.assertEqual(flat.count("Decided (user, 13 Oct)"), 2)
+        for sentence in (
+            "run <run_id> on 'A': 'A' changed size while the tool ran; results are in <path>",
+            "run <run_id> on 'A': 'A' is no longer open; results are in <path>",  # unchanged
+            "| RUN-07 |",
+            "| HRET-05 |",
+            "| HRET-06 |",
+            "| `CRASHED` (the worker died, or was killed after the grace period or on a timeout) | **yes** | `cancelled` |",
+            "| `CRASHED` | no | `failed` |",
+            "messages.target_changed_size",
+            "retention.done_status",
+        ):
+            self.assertIn(sentence, flat)
 
 
 class Documented(unittest.TestCase):

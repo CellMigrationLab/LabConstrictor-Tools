@@ -28,6 +28,12 @@ CONFORMANCE_VERSION = 1
 FILE_NAME = "conformance.json"
 STATUSES = ("decided", "default")  # a rule the maintainers confirmed, or the spec's working default
 SCOPES = ("tools", "host")  # who runs a fixture
+TASK_STATUSES = (
+    "COMPLETE",
+    "CANCELED",
+    "FAILED",
+    "CRASHED",
+)  # how a task can end (client.Task.status after it is done)
 _TOP = ("conformance", "limits", "host_internal_codes", "messages", "compat", "wrong_science")
 _SECTIONS = ("coordinate", "calibration", "retention", "run_identity", "async_lookups", "number_limits")
 _IDENTIFIER = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -90,6 +96,7 @@ def validate(data: Any) -> list[str]:
             problems.append("wrong_science: missing section %r" % name)
     if not problems:
         _wrong_science(wrong, data["limits"], problems)
+        _references(wrong, data["messages"], data["host_internal_codes"], problems)
     return problems
 
 
@@ -294,6 +301,7 @@ def _wrong_science(wrong: Mapping[str, Any], limits: Mapping[str, Any], problems
         problems.append(
             "wrong_science.retention.markers: owner_file, done_file, lock_file and done_statuses are required"
         )
+    _done_status(retention, problems)
     _ids(
         "wrong_science.run_identity.fixtures",
         wrong["run_identity"].get("fixtures"),
@@ -313,6 +321,64 @@ def _wrong_science(wrong: Mapping[str, Any], limits: Mapping[str, Any], problems
     for name in numbers.get("limits") or []:
         if name not in limits:
             problems.append("wrong_science.number_limits: limit %r is not in 'limits'" % (name,))
+
+
+def _done_status(retention: Mapping[str, Any], problems: list[str]) -> None:
+    """The mapping of a task's end to the done status (spec 3.2): every task status maps to a status the marker may hold."""
+    label = "wrong_science.retention.done_status"
+    rule = retention.get("done_status")
+    markers = retention.get("markers")
+    allowed = markers.get("done_statuses") if isinstance(markers, dict) else None
+    if not isinstance(rule, dict) or not isinstance(allowed, list):
+        problems.append("%s: needs an object (and retention.markers.done_statuses)" % label)
+        return
+    by_task = rule.get("by_task_status")
+    if not isinstance(by_task, dict) or set(by_task) != set(TASK_STATUSES):
+        problems.append(
+            "%s.by_task_status: needs exactly the task statuses %s" % (label, ", ".join(TASK_STATUSES))
+        )
+        by_task = {}
+    for task_status, done in by_task.items():
+        if done not in allowed:
+            problems.append("%s.by_task_status.%s: %r is not a done status" % (label, task_status, done))
+    if rule.get("crashed_after_cancel") not in allowed:
+        problems.append("%s.crashed_after_cancel: must be one of the done statuses" % label)
+    for fixture in retention.get("fixtures_hosts") or []:
+        if not isinstance(fixture, dict) or "done_status" not in fixture:
+            continue
+        ident = fixture.get("id")
+        if fixture.get("task_status") not in TASK_STATUSES or not isinstance(
+            fixture.get("cancel_requested"), bool
+        ):
+            problems.append(
+                "wrong_science.retention: %s needs task_status and a true/false cancel_requested" % ident
+            )
+
+
+def prescribed_done_status(rule: Mapping[str, Any], task_status: str, cancel_requested: bool) -> str | None:
+    """The done status the data prescribes for a task that ended as `task_status` (a crash after Cancel is its own entry)."""
+    if task_status == "CRASHED" and cancel_requested:
+        return rule.get("crashed_after_cancel")
+    return (rule.get("by_task_status") or {}).get(task_status)
+
+
+def _references(wrong: Mapping[str, Any], messages: Any, codes: Any, problems: list[str]) -> None:
+    """A fixture that names a message or a code names one that exists, so a renamed sentence cannot leave a fixture behind."""
+    for fixture in wrong["run_identity"].get("fixtures") or []:
+        if not isinstance(fixture, dict):
+            continue
+        if "message" in fixture and fixture["message"] not in (
+            messages if isinstance(messages, dict) else {}
+        ):
+            problems.append(
+                "wrong_science.run_identity: %s names the unknown message %r"
+                % (fixture.get("id"), fixture["message"])
+            )
+        if "code" in fixture and fixture["code"] not in (codes if isinstance(codes, list) else []):
+            problems.append(
+                "wrong_science.run_identity: %s names the unknown code %r"
+                % (fixture.get("id"), fixture["code"])
+            )
 
 
 def main(argv: list[str] | None = None) -> int:

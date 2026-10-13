@@ -765,6 +765,83 @@ BREAKS = [
             "test_conformance.CoordinateData.test_width_height_is_only_the_server_size_and_every_other_pair_is_y_first"
         ),
     ),
+    # ---- the decisions of 13 Oct (SPEC_WRONG_SCIENCE 3.2, 4.4; RUN-07, HRET-05, HRET-06): schema checks and data
+    Break(
+        "conformance: a done-status map that lacks a task status is valid",
+        "conformance.py",
+        "    if not isinstance(by_task, dict) or set(by_task) != set(TASK_STATUSES):\n",
+        "    if not isinstance(by_task, dict):\n",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a done status that a marker cannot hold is valid",
+        "conformance.py",
+        "        if done not in allowed:\n",
+        "        if False:\n",
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a RUN fixture may name a message that does not exist",
+        "conformance.py",
+        '        if "message" in fixture and fixture["message"] not in (\n',
+        '        if False and fixture["message"] not in (\n',
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: a RUN fixture may name a code that does not exist",
+        "conformance.py",
+        '        if "code" in fixture and fixture["code"] not in (',
+        '        if False and fixture["code"] not in (',
+        unittest_slice("test_conformance.Schema.test_each_kind_of_damage_is_named"),
+    ),
+    Break(
+        "conformance: the prescribed status of a crash after Cancel ignores the Cancel",
+        "conformance.py",
+        '    if task_status == "CRASHED" and cancel_requested:\n',
+        "    if False:\n",
+        unittest_slice(
+            "test_conformance.DecidedOn13Oct.test_HRET_05_and_HRET_06_are_a_crash_with_and_without_cancel"
+        ),
+    ),
+    Break(
+        "conformance data: a crash after Cancel is recorded as failed",
+        "conformance.json",
+        '"crashed_after_cancel": "cancelled"',
+        '"crashed_after_cancel": "failed"',
+        unittest_slice("test_conformance.DecidedOn13Oct.test_the_done_status_map_agrees_with_the_code"),
+    ),
+    Break(
+        "conformance data: a crash is recorded as ok",
+        "conformance.json",
+        '"CRASHED": "failed"\n    },\n    "crashed_after_cancel"',
+        '"CRASHED": "ok"\n    },\n    "crashed_after_cancel"',
+        unittest_slice("test_conformance.DecidedOn13Oct.test_the_done_status_map_agrees_with_the_code"),
+    ),
+    Break(
+        "conformance data: HRET-06 (a crash with no Cancel) expects cancelled",
+        "conformance.json",
+        '"cancel_requested": false,\n     "done_status": "failed"',
+        '"cancel_requested": false,\n     "done_status": "cancelled"',
+        unittest_slice(
+            "test_conformance.DecidedOn13Oct.test_HRET_05_and_HRET_06_are_a_crash_with_and_without_cancel"
+        ),
+    ),
+    Break(
+        "conformance data: the changed-size sentence says the source is no longer open",
+        "conformance.json",
+        "'{source}' changed size while the tool ran; results are in {path}\"",
+        "'{source}' is no longer open; results are in {path}\"",
+        unittest_slice("test_conformance.DecidedOn13Oct.test_the_changed_size_sentence_is_exact_and_its_own"),
+    ),
+    Break(
+        "conformance data: RUN-07 names the sentence of a source that is gone",
+        "conformance.json",
+        '"message": "target_changed_size",',
+        '"message": "target_unavailable",',
+        unittest_slice(
+            "test_conformance.DecidedOn13Oct.test_RUN_04_and_RUN_07_name_their_own_sentence_and_the_one_code"
+        ),
+    ),
     # ---- the notebook form's refusal of an integer beyond 2**53 - 1 (SPEC_WRONG_SCIENCE 6.2, NUM-02, NUM-03)
     Break(
         "notebook form: an integer above the limit gets the old sentence, not the template of 6.2",
