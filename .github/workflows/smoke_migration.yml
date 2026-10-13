@@ -20,7 +20,7 @@ on:
       template_ref:
         description: "Branch or tag of the template with the migration"
         required: false
-        default: claude/migration-0.1.16
+        default: main
       app_repo:
         description: "Repository of the LabConstrictor app"
         required: false
@@ -54,7 +54,7 @@ on:
 
 env:
   TEMPLATE_REPO: ${{ inputs.template_repo || 'CellMigrationLab/LabConstrictor' }}
-  TEMPLATE_REF: ${{ inputs.template_ref || 'claude/migration-0.1.16' }}
+  TEMPLATE_REF: ${{ inputs.template_ref || 'main' }}
   APP_REPO: ${{ inputs.app_repo || 'CellMigrationLab/NucleiSky' }}
   APP_REF: ${{ inputs.app_ref || 'claude/merge-bridge-test' }}
   OLD_TEMPLATE_REF: ${{ inputs.old_template_ref || '900d0cac40ad503642e6b0d94b6e5337f38117d8' }}
