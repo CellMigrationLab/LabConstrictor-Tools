@@ -1,4 +1,4 @@
-# Smoke test of the template 0.1.16 migration (LabConstrictor PR "Template 0.1.16"): an app at an OLD template version is built and
+# Smoke test of the template 0.1.16 / 0.1.17 migration (LabConstrictor PR "Template 0.1.16"; 0.1.17: Tools installed before the import check, input top_level_import): an app at an OLD template version is built and
 # installed (no tools bridge), the migration of the template branch is applied to the app repository exactly as the template sync
 # workflow does (sync.py), a NEW installer is built from the migrated repository and the old install is updated to it (in place with -u on
 # Linux; uninstall, then install on macOS and Windows, which refuse an install over an existing one), then the
@@ -49,6 +49,10 @@ on:
         description: "Comma separated packages dropped from the app's requirements before building (keeps the test light)"
         required: false
         default: "torch,cellpose,instanseg-torch"
+      top_level_import:
+        description: "true: after the migration, make the package of the NEW app import labconstrictor_tools at module level (the case of template 0.1.17)"
+        required: false
+        default: "false"
   push:
     branches: [claude/smoke-migration]
 
@@ -62,6 +66,7 @@ env:
   APP_NAME: ${{ inputs.app_name || 'NucleiSky' }}
   TOOLS_MODULE: ${{ inputs.tools_module || 'nucleisky_lc_tools' }}
   TRIM: ${{ inputs.trim_requirements || 'torch,cellpose,instanseg-torch' }}
+  TOP_LEVEL_IMPORT: ${{ inputs.top_level_import || 'false' }}
 
 jobs:
   migrate:
@@ -93,7 +98,7 @@ jobs:
           TO="$(sed -n 's/^template_version: *//p' template/.template_sync/manifest.yaml | head -1 | tr -d '\r')"
           echo "FROM=$FROM" >> "$GITHUB_ENV"; echo "TO=$TO" >> "$GITHUB_ENV"
           echo "app template version $FROM, template under test $TO"
-          test "$TO" = "0.1.16" || { echo "FAIL: the template branch is not at 0.1.16"; exit 1; }
+          case "$TO" in 0.1.16|0.1.17) ;; *) echo "FAIL: the template branch is not at 0.1.16 or 0.1.17"; exit 1;; esac
 
       - name: Apps that already carry the hooks are left alone (the app as it is)
         run: |
@@ -102,8 +107,16 @@ jobs:
           if grep -q labconstrictor_tools app_asis/app/bash_bat_scripts/post_install.sh; then
             cp -r app_asis/app/bash_bat_scripts /tmp/asis_scripts
             python3 app_asis/.template_sync/sync.py --from-version 0.1.15 --to-version "$TO" --repository-root app_asis | tee asis.log
-            diff -r /tmp/asis_scripts app_asis/app/bash_bat_scripts && echo "scripts of the app with hooks: unchanged"
-            grep -c "already has the Tools bridge hook" asis.log
+            if [ "$TO" = "0.1.16" ]; then
+              diff -r /tmp/asis_scripts app_asis/app/bash_bat_scripts && echo "scripts of the app with hooks: unchanged"
+            else
+              # 0.1.17 moves the Tools install in front of the import check: the scripts change, but only that
+              bash -n app_asis/app/bash_bat_scripts/post_install.sh
+              grep -q "LC_TOOLS_READY" app_asis/app/bash_bat_scripts/post_install.sh || { echo "FAIL: 0.1.17 did not move the Tools install"; exit 1; }
+              python3 app_asis/.template_sync/sync.py --from-version 0.1.16 --to-version "$TO" --repository-root app_asis | tee asis2.log
+              grep -q "no repository changes were required" asis2.log || { echo "FAIL: not idempotent on the app with hooks"; exit 1; }
+            fi
+            grep -c "already has the Tools bridge hook" asis.log || true
           else
             echo "NOTE: $APP_REF has no hooks in post_install.sh; this check does not apply"
           fi
@@ -149,12 +162,25 @@ jobs:
 
       - name: Running the migration a second time changes nothing
         run: |
-          python3 app/.template_sync/sync.py --from-version 0.1.15 --to-version "$TO" --repository-root app 2>&1 | tee second.log
+          # The whole chain again, from 0.1.15 (the chain of 0.1.16 writes the 0.1.16 text of the Tools guide and 0.1.17 refreshes it, so the
+          # log of a chain starting at 0.1.15 always reports a change; the tree must still end up identical). Then only the last migration:
+          # it must report that nothing was required.
+          python3 app/.template_sync/sync.py --from-version 0.1.15 --to-version "$TO" --repository-root app 2>&1 | tee second_chain.log
+          if [ "$TO" = "0.1.16" ]; then LAST=0.1.15; else LAST=0.1.16; fi
+          python3 app/.template_sync/sync.py --from-version "$LAST" --to-version "$TO" --repository-root app 2>&1 | tee second.log
           grep -q "no repository changes were required" second.log || { echo "FAIL: the second run changed something"; exit 1; }
           git -C app add -A
           git -C app diff --cached > second.diff
           cmp first.diff second.diff && echo "second run: identical tree"
-          tar --exclude=.git -czf app_new.tgz -C app .
+      - name: Make the package of the NEW app import labconstrictor_tools at module level (top_level_import)
+        if: env.TOP_LEVEL_IMPORT == 'true'
+        run: |
+          # The case template 0.1.17 fixes: an app package that needs labconstrictor_tools to be importable at install time.
+          # Only the NEW app is changed (the OLD installer has no Tools in its install, so its import check would fail).
+          printf '\nimport labconstrictor_tools  # smoke test: top-level import of Tools\n' >> "app/src/$PYTHON_PACKAGE/__init__.py"
+          tail -3 "app/src/$PYTHON_PACKAGE/__init__.py"
+      - name: Pack the migrated app
+        run: tar --exclude=.git -czf app_new.tgz -C app .
 
       - uses: actions/upload-artifact@v4
         with:
@@ -170,6 +196,8 @@ jobs:
           path: |
             migrate.log
             second.log
+            second_chain.log
+            asis2.log
             first.diff
             asis.log
           if-no-files-found: ignore
