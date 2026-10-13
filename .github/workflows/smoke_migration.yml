@@ -1,4 +1,4 @@
-# Smoke test of the template 0.1.16 / 0.1.17 migration (LabConstrictor PR "Template 0.1.16"; 0.1.17: Tools installed before the import check, input top_level_import): an app at an OLD template version is built and
+# Smoke test of the template 0.1.16 / 0.1.17 / 0.1.18 migration (LabConstrictor PR "Template 0.1.16"; 0.1.17: Tools installed before the import check, input top_level_import; 0.1.18: new Tools pin, input tools_spec): an app at an OLD template version is built and
 # installed (no tools bridge), the migration of the template branch is applied to the app repository exactly as the template sync
 # workflow does (sync.py), a NEW installer is built from the migrated repository and the old install is updated to it (in place with -u on
 # Linux; uninstall, then install on macOS and Windows, which refuse an install over an existing one), then the
@@ -53,6 +53,10 @@ on:
         description: "true: after the migration, make the package of the NEW app import labconstrictor_tools at module level (the case of template 0.1.17)"
         required: false
         default: "false"
+      tools_spec:
+        description: "Empty: the installers install Tools from their pinned tag (LC_TOOLS_PIN). Otherwise this value is passed to the installers as LC_TOOLS_SPEC (a zip URL, wheel or git URL), for a pin whose tag does not exist yet"
+        required: false
+        default: ""
   push:
     branches: [claude/smoke-migration]
 
@@ -67,6 +71,8 @@ env:
   TOOLS_MODULE: ${{ inputs.tools_module || 'nucleisky_lc_tools' }}
   TRIM: ${{ inputs.trim_requirements || 'torch,cellpose,instanseg-torch' }}
   TOP_LEVEL_IMPORT: ${{ inputs.top_level_import || 'false' }}
+  # read by post_install.sh / .bat of the installers (an empty value means: use the pinned tag)
+  LC_TOOLS_SPEC: ${{ inputs.tools_spec || '' }}
 
 jobs:
   migrate:
@@ -98,7 +104,7 @@ jobs:
           TO="$(sed -n 's/^template_version: *//p' template/.template_sync/manifest.yaml | head -1 | tr -d '\r')"
           echo "FROM=$FROM" >> "$GITHUB_ENV"; echo "TO=$TO" >> "$GITHUB_ENV"
           echo "app template version $FROM, template under test $TO"
-          case "$TO" in 0.1.16|0.1.17) ;; *) echo "FAIL: the template branch is not at 0.1.16 or 0.1.17"; exit 1;; esac
+          case "$TO" in 0.1.16|0.1.17|0.1.18) ;; *) echo "FAIL: the template branch is not at 0.1.16, 0.1.17 or 0.1.18"; exit 1;; esac
 
       - name: Apps that already carry the hooks are left alone (the app as it is)
         run: |
@@ -110,10 +116,11 @@ jobs:
             if [ "$TO" = "0.1.16" ]; then
               diff -r /tmp/asis_scripts app_asis/app/bash_bat_scripts && echo "scripts of the app with hooks: unchanged"
             else
-              # 0.1.17 moves the Tools install in front of the import check: the scripts change, but only that
+              # 0.1.17 moves the Tools install in front of the import check, 0.1.18 moves the pin: the scripts change, but only that
               bash -n app_asis/app/bash_bat_scripts/post_install.sh
               grep -q "LC_TOOLS_READY" app_asis/app/bash_bat_scripts/post_install.sh || { echo "FAIL: 0.1.17 did not move the Tools install"; exit 1; }
-              python3 app_asis/.template_sync/sync.py --from-version 0.1.16 --to-version "$TO" --repository-root app_asis | tee asis2.log
+              if [ "$TO" = "0.1.17" ]; then ASIS_LAST=0.1.16; else ASIS_LAST=0.1.17; fi
+              python3 app_asis/.template_sync/sync.py --from-version "$ASIS_LAST" --to-version "$TO" --repository-root app_asis | tee asis2.log
               grep -q "no repository changes were required" asis2.log || { echo "FAIL: not idempotent on the app with hooks"; exit 1; }
             fi
             grep -c "already has the Tools bridge hook" asis.log || true
@@ -148,6 +155,12 @@ jobs:
             grep -q labconstrictor_tools "app/app/bash_bat_scripts/$f" || { echo "FAIL: $f has no hook after the migration"; exit 1; }
           done
           bash -n app/app/bash_bat_scripts/post_install.sh
+          if [ "$TO" = "0.1.18" ]; then
+            # 0.1.18: the Tools pin of the template (an app with its own pin keeps it: not the case for this test app)
+            grep -q 'LC_TOOLS_PIN="v0.3.0-alpha.1"' app/app/bash_bat_scripts/post_install.sh || { echo "FAIL: the pin of post_install.sh was not moved"; exit 1; }
+            grep -q 'SET "LC_TOOLS_PIN=v0.3.0-alpha.1"' app/app/bash_bat_scripts/post_install.bat || { echo "FAIL: the pin of post_install.bat was not moved"; exit 1; }
+            ! grep -q 'v0.2.0-rc.1' app/app/bash_bat_scripts/post_install.sh app/app/bash_bat_scripts/post_install.bat || { echo "FAIL: the old pin is still there"; exit 1; }
+          fi
           bash -n app/app/bash_bat_scripts/pre_uninstall.sh
           bash -n app/app/bash_bat_scripts/uninstall.sh
           git -C app add -A
@@ -166,7 +179,7 @@ jobs:
           # log of a chain starting at 0.1.15 always reports a change; the tree must still end up identical). Then only the last migration:
           # it must report that nothing was required.
           python3 app/.template_sync/sync.py --from-version 0.1.15 --to-version "$TO" --repository-root app 2>&1 | tee second_chain.log
-          if [ "$TO" = "0.1.16" ]; then LAST=0.1.15; else LAST=0.1.16; fi
+          case "$TO" in 0.1.16) LAST=0.1.15;; 0.1.17) LAST=0.1.16;; *) LAST=0.1.17;; esac
           python3 app/.template_sync/sync.py --from-version "$LAST" --to-version "$TO" --repository-root app 2>&1 | tee second.log
           grep -q "no repository changes were required" second.log || { echo "FAIL: the second run changed something"; exit 1; }
           git -C app add -A
