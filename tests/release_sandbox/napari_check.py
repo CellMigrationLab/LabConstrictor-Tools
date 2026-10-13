@@ -5,17 +5,21 @@ import json
 import os
 import sys
 import time
+from typing import TYPE_CHECKING
 
 import napari
 import numpy as np
 from qtpy.QtWidgets import QApplication
+
+if TYPE_CHECKING:
+    from typing import Any
 
 APP = os.environ["LC_APP"]
 EXTRAS = os.environ.get("LC_EXTRAS", "") == "playground"
 bad = []
 
 
-def rec(cid, ok, detail=""):
+def rec(cid: str, ok: bool, detail: object = "") -> None:
     print(
         "CHECK %s %s %s" % (cid, "PASS" if ok else "FAIL", str(detail).replace("\n", " | ")[:500]), flush=True
     )
@@ -28,21 +32,21 @@ qa = QApplication.instance()
 _, w = v.window.add_plugin_dock_widget("napari-labconstrictor", "LabConstrictor tools")
 
 
-def pump(sec=0.3):
+def pump(sec: float = 0.3) -> None:
     end = time.time() + sec
     while time.time() < end:
         qa.processEvents()
         time.sleep(0.02)
 
 
-def pick(app, label):
+def pick(app: str, label: str) -> None:
     w.app_box.value = app
     pump(0.2)
     w.tool_box.value = label
     pump(0.4)
 
 
-def wait(timeout=180):
+def wait(timeout: float = 180) -> "Any":
     end = time.time() + timeout
     while (w.last_task is None or w.task is not w.last_task) and time.time() < end:
         qa.processEvents()
@@ -51,7 +55,7 @@ def wait(timeout=180):
     return w.last_task
 
 
-def run():
+def run() -> "Any":
     w.last_task = None
     w.gui()
     return wait()

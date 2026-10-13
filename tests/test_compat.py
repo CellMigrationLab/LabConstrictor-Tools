@@ -2,6 +2,7 @@
 
 import re
 import unittest
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import ROOT
@@ -9,11 +10,14 @@ from _paths import ROOT
 from labconstrictor_tools import compat, features, introspection
 from labconstrictor_tools.compat import OK, REFUSE, WARN, check_schema, parse_version
 
+if TYPE_CHECKING:
+    from typing import Any
+
 NEED = ["reserved_inputs_v1"]
 MIN = "0.2.0rc1"
 
 
-def schema(**extra):
+def schema(**extra: "Any") -> "dict[str, Any]":
     return {"protocol": 1, "tools": [], **extra}
 
 
@@ -35,7 +39,7 @@ CASES = [
 
 
 class Rules(unittest.TestCase):
-    def test_every_rule(self):
+    def test_every_rule(self) -> None:
         for name, sch, low, need, soft, status, words in CASES:
             with self.subTest(name):
                 result = check_schema(sch, low, need, soft)
@@ -45,7 +49,7 @@ class Rules(unittest.TestCase):
                     self.assertEqual(result.reason.count(". "), 0, "one sentence: " + result.reason)
                     self.assertTrue(result.reason.strip())
 
-    def test_version_order(self):
+    def test_version_order(self) -> None:
         order = ["0.2.0a1", "0.2.0b1", "0.2.0rc1", "0.2.0", "0.2.1", "0.10.0", "1.0.0"]
         keys = [parse_version(v) for v in order]
         self.assertEqual(keys, sorted(keys))
@@ -54,15 +58,15 @@ class Rules(unittest.TestCase):
         for bad in ("", "x", None, 3, "0.2.0.1"):
             self.assertIsNone(parse_version(bad), bad)
 
-    def test_a_host_that_passes_nonsense_limits_is_told(self):
+    def test_a_host_that_passes_nonsense_limits_is_told(self) -> None:
         with self.assertRaises(ValueError):
             check_schema(schema(), "not-a-version")
 
-    def test_the_schema_this_tools_writes_passes_its_own_minimum(self):
+    def test_the_schema_this_tools_writes_passes_its_own_minimum(self) -> None:
         written = introspection.describe_tools("labconstrictor_tools.examples.synthetic")
         self.assertEqual(check_schema(written, MIN, sorted(features.FEATURES)).status, OK)
 
-    def test_the_rules_in_protocol_md_name_every_status_and_the_helper(self):
+    def test_the_rules_in_protocol_md_name_every_status_and_the_helper(self) -> None:
         text = (ROOT / "docs" / "PROTOCOL.md").read_text(encoding="utf-8")
         section = text.split("### Compatibility rules for hosts", 1)[1].split("\n## ", 1)[0]
         for needle in ("`refuse`", "`warn`", "`ok`", "check_schema", "unknown/old", "0.2.0rc1"):

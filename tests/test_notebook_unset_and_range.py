@@ -2,12 +2,15 @@
 
 import re
 import unittest
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import _paths  # noqa: F401  (must come first)
 
 from labconstrictor_tools import Max, Min, Scalars, conformance, tool
 from labconstrictor_tools.notebook import MAX_FORM_INTEGER, ToolForm
+
+if TYPE_CHECKING:
+    from typing import Any
 
 try:
     import ipywidgets  # noqa: F401
@@ -40,19 +43,19 @@ def counted(whole: int = 0) -> Scalars:
 
 @unittest.skipUnless(HAVE_WIDGETS, "ipywidgets not installed")
 class UnsetAndRange(unittest.TestCase):
-    def received(self, form):
+    def received(self, form: "Any") -> "Any":
         results = form.run()
         self.assertIsNotNone(results, form.status.value)
         return results[0]["values"]
 
-    def test_optional_parameters_start_unset_and_the_tool_receives_none(self):
+    def test_optional_parameters_start_unset_and_the_tool_receives_none(self) -> None:
         form = ToolForm(optional_things)
         self.assertEqual(set(form.set_toggles), {"n", "x", "s", "flag"})
         self.assertTrue(all(form.controls[k].disabled for k in form.set_toggles))
         got = self.received(form)
         self.assertEqual([got[k] for k in ("n", "x", "s", "flag")], [None] * 4)
 
-    def test_ticking_set_sends_the_value_even_zero_empty_or_false(self):
+    def test_ticking_set_sends_the_value_even_zero_empty_or_false(self) -> None:
         form = ToolForm(optional_things)
         for name in form.set_toggles:
             form.set_toggles[name].value = True
@@ -63,17 +66,17 @@ class UnsetAndRange(unittest.TestCase):
         self.assertTrue(form.controls["n"].disabled)
         self.assertIsNone(self.received(form)["n"])
 
-    def test_required_parameters_have_no_set_box(self):
+    def test_required_parameters_have_no_set_box(self) -> None:
         form = ToolForm(optional_things)
         self.assertNotIn("big", form.set_toggles)
         self.assertFalse(form.controls["big"].disabled)
 
-    def test_numbers_beyond_a_billion_are_kept(self):
+    def test_numbers_beyond_a_billion_are_kept(self) -> None:
         form = ToolForm(optional_things)
         form.controls["big"].value = 3 * 10**9
         self.assertEqual(self.received(form)["big"], 3 * 10**9)
 
-    def test_an_integer_the_form_cannot_hold_exactly_is_refused_with_a_message(self):
+    def test_an_integer_the_form_cannot_hold_exactly_is_refused_with_a_message(self) -> None:
         form = ToolForm(optional_things)
         form.controls["big"].value = MAX_FORM_INTEGER + 1
         self.assertIsNone(form.run())
@@ -82,7 +85,7 @@ class UnsetAndRange(unittest.TestCase):
         form.controls["big"].value = MAX_FORM_INTEGER
         self.assertEqual(self.received(form)["big"], MAX_FORM_INTEGER)
 
-    def test_NUM_02_and_NUM_03_use_the_sentences_of_the_spec_and_start_no_run(self):
+    def test_NUM_02_and_NUM_03_use_the_sentences_of_the_spec_and_start_no_run(self) -> None:
         # the vectors and the templates come from conformance.json, the sentences are not written out here
         data = conformance.load()
         cases = {c["id"]: c for c in data["wrong_science"]["number_limits"]["cases"]}
@@ -113,7 +116,7 @@ class UnsetAndRange(unittest.TestCase):
                     form.values()
                 self.assertEqual(caught.exception.message, expected)  # type: ignore[attr-defined]
 
-    def test_NUM_01_the_largest_exact_integer_is_sent_unchanged(self):
+    def test_NUM_01_the_largest_exact_integer_is_sent_unchanged(self) -> None:
         case = {c["id"]: c for c in conformance.load()["wrong_science"]["number_limits"]["cases"]}["NUM-01"]
         form = ToolForm(counted)
         RUNS.clear()
@@ -121,7 +124,7 @@ class UnsetAndRange(unittest.TestCase):
         self.assertIsNotNone(form.run(), form.status.value)
         self.assertEqual(RUNS, [9007199254740991])
 
-    def test_a_declared_min_max_pair_is_still_enforced_by_the_box(self):
+    def test_a_declared_min_max_pair_is_still_enforced_by_the_box(self) -> None:
         form = ToolForm(optional_things)
         self.assertEqual(type(form.controls["bounded"]).__name__, "BoundedIntText")
         form.controls["bounded"].value = 99

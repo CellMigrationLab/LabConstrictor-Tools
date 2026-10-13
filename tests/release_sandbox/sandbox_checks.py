@@ -15,18 +15,22 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 OUT = []
 
 
-def rec(cid, ok, detail=""):
+def rec(cid: str, ok: bool, detail: object = "") -> None:
     print(
         "CHECK %s %s %s" % (cid, "PASS" if ok else "FAIL", str(detail).replace("\n", " | ")[:600]), flush=True
     )
     OUT.append((cid, ok))
 
 
-def lc(*args, timeout=900):
+def lc(*args: str, timeout: float = 900) -> tuple[int, str, str]:
     p = subprocess.run(
         [sys.executable, "-m", "labconstrictor_tools", *args],
         capture_output=True,
@@ -38,18 +42,18 @@ def lc(*args, timeout=900):
     return p.returncode, p.stdout, p.stderr
 
 
-def home():
+def home() -> Path:
     return Path(os.environ.get("LC_HOME") or (Path.home() / ".labconstrictor"))
 
 
-def schema_tools(app):
+def schema_tools(app: str) -> "list[dict[str, Any]]":
     f = home() / "apps" / (app + ".schema.json")
     if not f.exists():
         return []
     return [t for t in json.loads(f.read_text(encoding="utf-8")).get("tools", [])]
 
 
-def basic(a):
+def basic(a: argparse.Namespace) -> None:
     prefix = Path(a.prefix)
     log = prefix / "menuinst_debug.log"
     txt = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
@@ -104,11 +108,11 @@ def basic(a):
     rec("4n_notebooks_installed", bool(nb), [str(p.relative_to(prefix)) for p in nb][:5])
 
 
-def load_cases(path):
+def load_cases(path: str | Path) -> "list[dict[str, Any]]":
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
-def cli_params(case, base):
+def cli_params(case: "dict[str, Any]", base: Path) -> list[str]:
     out = []
     for k, v in (case.get("inputs") or {}).items():
         if isinstance(v, bool):
@@ -119,7 +123,7 @@ def cli_params(case, base):
     return out
 
 
-def cases(a):
+def cases(a: argparse.Namespace) -> None:
     base = Path(a.cases).parent
     rc, out, err = lc("test", "--module", a.module, "--cases", str(a.cases), "--json", timeout=1800)
     try:
@@ -210,7 +214,7 @@ def cases(a):
         rec("4n_notebook_form", False, "%s: %s" % (type(e).__name__, e))
 
 
-def retention(a):
+def retention(a: argparse.Namespace) -> None:
     base = Path(a.cases).parent
     h = home()
     (h / "results").mkdir(parents=True, exist_ok=True)
@@ -295,7 +299,7 @@ def retention(a):
     )
 
 
-def main():
+def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("section")
     ap.add_argument("--app", required=True)

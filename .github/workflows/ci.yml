@@ -25,7 +25,8 @@ jobs:
       - run: pip install black==26.10.0 ruff==0.16.10 mypy==1.20.2 vulture==2.16   # mypy 1.20.2 was the newest that installed when this job was added
       - run: black --check .
       - run: ruff check .
-      - run: mypy labconstrictor_tools
+      - run: python scripts/check_annotations.py   # every function in the package, tests and scripts is fully annotated (docs/TESTING.md, "Annotations")
+      - run: mypy   # the package, tests, scripts and fixtures generator: paths and flags are in pyproject.toml [tool.mypy]
       - run: vulture labconstrictor_tools tests/vulture_whitelist.py --min-confidence 80
   test:
     needs: lint   # saves 4-6 runners when lint fails; lint is ~30 s

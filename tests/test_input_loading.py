@@ -16,6 +16,7 @@ import tempfile
 import unittest
 from multiprocessing import shared_memory
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
@@ -26,11 +27,16 @@ from labconstrictor_tools import convert
 from labconstrictor_tools.client import WorkerProcess
 from labconstrictor_tools.types import ToolError
 
+if TYPE_CHECKING:
+    from typing import Any
+
+    from labconstrictor_tools.client import Task
+
 INPUT_APP = Path(__file__).resolve().parent / "input_app"
 IMAGE_PARAM = {"name": "n", "label": "N", "type": "image", "required": True}
 
 
-def is_mapped(array):
+def is_mapped(array: object) -> bool:
     base = array
     while base is not None:
         if isinstance(base, mmap.mmap):
@@ -39,11 +45,11 @@ def is_mapped(array):
     return False
 
 
-def digest(path):
+def digest(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def write_with_a_gap(path, stack):
+def write_with_a_gap(path: str | Path, stack: np.ndarray) -> None:
     """A classic TIFF stack in one series whose second page's pixels were moved to the end of the file: the pages are no longer
     one block of bytes. (tifffile never writes this itself, so the offset of the page is patched in the file.)
     """
@@ -61,12 +67,14 @@ def write_with_a_gap(path, stack):
     Path(path).write_bytes(moved)
 
 
-def non_symmetric(shape, dtype="uint16"):
+def non_symmetric(shape: tuple[int, ...], dtype: str = "uint16") -> np.ndarray:
     return (np.arange(int(np.prod(shape))).reshape(shape) * 3 % 251).astype(dtype)
 
 
 class SharedMemoryOrder(unittest.TestCase):
-    def descriptor(self, block, array, **changes):
+    def descriptor(
+        self, block: shared_memory.SharedMemory, array: np.ndarray, **changes: "Any"
+    ) -> "dict[str, Any]":
         return {
             "appose_type": "ndarray",
             "shm": {"name": block.name},
@@ -75,14 +83,14 @@ class SharedMemoryOrder(unittest.TestCase):
             **changes,
         }
 
-    def block_with(self, array, order):
+    def block_with(self, array: np.ndarray, order: str) -> shared_memory.SharedMemory:
         block = shared_memory.SharedMemory(create=True, size=array.nbytes)
         self.addCleanup(block.unlink)
         self.addCleanup(block.close)
         np.ndarray(array.shape, dtype=array.dtype, buffer=block.buf, order=order)[...] = array
         return block
 
-    def test_f_order_is_read_with_the_right_strides_not_transposed(self):
+    def test_f_order_is_read_with_the_right_strides_not_transposed(self) -> None:
         for shape in ((3, 5), (4, 2, 6)):
             array = non_symmetric(shape)
             block = self.block_with(array, "F")
@@ -93,7 +101,7 @@ class SharedMemoryOrder(unittest.TestCase):
                     np.testing.assert_array_equal(got, array)
                     self.assertTrue(got.flags.c_contiguous)  # the tool always gets a C-ordered array
 
-    def test_c_order_and_no_order_are_the_same_row_major_read(self):
+    def test_c_order_and_no_order_are_the_same_row_major_read(self) -> None:
         array = non_symmetric((3, 5))
         block = self.block_with(array, "C")
         for changes in ({}, {"order": "C"}, {"order": "C_ORDER"}):
@@ -101,7 +109,7 @@ class SharedMemoryOrder(unittest.TestCase):
                 got = convert._load_one(IMAGE_PARAM, self.descriptor(block, array, **changes))
                 np.testing.assert_array_equal(got, array)
 
-    def test_any_other_order_is_refused_with_a_message(self):
+    def test_any_other_order_is_refused_with_a_message(self) -> None:
         array = non_symmetric((3, 5))
         block = self.block_with(array, "C")
         for bad in ("A", "f", "c", "", "K", "FORTRAN", None, 1, ["F"], {"F": 1}):
@@ -112,7 +120,7 @@ class SharedMemoryOrder(unittest.TestCase):
                 self.assertIn("order", caught.exception.message)
                 self.assertIn("'C' or 'F'", caught.exception.message)
 
-    def test_through_a_real_worker(self):
+    def test_through_a_real_worker(self) -> None:
         array = non_symmetric((3, 5))
         f_block = self.block_with(array, "F")
         worker = WorkerProcess(
@@ -136,29 +144,29 @@ class SharedMemoryOrder(unittest.TestCase):
 
 
 class MappedTiff(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.folder = Path(tempfile.mkdtemp(prefix="lcmap_"))
         patch = mock.patch.object(convert, "MEMMAP_MIN_BYTES", 0)
         patch.start()
         self.addCleanup(patch.stop)
         self.addCleanup(self.cleanup)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         import gc
         import shutil
 
         gc.collect()  # a mapping would keep the files locked on Windows
         shutil.rmtree(self.folder, ignore_errors=True)
 
-    def write(self, name, data, **options):
+    def write(self, name: str, data: np.ndarray, **options: "Any") -> Path:
         path = self.folder / name
         tifffile.imwrite(path, data, **options)
         return path
 
-    def read(self, path):
+    def read(self, path: str | Path) -> np.ndarray:
         return convert._read_image(str(path), "N")
 
-    def assertSameAsImread(self, path, mapped):
+    def assertSameAsImread(self, path: str | Path, mapped: bool) -> np.ndarray:
         got = self.read(path)
         expected = tifffile.imread(path)
         self.assertEqual(is_mapped(got), mapped, "mapped" if not mapped else "not mapped")
@@ -168,7 +176,7 @@ class MappedTiff(unittest.TestCase):
         self.assertIs(type(got), np.ndarray)
         return got
 
-    def test_the_simple_cases_are_mapped_and_equal_to_imread(self):
+    def test_the_simple_cases_are_mapped_and_equal_to_imread(self) -> None:
         cases = {
             "u8": (non_symmetric((7, 9), "uint8"), {}),
             "u16": (non_symmetric((7, 9)), {}),
@@ -186,7 +194,7 @@ class MappedTiff(unittest.TestCase):
             with self.subTest(name):
                 self.assertSameAsImread(self.write(name + ".tif", data, **options), mapped=True)
 
-    def test_everything_else_is_read_the_plain_way_with_the_same_result(self):
+    def test_everything_else_is_read_the_plain_way_with_the_same_result(self) -> None:
         data = non_symmetric((16, 32))
         stack = non_symmetric((3, 16, 32))
         multi = self.folder / "multi.tif"
@@ -216,19 +224,19 @@ class MappedTiff(unittest.TestCase):
             with self.subTest(name):
                 self.assertSameAsImread(path, mapped=False)
 
-    def test_a_small_file_is_not_mapped(self):
+    def test_a_small_file_is_not_mapped(self) -> None:
         path = self.write("small.tif", non_symmetric((7, 9)))
         with mock.patch.object(convert, "MEMMAP_MIN_BYTES", 1 << 20):
             self.assertFalse(is_mapped(self.read(path)))
         with mock.patch.object(convert, "MEMMAP_MIN_BYTES", 0):
             self.assertTrue(is_mapped(self.read(path)))
 
-    def test_the_environment_switch_turns_it_off(self):
+    def test_the_environment_switch_turns_it_off(self) -> None:
         path = self.write("a.tif", non_symmetric((7, 9)))
         with mock.patch.dict(os.environ, {convert.MEMMAP_ENV: "0"}):
             self.assertFalse(is_mapped(self.read(path)))
 
-    def test_a_file_cut_short_is_not_mapped_and_gives_what_the_plain_reader_gives(self):
+    def test_a_file_cut_short_is_not_mapped_and_gives_what_the_plain_reader_gives(self) -> None:
         path = self.write("cut.tif", non_symmetric((64, 64)))
         data = path.read_bytes()
         path.write_bytes(data[: len(data) - 4000])
@@ -239,7 +247,7 @@ class MappedTiff(unittest.TestCase):
             self.read(path)
         self.assertEqual(caught.exception.code, "unreadable_image")
 
-    def told(self, path):
+    def told(self, path: Path) -> "tuple[Any, list[str], str]":
         """What `_memmap_tiff` says about `path`: the log records of the worker's logger and the text on stderr."""
         import io
         from contextlib import redirect_stderr
@@ -252,7 +260,7 @@ class MappedTiff(unittest.TestCase):
         lines = [r.getMessage() for r in logged.records if r.levelno >= logging.WARNING]
         return mapped, lines, stderr.getvalue()
 
-    def test_a_file_that_could_not_be_mapped_says_why_in_the_log_and_on_stderr(self):
+    def test_a_file_that_could_not_be_mapped_says_why_in_the_log_and_on_stderr(self) -> None:
         data = non_symmetric((16, 32))
         multi = self.folder / "multi.tif"
         with tifffile.TiffWriter(multi) as writer:
@@ -280,7 +288,7 @@ class MappedTiff(unittest.TestCase):
                 self.assertIn(lines[0].split("convert: ")[-1], stderr)
                 self.assertTrue(stderr.startswith("LabConstrictor worker: "), stderr)
 
-    def test_the_environment_switch_is_told_for_a_big_file(self):
+    def test_the_environment_switch_is_told_for_a_big_file(self) -> None:
         path = self.write("a.tif", non_symmetric((7, 9)))
         with mock.patch.dict(os.environ, {convert.MEMMAP_ENV: "0"}):
             mapped, lines, _ = self.told(path)
@@ -288,7 +296,7 @@ class MappedTiff(unittest.TestCase):
         self.assertEqual(len(lines), 1, lines)
         self.assertIn(convert.MEMMAP_ENV, lines[0])
 
-    def test_nothing_is_said_for_a_small_file_or_a_mapped_one(self):
+    def test_nothing_is_said_for_a_small_file_or_a_mapped_one(self) -> None:
         small = self.write("small.tif", non_symmetric((7, 9)))
         small_compressed = self.write("smallz.tif", non_symmetric((16, 32)), compression="zlib")
         with mock.patch.object(convert, "MEMMAP_MIN_BYTES", 1 << 20):
@@ -301,7 +309,7 @@ class MappedTiff(unittest.TestCase):
         self.assertEqual((lines, stderr), ([], ""))
         del mapped
 
-    def test_writing_to_the_input_works_and_never_reaches_the_file(self):
+    def test_writing_to_the_input_works_and_never_reaches_the_file(self) -> None:
         path = self.write("mine.tif", non_symmetric((64, 64)))
         before, mtime = digest(path), path.stat().st_mtime_ns
         original = tifffile.imread(path)
@@ -321,7 +329,7 @@ class MappedTiff(unittest.TestCase):
         self.assertEqual(path.stat().st_mtime_ns, mtime)
         np.testing.assert_array_equal(tifffile.imread(path), original)
 
-    def test_results_of_arithmetic_are_plain_arrays(self):
+    def test_results_of_arithmetic_are_plain_arrays(self) -> None:
         got = self.read(self.write("a.tif", non_symmetric((7, 9))))
         self.assertIs(type(got + 1), np.ndarray)
         self.assertIs(type(got.max(axis=0)), np.ndarray)
@@ -333,7 +341,7 @@ class MappedTiffThroughAWorker(unittest.TestCase):
     SIDE = 2400  # 11 MiB as uint16, over MEMMAP_MIN_BYTES
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls.folder = Path(tempfile.mkdtemp(prefix="lcmapw_"))
         cls.array = non_symmetric((cls.SIDE, cls.SIDE))
         cls.path = cls.folder / "big.tif"
@@ -342,12 +350,12 @@ class MappedTiffThroughAWorker(unittest.TestCase):
         cls.sha = hashlib.sha256(cls.array.tobytes()).hexdigest()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         import shutil
 
         shutil.rmtree(cls.folder, ignore_errors=True)
 
-    def run_tool(self, tool_id, path, env=None):
+    def run_tool(self, tool_id: str, path: str | Path, env: dict[str, str] | None = None) -> "Task":
         old = {key: os.environ.get(key) for key in (env or {})}
         os.environ.update(env or {})
         try:
@@ -360,7 +368,7 @@ class MappedTiffThroughAWorker(unittest.TestCase):
             for key, value in old.items():
                 os.environ.pop(key, None) if value is None else os.environ.__setitem__(key, value)
 
-    def test_the_tool_gets_the_same_array_mapped(self):
+    def test_the_tool_gets_the_same_array_mapped(self) -> None:
         task = self.run_tool("report", self.path)
         self.assertEqual(task.status, "COMPLETE", task.error)
         values = task.outputs["results"][0]["values"]
@@ -371,12 +379,12 @@ class MappedTiffThroughAWorker(unittest.TestCase):
         self.assertTrue(values["writeable"])
         self.assertTrue(values["plain_ndarray"])
 
-    def test_the_switch_reaches_the_worker(self):
+    def test_the_switch_reaches_the_worker(self) -> None:
         values = self.run_tool("report", self.path, {convert.MEMMAP_ENV: "0"}).outputs["results"][0]["values"]
         self.assertFalse(values["mapped"])
         self.assertEqual(values["sha256"], self.sha)
 
-    def test_a_tool_that_writes_to_its_input_cannot_change_the_file(self):
+    def test_a_tool_that_writes_to_its_input_cannot_change_the_file(self) -> None:
         copy = self.folder / "to_scribble.tif"
         copy.write_bytes(self.path.read_bytes())
         task = self.run_tool("scribble", copy)
@@ -387,7 +395,7 @@ class MappedTiffThroughAWorker(unittest.TestCase):
         self.assertEqual(digest(copy), digest(self.path))  # and the file did not change
         os.remove(copy)  # nothing keeps it open (a mapping would block this on Windows)
 
-    def test_the_file_is_free_when_the_task_has_ended_even_after_a_failure(self):
+    def test_the_file_is_free_when_the_task_has_ended_even_after_a_failure(self) -> None:
         for tool_id, status in (("report", "COMPLETE"), ("fail_holding", "FAILED")):
             with self.subTest(tool_id):
                 copy = self.folder / ("free_%s.tif" % tool_id)

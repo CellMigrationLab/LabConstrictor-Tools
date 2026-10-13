@@ -4,13 +4,17 @@ import os
 import time
 import unittest
 from multiprocessing import shared_memory
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
 import roundtrip_harness as harness
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-def wait_for_destruction(name, seconds=10.0):
+
+def wait_for_destruction(name: str, seconds: float = 10.0) -> bool:
     """True when the block is gone within `seconds` (the worker's resource tracker acts a moment after the worker is gone)."""
     end = time.time() + seconds
     while time.time() < end:
@@ -23,7 +27,7 @@ def wait_for_destruction(name, seconds=10.0):
     return False
 
 
-def wait_for(condition, seconds=10.0):
+def wait_for(condition: "Callable[[], object]", seconds: float = 10.0) -> bool:
     end = time.time() + seconds
     while time.time() < end:
         if condition():
@@ -32,7 +36,7 @@ def wait_for(condition, seconds=10.0):
     return bool(condition())
 
 
-def shared_memory_problems():
+def shared_memory_problems() -> list[str]:
     """Read an image from a host-owned block through a real worker, let the worker EXIT BY ITSELF (the host closes its end of the
     pipe), and look at what is left.
 
@@ -69,11 +73,11 @@ def shared_memory_problems():
 
 class SharedMemoryOwnership(unittest.TestCase):
     @unittest.skipUnless(os.name == "posix", "POSIX shared memory is named, and tracked per process")
-    def test_the_block_and_the_stderr_are_left_alone(self):
+    def test_the_block_and_the_stderr_are_left_alone(self) -> None:
         self.assertEqual(shared_memory_problems(), [])
 
 
-def tearDownModule():
+def tearDownModule() -> None:
     """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
     raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
     import gc

@@ -18,7 +18,7 @@ MIN_CONFIDENCE = "80"
 HAVE_VULTURE = importlib.util.find_spec("vulture") is not None
 
 
-def entries():
+def entries() -> list[tuple[str, str]]:
     """(name, reason) of every whitelist line that is not a comment or part of the docstring."""
     out = []
     in_doc = False
@@ -34,37 +34,37 @@ def entries():
     return out
 
 
-def vulture(*arguments):
+def vulture(*arguments: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, "-m", "vulture", *arguments], capture_output=True, text=True, cwd=ROOT, timeout=300
     )
 
 
 class Whitelist(unittest.TestCase):
-    def test_every_entry_has_a_reason_and_names_one_identifier(self):
+    def test_every_entry_has_a_reason_and_names_one_identifier(self) -> None:
         for name, reason in entries():
             with self.subTest(name):
                 self.assertRegex(name, r"^[A-Za-z_][A-Za-z0-9_.]*$")
                 self.assertGreaterEqual(len(reason), 25, "say why %s is not dead code" % name)
 
-    def test_names_are_unique(self):
+    def test_names_are_unique(self) -> None:
         names = [n for n, _ in entries()]
         self.assertEqual(sorted(set(names)), sorted(names))
 
 
 @unittest.skipUnless(HAVE_VULTURE, "pip install vulture")
 class Scan(unittest.TestCase):
-    def test_the_package_has_no_unused_code_beyond_the_whitelist(self):
+    def test_the_package_has_no_unused_code_beyond_the_whitelist(self) -> None:
         done = vulture("labconstrictor_tools", str(WHITELIST), "--min-confidence", MIN_CONFIDENCE)
         self.assertEqual(done.returncode, 0, "unused code:\n" + done.stdout)
 
-    def test_every_whitelist_entry_is_still_needed(self):
+    def test_every_whitelist_entry_is_still_needed(self) -> None:
         done = vulture("labconstrictor_tools", "--min-confidence", MIN_CONFIDENCE)
         reported = set(re.findall(r"unused \w+ '([^']+)'", done.stdout))
         stale = [name for name, _ in entries() if name not in reported]
         self.assertEqual(stale, [], "vulture no longer reports these: delete the whitelist lines")
 
-    def test_the_scan_has_teeth(self):
+    def test_the_scan_has_teeth(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             Path(folder, "planted.py").write_text(
                 "def used(x, never_read):\n    return x\n\nused(1, 2)\n", encoding="utf-8"

@@ -25,7 +25,7 @@ SHA256 = {
 
 
 class Fixtures(unittest.TestCase):
-    def test_fixtures_are_frozen_and_loadable(self):
+    def test_fixtures_are_frozen_and_loadable(self) -> None:
         for name, digest in SHA256.items():
             data = (FIXTURES / name).read_bytes().replace(b"\r\n", b"\n")
             self.assertEqual(
@@ -33,7 +33,7 @@ class Fixtures(unittest.TestCase):
             )
             registry._validated_schema(json.loads(data))
 
-    def test_the_0_1_fixture_has_no_version_fields_and_the_0_2_one_has_both(self):
+    def test_the_0_1_fixture_has_no_version_fields_and_the_0_2_one_has_both(self) -> None:
         old = json.loads((FIXTURES / "tools_0.1.schema.json").read_text("utf-8"))
         new = json.loads((FIXTURES / "tools_0.2.schema.json").read_text("utf-8"))
         self.assertFalse({"tools_version", "features"} & set(old))
@@ -44,19 +44,19 @@ class Fixtures(unittest.TestCase):
 
 
 class Script(unittest.TestCase):
-    def run_script(self, old_python):
+    def run_script(self, old_python: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
             [sys.executable, str(ROOT / "tests" / "compat_matrix.py"), "--old-python", old_python],
             capture_output=True, text=True, encoding="utf-8", timeout=300,
         )  # fmt: skip
 
-    def test_every_check_of_the_matrix_passes_against_itself(self):
+    def test_every_check_of_the_matrix_passes_against_itself(self) -> None:
         result = self.run_script(sys.executable)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(result.stdout.count("ok  "), 14, result.stdout)
         self.assertNotIn("FAIL", result.stdout)
 
-    def test_an_old_install_that_cannot_run_fails_the_matrix(self):
+    def test_an_old_install_that_cannot_run_fails_the_matrix(self) -> None:
         result = self.run_script(str(ROOT / "no" / "such" / "python"))
         self.assertNotEqual(result.returncode, 0)
 

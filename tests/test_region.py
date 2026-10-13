@@ -1,7 +1,7 @@
 """RegionOf: declaration rules, the schema flag, and the bbox helper (box, shape check, empty region)."""
 
 import unittest
-from typing import Annotated, Optional
+from typing import TYPE_CHECKING, Annotated, Optional
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -11,13 +11,17 @@ from labconstrictor_tools.introspection import DeclarationError, describe_tool
 from labconstrictor_tools.region import bbox
 from labconstrictor_tools.types import ToolError
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
-def schema(fn):
+
+def schema(fn: "Callable[..., Any]") -> "list[dict[str, Any]]":
     return describe_tool(fn.__lc_tool__)["inputs"]
 
 
 class Declaration(unittest.TestCase):
-    def test_region_reaches_the_schema(self):
+    def test_region_reaches_the_schema(self) -> None:
         @tool("R ok")
         def ok(image: Image, region: Annotated[Optional[Labels], RegionOf("image")] = None) -> Scalars:
             return {}
@@ -26,7 +30,7 @@ class Declaration(unittest.TestCase):
         self.assertEqual(inputs["region"]["region_of"], "image")
         self.assertTrue(inputs["region"]["nullable"])
 
-    def test_refusals_are_readable(self):
+    def test_refusals_are_readable(self) -> None:
         @tool("R required")
         def required(image: Image, region: Annotated[Labels, RegionOf("image")]) -> Scalars:
             return {}
@@ -55,7 +59,7 @@ class Declaration(unittest.TestCase):
 
 
 class Box(unittest.TestCase):
-    def test_box_encloses_every_selected_pixel(self):
+    def test_box_encloses_every_selected_pixel(self) -> None:
         mask = np.zeros((20, 30), int)
         mask[3:6, 10:12] = 1
         mask[15, 25] = 2
@@ -63,7 +67,7 @@ class Box(unittest.TestCase):
         self.assertEqual((rows, columns), (slice(3, 16), slice(10, 26)))
         self.assertEqual(np.zeros((20, 30))[rows, columns].shape, (13, 16))
 
-    def test_the_image_size_is_checked(self):
+    def test_the_image_size_is_checked(self) -> None:
         mask = np.ones((5, 5), int)
         self.assertEqual(bbox(mask, np.zeros((5, 5))), (slice(0, 5), slice(0, 5)))
         self.assertEqual(
@@ -72,12 +76,12 @@ class Box(unittest.TestCase):
         with self.assertRaisesRegex(ToolError, "size of the image"):
             bbox(mask, np.zeros((6, 5)))
 
-    def test_an_empty_region_is_an_error_not_the_whole_image(self):
+    def test_an_empty_region_is_an_error_not_the_whole_image(self) -> None:
         with self.assertRaises(ToolError) as caught:
             bbox(np.zeros((4, 4), int))
         self.assertEqual(caught.exception.code, "empty_region")
 
-    def test_wrong_dimensions_are_refused(self):
+    def test_wrong_dimensions_are_refused(self) -> None:
         with self.assertRaisesRegex(ToolError, "2D"):
             bbox(np.ones((2, 4, 4), int))
 

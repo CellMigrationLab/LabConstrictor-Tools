@@ -7,11 +7,15 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 
 from labconstrictor_tools import convert
 from labconstrictor_tools.types import ToolError
+
+if TYPE_CHECKING:
+    from typing import Any
 
 SCHEMA = {"outputs": [{"name": "outlines", "type": "shapes"}]}
 OUTER = [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]
@@ -19,7 +23,7 @@ HOLE = [[2, 2], [2, 4], [4, 4], [4, 2], [2, 2]]
 TRIANGLE = [[20, 20], [25, 20], [20, 25], [20, 20]]
 
 
-def collection(*geometries):
+def collection(*geometries: "dict[str, Any]") -> "dict[str, Any]":
     return {
         "type": "FeatureCollection",
         "features": [
@@ -29,11 +33,11 @@ def collection(*geometries):
     }
 
 
-def polygon(*rings):
+def polygon(*rings: list[list[float]]) -> "dict[str, Any]":
     return {"type": "Polygon", "coordinates": list(rings)}
 
 
-def run(value):
+def run(value: "Any") -> "tuple[Any, Path]":
     folder = Path(tempfile.mkdtemp())
     try:
         return convert.build_results(SCHEMA, value, folder), folder
@@ -42,7 +46,7 @@ def run(value):
 
 
 class Valid(unittest.TestCase):
-    def test_polygon_with_hole_multipolygon_and_empty_collection_roundtrip_unchanged(self):
+    def test_polygon_with_hole_multipolygon_and_empty_collection_roundtrip_unchanged(self) -> None:
         cases = {
             "polygon": collection(polygon(OUTER)),
             "polygon-with-hole": collection(polygon(OUTER, HOLE)),
@@ -61,7 +65,7 @@ class Valid(unittest.TestCase):
 
 
 class Invalid(unittest.TestCase):
-    def assertRefused(self, value, *words):
+    def assertRefused(self, value: "Any", *words: str) -> None:
         got, folder = run(value)
         self.assertIsInstance(got, ToolError, "accepted: %r" % (value,))
         self.assertEqual(got.code, "bad_return")
@@ -71,7 +75,7 @@ class Invalid(unittest.TestCase):
             list(folder.iterdir()), [], "an invalid result must not leave a file the host could open"
         )
 
-    def test_empty_and_missing_coordinates(self):
+    def test_empty_and_missing_coordinates(self) -> None:
         self.assertRefused(collection(polygon()), "feature 0", "non-empty list of rings")
         self.assertRefused(
             collection({"type": "MultiPolygon", "coordinates": []}), "feature 0", "no coordinates"
@@ -83,7 +87,7 @@ class Invalid(unittest.TestCase):
             collection({"type": "MultiPolygon", "coordinates": [[]]}), "polygon 0", "non-empty list of rings"
         )
 
-    def test_too_short_and_degenerate_rings_name_the_feature_and_ring(self):
+    def test_too_short_and_degenerate_rings_name_the_feature_and_ring(self) -> None:
         self.assertRefused(
             collection(polygon(OUTER), polygon([[0, 0], [1, 1], [0, 0]])), "feature 1", "ring 0", "at least 4"
         )
@@ -95,12 +99,12 @@ class Invalid(unittest.TestCase):
         )
         self.assertRefused(collection(polygon([[0, 0], [0, 0], [0, 0], [0, 0]])), "fewer than 3 distinct")
 
-    def test_open_rings(self):
+    def test_open_rings(self) -> None:
         self.assertRefused(collection(polygon([[0, 0], [5, 0], [5, 5], [0, 5]])), "not closed")
         mp = {"type": "MultiPolygon", "coordinates": [[OUTER], [[[0, 0], [5, 0], [5, 5], [1, 1]]]]}
         self.assertRefused(collection(mp), "polygon 1", "ring 0", "not closed")
 
-    def test_wrong_nesting(self):
+    def test_wrong_nesting(self) -> None:
         self.assertRefused(
             collection(polygon([1, 2])), "ring 0", "not an [x, y] pair"
         )  # a ring given as one position
@@ -112,7 +116,7 @@ class Invalid(unittest.TestCase):
         )  # a polygon missing
         self.assertRefused(collection({"type": "Polygon", "coordinates": [[[[0, 0]]]]}), "not an [x, y] pair")
 
-    def test_wrong_position_shape(self):
+    def test_wrong_position_shape(self) -> None:
         self.assertRefused(collection(polygon([[0], [1, 0], [1, 1], [0]])), "not an [x, y] pair")
         self.assertRefused(
             collection(polygon([[0, 0, 5], [1, 0, 5], [1, 1, 5], [0, 0, 5]])), "not an [x, y] pair"

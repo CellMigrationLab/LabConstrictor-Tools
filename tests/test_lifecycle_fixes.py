@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from multiprocessing import shared_memory
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
@@ -17,6 +18,9 @@ from test_roundtrip_failures import alive, child_pid, start, wait_for
 
 from labconstrictor_tools import registry, worker
 from labconstrictor_tools.client import WorkerProcess
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 SUBPROCESS_TIMEOUT_S = 60
 EXIT_AFTER_ATTACH = (
@@ -30,7 +34,7 @@ EXIT_AFTER_ATTACH = (
 
 class SharedMemoryAttach(unittest.TestCase):
     @unittest.skipUnless(os.name == "posix", "POSIX shared memory is named, and tracked per process")
-    def test_a_process_that_only_attached_leaves_the_block_and_its_stderr_alone(self):
+    def test_a_process_that_only_attached_leaves_the_block_and_its_stderr_alone(self) -> None:
         block = shared_memory.SharedMemory(create=True, size=8)
         try:
             block.buf[:3] = bytes([1, 2, 3])
@@ -50,7 +54,7 @@ class SharedMemoryAttach(unittest.TestCase):
 
 
 class DeadWorker(unittest.TestCase):
-    def test_a_task_on_a_crashed_worker_is_crashed_with_the_exit_code_and_is_not_kept(self):
+    def test_a_task_on_a_crashed_worker_is_crashed_with_the_exit_code_and_is_not_kept(self) -> None:
         worker_ = start()
         try:
             worker_.task("crash_mid_task", {"how": "exit"}).wait(30)
@@ -64,7 +68,7 @@ class DeadWorker(unittest.TestCase):
         finally:
             worker_.close()
 
-    def test_a_task_on_a_worker_the_host_already_closed_is_crashed_too(self):
+    def test_a_task_on_a_worker_the_host_already_closed_is_crashed_too(self) -> None:
         worker_ = start()
         worker_.close()
         task = worker_.task("echo", {})
@@ -75,11 +79,11 @@ class DeadWorker(unittest.TestCase):
 
 class ProcessGroup(unittest.TestCase):
     @unittest.skipUnless(os.name == "posix", "process groups")
-    def test_a_worker_started_without_its_own_group_still_ends_what_its_tool_started(self):
+    def test_a_worker_started_without_its_own_group_still_ends_what_its_tool_started(self) -> None:
         """The Java hosts (Fiji's Appose Service, QuPath's ProcessBuilder) cannot start a process in a new session: the worker
         puts itself in one, so the children of its tool die with it all the same."""
 
-        def spawn_like_a_java_host(command, env):
+        def spawn_like_a_java_host(command: "Sequence[str]", env: dict[str, str]) -> subprocess.Popen[str]:
             return subprocess.Popen(  # same pipes as the client, but NO start_new_session
                 command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
                 encoding="utf-8", env=env,
@@ -114,7 +118,7 @@ class GroupListingFails(unittest.TestCase):
     """The one place a stand-in is right: `ps` cannot be made to fail on demand, and the real killpg would end the test run."""
 
     @unittest.skipUnless(os.name == "posix", "process groups")
-    def test_when_the_members_cannot_be_listed_the_whole_group_is_ended_and_the_reason_logged(self):
+    def test_when_the_members_cannot_be_listed_the_whole_group_is_ended_and_the_reason_logged(self) -> None:
         me = os.getpid()
         with (
             mock.patch.object(os, "getpgrp", return_value=me),
@@ -127,12 +131,12 @@ class GroupListingFails(unittest.TestCase):
         self.assertIn("cannot list its process group", logged.output[0])
 
     @unittest.skipUnless(os.name == "posix", "process groups")
-    def test_the_members_listing_finds_this_process_in_its_own_group(self):
+    def test_the_members_listing_finds_this_process_in_its_own_group(self) -> None:
         self.assertIn(os.getpid(), worker.Worker._group_members(os.getpgrp()))
 
 
 class Progress(unittest.TestCase):
-    def test_every_whole_percent_and_the_documented_ties(self):
+    def test_every_whole_percent_and_the_documented_ties(self) -> None:
         for k in range(101):
             self.assertEqual(worker._whole_percent(k / 100), k, k)
         self.assertEqual(worker._whole_percent(0.294), 29)
@@ -146,13 +150,13 @@ class Progress(unittest.TestCase):
 class ReplaceRetry(unittest.TestCase):
     """The one place for a mock of an OS call: it tests OUR retry logic (Windows refusals cannot be produced on demand)."""
 
-    def refused(self):
+    def refused(self) -> PermissionError:
         return PermissionError(5, "Access is denied")
 
-    def test_a_refusal_is_retried_logged_and_the_file_ends_up_written(self):
+    def test_a_refusal_is_retried_logged_and_the_file_ends_up_written(self) -> None:
         calls = []
 
-        def replace(source, target):
+        def replace(source: str | Path, target: str | Path) -> None:
             calls.append(1)
             if len(calls) < 3:
                 raise self.refused()
@@ -170,7 +174,7 @@ class ReplaceRetry(unittest.TestCase):
         self.assertEqual(len(logged.records), 2, "each retry is logged")
         self.assertIn("attempt 1 of %d" % registry.REPLACE_ATTEMPTS, logged.output[0])
 
-    def test_a_refusal_that_never_ends_is_raised_with_the_reason_and_what_to_do(self):
+    def test_a_refusal_that_never_ends_is_raised_with_the_reason_and_what_to_do(self) -> None:
         with (
             mock.patch.object(registry, "_is_windows", return_value=True),
             mock.patch.object(registry.os, "replace", side_effect=self.refused()) as replace,
@@ -185,7 +189,7 @@ class ReplaceRetry(unittest.TestCase):
         self.assertIn("antivirus", text)
         self.assertIn("run the command again", text)
 
-    def test_a_refusal_is_not_retried_off_windows(self):
+    def test_a_refusal_is_not_retried_off_windows(self) -> None:
         with (
             mock.patch.object(registry, "_is_windows", return_value=False),
             mock.patch.object(registry.os, "replace", side_effect=self.refused()) as replace,
@@ -195,13 +199,13 @@ class ReplaceRetry(unittest.TestCase):
                 registry._replace(Path("a.tmp"), Path("a.json"))
         self.assertEqual((replace.call_count, sleep.call_count), (1, 0))
 
-    def test_write_atomic_goes_through_the_retry_and_leaves_no_temporary_file(self):
+    def test_write_atomic_goes_through_the_retry_and_leaves_no_temporary_file(self) -> None:
         import tempfile
 
         real = os.replace
         seen = []
 
-        def flaky(source, target):
+        def flaky(source: str | Path, target: str | Path) -> None:
             seen.append(1)
             if len(seen) == 1:
                 raise self.refused()

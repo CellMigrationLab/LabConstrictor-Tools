@@ -7,10 +7,14 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import FIXTURES as FX
 from _paths import V3
+
+if TYPE_CHECKING:
+    from typing import Any
 
 SCRIPT = """
 import json, sys, importlib
@@ -27,7 +31,7 @@ print("JSON:" + json.dumps(out))
 """
 
 
-def in_app(function, values):
+def in_app(function: str, values: dict[str, object]) -> "Any":
     code = SCRIPT.format(fn=function, values=values)
     env = {**os.environ, "PYTHONPATH": str(V3), "PYTHONNOUSERSITE": "1", "MPLBACKEND": "Agg"}
     run = subprocess.run(
@@ -42,13 +46,13 @@ def in_app(function, values):
 
 
 class NotebookForm(unittest.TestCase):
-    def test_table_tool_runs_in_the_notebook_kernel(self):
+    def test_table_tool_runs_in_the_notebook_kernel(self) -> None:
         out = in_app("table_sum", {"tab": str(FX / "celltracks/tracks.csv")})
         self.assertEqual(out["controls"], {"tab": "Text"})
         self.assertEqual(out["results"], [["values", "values"]])
         self.assertIn("done", out["status"])
 
-    def test_every_control_type_and_shared_validation(self):
+    def test_every_control_type_and_shared_validation(self) -> None:
         d = Path(tempfile.mkdtemp())
         import numpy as np
         import tifffile

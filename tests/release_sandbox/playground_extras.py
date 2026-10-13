@@ -14,18 +14,22 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 APP = "LabConstrictorPlayground"
 OUT = []
 
 
-def rec(cid, ok, detail=""):
+def rec(cid: str, ok: bool, detail: object = "") -> None:
     line = "CHECK %s %s %s" % (cid, "PASS" if ok else "FAIL", str(detail).replace("\n", " | ")[:600])
     print(line, flush=True)
     OUT.append((cid, ok))
 
 
-def lc(*args, timeout=600, env=None):
+def lc(*args: str, timeout: float = 600, env: dict[str, str] | None = None) -> tuple[int, str, str]:
     cmd = [sys.executable, "-m", "labconstrictor_tools", *args]
     p = subprocess.run(
         cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout, env=env
@@ -33,7 +37,7 @@ def lc(*args, timeout=600, env=None):
     return p.returncode, p.stdout, p.stderr
 
 
-def run_tool(tool, *params, timeout=300):
+def run_tool(tool: str, *params: str, timeout: float = 300) -> "tuple[int, dict[str, Any], str]":
     rc, out, err = lc("run", APP, tool, *params, timeout=timeout)
     try:
         # the JSON report is the first '{' .. last '}' of stdout
@@ -43,11 +47,11 @@ def run_tool(tool, *params, timeout=300):
     return rc, rep, err
 
 
-def home():
+def home() -> Path:
     return Path(os.environ.get("LC_HOME") or (Path.home() / ".labconstrictor"))
 
 
-def pep440_of_tag(tag):
+def pep440_of_tag(tag: str) -> str | None:
     """v0.3.0-alpha.1 -> 0.3.0a1, v0.2.0-rc.1 -> 0.2.0rc1, v0.3.0 -> 0.3.0 (docs/OPERATIONS.md, tag names)."""
     m = re.fullmatch(r"v?(\d+\.\d+\.\d+)(?:-(alpha|beta|rc)\.(\d+))?", tag)
     if not m:
@@ -57,7 +61,7 @@ def pep440_of_tag(tag):
     )
 
 
-def expected_pin(a, prefix):
+def expected_pin(a: argparse.Namespace, prefix: Path) -> tuple[str, str]:
     """The Tools tag the installed app must carry: --tools-pin when given, else the tag written in the app's own post_install
     hook (the `LC_TOOLS_SPEC` default, `.../refs/tags/<tag>.zip`). Returns (tag, where it came from); ("", reason) if unknown.
     """
@@ -76,7 +80,7 @@ def expected_pin(a, prefix):
     return "", "no pin line found in any post_install hook under %s" % prefix
 
 
-def basic(a):
+def basic(a: argparse.Namespace) -> None:
     prefix = Path(a.prefix)
     log = prefix / "menuinst_debug.log"
     txt = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
@@ -159,14 +163,22 @@ def basic(a):
     )
 
 
-def tools(a):
+def tools(a: argparse.Namespace) -> None:
     fx = Path(a.fixtures) / "fixtures" / "data"
     work = Path(a.work)
     work.mkdir(parents=True, exist_ok=True)
     data = work / "data"
     data.mkdir(exist_ok=True)
 
-    def check(cid, tool, params, want="COMPLETE", code=None, contains=None, timeout=300):
+    def check(
+        cid: str,
+        tool: str,
+        params: list[str],
+        want: str = "COMPLETE",
+        code: str | None = None,
+        contains: str | None = None,
+        timeout: float = 300,
+    ) -> "dict[str, Any]":
         rc, rep, err = run_tool(tool, *params, timeout=timeout)
         ok = (
             rep.get("status") == want
@@ -290,7 +302,7 @@ def tools(a):
         rec("4n_notebook_form_run", False, "%s: %s" % (type(e).__name__, e))
 
 
-def failures(a):
+def failures(a: argparse.Namespace) -> None:
     fx = Path(a.fixtures) / "fixtures" / "data"
     from labconstrictor_tools import client
 
@@ -351,7 +363,7 @@ def failures(a):
     )
 
 
-def retention(a):
+def retention(a: argparse.Namespace) -> None:
 
     fx = Path(a.fixtures) / "fixtures" / "data"
     h = home()
@@ -432,7 +444,7 @@ def retention(a):
     )
 
 
-def main():
+def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("section")
     ap.add_argument("--prefix", default=sys.prefix)

@@ -13,12 +13,16 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
 from _paths import ROOT
 
 from labconstrictor_tools import cli, log, retention, runs
+
+if TYPE_CHECKING:
+    from typing import Any
 
 BASE = datetime(2026, 10, 1, 8, 0, 0, tzinfo=timezone.utc)
 
@@ -43,7 +47,7 @@ def sentinel(name: str) -> bytes:
 class Home(unittest.TestCase):
     """A temporary LC_HOME with helpers that build the folders of the fixtures."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory(prefix="lc_retention_")
         self.addCleanup(self._tmp.cleanup)
         self.home = Path(self._tmp.name) / "home"
@@ -55,8 +59,16 @@ class Home(unittest.TestCase):
         self.outside.mkdir()
 
     def owned(
-        self, root: Path, name: str, index: int, *, done: bool = True, kind=None, marker_name=None, **extra
-    ):
+        self,
+        root: Path,
+        name: str,
+        index: int,
+        *,
+        done: bool = True,
+        kind: str | None = None,
+        marker_name: str | None = None,
+        **extra: "Any",
+    ) -> Path:
         """A folder with a valid owner marker (and a done marker) and a sentinel file."""
         folder = root / name
         folder.mkdir()
@@ -92,10 +104,10 @@ class Home(unittest.TestCase):
         found = sorted(p.name for p in root.iterdir())
         return [n for n in found if (root / n / ".lc-owner.json").exists()] if owned_only else found
 
-    def assert_intact(self, folder: Path, text: str = "keep", name: str = "x.txt"):
+    def assert_intact(self, folder: Path, text: str = "keep", name: str = "x.txt") -> None:
         self.assertEqual((folder / name).read_text(), text, "%s lost its contents" % folder)
 
-    def env(self):
+    def env(self) -> dict[str, str]:
         return {**os.environ, "LC_HOME": str(self.home), "PYTHONPATH": str(ROOT)}
 
     def cli_prune(self, *args: str) -> subprocess.CompletedProcess:
@@ -106,7 +118,7 @@ class Home(unittest.TestCase):
 
 
 class Eligibility(Home):
-    def test_RET_01_a_foreign_folder_survives_and_the_newest_20_owned_remain(self):
+    def test_RET_01_a_foreign_folder_survives_and_the_newest_20_owned_remain(self) -> None:
         foreign = self.foreign(self.results, "20261008T120000_reanalysis_backup")
         made = self.done_results(300)
         report = retention.prune("results", home=self.home)
@@ -117,7 +129,7 @@ class Eligibility(Home):
         self.assertEqual(len(report.roots[0].deleted), 280)
         self.assertEqual(len(report.roots[0].kept), 20)
 
-    def test_RET_01_through_the_cli_and_the_default_root_is_both(self):
+    def test_RET_01_through_the_cli_and_the_default_root_is_both(self) -> None:
         foreign = self.foreign(self.results, "20261008T120000_reanalysis_backup")
         self.done_results(30)
         kept_runs = self.done_runs(60)
@@ -127,7 +139,7 @@ class Eligibility(Home):
         self.assertEqual(len(self.names(self.results, owned_only=True)), 20)
         self.assertEqual(self.names(self.runs), sorted(kept_runs[-50:]))
 
-    def test_RET_02_runs_keep_50_and_a_foreign_run_folder_survives(self):
+    def test_RET_02_runs_keep_50_and_a_foreign_run_folder_survives(self) -> None:
         foreign = self.foreign(self.runs, "0000_keep_this_analysis")
         self.done_runs(120)
         done = self.cli_prune("--root", "runs")
@@ -135,32 +147,32 @@ class Eligibility(Home):
         self.assert_intact(foreign)
         self.assertEqual(len(self.names(self.runs, owned_only=True)), 50)
 
-    def test_the_other_root_is_not_touched_by_root_results(self):
+    def test_the_other_root_is_not_touched_by_root_results(self) -> None:
         self.done_runs(60)
         self.done_results(30)
         self.cli_prune("--root", "results")
         self.assertEqual(len(self.names(self.runs)), 60)
         self.assertEqual(len(self.names(self.results)), 20)
 
-    def test_RET_03_folders_without_a_done_file_are_never_removed(self):
+    def test_RET_03_folders_without_a_done_file_are_never_removed(self) -> None:
         crashed = [self.owned(self.results, result_name(i), i, done=False).name for i in range(25)]
         retention.prune("results", home=self.home)
         self.assertEqual(self.names(self.results), sorted(crashed))
         for name in crashed:
             self.assertEqual((self.results / name / "data.txt").read_bytes(), sentinel(name))
 
-    def test_RET_04_thirty_finished_folders_keep_the_latest_20_by_created(self):
+    def test_RET_04_thirty_finished_folders_keep_the_latest_20_by_created(self) -> None:
         made = self.done_results(30)
         retention.prune("results", home=self.home)
         self.assertEqual(self.names(self.results), sorted(made[10:]))
 
-    def test_RET_06_a_copied_and_renamed_folder_is_foreign(self):
+    def test_RET_06_a_copied_and_renamed_folder_is_foreign(self) -> None:
         copy = self.owned(self.results, "20261008T120000_000000_app_copy", -5, marker_name=result_name(0))
         self.done_results(30)
         retention.prune("results", home=self.home)
         self.assertEqual((copy / "data.txt").read_bytes(), sentinel(copy.name))
 
-    def test_RET_07_legacy_folders_without_a_marker_are_never_removed(self):
+    def test_RET_07_legacy_folders_without_a_marker_are_never_removed(self) -> None:
         legacy = []
         for i in range(30):
             folder = self.results / ("2026010%dT0000%02d_abcdef_app_tool" % (i % 9 + 1, i))
@@ -175,14 +187,14 @@ class Eligibility(Home):
             self.assertEqual((self.results / name / "data.txt").read_bytes(), sentinel(name))
         self.assertEqual(len(self.names(self.results, owned_only=True)), 20)
 
-    def test_RET_12_a_crashed_owned_folder_survives_next_to_30_finished(self):
+    def test_RET_12_a_crashed_owned_folder_survives_next_to_30_finished(self) -> None:
         crashed = self.owned(self.results, result_name(0), 0, done=False)
         self.done_results(30, first=1)
         retention.prune("results", home=self.home)
         self.assertEqual((crashed / "data.txt").read_bytes(), sentinel(crashed.name))
         self.assertEqual(len(self.names(self.results, owned_only=True)), 21)
 
-    def test_RET_13_equal_created_values_are_ordered_by_name(self):
+    def test_RET_13_equal_created_values_are_ordered_by_name(self) -> None:
         names = [
             "20261001T080000_aaaaaa_app_tool",
             "20261001T080000_bbbbbb_app_tool",
@@ -195,7 +207,7 @@ class Eligibility(Home):
         again = retention.prune("results", home=self.home, keep={"results": 2})
         self.assertEqual(again.roots[0].deleted, [])
 
-    def test_the_order_is_by_created_in_the_marker_not_by_the_folder_name(self):
+    def test_the_order_is_by_created_in_the_marker_not_by_the_folder_name(self) -> None:
         newest_by_marker = self.owned(
             self.results, "0000_zzz", 100
         )  # sorts first by name, is the newest by `created`
@@ -203,7 +215,7 @@ class Eligibility(Home):
         retention.prune("results", home=self.home, keep={"results": 2})
         self.assertEqual(self.names(self.results), sorted([newest_by_marker.name, old[2]]))
 
-    def test_the_quota_counts_only_eligible_folders(self):
+    def test_the_quota_counts_only_eligible_folders(self) -> None:
         for i in range(
             30
         ):  # foreign, crashed and legacy folders do not use it up, and none is evicted to make room
@@ -233,7 +245,7 @@ class UnsafePaths(Home):
             )
             return ""
 
-    def test_RET_05_a_symlink_to_an_owned_looking_folder_outside_is_left_alone(self):
+    def test_RET_05_a_symlink_to_an_owned_looking_folder_outside_is_left_alone(self) -> None:
         self.outside.joinpath("data.txt").write_bytes(b"outside")
         for marker, content in (
             (
@@ -264,7 +276,7 @@ class UnsafePaths(Home):
         for name in made[-20:]:
             self.assertEqual((self.results / name / "data.txt").read_bytes(), sentinel(name))
 
-    def test_a_link_inside_a_removed_folder_is_removed_as_a_link_and_its_target_survives(self):
+    def test_a_link_inside_a_removed_folder_is_removed_as_a_link_and_its_target_survives(self) -> None:
         victim = self.owned(self.results, result_name(0), 0)
         (self.outside / "precious.txt").write_text("precious")
         self.link(self.outside, victim / "inner_link")
@@ -274,7 +286,7 @@ class UnsafePaths(Home):
         self.assertFalse(victim.exists())
         self.assertEqual((self.outside / "precious.txt").read_text(), "precious")
 
-    def test_a_symlinked_owner_marker_does_not_make_a_folder_eligible(self):
+    def test_a_symlinked_owner_marker_does_not_make_a_folder_eligible(self) -> None:
         elsewhere = self.outside / "marker.json"
         elsewhere.write_text(
             json.dumps(
@@ -297,13 +309,13 @@ class UnsafePaths(Home):
         retention.prune("results", home=self.home)
         self.assert_intact(folder)
 
-    def test_a_file_in_the_root_is_left_alone(self):
+    def test_a_file_in_the_root_is_left_alone(self) -> None:
         (self.results / "notes.txt").write_text("keep")
         self.done_results(25)
         retention.prune("results", home=self.home)
         self.assertEqual((self.results / "notes.txt").read_text(), "keep")
 
-    def test_a_name_outside_the_allowed_characters_is_left_alone_even_with_valid_markers(self):
+    def test_a_name_outside_the_allowed_characters_is_left_alone_even_with_valid_markers(self) -> None:
         odd = self.owned(self.results, "my results (final)", 0)
         self.done_results(25, first=1)
         report = retention.prune("results", home=self.home)
@@ -312,7 +324,7 @@ class UnsafePaths(Home):
             ("my results (final)", "the name has characters outside A-Za-z0-9_.-"), report.roots[0].skipped
         )
 
-    def test_a_marker_of_the_wrong_kind_or_version_or_without_time_or_token_is_not_ownership(self):
+    def test_a_marker_of_the_wrong_kind_or_version_or_without_time_or_token_is_not_ownership(self) -> None:
         cases = {
             "wrongkind": {"kind": "run"},
             "version2": {"lc_marker": 2},
@@ -329,7 +341,7 @@ class UnsafePaths(Home):
         for name in cases:
             self.assertEqual((self.results / name / "data.txt").read_bytes(), sentinel(name), name)
 
-    def test_broken_markers_are_not_ownership(self):
+    def test_broken_markers_are_not_ownership(self) -> None:
         for name, owner in {
             "emptyfile": "",
             "binary": b"\xff\xfe",
@@ -346,7 +358,7 @@ class UnsafePaths(Home):
         for name in ("emptyfile", "binary", "alist", "huge"):
             self.assert_intact(self.results / name)
 
-    def test_a_done_file_that_is_not_a_done_marker_keeps_the_folder(self):
+    def test_a_done_file_that_is_not_a_done_marker_keeps_the_folder(self) -> None:
         for i, content in enumerate(["", "{}", '{"status": "maybe"}', "[]"]):
             folder = self.owned(self.results, "d%d" % i, i, done=False)
             (folder / ".lc-done.json").write_text(content)
@@ -355,7 +367,7 @@ class UnsafePaths(Home):
         for i in range(4):
             self.assertTrue((self.results / ("d%d" % i)).is_dir())
 
-    def test_a_root_that_does_not_exist_is_reported_and_nothing_is_created(self):
+    def test_a_root_that_does_not_exist_is_reported_and_nothing_is_created(self) -> None:
         empty = Path(self._tmp.name) / "emptyhome"
         empty.mkdir()
         report = retention.prune(home=empty)
@@ -366,13 +378,13 @@ class UnsafePaths(Home):
         self.assertFalse(missing.exists())
         self.assertIn("does not exist", report.text())
 
-    def test_only_the_two_roots_can_be_named(self):
+    def test_only_the_two_roots_can_be_named(self) -> None:
         with self.assertRaises(ValueError):
             retention.prune("state", home=self.home)
         refused = self.cli_prune("--root", "state")
         self.assertEqual(refused.returncode, 2)
 
-    def test_state_logs_and_other_folders_in_the_home_are_never_touched(self):
+    def test_state_logs_and_other_folders_in_the_home_are_never_touched(self) -> None:
         for name in ("state", "logs", "apps", "out"):
             (self.home / name).mkdir()
             self.owned(self.home / name, result_name(0), 0)
@@ -382,7 +394,7 @@ class UnsafePaths(Home):
             self.assertTrue((self.home / name / result_name(0)).is_dir())
 
     @unittest.skipUnless(os.name == "nt", "read-only files and junctions are Windows behaviours")
-    def test_windows_removes_read_only_files_and_junctions_inside_without_following_them(self):
+    def test_windows_removes_read_only_files_and_junctions_inside_without_following_them(self) -> None:
         victim = self.owned(self.results, result_name(0), 0)
         os.chmod(victim / "data.txt", 0o444)
         (self.outside / "precious.txt").write_text("precious")
@@ -397,7 +409,7 @@ class UnsafePaths(Home):
         self.assertEqual((self.outside / "precious.txt").read_text(), "precious")
 
     @unittest.skipUnless(os.name == "nt", "junctions are Windows reparse points")
-    def test_windows_a_junction_in_the_root_is_left_alone(self):
+    def test_windows_a_junction_in_the_root_is_left_alone(self) -> None:
         self.outside.joinpath("data.txt").write_text("outside")
         for marker, content in (
             (
@@ -429,7 +441,7 @@ class UnsafePaths(Home):
 class FeatureClaim(unittest.TestCase):
     """`retention_prune` is listed in `features` exactly because the command and the module exist (docs/PROTOCOL.md)."""
 
-    def test_the_feature_is_claimed_and_the_command_and_the_module_exist(self):
+    def test_the_feature_is_claimed_and_the_command_and_the_module_exist(self) -> None:
         from labconstrictor_tools import __main__ as entry
         from labconstrictor_tools import features
 
@@ -439,12 +451,12 @@ class FeatureClaim(unittest.TestCase):
         for name in ("prune", "write_owner", "write_done", "RESULTS_KEPT", "RUN_RECORDS_KEPT"):
             self.assertTrue(hasattr(retention, name), name)
 
-    def test_the_policy_numbers_are_the_documented_ones(self):
+    def test_the_policy_numbers_are_the_documented_ones(self) -> None:
         self.assertEqual((retention.RESULTS_KEPT, retention.RUN_RECORDS_KEPT), (20, 50))
         text = (ROOT / "docs" / "SPEC_WRONG_SCIENCE.md").read_text(encoding="utf-8")
         self.assertIn("`RESULTS_KEPT = 20`, `RUN_RECORDS_KEPT = 50`", text)
 
-    def test_the_protocol_page_lists_the_feature_as_implemented(self):
+    def test_the_protocol_page_lists_the_feature_as_implemented(self) -> None:
         row = next(
             line
             for line in (ROOT / "docs" / "PROTOCOL.md").read_text(encoding="utf-8").splitlines()
@@ -454,7 +466,7 @@ class FeatureClaim(unittest.TestCase):
 
 
 class Deleting(Home):
-    def test_a_removal_goes_through_a_deleting_folder_and_a_leftover_is_finished_next_time(self):
+    def test_a_removal_goes_through_a_deleting_folder_and_a_leftover_is_finished_next_time(self) -> None:
         victim = self.owned(self.results, result_name(0), 0)
         self.done_results(20, first=1)
         token = json.loads((victim / ".lc-owner.json").read_text())["token"]
@@ -465,7 +477,7 @@ class Deleting(Home):
         self.assertEqual(report.roots[0].deleted, [retention.DELETING_PREFIX + token])
         self.assertEqual(len(self.names(self.results)), 20)
 
-    def test_a_deleting_folder_that_is_not_ours_is_left_alone(self):
+    def test_a_deleting_folder_that_is_not_ours_is_left_alone(self) -> None:
         lookalike = self.foreign(self.results, ".lc-deleting-0000000000000000")
         wrong_token = self.owned(self.results, ".lc-deleting-ffffffffffff", 5)
         report = retention.prune("results", home=self.home)
@@ -473,12 +485,12 @@ class Deleting(Home):
         self.assertEqual((wrong_token / "data.txt").read_bytes(), sentinel(wrong_token.name))
         self.assertEqual(report.roots[0].deleted, [])
 
-    def test_the_rename_happens_before_any_file_is_removed(self):
+    def test_the_rename_happens_before_any_file_is_removed(self) -> None:
         self.done_results(21)
         seen = []
         real = retention._remove_tree
 
-        def spy(path):
+        def spy(path: Path) -> "Any":
             seen.append((path.name, sorted(p.name for p in path.iterdir())))
             return real(path)
 
@@ -488,12 +500,12 @@ class Deleting(Home):
         self.assertTrue(name.startswith(retention.DELETING_PREFIX), name)
         self.assertIn(".lc-owner.json", content)  # still whole when the removal starts
 
-    def test_a_folder_swapped_for_a_link_after_the_plan_is_not_followed(self):
+    def test_a_folder_swapped_for_a_link_after_the_plan_is_not_followed(self) -> None:
         made = self.done_results(21)
         (self.outside / "precious.txt").write_text("precious")
         real = retention._delete
 
-        def swap_then_delete(entry, root, kind):
+        def swap_then_delete(entry: "Any", root: "Any", kind: "Any") -> None:
             if entry.name == made[0]:
                 for child in (self.results / made[0]).iterdir():
                     child.unlink()
@@ -517,7 +529,7 @@ class Deleting(Home):
         os.name == "nt" or (hasattr(os, "geteuid") and os.geteuid() == 0),
         "needs POSIX permissions and a non-root user",
     )
-    def test_a_folder_that_cannot_be_removed_is_reported_and_the_others_still_go(self):
+    def test_a_folder_that_cannot_be_removed_is_reported_and_the_others_still_go(self) -> None:
         made = self.done_results(23)
         locked = self.results / made[0]
         os.chmod(locked, 0o500)  # cannot unlink inside
@@ -560,7 +572,7 @@ class Lock(Home):
         self.assertEqual(holder.stdout.readline().strip(), "held")
         return holder
 
-    def test_RET_09_a_lock_held_by_another_process_means_exit_0_and_nothing_deleted(self):
+    def test_RET_09_a_lock_held_by_another_process_means_exit_0_and_nothing_deleted(self) -> None:
         made = self.done_results(30)
         holder = self.hold()
         report = retention.prune("results", home=self.home)
@@ -575,28 +587,28 @@ class Lock(Home):
         retention.prune("results", home=self.home)  # the lock is free again
         self.assertEqual(len(self.names(self.results)), 20)
 
-    def test_a_dry_run_does_not_need_the_lock_and_does_not_create_it(self):
+    def test_a_dry_run_does_not_need_the_lock_and_does_not_create_it(self) -> None:
         self.done_results(30)
         self.hold()
         report = retention.prune("results", home=self.home, dry_run=True)
         self.assertFalse(report.locked_out)
         self.assertEqual(len(report.roots[0].deleted), 10)
 
-    def test_a_file_system_without_locks_means_nothing_is_deleted(self):
+    def test_a_file_system_without_locks_means_nothing_is_deleted(self) -> None:
         made = self.done_results(30)
         with mock.patch.object(retention, "_try_lock", return_value=False):
             report = retention.prune("results", home=self.home)
         self.assertTrue(report.locked_out)
         self.assertEqual(self.names(self.results), sorted(made))
 
-    def test_a_lock_file_that_cannot_be_opened_means_nothing_is_deleted_and_no_exception(self):
+    def test_a_lock_file_that_cannot_be_opened_means_nothing_is_deleted_and_no_exception(self) -> None:
         made = self.done_results(30)
         (self.home / retention.LOCK_FILE).mkdir()  # a folder where the lock file should be
         report = retention.prune("results", home=self.home)
         self.assertTrue(report.locked_out)
         self.assertEqual(self.names(self.results), sorted(made))
 
-    def test_RET_08_four_prunes_at_once_leave_exactly_20_and_every_process_exits_0(self):
+    def test_RET_08_four_prunes_at_once_leave_exactly_20_and_every_process_exits_0(self) -> None:
         foreign = self.foreign(self.results, "20261008T120000_reanalysis_backup")
         self.done_results(100)
         processes = [
@@ -616,7 +628,7 @@ class Lock(Home):
 
 
 class DryRunAndReport(Home):
-    def test_a_dry_run_changes_nothing_and_names_exactly_what_a_real_run_removes(self):
+    def test_a_dry_run_changes_nothing_and_names_exactly_what_a_real_run_removes(self) -> None:
         self.foreign(self.results, "mine")
         self.owned(self.results, result_name(500), 500, done=False)
         made = self.done_results(25)
@@ -628,7 +640,7 @@ class DryRunAndReport(Home):
         self.assertEqual(dry.roots[0].deleted, made[:5])
         self.assertEqual(dry.roots[0].kept, real.roots[0].kept)
 
-    def test_the_cli_dry_run_says_so_and_removes_nothing(self):
+    def test_the_cli_dry_run_says_so_and_removes_nothing(self) -> None:
         self.done_results(25)
         done = self.cli_prune("--dry-run")
         self.assertEqual(done.returncode, 0, done.stderr)
@@ -636,7 +648,7 @@ class DryRunAndReport(Home):
         self.assertIn("would remove", done.stdout)
         self.assertEqual(len(self.names(self.results)), 25)
 
-    def test_the_report_names_the_policy_the_removed_and_the_left_alone(self):
+    def test_the_report_names_the_policy_the_removed_and_the_left_alone(self) -> None:
         self.foreign(self.results, "20261008T120000_reanalysis_backup")
         self.owned(self.results, result_name(500), 500, done=False)
         made = self.done_results(21)
@@ -647,7 +659,7 @@ class DryRunAndReport(Home):
         self.assertIn("20261008T120000_reanalysis_backup: no .lc-owner.json", text)
         self.assertIn("%s: no .lc-done.json" % result_name(500), text)
 
-    def test_the_json_report_is_data(self):
+    def test_the_json_report_is_data(self) -> None:
         self.done_results(21)
         done = self.cli_prune("--json", "--root", "results")
         data = json.loads(done.stdout)
@@ -655,7 +667,7 @@ class DryRunAndReport(Home):
         self.assertEqual(len(data["roots"][0]["deleted"]), 1)
         self.assertEqual(len(data["roots"][0]["kept"]), 20)
 
-    def test_a_long_list_of_left_alone_folders_is_cut_in_the_text_but_not_in_the_json(self):
+    def test_a_long_list_of_left_alone_folders_is_cut_in_the_text_but_not_in_the_json(self) -> None:
         for i in range(retention.LISTED_SKIPS + 5):
             self.foreign(self.results, "f%03d" % i)
         report = retention.prune("results", home=self.home)
@@ -664,7 +676,7 @@ class DryRunAndReport(Home):
 
 
 class Writers(Home):
-    def test_the_owner_marker_is_valid_and_the_folder_is_not_yet_eligible(self):
+    def test_the_owner_marker_is_valid_and_the_folder_is_not_yet_eligible(self) -> None:
         folder = self.results / result_name(0)
         folder.mkdir()
         retention.write_owner(folder, "result", "cli")
@@ -676,7 +688,7 @@ class Writers(Home):
         self.assertRegex(marker["token"], r"^[0-9a-f-]{36}$")
         self.assertEqual(retention.prune("results", home=self.home, keep={"results": 0}).roots[0].deleted, [])
 
-    def test_the_done_marker_is_written_atomically_with_a_valid_status(self):
+    def test_the_done_marker_is_written_atomically_with_a_valid_status(self) -> None:
         folder = self.owned(self.results, result_name(0), 0, done=False)
         retention.write_done(folder, "cancelled")
         done = json.loads((folder / ".lc-done.json").read_text())
@@ -691,7 +703,7 @@ class Writers(Home):
             retention.prune("results", home=self.home, keep={"results": 0}).roots[0].deleted, [folder.name]
         )
 
-    def test_a_folder_that_held_nothing_is_discarded_and_one_with_files_is_not(self):
+    def test_a_folder_that_held_nothing_is_discarded_and_one_with_files_is_not(self) -> None:
         empty = self.results / "empty"
         empty.mkdir()
         retention.write_owner(empty, "result", "cli")
@@ -704,13 +716,13 @@ class Writers(Home):
 
 
 class CliCreatesOwnedFolders(Home):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
         patcher = mock.patch.dict(os.environ, {"LC_HOME": str(self.home)})
         patcher.start()
         self.addCleanup(patcher.stop)
 
-    def test_a_results_folder_made_by_run_has_its_owner_marker_and_never_removes_anything(self):
+    def test_a_results_folder_made_by_run_has_its_owner_marker_and_never_removes_anything(self) -> None:
         old = self.done_results(30)
         foreign = self.foreign(self.results, "20260101T000000_abcdef_mine")
         folder = cli._new_results_dir("my app", "tool")
@@ -720,7 +732,7 @@ class CliCreatesOwnedFolders(Home):
             self.names(self.results), sorted(old + [folder.name, foreign.name])
         )  # creating prunes nothing
 
-    def test_finishing_a_run_marks_it_done_and_prunes_afterwards(self):
+    def test_finishing_a_run_marks_it_done_and_prunes_afterwards(self) -> None:
         old = self.done_results(25)
         folder = cli._new_results_dir("app", "tool")
         (folder / "result.csv").write_text("1")
@@ -730,23 +742,23 @@ class CliCreatesOwnedFolders(Home):
         self.assertTrue(folder.is_dir())
         self.assertEqual(self.names(self.results)[:-1] + [folder.name], sorted(old[-19:] + [folder.name]))
 
-    def test_a_run_that_produced_nothing_leaves_no_folder_behind(self):
+    def test_a_run_that_produced_nothing_leaves_no_folder_behind(self) -> None:
         folder = cli._new_results_dir("app", "tool")
         cli._finish_results_dir(str(folder), "failed")
         self.assertFalse(folder.exists())
 
-    def test_a_successful_run_that_wrote_nothing_keeps_its_folder(self):
+    def test_a_successful_run_that_wrote_nothing_keeps_its_folder(self) -> None:
         folder = cli._new_results_dir("app", "tool")  # the run reports this path, so it has to exist
         cli._finish_results_dir(str(folder), "ok")
         self.assertEqual(json.loads((folder / ".lc-done.json").read_text())["status"], "ok")
 
-    def test_a_failed_run_with_files_keeps_them_marked_failed(self):
+    def test_a_failed_run_with_files_keeps_them_marked_failed(self) -> None:
         folder = cli._new_results_dir("app", "tool")
         (folder / "partial.csv").write_text("1")
         cli._finish_results_dir(str(folder), "failed")
         self.assertEqual(json.loads((folder / ".lc-done.json").read_text())["status"], "failed")
 
-    def test_a_problem_while_finishing_is_logged_and_never_raised(self):
+    def test_a_problem_while_finishing_is_logged_and_never_raised(self) -> None:
         folder = cli._new_results_dir("app", "tool")
         (folder / "r.csv").write_text("1")
         with (
@@ -761,7 +773,7 @@ class CliCreatesOwnedFolders(Home):
             (folder / ".lc-done.json").is_file()
         )  # the run was marked done before the prune failed
 
-    def test_two_runs_in_the_same_second_get_different_marked_folders(self):
+    def test_two_runs_in_the_same_second_get_different_marked_folders(self) -> None:
         with mock.patch.object(cli.time, "strftime", return_value="20240101T000000"):
             first = cli._new_results_dir("app", "tool")
             second = cli._new_results_dir("app", "tool")
@@ -769,7 +781,7 @@ class CliCreatesOwnedFolders(Home):
         for folder in (first, second):
             self.assertEqual(json.loads((folder / ".lc-owner.json").read_text())["name"], folder.name)
 
-    def test_a_run_record_has_markers_and_old_records_are_pruned_without_touching_foreign_ones(self):
+    def test_a_run_record_has_markers_and_old_records_are_pruned_without_touching_foreign_ones(self) -> None:
         foreign = self.foreign(self.runs, "0000_keep_this_analysis")
         self.done_runs(55)
         import types
@@ -781,7 +793,7 @@ class CliCreatesOwnedFolders(Home):
         self.assertEqual(len(self.names(self.runs, owned_only=True)), retention.RUN_RECORDS_KEPT)
         self.assert_intact(foreign)
 
-    def test_a_cancelled_or_crashed_run_record_says_so(self):
+    def test_a_cancelled_or_crashed_run_record_says_so(self) -> None:
         import types
 
         for status, expected in (("CANCELED", "cancelled"), ("CRASHED", "failed"), ("FAILED", "failed")):
@@ -799,7 +811,7 @@ class RealRun(Home):
             env={**self.env(), "PYTHONUTF8": "1"}, capture_output=True, text=True, encoding="utf-8", timeout=300,
         )  # fmt: skip
 
-    def test_a_real_run_leaves_an_owned_finished_folder_and_a_record(self):
+    def test_a_real_run_leaves_an_owned_finished_folder_and_a_record(self) -> None:
         import numpy as np
         import tifffile
 
@@ -815,7 +827,7 @@ class RealRun(Home):
         (record,) = list(self.runs.iterdir())
         self.assertEqual(json.loads((record / ".lc-done.json").read_text())["status"], "ok")
 
-    def test_a_failed_run_that_wrote_nothing_leaves_no_results_folder_but_a_failed_record(self):
+    def test_a_failed_run_that_wrote_nothing_leaves_no_results_folder_but_a_failed_record(self) -> None:
         _paths.register_synthetic(self.home)
         done = self.run_tool("explode", "kind=tool_error")
         self.assertEqual(done.returncode, 1, done.stderr)

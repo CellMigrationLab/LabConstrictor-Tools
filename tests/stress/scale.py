@@ -14,7 +14,7 @@ import tifffile
 from labconstrictor_tools import client
 
 
-def make(mb, path):
+def make(mb: int, path: str) -> int:
     side = int((mb * 1024 * 1024 / 2) ** 0.5)
     m = tifffile.memmap(path, shape=(side, side), dtype="uint16")
     m[:] = 7
@@ -24,7 +24,7 @@ def make(mb, path):
     return side
 
 
-def run(mb, tool="image_stats"):
+def run(mb: int, tool: str = "image_stats") -> None:
     d = tempfile.mkdtemp(prefix="stress_")
     p = os.path.join(d, "big.tif")
     side = make(mb, p)
@@ -34,7 +34,7 @@ def run(mb, tool="image_stats"):
     w = client.WorkerProcess("synthetic")
     wp = psutil.Process(w.proc.pid)
 
-    def sample():
+    def sample() -> None:
         while not stop.is_set():
             try:
                 peak["worker"] = max(peak["worker"], wp.memory_info().rss)

@@ -10,6 +10,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
@@ -18,14 +19,17 @@ from test_cli_and_registry import cli, register
 from labconstrictor_tools import cli as lc_cli
 from labconstrictor_tools import registry
 
+if TYPE_CHECKING:
+    from typing import Any
+
 
 class PrivateHome(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.home = Path(tempfile.mkdtemp(prefix="lchome_"))
         self._saved = os.environ.get("LC_HOME"), os.environ.get("LC_APPS_PATH")
         os.environ["LC_HOME"], os.environ["LC_APPS_PATH"] = str(self.home), ""
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         for key, value in zip(("LC_HOME", "LC_APPS_PATH"), self._saved):
             if value is None:
                 os.environ.pop(key, None)
@@ -35,7 +39,7 @@ class PrivateHome(unittest.TestCase):
 
 @unittest.skipIf(os.name != "posix", "symlinks")
 class SupportBundle(PrivateHome):
-    def test_a_symlink_is_never_followed_into_the_zip(self):
+    def test_a_symlink_is_never_followed_into_the_zip(self) -> None:
         secret = self.home / "secret.txt"
         secret.write_text("TOP-SECRET-KEY")
         (self.home / "apps").mkdir()
@@ -66,7 +70,7 @@ class SupportBundle(PrivateHome):
 class Doctor(PrivateHome):
     ENTRY = {"python": "/nonexistent/python", "module": "m", "pythonpath": [], "runtime_path": ""}
 
-    def diagnose(self, live):
+    def diagnose(self, live: "Any") -> list[tuple[str, str, str]]:
         with (
             mock.patch.object(
                 registry, "load_entries", return_value=({"a": self.ENTRY, "b": self.ENTRY}, [])
@@ -76,7 +80,7 @@ class Doctor(PrivateHome):
         ):
             return lc_cli.diagnose()
 
-    def test_one_app_that_hangs_or_fails_strangely_does_not_stop_the_others(self):
+    def test_one_app_that_hangs_or_fails_strangely_does_not_stop_the_others(self) -> None:
         silent = subprocess.CompletedProcess([], 1, stdout="", stderr="")
         junk = subprocess.CompletedProcess([], 0, stdout="hello before the schema\n{}", stderr="")
         fine = subprocess.CompletedProcess([], 0, stdout='{"protocol": 1, "tools": []}', stderr="")
@@ -95,14 +99,14 @@ class Doctor(PrivateHome):
 
 
 class ResultsFolders(PrivateHome):
-    def test_two_runs_in_the_same_second_get_different_folders(self):
+    def test_two_runs_in_the_same_second_get_different_folders(self) -> None:
         with mock.patch.object(lc_cli.time, "strftime", return_value="20240101T000000"):
             first = lc_cli._new_results_dir("app", "tool")
             second = lc_cli._new_results_dir("app", "tool")
         self.assertNotEqual(first, second)
         self.assertTrue(first.is_dir() and second.is_dir())
 
-    def test_creating_a_results_folder_removes_nothing(self):
+    def test_creating_a_results_folder_removes_nothing(self) -> None:
         base = self.home / "results"
         base.mkdir()
         (base / "000_keep").mkdir()
@@ -115,14 +119,14 @@ class ResultsFolders(PrivateHome):
             len(list(base.iterdir())), 27
         )  # pruning is `labconstrictor-tools prune` (tests/test_retention.py)
 
-    def test_a_tool_name_with_separators_cannot_leave_the_results_folder(self):
+    def test_a_tool_name_with_separators_cannot_leave_the_results_folder(self) -> None:
         folder = lc_cli._new_results_dir("../../app", "../../../outside")
         self.assertEqual(folder.resolve().parent, (self.home / "results").resolve())
         self.assertNotIn("/", folder.name)
 
 
 class ClosedPipe(PrivateHome):
-    def test_output_to_a_reader_that_went_away_is_not_a_traceback(self):
+    def test_output_to_a_reader_that_went_away_is_not_a_traceback(self) -> None:
         """`list | head`, or a pager that was quit: the command ends quietly."""
         register(self.home, "synthetic")
         read_end, write_end = os.pipe()
@@ -138,13 +142,13 @@ class ClosedPipe(PrivateHome):
 
 
 class Arguments(PrivateHome):
-    def test_a_parameter_given_twice_is_refused(self):
+    def test_a_parameter_given_twice_is_refused(self) -> None:
         register(self.home, "synthetic")
         done = cli("run", "synthetic", "scalar_echo", "a=1", "a=10", home=self.home)
         self.assertNotEqual(done.returncode, 0)
         self.assertIn("more than once", done.stderr)
 
-    def test_a_sample_given_twice_is_refused(self):
+    def test_a_sample_given_twice_is_refused(self) -> None:
         with self.assertRaises(SystemExit) as caught:
             lc_cli.cmd_test(
                 argparse.Namespace(
@@ -154,13 +158,13 @@ class Arguments(PrivateHome):
             )
         self.assertIn("more than once", str(caught.exception))
 
-    def test_a_numeric_choice_is_sent_as_a_number(self):
+    def test_a_numeric_choice_is_sent_as_a_number(self) -> None:
         param = {"name": "mode", "type": "choice", "choices": [1, 2]}
         self.assertEqual(lc_cli.parse_value(param, "1"), 1)
         self.assertEqual(lc_cli.parse_value({"name": "m", "type": "choice", "choices": ["a", "b"]}, "b"), "b")
         self.assertEqual(lc_cli.parse_value(param, "7"), "7")  # not a choice: the worker will say so
 
-    def test_indeterminate_progress_is_not_shown_as_zero_percent(self):
+    def test_indeterminate_progress_is_not_shown_as_zero_percent(self) -> None:
         stderr = io.StringIO()
         with contextlib.redirect_stderr(stderr):
             lc_cli._print_progress("loading", None)
@@ -169,7 +173,7 @@ class Arguments(PrivateHome):
 
 
 class FailedRunLeavesNoEmptyFolder(PrivateHome):
-    def test_a_failed_run_does_not_leave_an_empty_results_folder(self):
+    def test_a_failed_run_does_not_leave_an_empty_results_folder(self) -> None:
         register(self.home, "synthetic")
         done = cli(
             "run", "synthetic", "image_stats", "image=/nonexistent/none.tif", "--no-record", home=self.home

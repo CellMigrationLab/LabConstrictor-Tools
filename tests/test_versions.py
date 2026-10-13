@@ -12,25 +12,25 @@ from labconstrictor_tools import _version
 
 
 class VersionHasOneSource(unittest.TestCase):
-    def test_package_version_is_the_version_module(self):
+    def test_package_version_is_the_version_module(self) -> None:
         self.assertEqual(labconstrictor_tools.__version__, _version.__version__)
         self.assertRegex(_version.__version__, r"^\d+\.\d+\.\d+((a|b|rc)\d+)?$")
 
-    def test_pyproject_does_not_repeat_the_version(self):
+    def test_pyproject_does_not_repeat_the_version(self) -> None:
         text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
         project = text.split("[project]", 1)[1].split("\n[", 1)[0]
         self.assertIsNone(re.search(r"^version\s*=", project, re.M), "a second, static version in [project]")
         self.assertIn('dynamic = ["version"]', project)
         self.assertIn("labconstrictor_tools._version.__version__", text)
 
-    def test_installed_metadata_matches_the_source(self):
+    def test_installed_metadata_matches_the_source(self) -> None:
         try:
             installed = metadata.version("labconstrictor-tools")
         except metadata.PackageNotFoundError:
             self.skipTest("run from a source folder: no installed metadata to compare")
         self.assertEqual(installed, _version.__version__, "reinstall: pip install -e .")
 
-    def test_tagging_procedure_is_documented(self):
+    def test_tagging_procedure_is_documented(self) -> None:
         text = (ROOT / "docs" / "OPERATIONS.md").read_text(encoding="utf-8")
         self.assertTrue("## Releases and tags" in text)
         for needle in (
@@ -42,7 +42,7 @@ class VersionHasOneSource(unittest.TestCase):
         ):
             self.assertTrue(needle in text, "OPERATIONS.md lacks: " + needle)
 
-    def test_installer_pinning_is_documented_with_the_files_to_change(self):
+    def test_installer_pinning_is_documented_with_the_files_to_change(self) -> None:
         text = (ROOT / "docs" / "OPERATIONS.md").read_text(encoding="utf-8")
         section = text.split("### Pinning Tools in app installers", 1)[1].split("\n## ", 1)[0]
         for needle in (

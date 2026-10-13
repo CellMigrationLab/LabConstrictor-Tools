@@ -6,7 +6,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -16,6 +16,9 @@ from labconstrictor_tools import types as T
 from labconstrictor_tools.decorators import Tool
 from labconstrictor_tools.introspection import DeclarationError, describe_tool
 from labconstrictor_tools.types import ToolError
+
+if TYPE_CHECKING:
+    from typing import Any
 
 UNSAFE = [
     "../x", "../other_run/result", "/tmp/x", "x/y", "..\\x", "C:\\x", "C:x", "\\\\server\\share\\x", "x\\y", "..", ".",
@@ -39,7 +42,7 @@ VALUES = {
 }
 
 
-def declare(kind, name):
+def declare(kind: str, name: str) -> "dict[str, Any]":
     annotation = Annotated[OUTPUT_ANNOTATIONS[kind], T.Name(name)]
 
     def fn() -> annotation:  # type: ignore[valid-type]
@@ -49,7 +52,7 @@ def declare(kind, name):
 
 
 class Declaration(unittest.TestCase):
-    def test_unsafe_names_are_a_declaration_error_for_every_output_type(self):
+    def test_unsafe_names_are_a_declaration_error_for_every_output_type(self) -> None:
         for kind in OUTPUT_ANNOTATIONS:
             for name in UNSAFE:
                 with self.subTest(kind=kind, name=name):
@@ -57,12 +60,12 @@ class Declaration(unittest.TestCase):
                         declare(kind, name)
                     self.assertIn("Name(", str(caught.exception))
 
-    def test_safe_names_still_work(self):
+    def test_safe_names_still_work(self) -> None:
         for name in SAFE:
             with self.subTest(name=name):
                 self.assertEqual(declare("image", name)["outputs"][0]["name"], name)
 
-    def test_unnamed_outputs_keep_their_automatic_names(self):
+    def test_unnamed_outputs_keep_their_automatic_names(self) -> None:
         def fn() -> tuple[T.ImageOut, T.ImageOut]:
             return VALUES["image"], VALUES["image"]
 
@@ -73,7 +76,7 @@ class Declaration(unittest.TestCase):
 class Writers(unittest.TestCase):
     """Defence in depth: a schema that did not come from `describe_tool` still cannot write outside the job folder."""
 
-    def run_writer(self, kind, name):
+    def run_writer(self, kind: str, name: str) -> "tuple[Any, Path, Path, list[str]]":
         base = Path(tempfile.mkdtemp())
         job = base / "job"
         job.mkdir()
@@ -89,7 +92,7 @@ class Writers(unittest.TestCase):
         except ToolError as error:
             return error, base, job, before
 
-    def test_every_writer_refuses_a_name_that_leaves_the_job_folder(self):
+    def test_every_writer_refuses_a_name_that_leaves_the_job_folder(self) -> None:
         for kind in OUTPUT_ANNOTATIONS:
             for name in (
                 "../outside",
@@ -105,7 +108,7 @@ class Writers(unittest.TestCase):
                     self.assertEqual(os.listdir(job), [])
                     self.assertEqual((base / "outside.tif").read_bytes(), b"keep")
 
-    def test_every_writer_writes_a_safe_name_inside_the_job_folder(self):
+    def test_every_writer_writes_a_safe_name_inside_the_job_folder(self) -> None:
         for kind in OUTPUT_ANNOTATIONS:
             with self.subTest(kind=kind):
                 got, base, job, _ = self.run_writer(kind, "cell area")

@@ -9,24 +9,28 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
 
 from labconstrictor_tools import client, testing
 
+if TYPE_CHECKING:
+    from typing import Any, Literal
 
-def write(directory, name, text):
+
+def write(directory: str | Path, name: str, text: str) -> Path:
     path = Path(directory) / name
     path.write_text(text)
     return path
 
 
 class CasesFile(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.dir = tempfile.mkdtemp()
 
-    def test_misspelled_expectation_keys_are_rejected_at_every_level(self):
+    def test_misspelled_expectation_keys_are_rejected_at_every_level(self) -> None:
         path = write(self.dir, "cases.json", json.dumps([
             {"tool": "t", "expect": {"max_secods": 0, "results": {"table": {"row": 999}}}, "inptus": {}},
             {"tool": "t", "expect": {"progress_events": 3}},
@@ -39,7 +43,7 @@ class CasesFile(unittest.TestCase):
         self.assertIn("'progress_events'", text)
         self.assertIn("case 1", text)  # every problem is listed, not only the first
 
-    def test_a_result_expectation_with_an_unknown_key_is_a_problem_not_a_pass(self):
+    def test_a_result_expectation_with_an_unknown_key_is_a_problem_not_a_pass(self) -> None:
         result = {"name": "table", "type": "table", "path": str(write(self.dir, "t.csv", "a,b\n1,2\n"))}
         problems = testing.expectation_problems({"results": {"table": {"row": 999}}}, [result], 0.1, 0)
         self.assertEqual(len(problems), 1)
@@ -48,7 +52,7 @@ class CasesFile(unittest.TestCase):
             testing.expectation_problems({"results": {"table": {"rows": 1}}}, [result], 0.1, 0), []
         )
 
-    def test_a_valid_file_still_loads_in_both_layouts(self):
+    def test_a_valid_file_still_loads_in_both_layouts(self) -> None:
         case = {
             "tool": "t",
             "inputs": {"x": 1},
@@ -58,7 +62,7 @@ class CasesFile(unittest.TestCase):
         self.assertEqual(len(testing.load_cases(write(self.dir, "a.json", json.dumps([case])))), 1)
         self.assertEqual(len(testing.load_cases(write(self.dir, "b.json", json.dumps({"cases": [case]})))), 1)
 
-    def test_a_text_parameter_is_never_turned_into_a_path(self):
+    def test_a_text_parameter_is_never_turned_into_a_path(self) -> None:
         (Path(self.dir) / "default").write_text("a file that happens to have this name")
         tool = {"id": "t", "inputs": [
             {"name": "model", "type": "string", "required": False, "label": "m"},
@@ -72,7 +76,7 @@ class CasesFile(unittest.TestCase):
 
 
 class Contracts(unittest.TestCase):
-    def test_a_directory_is_not_a_file_output(self):
+    def test_a_directory_is_not_a_file_output(self) -> None:
         problems = testing._result_problems({"type": "file", "name": "report", "path": tempfile.gettempdir()})
         self.assertEqual(len(problems), 1)
         self.assertIn("directory", problems[0])
@@ -81,7 +85,7 @@ class Contracts(unittest.TestCase):
             testing._result_problems({"type": "file", "name": "report", "path": str(existing)}), []
         )
 
-    def test_an_affine_expectation_must_be_3x3_and_is_compared_in_full(self):
+    def test_an_affine_expectation_must_be_3x3_and_is_compared_in_full(self) -> None:
         result = {"type": "affine", "name": "a", "matrix_yx": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}
         short = testing._compare("a", result, {"matrix": [[1, 0, 0]]})
         self.assertEqual(len(short), 1)
@@ -93,19 +97,19 @@ class Contracts(unittest.TestCase):
 class CancelCheck(unittest.TestCase):
     TOOL = {"id": "t", "inputs": [], "outputs": []}
 
-    def run_check(self, task):
+    def run_check(self, task: "Any") -> "tuple[Any, Any]":
         class FakeWorker:
-            def __enter__(self):
+            def __enter__(self) -> "FakeWorker":
                 return self
 
-            def __exit__(self, *exc):
+            def __exit__(self, *exc: object) -> "Literal[False]":
                 return False
 
-            def task(self, tool_id, inputs):
+            def task(self, tool_id: str, inputs: "dict[str, Any]") -> "Any":
                 self.inputs = inputs
                 return task
 
-            def kill(self):
+            def kill(self) -> None:
                 self.killed = True
 
         worker = FakeWorker()
@@ -115,7 +119,7 @@ class CancelCheck(unittest.TestCase):
         ):
             return testing._cancel_check(self.TOOL, {"tool": "t"}, {}), worker
 
-    def test_a_tool_that_ignores_cancel_fails_the_check(self):
+    def test_a_tool_that_ignores_cancel_fails_the_check(self) -> None:
         task = mock.Mock()
         task.done.is_set.return_value = False
         task.wait.side_effect = lambda *_: None
@@ -125,7 +129,7 @@ class CancelCheck(unittest.TestCase):
         self.assertEqual(warnings, [])
         self.assertTrue(worker.killed)
 
-    def test_the_auxiliary_run_gets_its_own_job_folder(self):
+    def test_the_auxiliary_run_gets_its_own_job_folder(self) -> None:
         task = mock.Mock()
         task.done.is_set.return_value = True  # finished before the cancel: nothing to learn
         (problems, warnings), worker = self.run_check(task)
@@ -137,7 +141,7 @@ class CancelCheck(unittest.TestCase):
 
 
 class DescribeOutput(unittest.TestCase):
-    def test_prints_while_importing_do_not_reach_stdout(self):
+    def test_prints_while_importing_do_not_reach_stdout(self) -> None:
         directory = tempfile.mkdtemp()
         write(directory, "chatty_lc_tools.py", "print('initialising')\nfrom labconstrictor_tools import Scalars, tool\n"
               "@tool('X')\ndef x() -> Scalars:\n    return {}\n")  # fmt: skip
@@ -158,7 +162,7 @@ class DescribeOutput(unittest.TestCase):
 
 
 class CliMessage(unittest.TestCase):
-    def test_an_invalid_cases_file_is_reported_without_a_traceback(self):
+    def test_an_invalid_cases_file_is_reported_without_a_traceback(self) -> None:
         path = write(tempfile.mkdtemp(), "cases.json", json.dumps([{"tool": "t", "expect": {"typo": 1}}]))
         done = subprocess.run(
             [sys.executable, "-m", "labconstrictor_tools", "test", "--module", "labconstrictor_tools.examples.synthetic",

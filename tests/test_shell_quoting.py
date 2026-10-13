@@ -17,22 +17,22 @@ from labconstrictor_tools import cli, command
 
 
 class Quote(unittest.TestCase):
-    def test_plain_text_is_left_alone_and_awkward_text_stays_one_argument(self):
+    def test_plain_text_is_left_alone_and_awkward_text_stays_one_argument(self) -> None:
         for windows in (False, True):
             self.assertEqual(command.quote("plain-name_1.tif", windows), "plain-name_1.tif")
             for awkward in ("My App", "it's", 'say "hi"', "a;b", "$HOME", ""):
                 self.assertNotEqual(command.quote(awkward, windows), awkward)
 
-    def test_posix_quoting_round_trips_through_a_shell_parser(self):
+    def test_posix_quoting_round_trips_through_a_shell_parser(self) -> None:
         for text in ("My App", "it's", 'say "hi"', "a;b && c", "$(x)", "", "ünï code"):
             self.assertEqual(shlex.split(command.quote(text, windows=False)), [text])
 
-    def test_windows_quoting_wraps_in_double_quotes(self):
+    def test_windows_quoting_wraps_in_double_quotes(self) -> None:
         self.assertEqual(command.quote("My App", windows=True), '"My App"')
         self.assertEqual(command.quote('say "hi"', windows=True), '"say \\"hi\\""')
 
     @unittest.skipUnless(os.name == "posix", "the printed line is quoted for this machine's shell")
-    def test_init_prints_next_steps_that_survive_a_folder_with_spaces(self):
+    def test_init_prints_next_steps_that_survive_a_folder_with_spaces(self) -> None:
         with tempfile.TemporaryDirectory() as parent:
             folder = Path(parent) / "my tools"
             folder.mkdir()
@@ -46,7 +46,7 @@ class Quote(unittest.TestCase):
 
 
 class NoShell(unittest.TestCase):
-    def test_no_module_hands_text_to_a_shell(self):
+    def test_no_module_hands_text_to_a_shell(self) -> None:
         pattern = re.compile(r"shell\s*=\s*True|os\.system\(|os\.popen\(|commands\.getoutput")
         offenders = [
             str(path.relative_to(ROOT))

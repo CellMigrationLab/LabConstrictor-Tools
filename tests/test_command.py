@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import GENERIC_PREFIX, SYNTHETIC_MODULE, V3
@@ -15,17 +16,20 @@ from _paths import GENERIC_PREFIX, SYNTHETIC_MODULE, V3
 from labconstrictor_tools import command
 from labconstrictor_tools.introspection import describe_tools
 
+if TYPE_CHECKING:
+    from typing import Any
+
 ENV_BASE = {**os.environ, "PYTHONPATH": str(V3), "LC_APPS_PATH": ""}
 
 
-def tool_schema(tool_id):
+def tool_schema(tool_id: str) -> "dict[str, Any]":
     __import__(SYNTHETIC_MODULE)  # declaring the tools registers them
     schema = describe_tools(SYNTHETIC_MODULE)
     return next(t for t in schema["tools"] if t["id"] == tool_id)
 
 
 class Text(unittest.TestCase):
-    def test_unset_values_are_left_out_and_files_get_a_placeholder(self):
+    def test_unset_values_are_left_out_and_files_get_a_placeholder(self) -> None:
         tool = tool_schema("kitchen_sink")
         line = command.command_line(
             "App", tool, {"required_string": "hi", "optional_string": None, "count": 4}, windows=False
@@ -37,7 +41,7 @@ class Text(unittest.TestCase):
         self.assertNotIn("optional_image", line)
         self.assertIn("count=4", line)
 
-    def test_booleans_are_lowercase_and_spaces_are_quoted_for_each_shell(self):
+    def test_booleans_are_lowercase_and_spaces_are_quoted_for_each_shell(self) -> None:
         tool = tool_schema("kitchen_sink")
         values = {"required_string": "two words", "image": "a b.tif", "flag": False}
         posix = command.command_line("My App", tool, values, windows=False)
@@ -47,7 +51,7 @@ class Text(unittest.TestCase):
         self.assertIn('"required_string=two words"', windows)
         self.assertIn('"My App"', windows)
 
-    def test_the_snippet_is_valid_python_with_real_booleans(self):
+    def test_the_snippet_is_valid_python_with_real_booleans(self) -> None:
         tool = tool_schema("kitchen_sink")
         text = command.python_snippet(
             "App", tool, {"required_string": 'q"uote', "image": "x.tif", "flag": True}
@@ -59,7 +63,7 @@ class Text(unittest.TestCase):
 class RunForReal(unittest.TestCase):
     """What the form held, what the copied text says, and what the tool received are the same."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.home = Path(tempfile.mkdtemp(prefix="lchome_cmd_"))
         self.env = {**ENV_BASE, "LC_HOME": str(self.home)}
         done = subprocess.run(
@@ -69,7 +73,7 @@ class RunForReal(unittest.TestCase):
         )  # fmt: skip
         self.assertEqual(done.returncode, 0, done.stderr)
 
-    def test_terminal_line_gives_the_same_values(self):
+    def test_terminal_line_gives_the_same_values(self) -> None:
         tool = tool_schema("unicode_echo")
         line = command.command_line(
             "synthetic", tool, {"text": "µm → ok 'q'"}, python=sys.executable, windows=False
@@ -84,7 +88,7 @@ class RunForReal(unittest.TestCase):
         self.assertEqual(report["status"], "COMPLETE")
         self.assertEqual(json.dumps(report["results"], ensure_ascii=False).count("µm → ok 'q'"), 1)
 
-    def test_python_snippet_gives_the_same_values(self):
+    def test_python_snippet_gives_the_same_values(self) -> None:
         tool = tool_schema("scalar_echo")
         text = command.python_snippet("synthetic", tool, {"a": 1.5, "b": 2.25})
         done = subprocess.run([sys.executable, "-c", text], capture_output=True, text=True, env=self.env)

@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 import unittest
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -16,15 +17,18 @@ import roundtrip_cases as rc
 
 from labconstrictor_tools import types as T
 
+if TYPE_CHECKING:
+    from typing import Any
 
-def schema_of_app():
+
+def schema_of_app() -> "dict[str, dict[str, Any]]":
     return roundtrip_app.schemas(rc.APP_MODULE)
 
 
-def fingerprint(case):
+def fingerprint(case: "Any") -> str:
     """A text that changes when the case changes in any way (arrays by content)."""
 
-    def walk(value):
+    def walk(value: object) -> object:
         if isinstance(value, np.ndarray):
             return [
                 "array",
@@ -46,19 +50,19 @@ def fingerprint(case):
 
 
 class CaseList(unittest.TestCase):
-    def test_ids_are_unique(self):
+    def test_ids_are_unique(self) -> None:
         ids = [c.id for c in rc.all_cases()]
         self.assertEqual(
             sorted(set(ids)), sorted(ids), "duplicate ids: %s" % sorted({i for i in ids if ids.count(i) > 1})
         )
 
-    def test_generation_is_deterministic(self):
+    def test_generation_is_deterministic(self) -> None:
         first = [fingerprint(c) for c in rc.all_cases()]
         rc.all_cases.cache_clear()
         second = [fingerprint(c) for c in rc.all_cases()]
         self.assertEqual(first, second)
 
-    def test_every_case_names_a_tool_of_the_app_and_only_its_parameters(self):
+    def test_every_case_names_a_tool_of_the_app_and_only_its_parameters(self) -> None:
         tools = schema_of_app()
         for case in rc.all_cases():
             with self.subTest(case.id):
@@ -68,12 +72,12 @@ class CaseList(unittest.TestCase):
                 outputs = {o["name"] for o in tools[case.tool]["outputs"]}
                 self.assertLessEqual(set(case.expect.outputs), outputs)
 
-    def test_every_tool_of_the_app_has_cases(self):
+    def test_every_tool_of_the_app_has_cases(self) -> None:
         used = {c.tool for c in rc.all_cases()}
         without_skimage = {"outline_labels"} if importlib.util.find_spec("skimage") is None else set()
         self.assertEqual(sorted(set(schema_of_app()) - used - without_skimage), [])
 
-    def test_the_slow_transports_get_a_stated_share(self):
+    def test_the_slow_transports_get_a_stated_share(self) -> None:
         # the share is a property of the `ci` profile; the nightly profile sends everything, so ask for each profile by name
         # (LC_ROUNDTRIP_PROFILE must not change what this test measures)
         for path in rc.TRANSPORT_LIMITS:
@@ -95,11 +99,11 @@ class CaseList(unittest.TestCase):
 class Completeness(unittest.TestCase):
     """Everything the package declares is walked by at least one case."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.tools = schema_of_app()
         self.cases = rc.all_cases()
 
-    def used(self, key):
+    def used(self, key: str) -> "set[Any]":
         """Values of `key` over the inputs/outputs of the tools that have cases."""
         used_tools = {c.tool for c in self.cases}
         return {
@@ -109,11 +113,11 @@ class Completeness(unittest.TestCase):
             if key in x
         }
 
-    def test_every_input_and_output_type_is_covered(self):
+    def test_every_input_and_output_type_is_covered(self) -> None:
         self.assertEqual(sorted(set(T.INPUT_TYPES.values()) - self.used("type")), [])
         self.assertEqual(sorted(set(T.OUTPUT_TYPES.values()) - self.used("type")), [])
 
-    def test_every_scalar_hint_is_in_the_example_app(self):
+    def test_every_scalar_hint_is_in_the_example_app(self) -> None:
         inputs = [p for t in self.tools.values() for p in t["inputs"]]
         self.assertTrue(any(p.get("widget") == "slider" for p in inputs))
         self.assertTrue(any(p.get("widget") == "radio" for p in inputs))
@@ -126,7 +130,7 @@ class Completeness(unittest.TestCase):
         )
         self.assertTrue(any(o.get("display") for t in self.tools.values() for o in t["outputs"]))
 
-    def test_the_dtype_lists_cover_every_kind_a_host_can_send(self):
+    def test_the_dtype_lists_cover_every_kind_a_host_can_send(self) -> None:
         kinds = {np.dtype(d).kind for d in rc.DTYPES}
         self.assertEqual(kinds, set("biuf"))
         for name in ("uint8", "uint16", "int32", "float32", "float64", "bool"):
@@ -136,7 +140,7 @@ class Completeness(unittest.TestCase):
             self.assertIn("echo_image/uint8/%s" % shape, ids)
         self.assertTrue(any("fortran" in i for i in ids) and any("noncontiguous" in i for i in ids))
 
-    def test_the_scalar_edges_the_task_names_are_present(self):
+    def test_the_scalar_edges_the_task_names_are_present(self) -> None:
         ids = {c.id for c in self.cases}
         for name in (
             "echo_float/ok/-0x0.0p+0",
@@ -169,8 +173,8 @@ class Completeness(unittest.TestCase):
         ):
             self.assertIn(bound, ids)
 
-    def test_every_choice_of_every_choice_tool_has_a_case(self):
-        sent = {}
+    def test_every_choice_of_every_choice_tool_has_a_case(self) -> None:
+        sent: dict[tuple[str, str], list[Any]] = {}
         for case in self.cases:
             for name, value in case.send.items():
                 sent.setdefault((case.tool, name), []).append(value)
@@ -188,7 +192,7 @@ class Completeness(unittest.TestCase):
 class Oracle(unittest.TestCase):
     """The expectations are the documented rules (docs/PROTOCOL.md), written out once, here."""
 
-    def test_booleans_become_bytes_and_floats_become_float32(self):
+    def test_booleans_become_bytes_and_floats_become_float32(self) -> None:
         out = rc.expected_image_out(np.array([[True, False]]))
         self.assertEqual(out.dtypes, ("uint8",))
         self.assertEqual(out.values.tolist(), [[1, 0]])
@@ -197,7 +201,7 @@ class Oracle(unittest.TestCase):
         self.assertEqual(out.values[0], np.float32(0.1))
         self.assertIsNone(rc.expected_image_out(np.array([1e39])))
 
-    def test_integers_never_change_in_value(self):
+    def test_integers_never_change_in_value(self) -> None:
         self.assertEqual(rc.expected_image_out(np.array([0, 65535], np.int32)).dtypes, ("uint16", "int16"))
         self.assertEqual(rc.expected_image_out(np.array([-5, 5], np.int64)).dtypes, ("uint16", "int16"))
         self.assertEqual(rc.expected_image_out(np.array([2**24], np.int32)).dtypes, ("float32",))
@@ -205,7 +209,7 @@ class Oracle(unittest.TestCase):
         self.assertIsNone(rc.expected_image_out(np.array([2**64 - 1], np.uint64)))
         self.assertEqual(rc.expected_image_out(np.array([200], np.uint8)).dtypes, ("uint8",))
 
-    def test_the_ramp_is_asymmetric_and_fits_its_dtype(self):
+    def test_the_ramp_is_asymmetric_and_fits_its_dtype(self) -> None:
         for dtype in rc.DTYPES:
             a = rc.ramp((6, 6), dtype)
             self.assertEqual(str(a.dtype), dtype)
@@ -213,7 +217,7 @@ class Oracle(unittest.TestCase):
             if a.dtype.kind in "iu":
                 self.assertGreaterEqual(int(a.min()), int(np.iinfo(a.dtype).min))
 
-    def test_the_report_of_an_array_is_its_content_digest(self):
+    def test_the_report_of_an_array_is_its_content_digest(self) -> None:
         a = np.arange(6, dtype=np.uint16).reshape(2, 3)
         report = rc.array_report(np.asfortranarray(a))
         self.assertEqual(report["digest"], hashlib.sha256(np.arange(6, dtype="<u2").tobytes()).hexdigest())

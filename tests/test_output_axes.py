@@ -4,7 +4,7 @@ dimensions is `bad_return` before any file is written, and the `axes` a host rea
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -15,10 +15,13 @@ from labconstrictor_tools.decorators import Tool
 from labconstrictor_tools.introspection import DeclarationError, describe_tool
 from labconstrictor_tools.types import ToolError
 
+if TYPE_CHECKING:
+    from typing import Any
+
 KINDS = {"image": T.ImageOut, "labels": T.LabelsOut}
 
 
-def build(kind, array, axes=None):
+def build(kind: str, array: np.ndarray, axes: str | None = None) -> "tuple[Any, Path]":
     marker = [T.Axes(axes)] if axes is not None else []
     annotation = Annotated[(KINDS[kind], T.Name("out"), *marker)]
 
@@ -34,7 +37,7 @@ def build(kind, array, axes=None):
 
 
 class DeclaredAxes(unittest.TestCase):
-    def test_a_matching_array_succeeds_and_the_manifest_agrees_with_the_file(self):
+    def test_a_matching_array_succeeds_and_the_manifest_agrees_with_the_file(self) -> None:
         import tifffile
 
         for kind in KINDS:
@@ -49,7 +52,7 @@ class DeclaredAxes(unittest.TestCase):
                     self.assertEqual(got[0]["axes"], axes)
                     self.assertEqual(tifffile.imread(got[0]["path"]).ndim, len(got[0]["axes"]))
 
-    def test_a_3d_array_declared_yx_is_bad_return_and_nothing_is_written(self):
+    def test_a_3d_array_declared_yx_is_bad_return_and_nothing_is_written(self) -> None:
         for kind in KINDS:
             for axes, shape in (("YX", (10, 8, 8)), ("ZYX", (8, 8)), ("YX", (8,)), ("ZYX", (2, 3, 4, 5))):
                 with self.subTest(kind=kind, axes=axes, shape=shape):
@@ -60,7 +63,7 @@ class DeclaredAxes(unittest.TestCase):
                         self.assertIn(needle, str(got))
                     self.assertEqual(list(folder.iterdir()), [], "no misleading file")
 
-    def test_without_axes_the_default_follows_the_array_and_never_claims_more(self):
+    def test_without_axes_the_default_follows_the_array_and_never_claims_more(self) -> None:
         for kind in KINDS:
             for shape, expected in (
                 ((4, 5), "YX"),
@@ -76,7 +79,7 @@ class DeclaredAxes(unittest.TestCase):
 
 
 class AxisLabels(unittest.TestCase):
-    def test_labels_outside_the_protocol_are_a_declaration_error(self):
+    def test_labels_outside_the_protocol_are_a_declaration_error(self) -> None:
         for axes in ("", "Q", "yx", "YY", "Y X", "YX1"):
             with self.subTest(axes=axes, where="output"):
                 with self.assertRaises(DeclarationError) as caught:
@@ -91,7 +94,7 @@ class AxisLabels(unittest.TestCase):
                 with self.assertRaises(DeclarationError):
                     describe_tool(Tool(id="t", label="T", fn=fn))
 
-    def test_every_permitted_label_is_accepted(self):
+    def test_every_permitted_label_is_accepted(self) -> None:
         for axes in ("YX", "ZYX", "TYX", "CYX", "TCZYX", "YXS"):
             with self.subTest(axes=axes):
                 got, _ = build("image", np.ones((1,) * (len(axes) - 2) + (2, 2), np.uint8), axes)

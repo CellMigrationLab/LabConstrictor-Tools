@@ -28,19 +28,19 @@ GENERIC_PYTHON = Path(os.environ.get("LC_TEST_PYTHON") or sys.executable)
 GENERIC_PREFIX = Path(os.environ.get("LC_TEST_PREFIX") or sys.prefix)
 
 
-def real_app_python(name):
+def real_app_python(name: str) -> Path | None:
     """Interpreter of a real installed app (nucleisky | celltracks | vlab4mic) or None."""
     value = os.environ.get("LC_TEST_%s_PYTHON" % name.upper())
     return Path(value) if value and Path(value).exists() else None
 
 
-def prefix_of(python):
+def prefix_of(python: str | Path) -> Path:
     """Install prefix of an interpreter: <prefix>/bin/python or <prefix>/python.exe."""
     python = Path(python)
     return python.parent.parent if python.parent.name in ("bin", "Scripts") else python.parent
 
 
-def ensure_fixtures():
+def ensure_fixtures() -> Path:
     """Generate the (large, deterministic) NucleiSky test images on first use instead of committing 5 MB of TIFF."""
     if not (FIXTURES / "nucleisky" / "query.tif").exists():
         subprocess.run(
@@ -49,7 +49,7 @@ def ensure_fixtures():
     return FIXTURES
 
 
-def register_synthetic(home):
+def register_synthetic(home: str | Path) -> None:
     env = {**os.environ, "LC_HOME": str(home), "PYTHONPATH": str(ROOT)}
     subprocess.run(
         [sys.executable, "-m", "labconstrictor_tools", "register", "--name", "synthetic", "--prefix", str(GENERIC_PREFIX),

@@ -22,7 +22,7 @@ REQUIRED_KINDS = ("backslash", "quote", "space", "unicode", "percent", "caret", 
 
 
 class QuoteVectors(unittest.TestCase):
-    def test_the_file_is_well_formed_and_covers_the_hard_cases(self):
+    def test_the_file_is_well_formed_and_covers_the_hard_cases(self) -> None:
         labels = [v["label"] for v in VECTORS]
         self.assertEqual(len(labels), len(set(labels)), "labels must be unique")
         for v in VECTORS:
@@ -30,18 +30,18 @@ class QuoteVectors(unittest.TestCase):
         for kind in REQUIRED_KINDS:
             self.assertTrue(any(kind in label for label in labels), "no vector for " + kind)
 
-    def test_quote_gives_the_expected_text_for_both_shells(self):
+    def test_quote_gives_the_expected_text_for_both_shells(self) -> None:
         for v in VECTORS:
             with self.subTest(v["label"]):
                 self.assertEqual(command.quote(v["text"], windows=False), v["posix"])
                 self.assertEqual(command.quote(v["text"], windows=True), v["windows"])
 
-    def test_the_posix_expectations_are_one_shell_word(self):
+    def test_the_posix_expectations_are_one_shell_word(self) -> None:
         for v in VECTORS:
             with self.subTest(v["label"]):
                 self.assertEqual(shlex.split(v["posix"]), [v["text"]])
 
-    def test_the_windows_expectations_are_one_argument_for_the_c_runtime(self):
+    def test_the_windows_expectations_are_one_argument_for_the_c_runtime(self) -> None:
         for v in VECTORS:
             with self.subTest(v["label"]):
                 self.assertEqual(

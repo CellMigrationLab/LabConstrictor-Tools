@@ -33,6 +33,7 @@ every real path, and that the tests themselves would notice if the production co
 | `tests/test_retention.py` | `retention` and `labconstrictor-tools prune` ([SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) 3.7: RET-01 to RET-09, RET-12, RET-13): a private `LC_HOME`, every survivor checked by the contents of a sentinel file, four real `prune` processes at once, a lock held by another process, symlinks (and on Windows junctions and read-only files; a link kind that cannot be made is reported as skipped, never as a pass) |
 | `tests/test_conformance.py` | `conformance.json` and its loader ([CONFORMANCE.md](CONFORMANCE.md)): the schema (every kind of damage is named), the data against the code (limits, `compat` vectors, retention fixtures once `retention` exists), arithmetic oracles for the coordinate formula and the unit table, and the wheel contents |
 | `tests/test_sabotage.py`, `coverage_report.py`, `vulture_whitelist.py` | the production-code guarantees |
+| `scripts/check_annotations.py`, `scripts/verify_annotation_only.py` | dev tools, not tests: the annotation check that runs in the `lint` job, and the proof that a change touched annotations only (see "Annotations and type checking") |
 
 Transports and what each can carry: `worker` carries everything (including shared-memory images and invalid JSON types), `cli`,
 `terminal` and `snippet` carry what fits on a command line, `notebook` carries what the form's controls can hold. A case lists the
@@ -52,7 +53,7 @@ Run a slice: `LC_ROUNDTRIP_FILTER='echo_bounded' python -m unittest test_roundtr
 
 | Trigger | Workflow | What runs |
 |---|---|---|
-| Pull request | `ci` | `lint`, then `compat` (Tools against its newest `v*` tag, see below; skips with a printed reason when there is no tag) and 4 test jobs: ubuntu 3.10, ubuntu 3.12 (coverage floor 85), windows 3.12 (plus the Windows-specific suite), macos 3.12 |
+| Pull request | `ci` | `lint` (black, ruff, the annotation check, mypy, vulture), then `compat` (Tools against its newest `v*` tag, see below; skips with a printed reason when there is no tag) and 4 test jobs: ubuntu 3.10, ubuntu 3.12 (coverage floor 85), windows 3.12 (plus the Windows-specific suite), macos 3.12 |
 | Push to `main`, manual dispatch, nightly (03:17 UTC) | `ci` | `lint`, then `compat` and the full 3 OS x {3.10, 3.12} matrix, so Windows and macOS on 3.10 are still covered, at the latest the next night |
 | Nightly (02:41 UTC), manual dispatch | `nightly` | heavy round-trip profile on 3 OS, mutation testing |
 | Manual only (`smoke` also on pushes to `claude/smoke-bridge`) | `smoke`, `smoke_install`, `smoke_migration`, `release_sandbox` | end-to-end, install, template-migration and released-app smoke tests: **dispatch-only, no schedule and no pull-request trigger**, so nothing runs them unless a person starts them (a default that names a deleted branch is only found at the next run). `smoke_migration`: an old install of an app (default NucleiSky) gets the template migration, is updated, checked and uninstalled |
@@ -92,6 +93,41 @@ setuptools did exactly that, 2026-10-12), because pull requests do not run those
 ## The Playground rule
 
 Every new feature or limit needs (1) a tool or case in the Playground app (a tool in its feature tour and a case in "Check the bridge"), (2) a generated case in the round-trip matrix, and (3) the host GUI check, before its pull request is done. **Where it is checked:** (2) is enforced by tests in this repository (`test_roundtrip_cases.py` and `test_roundtrip_hints.py` fail when a declared type, tool or marker has no case); (1) and (3) live in other repositories and run in `release_sandbox` with `playground_extras` (the Playground's own tool runs, the Fiji and QuPath host runs) and in each host's own suite; nothing in Tools fails when (1) is missing, so a reviewer checks it by hand from the pull request description (feature, Playground tool or case, matrix case, ledger row when it fixes a defect). A change with no Playground case says why (a host-side API, a performance feature).
+
+## Annotations and type checking
+
+**The rule: every function, method and nested function is annotated, in the package, the tests, the example apps and the scripts:
+every parameter except `self` / `cls`, `*args` and `**kwargs` included, and the return type, `-> None` included.** No blanket `Any`
+where the type is known; `Any` is for values that really are anything (a JSON value, the keyword arguments passed on to another call).
+
+How it is checked (both in the `lint` job of `ci`, the first one is the quick one):
+
+* `python scripts/check_annotations.py` reads the files with `ast` (it imports nothing) and lists every function that misses an
+  annotation, per file and line. It covers `labconstrictor_tools`, `tests`, `scripts` and `fixtures`; `--summary` prints the count per
+  file. The one allowed exception is a function that is unannotated on purpose, because the test is about declaring a tool without
+  annotations: write `# lc-annotations: skip - <reason>` on its `def` line (today: `bad1` in `tests/test_introspection.py`).
+* `mypy` (no arguments: paths and flags are in `pyproject.toml`, `[tool.mypy]`) checks the same four folders with
+  `disallow_untyped_defs` and `disallow_incomplete_defs`, `warn_unused_ignores` and the unresolved-name checks. The package is checked
+  completely, as before. The example apps and the tests are checked completely **except** the error codes listed in the second
+  `[[tool.mypy.overrides]]` block, which belong to how tests are written: the semantic marker types (`Image`, `Table`, `Scalars`) are
+  classes that an annotated tool function can never match, tests hand deliberately partial or invalid schemas to the code under
+  test, and they read pipes of a `Popen` they just opened. Shrinking that list is future work; removing a code from it and fixing what
+  appears is the way to do it.
+
+Rules for adding annotations (they must never change what a program does):
+
+* An annotation that is evaluated when the `def` runs may only use names that exist at run time. A name that is needed only for
+  the type goes under `if TYPE_CHECKING:` and the annotation that uses it is written as a string (`-> "Any"`).
+* Do **not** add `from __future__ import annotations` to a file that does not have it. It turns every annotation of the file into a
+  string, and the tools declared in a test (and the functions a test passes to `describe_tool`) are read with
+  `typing.get_type_hints`, which cannot resolve names of the enclosing function. The `@tool` functions of the examples and of the test
+  apps keep exactly the annotations their schema needs.
+* A `# type: ignore[code]` needs a reason on the same line.
+* `python scripts/verify_annotation_only.py` (a dev tool, not part of CI) is the proof for a change that claims to touch
+  annotations only: it removes annotations, `TYPE_CHECKING` scaffolding and `from __future__ import annotations` from the old and the
+  new version of every changed `.py` file and compares the syntax trees with `ast.dump`; any difference is listed. Compare the
+  schemas too: `python -m labconstrictor_tools describe --module <module>` for each example and test app before and after must be
+  byte for byte the same.
 
 ## Known failures
 

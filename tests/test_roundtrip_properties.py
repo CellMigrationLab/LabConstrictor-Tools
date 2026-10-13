@@ -15,6 +15,7 @@ import shlex
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -31,6 +32,10 @@ from roundtrip_known_failures import KNOWN, is_known
 
 from labconstrictor_tools import cli, command, convert, protocol, testing
 from labconstrictor_tools.types import ToolError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
 _DECLARED = roundtrip_app.declared(rc.APP_MODULE)
 TOOLS = {tool_id: schema for tool_id, (schema, _) in _DECLARED.items()}
@@ -52,24 +57,24 @@ IMAGES = DTYPES.flatmap(
 )
 
 
-def call_loader(tool_id, name, value):
+def call_loader(tool_id: str, name: str, value: object) -> "dict[str, Any]":
     """The production entry the worker uses for inputs: convert.load_inputs with the tool's own schema."""
     return convert.load_inputs(TOOLS[tool_id], {name: value}, FUNCTIONS[tool_id])
 
 
-def tool_error_or_value(tool_id, name, value):
+def tool_error_or_value(tool_id: str, name: str, value: object) -> "Any":
     try:
         return call_loader(tool_id, name, value)
     except ToolError as error:
         return error
 
 
-def read_rows(path):
+def read_rows(path: str | Path) -> list[list[str]]:
     with open(path, newline="", encoding="utf-8") as handle:
         return list(csv.reader(handle))
 
 
-def arrays_equal(got, want):
+def arrays_equal(got: np.ndarray, want: np.ndarray) -> bool:
     if got.dtype != want.dtype or got.shape != want.shape:
         return False
     if want.dtype.kind == "f":
@@ -81,43 +86,43 @@ def arrays_equal(got, want):
 
 # ------------------------------------------------------------------------------ converters only raise ToolError
 @given(JSON_VALUES)
-def only_toolerror_integer(value):
+def only_toolerror_integer(value: object) -> None:
     tool_error_or_value("echo_int", "value", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_float(value):
+def only_toolerror_float(value: object) -> None:
     tool_error_or_value("echo_float", "value", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_boolean(value):
+def only_toolerror_boolean(value: object) -> None:
     tool_error_or_value("echo_bool", "value", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_choice(value):
+def only_toolerror_choice(value: object) -> None:
     tool_error_or_value("echo_choice", "value", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_enum(value):
+def only_toolerror_enum(value: object) -> None:
     tool_error_or_value("echo_enum", "value", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_bounded(value):
+def only_toolerror_bounded(value: object) -> None:
     tool_error_or_value("echo_bounded_int", "value", value)
     tool_error_or_value("echo_bounded_float", "value", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_string(value):
+def only_toolerror_string(value: object) -> None:
     tool_error_or_value("echo_string", "value", value)
 
 
 @given(TEXTS)
-def only_toolerror_paths_given_as_text(text):
+def only_toolerror_paths_given_as_text(text: str) -> None:
     for tool_id, name in (
         ("echo_image", "image"),
         ("echo_labels", "labels"),
@@ -128,12 +133,12 @@ def only_toolerror_paths_given_as_text(text):
 
 
 @given(JSON_VALUES)
-def only_toolerror_file_value(value):
+def only_toolerror_file_value(value: object) -> None:
     tool_error_or_value("echo_file", "file", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_folder_value(value):
+def only_toolerror_folder_value(value: object) -> None:
     tool_error_or_value("echo_folder", "folder", value)
 
 
@@ -144,12 +149,12 @@ SHARED_MEMORY_DESCRIPTORS = st.fixed_dictionaries(
 
 
 @given(SHARED_MEMORY_DESCRIPTORS)
-def only_toolerror_image_shared_memory(descriptor):
+def only_toolerror_image_shared_memory(descriptor: object) -> None:
     tool_error_or_value("echo_image", "image", descriptor)
 
 
 @given(st.binary(max_size=200))
-def only_toolerror_table_file(content):
+def only_toolerror_table_file(content: bytes) -> None:
     with tempfile.TemporaryDirectory() as folder:
         path = Path(folder) / "t.csv"
         path.write_bytes(content)
@@ -157,7 +162,7 @@ def only_toolerror_table_file(content):
 
 
 # ----------------------------------------------- results: whatever a tool returns, a ToolError or a result, never a crash
-def only_toolerror_results(kind, value):
+def only_toolerror_results(kind: str, value: object) -> None:
     schema = {"outputs": [{"name": kind, "type": kind}]}
     with tempfile.TemporaryDirectory() as folder:
         try:
@@ -167,12 +172,12 @@ def only_toolerror_results(kind, value):
 
 
 @given(JSON_VALUES)
-def only_toolerror_result_affine(value):
+def only_toolerror_result_affine(value: object) -> None:
     only_toolerror_results("affine", value)
 
 
 # shapes that crashed some pandas versions (found by hypothesis on Python 3.10): pinned so every Python and every run sees them
-TABLE_LIKE_MISTAKES = (
+TABLE_LIKE_MISTAKES: "tuple[list[Any], ...]" = (
     [{}, None],
     [1, 2],
     [{"a": 1}, [1]],
@@ -195,7 +200,7 @@ TABLE_LIKE_MISTAKES = (
 )
 
 
-def with_table_examples(test):
+def with_table_examples(test: "Callable[..., None]") -> "Callable[..., None]":
     for mistake in TABLE_LIKE_MISTAKES:
         test = example(mistake)(test)
     return test
@@ -203,75 +208,75 @@ def with_table_examples(test):
 
 @with_table_examples
 @given(JSON_VALUES)
-def only_toolerror_result_points(value):
+def only_toolerror_result_points(value: object) -> None:
     only_toolerror_results("points", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_result_shapes(value):
+def only_toolerror_result_shapes(value: object) -> None:
     only_toolerror_results("shapes", value)
 
 
 @with_table_examples
 @given(JSON_VALUES)
-def only_toolerror_result_table(value):
+def only_toolerror_result_table(value: object) -> None:
     only_toolerror_results("table", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_result_image(value):
+def only_toolerror_result_image(value: object) -> None:
     only_toolerror_results("image", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_result_values(value):
+def only_toolerror_result_values(value: object) -> None:
     only_toolerror_results("values", value)
 
 
 @given(JSON_VALUES)
-def only_toolerror_result_message(value):
+def only_toolerror_result_message(value: object) -> None:
     only_toolerror_results("message", value)
 
 
 # ---------------------------------------------------------------------------------- scalars: identity and rules
 @given(st.integers())
-def identity_integer(value):
+def identity_integer(value: int) -> None:
     out = call_loader("echo_int", "value", json.loads(json.dumps(value)))
     assert same(out["value"], value), (out, value)
 
 
 @given(FINITE)
-def identity_float(value):
+def identity_float(value: float) -> None:
     out = call_loader("echo_float", "value", json.loads(json.dumps(value)))
     assert same(out["value"], value), (out, value)
 
 
 @given(st.integers(min_value=-(10**300), max_value=10**300))
-def identity_float_from_integer(value):
+def identity_float_from_integer(value: int) -> None:
     out = call_loader("echo_float", "value", value)
     assert same(out["value"], float(value)), (out, value)
 
 
 @given(st.booleans())
-def identity_boolean(value):
+def identity_boolean(value: bool) -> None:
     assert same(call_loader("echo_bool", "value", value)["value"], value)
 
 
 @given(TEXTS)
-def identity_string(value):
+def identity_string(value: str) -> None:
     out = call_loader("echo_string", "value", json.loads(json.dumps(value)))
     assert same(out["value"], value), (out, value)
 
 
 @given(st.sampled_from(["alpha", "beta", "gamma", "with space", "ünï", ""]))
-def identity_choice(value):
+def identity_choice(value: str) -> None:
     assert same(call_loader("echo_choice", "value", value)["value"], value)
 
 
 @given(
     st.one_of(st.integers(-10, 10), st.floats(allow_nan=False, allow_infinity=False), st.booleans(), TEXTS)
 )
-def choice_accepts_exactly_the_declared_values(value):
+def choice_accepts_exactly_the_declared_values(value: object) -> None:
     got = tool_error_or_value("echo_choice", "value", value)
     declared = ["alpha", "beta", "gamma", "with space", "ünï", ""]
     allowed = any(type(value) is type(c) and value == c for c in declared)
@@ -281,7 +286,7 @@ def choice_accepts_exactly_the_declared_values(value):
 
 
 @given(st.integers(min_value=-(10**30), max_value=10**30))
-def integer_bounds_are_inclusive(value):
+def integer_bounds_are_inclusive(value: int) -> None:
     got = tool_error_or_value("echo_bounded_int", "value", value)
     inside = -5 <= value <= 10
     assert isinstance(got, dict) == inside, (value, got)
@@ -296,7 +301,7 @@ def integer_bounds_are_inclusive(value):
         FINITE, st.sampled_from([-0.5, 1.5, math.nextafter(-0.5, -1), math.nextafter(1.5, 2), -0.0, 0.0])
     )
 )
-def float_bounds_are_inclusive(value):
+def float_bounds_are_inclusive(value: float) -> None:
     got = tool_error_or_value("echo_bounded_float", "value", value)
     inside = -0.5 <= value <= 1.5
     assert isinstance(got, dict) == inside, (value, got)
@@ -305,32 +310,32 @@ def float_bounds_are_inclusive(value):
 
 
 @given(st.one_of(st.none(), st.integers(-(10**20), 10**20)))
-def unset_never_becomes_zero_integer(value):
+def unset_never_becomes_zero_integer(value: int | None) -> None:
     got = call_loader("echo_optional_int", "value", value)
     assert same(got["value"], value), (value, got)
 
 
 @given(st.one_of(st.none(), TEXTS))
-def unset_never_becomes_empty_text(value):
+def unset_never_becomes_empty_text(value: str | None) -> None:
     got = call_loader("echo_optional_string", "value", value)
     assert same(got["value"], value), (value, got)
 
 
 @given(st.one_of(st.none(), st.booleans()))
-def unset_never_becomes_false(value):
+def unset_never_becomes_false(value: bool | None) -> None:
     got = call_loader("echo_optional_bool", "value", value)
     assert same(got["value"], value), (value, got)
 
 
 @given(st.one_of(st.none(), FINITE))
-def unset_never_becomes_zero_float(value):
+def unset_never_becomes_zero_float(value: float | None) -> None:
     got = call_loader("echo_optional_float", "value", value)
     assert same(got["value"], value), (value, got)
 
 
 # ------------------------------------------------------------------------------ files, images, tables, results
 @given(IMAGES)
-def image_input_and_output_round_trip(array):
+def image_input_and_output_round_trip(array: np.ndarray) -> None:
     with tempfile.TemporaryDirectory() as folder:
         path = Path(folder) / "i.tif"
         tifffile.imwrite(path, array)
@@ -349,7 +354,7 @@ def image_input_and_output_round_trip(array):
 
 
 @given(IMAGES)
-def image_shared_memory_round_trip(array):
+def image_shared_memory_round_trip(array: np.ndarray) -> None:
     session = harness.Session()
     try:
         descriptor = session._share(array)
@@ -359,7 +364,7 @@ def image_shared_memory_round_trip(array):
         session.close()
 
 
-def table_text():
+def table_text() -> st.SearchStrategy[str]:
     # CSV cannot tell "007" from 7, nor "NA" from a missing cell: texts that are unambiguous in CSV (a documented limit)
     return st.text(
         alphabet=st.characters(blacklist_categories=("Cs", "Cc", "Zs", "Zl", "Zp")), min_size=1, max_size=12
@@ -371,7 +376,9 @@ def table_text():
     st.lists(table_text(), min_size=1, max_size=8),
     st.lists(st.booleans(), min_size=1, max_size=8),
 )
-def table_of_integers_texts_booleans_round_trips(ints, texts, flags):
+def table_of_integers_texts_booleans_round_trips(
+    ints: list[int], texts: list[str], flags: list[bool]
+) -> None:
     n = min(len(ints), len(texts), len(flags))
     frame = pd.DataFrame({"i": ints[:n], "s": texts[:n], "b": flags[:n]})
     with tempfile.TemporaryDirectory() as folder:
@@ -393,7 +400,7 @@ def table_of_integers_texts_booleans_round_trips(ints, texts, flags):
 
 
 @given(st.lists(FINITE, min_size=1, max_size=20))
-def table_floats_survive_the_csv_exactly(values):
+def table_floats_survive_the_csv_exactly(values: list[float]) -> None:
     frame = pd.DataFrame({"f": values})
     with tempfile.TemporaryDirectory() as folder:
         path = Path(folder) / "t.csv"
@@ -403,7 +410,7 @@ def table_floats_survive_the_csv_exactly(values):
 
 
 @given(st.lists(FINITE, min_size=1, max_size=20))
-def table_floats_are_written_exactly(values):
+def table_floats_are_written_exactly(values: list[float]) -> None:
     with tempfile.TemporaryDirectory() as folder:
         results = convert.build_results(
             {"outputs": [{"name": "table", "type": "table"}]}, {"f": values}, folder
@@ -416,7 +423,7 @@ def table_floats_are_written_exactly(values):
     st.lists(FINITE, min_size=0, max_size=12),
     st.lists(FINITE, min_size=0, max_size=12),
 )
-def points_round_trip(ys, xs):
+def points_round_trip(ys: list[float], xs: list[float]) -> None:
     n = min(len(ys), len(xs))
     with tempfile.TemporaryDirectory() as folder:
         results = convert.build_results(
@@ -432,7 +439,7 @@ def points_round_trip(ys, xs):
 @given(
     st.lists(st.lists(st.tuples(FINITE, FINITE), min_size=3, max_size=7, unique=True), min_size=0, max_size=4)
 )
-def polygons_become_closed_geojson_with_x_before_y(polygons):
+def polygons_become_closed_geojson_with_x_before_y(polygons: list[list[tuple[float, float]]]) -> None:
     with tempfile.TemporaryDirectory() as folder:
         results = convert.build_results(
             {"outputs": [{"name": "shapes", "type": "shapes"}]},
@@ -446,21 +453,21 @@ def polygons_become_closed_geojson_with_x_before_y(polygons):
 
 
 @given(st.lists(st.lists(FINITE, min_size=3, max_size=3), min_size=3, max_size=3))
-def affine_round_trip(matrix):
+def affine_round_trip(matrix: list[list[float]]) -> None:
     with tempfile.TemporaryDirectory() as folder:
         results = convert.build_results({"outputs": [{"name": "affine", "type": "affine"}]}, matrix, folder)
     assert same(results[0]["matrix_yx"], [[float(v) for v in row] for row in matrix])
 
 
 @given(st.lists(st.lists(FINITE, min_size=3, max_size=3), min_size=2, max_size=2))
-def affine_two_by_three_is_completed(matrix):
+def affine_two_by_three_is_completed(matrix: list[list[float]]) -> None:
     with tempfile.TemporaryDirectory() as folder:
         results = convert.build_results({"outputs": [{"name": "affine", "type": "affine"}]}, matrix, folder)
     assert same(results[0]["matrix_yx"], [[float(v) for v in row] for row in matrix] + [[0.0, 0.0, 1.0]])
 
 
 @given(TEXTS)
-def message_is_the_stripped_text(text):
+def message_is_the_stripped_text(text: str) -> None:
     schema = {"outputs": [{"name": "message", "type": "message"}]}
     with tempfile.TemporaryDirectory() as folder:
         try:
@@ -483,7 +490,7 @@ SAFE_NAME = st.text(
 
 
 @given(SAFE_NAME, st.binary(max_size=64))
-def file_path_arrives_unchanged_and_names_the_same_bytes(name, content):
+def file_path_arrives_unchanged_and_names_the_same_bytes(name: str, content: bytes) -> None:
     with tempfile.TemporaryDirectory() as folder:
         path = Path(folder) / name
         try:
@@ -513,11 +520,11 @@ SCALAR_VALUES = st.recursive(
 )
 
 
-def _refuse_constant(constant):
+def _refuse_constant(constant: str) -> None:
     raise AssertionError("the constant %s is not JSON" % constant)
 
 
-def expected_json(value):
+def expected_json(value: object) -> object:
     """The value as strict JSON carries it: numpy scalars as Python numbers, NaN and infinity as null, tuples as lists."""
     if isinstance(value, np.generic):
         value = value.item()
@@ -531,7 +538,7 @@ def expected_json(value):
 
 
 @given(st.dictionaries(TEXTS, SCALAR_VALUES, max_size=4))
-def scalars_results_are_strict_json_with_nan_as_null(values):
+def scalars_results_are_strict_json_with_nan_as_null(values: "dict[str, Any]") -> None:
     with tempfile.TemporaryDirectory() as folder:
         results = convert.build_results({"outputs": [{"name": "values", "type": "values"}]}, values, folder)
     text = json.dumps(results[0]["values"], allow_nan=False)  # raises if a NaN or infinity got through
@@ -549,7 +556,7 @@ def scalars_results_are_strict_json_with_nan_as_null(values):
         max_size=4,
     )
 )
-def wire_messages_with_non_finite_numbers_are_strict_json(fields):
+def wire_messages_with_non_finite_numbers_are_strict_json(fields: "dict[str, Any]") -> None:
     line = protocol._encode(
         {"task": "t", "responseType": "UPDATE", **{"f_" + k: v for k, v in fields.items()}}
     )
@@ -557,7 +564,7 @@ def wire_messages_with_non_finite_numbers_are_strict_json(fields):
 
 
 @given(st.sets(st.integers(), min_size=1, max_size=3))
-def values_json_cannot_carry_are_refused_never_turned_into_text(items):
+def values_json_cannot_carry_are_refused_never_turned_into_text(items: set[int]) -> None:
     try:
         protocol._encode({"task": "t", "responseType": "COMPLETION", "outputs": {"x": items}})
     except TypeError:
@@ -567,20 +574,20 @@ def values_json_cannot_carry_are_refused_never_turned_into_text(items):
 
 # ----------------------------------------------------------- arbitrary text never becomes a path or shell text
 @given(TEXTS)
-def text_parameter_stays_text_in_the_converter(text):
+def text_parameter_stays_text_in_the_converter(text: str) -> None:
     out = call_loader("echo_string", "value", text)["value"]
     assert type(out) is str and out == text
 
 
 @given(TEXTS)
-def text_parameter_stays_text_on_the_command_line_parser(text):
+def text_parameter_stays_text_on_the_command_line_parser(text: str) -> None:
     param = TOOLS["echo_string"]["inputs"][0]
     got = cli.parse_value(param, text)
     assert type(got) is str and got == text
 
 
 @given(SAFE_NAME)
-def text_parameter_is_not_resolved_to_a_file_by_the_author_test_harness(name):
+def text_parameter_is_not_resolved_to_a_file_by_the_author_test_harness(name: str) -> None:
     with tempfile.TemporaryDirectory() as folder:
         try:
             (Path(folder) / name).write_text("x", encoding="utf-8")
@@ -597,7 +604,7 @@ def text_parameter_is_not_resolved_to_a_file_by_the_author_test_harness(name):
 
 
 @given(TEXTS.filter(lambda t: "\x00" not in t), TEXTS.filter(lambda t: "\x00" not in t))
-def posix_command_line_is_one_word_per_parameter(app, text):
+def posix_command_line_is_one_word_per_parameter(app: str, text: str) -> None:
     line = command.command_line(app, TOOLS["echo_string"], {"value": text}, python="python", windows=False)
     assert shlex.split(line) == [
         "python",
@@ -611,7 +618,7 @@ def posix_command_line_is_one_word_per_parameter(app, text):
 
 
 @given(TEXTS.filter(lambda t: "\x00" not in t), TEXTS.filter(lambda t: "\x00" not in t))
-def snippet_is_python_that_holds_exactly_the_values(app, text):
+def snippet_is_python_that_holds_exactly_the_values(app: str, text: str) -> None:
     snippet = command.python_snippet(app, TOOLS["echo_string"], {"value": text})
     call = next(
         n
@@ -622,14 +629,14 @@ def snippet_is_python_that_holds_exactly_the_values(app, text):
 
 
 @given(TEXTS.filter(lambda t: "\x00" not in t))
-def windows_quoting_keeps_a_text_one_argument(text):
+def windows_quoting_keeps_a_text_one_argument(text: str) -> None:
     from test_roundtrip_command import parse_windows_command_line
 
     assert parse_windows_command_line("prog " + command.quote(text, windows=True)) == ["prog", text]
 
 
 @given(TEXTS.filter(lambda t: "\x00" not in t))
-def posix_quoting_is_inverted_by_the_shell_parser(text):
+def posix_quoting_is_inverted_by_the_shell_parser(text: str) -> None:
     assert shlex.split(command.quote(text, windows=False)) == [text]
 
 
@@ -643,17 +650,17 @@ PROPERTIES = {
 class Properties(unittest.TestCase):
     """One test per property (test_<name>), so that a failure, a sabotage slice or a mutation run names exactly one."""
 
-    def test_there_are_many_properties(self):
+    def test_there_are_many_properties(self) -> None:
         self.assertGreater(len(PROPERTIES), 40)
 
-    def test_profile_is_deterministic_in_ci(self):
+    def test_profile_is_deterministic_in_ci(self) -> None:
         if os.environ.get("LC_HYPOTHESIS_PROFILE", "ci") == "ci":
             self.assertTrue(settings.default.derandomize)
             self.assertEqual(settings.default.max_examples, 200)
 
 
-def _make_test(name, function):
-    def test(self):
+def _make_test(name: str, function: "Callable[[], None]") -> "Callable[[unittest.TestCase], None]":
+    def test(self: unittest.TestCase) -> None:
         if is_known("property:" + name):
             self.skipTest(
                 "known failure %s, watched by test_roundtrip_known_failures" % KNOWN[("property:" + name)]
@@ -668,7 +675,7 @@ for _name, _function in PROPERTIES.items():
     setattr(Properties, "test_" + _name, _make_test(_name, _function))
 
 
-def tearDownModule():
+def tearDownModule() -> None:
     """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
     raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
     import gc

@@ -11,6 +11,7 @@ import threading
 import time
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 from _paths import GENERIC_PREFIX, SYNTHETIC_MODULE, V3
@@ -18,18 +19,22 @@ from test_cli_and_registry import cli, register
 
 from labconstrictor_tools import client, convert, registry
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+    from typing import Any
+
 
 class Finite(unittest.TestCase):
     PARAM = {"name": "x", "label": "X", "type": "float", "required": True, "minimum": 0}
 
-    def test_nan_and_inf_are_rejected_not_compared(self):
+    def test_nan_and_inf_are_rejected_not_compared(self) -> None:
         for bad in (float("nan"), float("inf"), "nan"):
             with self.assertRaises(convert.ToolError) as caught:
                 convert._load_one(self.PARAM, bad)
             self.assertEqual(caught.exception.code, "invalid_parameter")
         self.assertEqual(convert._load_one(self.PARAM, 1.5), 1.5)
 
-    def test_values_survive_strict_json(self):
+    def test_values_survive_strict_json(self) -> None:
         import numpy as np
 
         out = convert._write_one(
@@ -47,7 +52,7 @@ class Finite(unittest.TestCase):
         self.assertIsInstance(out["values"]["n"], int)
         json.dumps(out, allow_nan=False)
 
-    def test_channel_never_writes_nan_tokens(self):
+    def test_channel_never_writes_nan_tokens(self) -> None:
         code = (
             "from labconstrictor_tools.protocol import Channel\n"
             "Channel().send('t', 'COMPLETION', outputs={'v': float('nan'), 'w': [float('inf')]})\n"
@@ -65,11 +70,11 @@ class Finite(unittest.TestCase):
 
 
 class RegistryNamesAndPriority(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.home = Path(tempfile.mkdtemp(prefix="lchome_"))
         self.shared = Path(tempfile.mkdtemp(prefix="lcshared_"))
 
-    def test_unsafe_names_are_refused(self):
+    def test_unsafe_names_are_refused(self) -> None:
         for bad in ("../x", "a/b", "a\\b", "..", ""):
             done = cli(
                 "register",
@@ -86,7 +91,7 @@ class RegistryNamesAndPriority(unittest.TestCase):
         self.assertEqual(list(self.home.rglob("*.json")), [])
         self.assertNotEqual(cli("unregister", "--name", "../x", home=self.home).returncode, 0)
 
-    def test_a_shared_entry_cannot_take_over_a_per_user_name(self):
+    def test_a_shared_entry_cannot_take_over_a_per_user_name(self) -> None:
         register(self.home, "synthetic")
         entry = json.loads((self.home / "apps" / "synthetic.json").read_text())
         (self.shared / "zz.json").write_text(
@@ -105,7 +110,7 @@ class RegistryNamesAndPriority(unittest.TestCase):
     @unittest.skipUnless(
         os.name == "posix" and os.getuid() == 0, "needs root to create a file owned by someone else"
     )
-    def test_foreign_owned_or_group_writable_shared_entry_is_skipped(self):
+    def test_foreign_owned_or_group_writable_shared_entry_is_skipped(self) -> None:
         register(self.home, "synthetic")
         source = self.home / "apps"
         for name in ("synthetic.json", "synthetic.schema.json"):
@@ -131,13 +136,13 @@ class RegistryNamesAndPriority(unittest.TestCase):
             os.environ.update(old)
 
 
-def _drain(stream, sink):
+def _drain(stream: "Iterable[str]", sink: list[str]) -> None:
     for line in stream:
         sink.append(line)
 
 
 class WorkerSurvivesGarbage(unittest.TestCase):
-    def test_non_object_json_lines_do_not_make_the_worker_deaf(self):
+    def test_non_object_json_lines_do_not_make_the_worker_deaf(self) -> None:
         env = {**os.environ, "PYTHONPATH": str(V3)}
         for junk in (b"[1,2,3]\n", b"42\n", b"null\n", b'"str"\n', b"\xff\xfe\n", b"{broken\n"):
             p = subprocess.Popen(
@@ -154,7 +159,7 @@ class WorkerSurvivesGarbage(unittest.TestCase):
                 p.stdin.write(junk + json.dumps(request).encode() + b"\n")
                 p.stdin.flush()
                 answered = False
-                lines = []
+                lines: list[bytes] = []
                 threading.Thread(target=_drain, args=(p.stdout, lines), daemon=True).start()
                 end = time.time() + 10
                 while not answered and time.time() < end:
@@ -166,7 +171,7 @@ class WorkerSurvivesGarbage(unittest.TestCase):
 
 
 class ProcessHygiene(unittest.TestCase):
-    def test_a_tools_child_process_dies_with_the_worker(self):
+    def test_a_tools_child_process_dies_with_the_worker(self) -> None:
         import psutil
 
         folder = Path(tempfile.mkdtemp(prefix="lcmod_"))
@@ -191,7 +196,7 @@ class ProcessHygiene(unittest.TestCase):
             os.environ.clear()
             os.environ.update(old)
 
-    def test_worker_stderr_kept_by_the_host_is_bounded(self):
+    def test_worker_stderr_kept_by_the_host_is_bounded(self) -> None:
         tail = client._Tail()
         for _ in range(50):
             tail.append("e" * 100_000 + "\n")
@@ -201,7 +206,7 @@ class ProcessHygiene(unittest.TestCase):
 
 
 class RuntimeDoesNotLeakIntoTheApp(unittest.TestCase):
-    def test_runtime_path_is_only_added_when_the_app_lacks_the_package(self):
+    def test_runtime_path_is_only_added_when_the_app_lacks_the_package(self) -> None:
         home = Path(tempfile.mkdtemp(prefix="lchome_"))
         old = dict(os.environ)
         try:
@@ -229,7 +234,7 @@ class RuntimeDoesNotLeakIntoTheApp(unittest.TestCase):
 
 class UmaskDoesNotBreakOwnEntries(unittest.TestCase):
     @unittest.skipUnless(os.name == "posix", "POSIX permissions")
-    def test_entries_registered_under_umask_002_are_still_trusted(self):
+    def test_entries_registered_under_umask_002_are_still_trusted(self) -> None:
         home = Path(tempfile.mkdtemp(prefix="lchome_"))
         previous = os.umask(0o002)
         old = dict(os.environ)
@@ -245,7 +250,7 @@ class UmaskDoesNotBreakOwnEntries(unittest.TestCase):
 
 
 class TwoInstallsOfOneApp(unittest.TestCase):
-    def test_uninstalling_the_older_install_keeps_the_newer_registration(self):
+    def test_uninstalling_the_older_install_keeps_the_newer_registration(self) -> None:
         home = Path(tempfile.mkdtemp(prefix="lchome_"))
         register(home, "app")  # first install (prefix = GENERIC_PREFIX)
         newer = Path(tempfile.mkdtemp(prefix="lcnewer_"))
@@ -267,7 +272,7 @@ class TwoInstallsOfOneApp(unittest.TestCase):
 
 
 class Scaling(unittest.TestCase):
-    def test_loading_schemas_scans_the_registry_once(self):
+    def test_loading_schemas_scans_the_registry_once(self) -> None:
         from unittest import mock
 
         home = Path(tempfile.mkdtemp(prefix="lchome_"))
@@ -286,7 +291,7 @@ class Scaling(unittest.TestCase):
 
 
 class Races(unittest.TestCase):
-    def test_entry_unregistered_during_a_scan_is_not_reported_as_broken(self):
+    def test_entry_unregistered_during_a_scan_is_not_reported_as_broken(self) -> None:
         from unittest import mock
 
         home = Path(tempfile.mkdtemp(prefix="lchome_"))
@@ -296,7 +301,7 @@ class Races(unittest.TestCase):
             os.environ["LC_HOME"] = str(home)
             real = Path.read_text
 
-            def vanished(self, *a, **k):
+            def vanished(self: Path, *a: "Any", **k: "Any") -> "Any":
                 if self.name == "synthetic.json":
                     raise FileNotFoundError(2, "gone", str(self))
                 return real(self, *a, **k)
@@ -310,7 +315,7 @@ class Races(unittest.TestCase):
 
 
 class SkippedAppsAreExplained(unittest.TestCase):
-    def test_cli_and_client_say_why_an_app_cannot_be_used(self):
+    def test_cli_and_client_say_why_an_app_cannot_be_used(self) -> None:
         home = Path(tempfile.mkdtemp(prefix="lchome_"))
         prefix = Path(tempfile.mkdtemp(prefix="lcprefix_"))
         (prefix / "bin").mkdir()
@@ -338,7 +343,7 @@ class SkippedAppsAreExplained(unittest.TestCase):
 
 
 class CancelThatHadToKill(unittest.TestCase):
-    def test_message_blames_the_tool_not_the_oom_killer(self):
+    def test_message_blames_the_tool_not_the_oom_killer(self) -> None:
         home = Path(tempfile.mkdtemp(prefix="lchome_"))
         register(home, "synthetic")
         old = dict(os.environ)
@@ -364,7 +369,7 @@ class CancelThatHadToKill(unittest.TestCase):
 
 
 class NarrowConsoles(unittest.TestCase):
-    def test_status_symbols_do_not_crash_on_a_cp1252_stdout(self):
+    def test_status_symbols_do_not_crash_on_a_cp1252_stdout(self) -> None:
         """Found on windows-latest CI: UnicodeEncodeError for the check mark printed by check/test/support-bundle."""
         env = {
             **os.environ,
@@ -387,7 +392,7 @@ if __name__ == "__main__":
 class RegistryHardening(unittest.TestCase):
     """Findings of the registry audit: planted files, malformed JSON, writable interpreters, hangs, relative LC_HOME."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.home = Path(tempfile.mkdtemp(prefix="lchome_"))
         self._saved = {k: os.environ.get(k) for k in ("LC_HOME", "LC_APPS_PATH")}
         os.environ["LC_HOME"] = str(self.home)
@@ -395,7 +400,7 @@ class RegistryHardening(unittest.TestCase):
         self._reset_logger()
 
     @staticmethod
-    def _reset_logger():
+    def _reset_logger() -> None:
         """The log file is chosen when the logger is first used: forget it so the next use follows LC_HOME."""
         import logging
 
@@ -407,7 +412,7 @@ class RegistryHardening(unittest.TestCase):
             handler.close()
         log._logger = None
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self._reset_logger()
         for key, value in self._saved.items():
             if value is None:
@@ -415,7 +420,7 @@ class RegistryHardening(unittest.TestCase):
             else:
                 os.environ[key] = value
 
-    def _entry(self, name="good", **changes):
+    def _entry(self, name: str = "good", **changes: "Any") -> Path:
         folder = registry.apps_dir()
         folder.mkdir(parents=True, exist_ok=True)
         python = registry.python_for(GENERIC_PREFIX)
@@ -433,7 +438,7 @@ class RegistryHardening(unittest.TestCase):
             path.chmod(0o644)
         return folder
 
-    def test_a_planted_symlink_is_not_followed_when_registering(self):
+    def test_a_planted_symlink_is_not_followed_when_registering(self) -> None:
         victim = self.home / "victim.txt"
         victim.write_text("PRECIOUS")
         folder = registry.apps_dir()
@@ -446,7 +451,7 @@ class RegistryHardening(unittest.TestCase):
             [p.name for p in folder.glob("*.tmp") if p.is_symlink()], ["x.json.tmp"]
         )  # left alone
 
-    def test_a_malformed_entry_is_skipped_with_a_reason_and_good_apps_survive(self):
+    def test_a_malformed_entry_is_skipped_with_a_reason_and_good_apps_survive(self) -> None:
         self._entry("good")
         folder = self._entry("bad", python=7)
         self._entry("good")  # rewrites nothing of bad
@@ -460,7 +465,7 @@ class RegistryHardening(unittest.TestCase):
         self.assertEqual(sorted(entries), ["good"])
         self.assertIn("list", [name for name, _ in problems])
 
-    def test_a_malformed_schema_is_skipped_with_a_reason(self):
+    def test_a_malformed_schema_is_skipped_with_a_reason(self) -> None:
         folder = self._entry("good")
         (folder / "good.schema.json").write_text("[]")
         schemas, problems = registry.load_schemas()
@@ -468,7 +473,7 @@ class RegistryHardening(unittest.TestCase):
         self.assertEqual(problems, [("good", "schema is not a JSON object")])
 
     @unittest.skipUnless(os.name == "posix", "the schema-folder check belongs to the POSIX trust checks")
-    def test_a_schema_outside_the_entry_folder_is_refused(self):
+    def test_a_schema_outside_the_entry_folder_is_refused(self) -> None:
         elsewhere = Path(tempfile.mkdtemp(prefix="elsewhere_"))
         (elsewhere / "s.json").write_text("{}")
         (elsewhere / "s.json").chmod(0o644)
@@ -478,7 +483,7 @@ class RegistryHardening(unittest.TestCase):
         self.assertIn("not in the same folder", problems[0][1])
 
     @unittest.skipIf(os.name != "posix", "POSIX permissions")
-    def test_an_interpreter_folder_writable_by_everybody_is_refused(self):
+    def test_an_interpreter_folder_writable_by_everybody_is_refused(self) -> None:
         prefix = Path(tempfile.mkdtemp(prefix="prefix_"))
         (prefix / "bin").mkdir()
         python = prefix / "bin" / "python"
@@ -495,7 +500,7 @@ class RegistryHardening(unittest.TestCase):
         finally:
             (prefix / "bin").chmod(0o755)
 
-    def test_unregister_with_an_unreadable_entry_still_removes_it_and_says_so(self):
+    def test_unregister_with_an_unreadable_entry_still_removes_it_and_says_so(self) -> None:
         from labconstrictor_tools import log
 
         folder = registry.apps_dir()
@@ -505,12 +510,14 @@ class RegistryHardening(unittest.TestCase):
         self.assertFalse((folder / "junk.json").exists())
         self.assertIn("cannot be read", log.tail(20))
 
-    def test_a_hanging_schema_generation_times_out_with_an_explanation(self):
+    def test_a_hanging_schema_generation_times_out_with_an_explanation(self) -> None:
         from unittest import mock
 
         real_run = subprocess.run
 
-        def hang_on_describe(command, *args, **kwargs):
+        def hang_on_describe(
+            command: "Sequence[str]", *args: "Any", **kwargs: "Any"
+        ) -> subprocess.CompletedProcess[str]:
             if "describe" in command:
                 raise subprocess.TimeoutExpired(cmd=command, timeout=1)
             return real_run(command, *args, **kwargs)
@@ -521,11 +528,11 @@ class RegistryHardening(unittest.TestCase):
         self.assertIn("timed out", str(caught.exception))
         self.assertFalse((registry.apps_dir() / "slow.json").exists())
 
-    def test_a_relative_lc_home_is_made_absolute(self):
+    def test_a_relative_lc_home_is_made_absolute(self) -> None:
         os.environ["LC_HOME"] = "relative_home"
         self.assertTrue(registry.home().is_absolute())
 
-    def test_an_unwritable_log_folder_is_announced_once_on_stderr(self):
+    def test_an_unwritable_log_folder_is_announced_once_on_stderr(self) -> None:
         import contextlib
         import io
 

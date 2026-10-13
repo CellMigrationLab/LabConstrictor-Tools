@@ -12,7 +12,7 @@ import warnings
 
 
 class CollectBeforeTheWorkerPipeTest(unittest.TestCase):
-    def test_collect_what_earlier_tests_left_behind(self):
+    def test_collect_what_earlier_tests_left_behind(self) -> None:
         with warnings.catch_warnings():
             warnings.simplefilter(
                 "ignore", ResourceWarning

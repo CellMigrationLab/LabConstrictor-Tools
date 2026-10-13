@@ -2,7 +2,7 @@
 
 import enum
 import unittest
-from typing import Annotated, Literal, Optional
+from typing import TYPE_CHECKING, Annotated, Literal, Optional
 
 import _paths  # noqa: F401  (must come first)
 import numpy as np
@@ -11,8 +11,12 @@ from labconstrictor_tools import EnabledWhen, Image, Scalars, convert, tool
 from labconstrictor_tools.introspection import DeclarationError, describe_tool
 from labconstrictor_tools.types import ToolError
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
-def schema_of(fn):
+
+def schema_of(fn: "Callable[..., Any]") -> "dict[str, Any]":
     return describe_tool(fn.__lc_tool__)
 
 
@@ -22,13 +26,13 @@ class Mode(enum.Enum):
 
 
 class PortableDtype(unittest.TestCase):
-    def test_a_uint32_that_float32_cannot_hold_is_refused_not_rounded(self):
+    def test_a_uint32_that_float32_cannot_hold_is_refused_not_rounded(self) -> None:
         with self.assertRaises(ToolError) as caught:
             convert.portable_dtype(np.array([16777217], dtype=np.uint32), "labels")
         self.assertEqual(caught.exception.code, "unsupported_dtype")
         self.assertIn("labels", caught.exception.message)
 
-    def test_wide_integers_that_fit_16_bits_are_narrowed_without_changing_values(self):
+    def test_wide_integers_that_fit_16_bits_are_narrowed_without_changing_values(self) -> None:
         for dtype in (np.uint32, np.uint64, np.int32, np.int64):
             out = convert.portable_dtype(np.array([0, 7, 65535], dtype=dtype))
             self.assertEqual(out.dtype, np.uint16)
@@ -36,19 +40,19 @@ class PortableDtype(unittest.TestCase):
         out = convert.portable_dtype(np.array([-5, 300], dtype=np.int64))
         self.assertEqual((out.dtype, out.tolist()), (np.int16, [-5, 300]))
 
-    def test_large_integers_survive_when_float32_holds_them_exactly(self):
+    def test_large_integers_survive_when_float32_holds_them_exactly(self) -> None:
         out = convert.portable_dtype(np.array([0, 2**20, 70000 * 2], dtype=np.int64))
         self.assertEqual(out.dtype, np.float32)
         self.assertEqual(out.astype(np.int64).tolist(), [0, 2**20, 140000])
 
-    def test_float64_beyond_float32_range_is_refused_but_inf_and_nan_pass(self):
+    def test_float64_beyond_float32_range_is_refused_but_inf_and_nan_pass(self) -> None:
         with self.assertRaises(ToolError):
             convert.portable_dtype(np.array([1e300]))
         out = convert.portable_dtype(np.array([np.nan, np.inf, 1.5]))
         self.assertEqual(out.dtype, np.float32)
         self.assertTrue(np.isnan(out[0]) and np.isinf(out[1]))
 
-    def test_common_cases_are_unchanged(self):
+    def test_common_cases_are_unchanged(self) -> None:
         self.assertEqual(convert.portable_dtype(np.zeros(2, bool)).dtype, np.uint8)
         self.assertEqual(convert.portable_dtype(np.zeros(2, np.int8)).dtype, np.int16)
         self.assertEqual(convert.portable_dtype(np.zeros(2, np.uint16)).dtype, np.uint16)
@@ -56,7 +60,7 @@ class PortableDtype(unittest.TestCase):
 
 
 class Defaults(unittest.TestCase):
-    def test_an_invalid_default_is_a_declaration_error(self):
+    def test_an_invalid_default_is_a_declaration_error(self) -> None:
         @tool("t")
         def bad_choice(mode: Literal["safe", "fast"] = "invalid") -> Scalars:
             return {}
@@ -73,7 +77,7 @@ class Defaults(unittest.TestCase):
             with self.assertRaises(DeclarationError, msg=fn.__name__):
                 schema_of(fn)
 
-    def test_optional_with_a_non_none_default_is_refused_explicitly(self):
+    def test_optional_with_a_non_none_default_is_refused_explicitly(self) -> None:
         @tool("t")
         def odd(x: Optional[int] = 5) -> Scalars:
             return {}
@@ -82,7 +86,7 @@ class Defaults(unittest.TestCase):
             schema_of(odd)
         self.assertIn("Optional", str(caught.exception))
 
-    def test_valid_defaults_and_unset_none_still_work(self):
+    def test_valid_defaults_and_unset_none_still_work(self) -> None:
         @tool("t")
         def fine(
             a: int = 3, b: float = 2, c: Optional[int] = None, d: Mode = Mode.SAFE, e: bool = False
@@ -98,28 +102,28 @@ class Defaults(unittest.TestCase):
 
 
 class StrictValues(unittest.TestCase):
-    def param(self, kind, **extra):
+    def param(self, kind: str, **extra: "Any") -> "dict[str, Any]":
         return {"name": "x", "label": "X", "type": kind, "required": True, **extra}
 
-    def test_a_boolean_must_be_a_boolean(self):
+    def test_a_boolean_must_be_a_boolean(self) -> None:
         for bad in ("false", "true", 0, 1, "", None.__class__):
             with self.assertRaises(ToolError, msg=repr(bad)):
                 convert._load_one(self.param("boolean"), bad)
         self.assertIs(convert._load_one(self.param("boolean"), False), False)
 
-    def test_choices_compare_type_as_well_as_value(self):
+    def test_choices_compare_type_as_well_as_value(self) -> None:
         param = self.param("choice", choices=[1, 2])
         with self.assertRaises(ToolError):
             convert._load_one(param, True)  # True == 1 in Python
         self.assertEqual(convert._load_one(param, 2), 2)
         self.assertEqual(convert._load_one(self.param("choice", choices=["a"]), "a"), "a")
 
-    def test_a_float_is_not_a_boolean(self):
+    def test_a_float_is_not_a_boolean(self) -> None:
         with self.assertRaises(ToolError):
             convert._load_one(self.param("float"), True)
         self.assertEqual(convert._load_one(self.param("float"), 2), 2.0)
 
-    def test_an_empty_shared_memory_image_is_refused(self):
+    def test_an_empty_shared_memory_image_is_refused(self) -> None:
         from multiprocessing import shared_memory
 
         shm = shared_memory.SharedMemory(create=True, size=16)
@@ -139,8 +143,8 @@ class StrictValues(unittest.TestCase):
 
 
 class Enums(unittest.TestCase):
-    def test_an_enum_parameter_arrives_as_the_enum_member(self):
-        seen = {}
+    def test_an_enum_parameter_arrives_as_the_enum_member(self) -> None:
+        seen: dict[str, Any] = {}
 
         @tool("t")
         def pick(mode: Mode, other: Mode = Mode.SAFE, maybe: Optional[Mode] = None) -> Scalars:
@@ -158,7 +162,7 @@ class Enums(unittest.TestCase):
 
 
 class EnabledWhenKeepsFalsyValues(unittest.TestCase):
-    def test_equals_false_zero_and_empty_text_are_kept(self):
+    def test_equals_false_zero_and_empty_text_are_kept(self) -> None:
         @tool("t")
         def gated(
             normalize: bool = True,
@@ -172,19 +176,19 @@ class EnabledWhenKeepsFalsyValues(unittest.TestCase):
 
 
 class MessageAndPointsOutputs(unittest.TestCase):
-    def _results(self, annotation_fn):
+    def _results(self, annotation_fn: "Callable[..., Any]") -> "Any":
         import tempfile
 
         schema = describe_tool(annotation_fn.__lc_tool__)
         folder = tempfile.mkdtemp()
         return convert.build_results(schema, annotation_fn(), folder)
 
-    def setUp(self):
+    def setUp(self) -> None:
         from labconstrictor_tools import decorators
 
         decorators.clear()
 
-    def test_message_is_text_and_an_empty_one_is_refused(self):
+    def test_message_is_text_and_an_empty_one_is_refused(self) -> None:
         from labconstrictor_tools import MessageOut
 
         @tool
@@ -203,7 +207,7 @@ class MessageAndPointsOutputs(unittest.TestCase):
             self._results(silent)
         self.assertEqual(caught.exception.code, "bad_return")
 
-    def test_points_keep_y_x_first_and_properties_after(self):
+    def test_points_keep_y_x_first_and_properties_after(self) -> None:
         from labconstrictor_tools import PointsOut
 
         @tool
@@ -217,7 +221,7 @@ class MessageAndPointsOutputs(unittest.TestCase):
         frame = pd.read_csv(result["path"])
         self.assertEqual(frame["x"].tolist(), [3.0, 5.5])
 
-    def test_points_without_y_x_or_with_nan_are_refused_with_a_clear_message(self):
+    def test_points_without_y_x_or_with_nan_are_refused_with_a_clear_message(self) -> None:
         import pandas as pd
 
         from labconstrictor_tools import PointsOut
@@ -239,7 +243,7 @@ class MessageAndPointsOutputs(unittest.TestCase):
         with self.assertRaisesRegex(ToolError, "not a finite number"):
             self._results(nan_y)
 
-    def test_points_carry_the_image_they_are_placed_on(self):
+    def test_points_carry_the_image_they_are_placed_on(self) -> None:
         from labconstrictor_tools import ApplyTo, PointsOut
 
         @tool

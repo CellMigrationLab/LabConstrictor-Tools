@@ -10,22 +10,26 @@ import time
 import unittest
 import warnings
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 
 from labconstrictor_tools import client, convert
 from labconstrictor_tools.types import ToolError
 
+if TYPE_CHECKING:
+    from typing import Any
+
 
 class Run2(unittest.TestCase):
-    def test_tiff_with_bad_first_page_offset_is_an_error_not_an_empty_image(self):
+    def test_tiff_with_bad_first_page_offset_is_an_error_not_an_empty_image(self) -> None:
         path = Path(tempfile.mkdtemp()) / "damaged.tif"
         path.write_bytes(b"II*\x00garbage not a tiff")
         with self.assertRaises(ToolError) as caught:
             convert._read_image(str(path))
         self.assertEqual(caught.exception.code, "unreadable_image")
 
-    def test_worker_pipes_are_closed_when_the_worker_ends(self):
+    def test_worker_pipes_are_closed_when_the_worker_ends(self) -> None:
         from _paths import SYNTHETIC_MODULE
 
         with warnings.catch_warnings(record=True) as seen:
@@ -46,7 +50,7 @@ class Run2(unittest.TestCase):
         self.assertTrue(proc.stdout.closed and proc.stderr.closed)
         self.assertEqual([str(w.message) for w in seen if issubclass(w.category, ResourceWarning)], [])
 
-    def test_pythonpath_comes_before_the_runtime_path(self):
+    def test_pythonpath_comes_before_the_runtime_path(self) -> None:
         folder = Path(tempfile.mkdtemp())
         (folder / "shadow_lc_tools.py").write_text(
             "from labconstrictor_tools import Scalars, tool\n"
@@ -64,7 +68,7 @@ class Run2(unittest.TestCase):
 
 
 class Schema(unittest.TestCase):
-    def test_nullable_and_folder_in_the_manifest(self):
+    def test_nullable_and_folder_in_the_manifest(self) -> None:
         from pathlib import Path as P
         from typing import Annotated, Optional
 
@@ -89,7 +93,7 @@ class Schema(unittest.TestCase):
         self.assertNotIn("nullable", by["b"])
         self.assertEqual((by["d"]["type"], by["e"]["type"]), ("folder", "file"))
 
-    def test_folder_input_must_be_a_directory(self):
+    def test_folder_input_must_be_a_directory(self) -> None:
         param = {"name": "f", "label": "F", "type": "folder", "required": True}
         self.assertEqual(convert._load_one(param, tempfile.gettempdir()), Path(tempfile.gettempdir()))
         with self.assertRaises(ToolError) as caught:
@@ -99,7 +103,7 @@ class Schema(unittest.TestCase):
 
 class Hardening(unittest.TestCase):
     @unittest.skipIf(sys.version_info < (3, 11), "PYTHONSAFEPATH needs Python 3.11+")
-    def test_host_cwd_does_not_shadow_the_tools_imports(self):
+    def test_host_cwd_does_not_shadow_the_tools_imports(self) -> None:
         cwd = Path(tempfile.mkdtemp())
         (cwd / "colorsys.py").write_text("SHADOWED = True\n")
         tools = Path(tempfile.mkdtemp())
@@ -122,7 +126,7 @@ class Hardening(unittest.TestCase):
         self.assertFalse(task.outputs["results"][0]["values"]["shadowed"])
 
     @unittest.skipIf(os.name != "posix", "POSIX path semantics")
-    def test_a_filesystem_root_is_not_an_install_prefix(self):
+    def test_a_filesystem_root_is_not_an_install_prefix(self) -> None:
         from labconstrictor_tools import registry
 
         folder = Path(tempfile.mkdtemp())
@@ -132,7 +136,7 @@ class Hardening(unittest.TestCase):
         reason = registry._untrusted_reason(entry_file, {"prefix": "/", "python": sys.executable})
         self.assertIn("filesystem root", reason or "")
 
-    def test_cli_results_go_to_a_known_folder_and_old_ones_are_pruned(self):
+    def test_cli_results_go_to_a_known_folder_and_old_ones_are_pruned(self) -> None:
         from labconstrictor_tools import cli, registry, retention
 
         os.environ["LC_HOME"] = tempfile.mkdtemp()
@@ -149,7 +153,7 @@ class Hardening(unittest.TestCase):
 
 
 class Presentation(unittest.TestCase):
-    def test_group_advanced_and_enabled_when_in_the_manifest(self):
+    def test_group_advanced_and_enabled_when_in_the_manifest(self) -> None:
         from typing import Annotated, Literal, Optional
 
         from labconstrictor_tools import Advanced, EnabledWhen, Group, Scalars
@@ -184,7 +188,7 @@ class QuietFailuresAreVisible(unittest.TestCase):
     """Failures that used to vanish are now in the log (or on stderr, which the host logs)."""
 
     @staticmethod
-    def _reset_logger():
+    def _reset_logger() -> None:
         """The log file is chosen when the logger is first used: forget it so the next use follows LC_HOME."""
         import logging
 
@@ -196,19 +200,19 @@ class QuietFailuresAreVisible(unittest.TestCase):
             handler.close()
         log._logger = None
 
-    def setUp(self):
+    def setUp(self) -> None:
         self._saved = os.environ.get("LC_HOME")
         os.environ["LC_HOME"] = tempfile.mkdtemp()
         self._reset_logger()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         if self._saved is None:
             os.environ.pop("LC_HOME", None)
         else:
             os.environ["LC_HOME"] = self._saved
         self._reset_logger()
 
-    def test_a_failed_run_record_is_logged_and_does_not_raise(self):
+    def test_a_failed_run_record_is_logged_and_does_not_raise(self) -> None:
         import types as _types
         from unittest import mock
 
@@ -223,7 +227,7 @@ class QuietFailuresAreVisible(unittest.TestCase):
         self.assertIn("disk full", log.tail(20))
 
     @unittest.skipUnless(hasattr(os, "killpg"), "process groups are POSIX-only; Windows uses a job object")
-    def test_a_failed_process_group_kill_is_logged(self):
+    def test_a_failed_process_group_kill_is_logged(self) -> None:
         import types as _types
         from unittest import mock
 
@@ -235,14 +239,14 @@ class QuietFailuresAreVisible(unittest.TestCase):
             worker._kill_group()
         self.assertIn("could not stop its process group", log.tail(20))
 
-    def test_a_worker_line_that_is_not_an_object_does_not_kill_the_reader(self):
+    def test_a_worker_line_that_is_not_an_object_does_not_kill_the_reader(self) -> None:
         import types as _types
         from unittest import mock
 
         from labconstrictor_tools import log
 
         worker = client.WorkerProcess.__new__(client.WorkerProcess)
-        seen = []
+        seen: list[Any] = []
         task = _types.SimpleNamespace(handle=seen.append)
         worker.tasks = {"t1": task}
         worker.proc = _types.SimpleNamespace(
@@ -258,7 +262,7 @@ class QuietFailuresAreVisible(unittest.TestCase):
         )  # the good line after two bad ones arrived
         self.assertIn("not a protocol message", log.tail(20))
 
-    def test_malformed_requests_are_reported_on_stderr_and_skipped(self):
+    def test_malformed_requests_are_reported_on_stderr_and_skipped(self) -> None:
         import contextlib
         import io
         from unittest import mock
@@ -276,7 +280,7 @@ class QuietFailuresAreVisible(unittest.TestCase):
         self.assertIn("not JSON", captured.getvalue())
         self.assertIn("not an object", captured.getvalue())
 
-    def test_a_progress_update_without_a_message_reaches_the_callback_as_text(self):
+    def test_a_progress_update_without_a_message_reaches_the_callback_as_text(self) -> None:
         import types as _types
 
         received = []

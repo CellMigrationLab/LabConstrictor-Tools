@@ -6,12 +6,17 @@ the module registers its tools again.
 """
 
 import importlib
+from typing import TYPE_CHECKING
 
 from labconstrictor_tools.decorators import tools_in
 from labconstrictor_tools.introspection import describe_tools
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
-def declared(module_name):
+
+def declared(module_name: str) -> "dict[str, tuple[dict[str, Any], Callable[..., Any]]]":
     """-> {tool id: (schema, function)} of the tools declared by `module_name`."""
     module = importlib.import_module(module_name)
     if not tools_in(module_name):
@@ -20,5 +25,5 @@ def declared(module_name):
     return {t.id: (schemas[t.id], t.fn) for t in tools_in(module_name)}
 
 
-def schemas(module_name):
+def schemas(module_name: str) -> "dict[str, dict[str, Any]]":
     return {tool_id: schema for tool_id, (schema, _) in declared(module_name).items()}

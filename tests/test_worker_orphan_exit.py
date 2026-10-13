@@ -7,15 +7,19 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import _paths  # noqa: F401  (must come first)
 
 from labconstrictor_tools import worker
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
 
 class OrphanExit(unittest.TestCase):
-    def leave(self, folders, *, removed):
+    def leave(self, folders: "Iterable[Path]", *, removed: bool) -> tuple[list[int], list[str]]:
         instance = worker.Worker.__new__(worker.Worker)
         instance._owned_dirs = set(folders)
         calls = []
@@ -31,7 +35,7 @@ class OrphanExit(unittest.TestCase):
                 instance._orphan_exit()
         return calls, [r.getMessage() for r in logged.records if r.levelno >= logging.WARNING]
 
-    def test_a_folder_that_cannot_be_removed_is_logged_and_the_worker_still_leaves(self):
+    def test_a_folder_that_cannot_be_removed_is_logged_and_the_worker_still_leaves(self) -> None:
         with tempfile.TemporaryDirectory() as parent:
             stuck = Path(parent) / "lcjob_stuck"
             stuck.mkdir()
@@ -40,7 +44,7 @@ class OrphanExit(unittest.TestCase):
         self.assertEqual(len(warnings), 1, warnings)
         self.assertIn(str(stuck), warnings[0])
 
-    def test_a_removed_folder_is_not_mentioned(self):
+    def test_a_removed_folder_is_not_mentioned(self) -> None:
         with tempfile.TemporaryDirectory() as parent:
             gone = Path(parent) / "lcjob_gone"
             gone.mkdir()

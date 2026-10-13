@@ -15,6 +15,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import _paths  # noqa: F401  (must come first)
 import psutil
@@ -23,6 +24,10 @@ from roundtrip_known_failures import is_known
 from labconstrictor_tools import client
 from labconstrictor_tools.client import WorkerProcess
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
+
 APP_DIR = Path(__file__).resolve().parent / "failure_app"
 MODULE = "failure_tools"
 TOOLERROR_WORD = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -30,18 +35,18 @@ FLOOD_MB = 10
 HUGE_MB = 40
 
 
-def start():
+def start() -> WorkerProcess:
     return WorkerProcess(module=MODULE, pythonpath=[str(APP_DIR)])
 
 
-def alive(pid):
+def alive(pid: int) -> bool:
     try:
         return psutil.Process(pid).status() != psutil.STATUS_ZOMBIE
     except psutil.NoSuchProcess:
         return False
 
 
-def wait_for(condition, seconds=10.0):
+def wait_for(condition: "Callable[[], object]", seconds: float = 10.0) -> bool:
     end = time.time() + seconds
     while time.time() < end:
         if condition():
@@ -50,12 +55,14 @@ def wait_for(condition, seconds=10.0):
     return bool(condition())
 
 
-def child_pid(path, seconds=15.0):
+def child_pid(path: str | Path, seconds: float = 15.0) -> int:
     wait_for(lambda: Path(path).exists() and Path(path).read_text().strip(), seconds)
     return int(Path(path).read_text())
 
 
-def run_tool(tool_id, inputs=None, timeout=90):
+def run_tool(
+    tool_id: str, inputs: "dict[str, Any] | None" = None, timeout: float = 90
+) -> "tuple[Any, WorkerProcess]":
     """One task on a fresh worker, then close: (task, worker)."""
     worker = start()
     try:
@@ -65,7 +72,7 @@ def run_tool(tool_id, inputs=None, timeout=90):
     return task, worker
 
 
-def toolerror_problems(tool_id, inputs=None):
+def toolerror_problems(tool_id: str, inputs: "dict[str, Any] | None" = None) -> list[str]:
     """The task must FAIL with a ToolError code (not the name of a Python exception) and a message."""
     task, _ = run_tool(tool_id, inputs)
     problems = []
@@ -79,7 +86,7 @@ def toolerror_problems(tool_id, inputs=None):
     return problems
 
 
-def task_on_dead_worker_problems():
+def task_on_dead_worker_problems() -> list[str]:
     """After the worker has died, asking it for another task gives a CRASHED task, not an exception in the host."""
     worker = start()
     try:
@@ -95,9 +102,9 @@ def task_on_dead_worker_problems():
         worker.close()
 
 
-def progress_problems():
+def progress_problems() -> list[str]:
     """Progress is shown as a whole percent: 0.29 must arrive as 29 %, not 28 % (the fraction is what the tool reported)."""
-    seen = []
+    seen: list[Any] = []
     worker = start()
     problems = []
     try:
@@ -115,7 +122,7 @@ def progress_problems():
     return problems
 
 
-def children_problems():
+def children_problems() -> list[str]:
     """The host goes away (its end of the pipe closes) while a tool runs: nothing the tool started may keep running."""
     with tempfile.TemporaryDirectory() as folder:
         pid_file = str(Path(folder) / "child.pid")
@@ -142,20 +149,20 @@ def children_problems():
 
 
 class Crashes(unittest.TestCase):
-    def test_a_worker_that_exits_mid_task_gives_crashed_with_its_exit_code(self):
+    def test_a_worker_that_exits_mid_task_gives_crashed_with_its_exit_code(self) -> None:
         task, worker = run_tool("crash_mid_task", {"how": "exit"})
         self.assertEqual(task.status, "CRASHED")
         self.assertIn("worker exited unexpectedly (code 7)", task.error)
         self.assertIsNotNone(worker.proc.poll())
 
     @unittest.skipUnless(os.name == "posix", "SIGKILL")
-    def test_a_killed_worker_says_it_was_killed(self):
+    def test_a_killed_worker_says_it_was_killed(self) -> None:
         task, _ = run_tool("crash_mid_task", {"how": "kill"})
         self.assertEqual(task.status, "CRASHED")
         self.assertIn("code -9", task.error)
         self.assertIn("killed", task.error)
 
-    def test_progress_before_the_crash_reached_the_host_and_the_other_tasks_are_unaffected(self):
+    def test_progress_before_the_crash_reached_the_host_and_the_other_tasks_are_unaffected(self) -> None:
         seen = []
         worker = start()
         try:
@@ -168,7 +175,7 @@ class Crashes(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_a_worker_killed_from_outside_mid_task(self):
+    def test_a_worker_killed_from_outside_mid_task(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             pid_file = str(Path(folder) / "c.pid")
             worker = start()
@@ -187,7 +194,7 @@ class Crashes(unittest.TestCase):
             finally:
                 worker.close()
 
-    def test_no_process_is_left_after_a_crash_and_close(self):
+    def test_no_process_is_left_after_a_crash_and_close(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             pid_file = str(Path(folder) / "c.pid")
             worker = start()
@@ -200,30 +207,30 @@ class Crashes(unittest.TestCase):
             )
             self.assertIsNotNone(worker.proc.poll())
 
-    def test_asking_a_dead_worker_for_a_task_gives_a_crashed_task(self):
+    def test_asking_a_dead_worker_for_a_task_gives_a_crashed_task(self) -> None:
         self.assertEqual(task_on_dead_worker_problems(), [])
 
 
 class WhatAToolRaises(unittest.TestCase):
-    def test_a_tool_error_arrives_with_its_code_and_text(self):
+    def test_a_tool_error_arrives_with_its_code_and_text(self) -> None:
         task, _ = run_tool("raise_tool_error")
         self.assertEqual(task.status, "FAILED")
         self.assertEqual(task.code, "my_code")
         self.assertEqual(task.error, "[my_code] a readable message with unicode é and a second\nline")
         self.assertIsNone(task.traceback)
 
-    def test_an_unexpected_exception_arrives_with_its_name_text_and_traceback(self):
+    def test_an_unexpected_exception_arrives_with_its_name_text_and_traceback(self) -> None:
         task, worker = run_tool("raise_unexpected", {"kind": "zero"})
         self.assertEqual((task.status, task.code), ("FAILED", "ZeroDivisionError"))
         self.assertIn("ZeroDivisionError", task.error)
         self.assertIn("raise_unexpected", task.traceback)
         self.assertIn("ZeroDivisionError", "".join(worker.stderr))
 
-    def test_exceptions_with_awkward_text_arrive_unchanged(self):
+    def test_exceptions_with_awkward_text_arrive_unchanged(self) -> None:
         task, _ = run_tool("raise_unexpected", {"kind": "multiline"})
         self.assertEqual(task.error, "[RuntimeError] first line\nsecond line µm\n\ttabbed")
 
-    def test_memory_error_and_exits_do_not_take_the_worker_down(self):
+    def test_memory_error_and_exits_do_not_take_the_worker_down(self) -> None:
         worker = start()
         try:
             for kind, code in (
@@ -240,14 +247,14 @@ class WhatAToolRaises(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_failures_leave_no_job_folder_behind(self):
+    def test_failures_leave_no_job_folder_behind(self) -> None:
         task, _ = run_tool("raise_unexpected", {"kind": "zero"})
         self.assertEqual(task.status, "FAILED")
         self.assertFalse(task.outputs)
 
 
 class WhatAToolReturns(unittest.TestCase):
-    def test_the_wrong_number_of_values_is_bad_return_with_both_counts(self):
+    def test_the_wrong_number_of_values_is_bad_return_with_both_counts(self) -> None:
         for tool_id, got in (
             ("wrong_count_too_few", 1),
             ("wrong_count_too_many", 3),
@@ -258,7 +265,7 @@ class WhatAToolReturns(unittest.TestCase):
                 self.assertEqual((task.status, task.code), ("FAILED", "bad_return"))
                 self.assertEqual(task.error, "[bad_return] tool returned %d values, declared 2" % got)
 
-    def test_the_wrong_type_fails_with_a_message_and_the_worker_survives(self):
+    def test_the_wrong_type_fails_with_a_message_and_the_worker_survives(self) -> None:
         worker = start()
         try:
             for tool_id in (
@@ -278,7 +285,7 @@ class WhatAToolReturns(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_the_wrong_type_is_reported_with_a_tool_error_code(self):
+    def test_the_wrong_type_is_reported_with_a_tool_error_code(self) -> None:
         for tool_id in (
             "wrong_type_image",
             "wrong_type_table",
@@ -292,7 +299,7 @@ class WhatAToolReturns(unittest.TestCase):
             with self.subTest(tool_id):
                 self.assertEqual(toolerror_problems(tool_id), [])
 
-    def test_a_result_json_cannot_carry_is_unserializable_result_never_text(self):
+    def test_a_result_json_cannot_carry_is_unserializable_result_never_text(self) -> None:
         worker = start()
         try:
             for kind in ("set", "object", "bytes", "complex"):
@@ -305,7 +312,7 @@ class WhatAToolReturns(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_a_huge_result_arrives_whole(self):
+    def test_a_huge_result_arrives_whole(self) -> None:
         task, _ = run_tool("huge_output", {"megabytes": HUGE_MB}, timeout=180)
         self.assertEqual(task.status, "COMPLETE", task.error)
         values = task.outputs["results"][0]["values"]
@@ -313,11 +320,11 @@ class WhatAToolReturns(unittest.TestCase):
         self.assertEqual(len(values["text"]), HUGE_MB * 1_000_000)
         self.assertEqual(set(values["text"][:1000] + values["text"][-1000:]), {"x"})
 
-    def test_every_whole_percent_arrives_as_itself(self):
+    def test_every_whole_percent_arrives_as_itself(self) -> None:
         self.assertEqual(progress_problems(), [])
 
-    def test_many_progress_messages_all_arrive_and_the_task_still_ends(self):
-        count = []
+    def test_many_progress_messages_all_arrive_and_the_task_still_ends(self) -> None:
+        count: list[float] = []
         worker = start()
         try:
             task = worker.task("many_progress", {"n": 20000}, on_update=lambda m, f: count.append(f)).wait(
@@ -334,7 +341,7 @@ class WhatAToolReturns(unittest.TestCase):
 
 
 class Noise(unittest.TestCase):
-    def test_nothing_a_tool_writes_to_stdout_reaches_the_protocol(self):
+    def test_nothing_a_tool_writes_to_stdout_reaches_the_protocol(self) -> None:
         for kind in ("print", "write", "raw_fd", "child", "flush_partial"):
             with self.subTest(kind):
                 worker = start()
@@ -354,7 +361,7 @@ class Noise(unittest.TestCase):
                     "the noise should be on stderr, where the log is: %r" % heard[-200:],
                 )
 
-    def test_a_stderr_flood_neither_blocks_the_tool_nor_grows_the_hosts_memory(self):
+    def test_a_stderr_flood_neither_blocks_the_tool_nor_grows_the_hosts_memory(self) -> None:
         worker = start()
         try:
             started = time.time()
@@ -370,7 +377,7 @@ class Noise(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_one_endless_stderr_line_is_bounded_while_it_is_still_open(self):
+    def test_one_endless_stderr_line_is_bounded_while_it_is_still_open(self) -> None:
         """2026-10-12 (#50): no newline, so the old tail kept the whole line, and the reader buffered all of it before the tail saw it."""
         megabytes = 4
         worker = start()
@@ -392,7 +399,7 @@ class Noise(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_a_single_line_longer_than_the_limit_keeps_its_end_only(self):
+    def test_a_single_line_longer_than_the_limit_keeps_its_end_only(self) -> None:
         tail = client._Tail()
         tail.append("short\n")
         tail.append("A" * (2 * client._Tail.LIMIT) + "THE-END\n")
@@ -401,7 +408,7 @@ class Noise(unittest.TestCase):
         self.assertTrue(kept.endswith("THE-END\n"))
         self.assertEqual(tail.total, len("short\n") + 2 * client._Tail.LIMIT + len("THE-END\n"))
 
-    def test_the_end_of_an_oversized_line_is_in_the_crash_details(self):
+    def test_the_end_of_an_oversized_line_is_in_the_crash_details(self) -> None:
         worker = start()
         try:
             task = worker.task("flood_one_line", {"megabytes": 3, "crash": True}).wait(60)
@@ -411,7 +418,7 @@ class Noise(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_a_crash_message_carries_the_workers_last_words(self):
+    def test_a_crash_message_carries_the_workers_last_words(self) -> None:
         worker = start()
         try:
             worker.task("noisy", {"kind": "print"}).wait(30)
@@ -424,7 +431,7 @@ class Noise(unittest.TestCase):
 
 
 class HangsAndCancel(unittest.TestCase):
-    def test_cooperative_cancel_ends_canceled_and_the_worker_is_reusable(self):
+    def test_cooperative_cancel_ends_canceled_and_the_worker_is_reusable(self) -> None:
         worker = start()
         try:
             task = worker.task("hang", {"seconds": 120})
@@ -437,7 +444,7 @@ class HangsAndCancel(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_cancel_before_the_task_has_started_still_cancels_it(self):
+    def test_cancel_before_the_task_has_started_still_cancels_it(self) -> None:
         worker = start()
         try:
             for _ in range(25):
@@ -448,7 +455,7 @@ class HangsAndCancel(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_a_cancel_for_a_finished_task_is_ignored(self):
+    def test_a_cancel_for_a_finished_task_is_ignored(self) -> None:
         worker = start()
         try:
             task = worker.task("echo", {"value": 3}).wait(30)
@@ -461,7 +468,7 @@ class HangsAndCancel(unittest.TestCase):
         finally:
             worker.close()
 
-    def test_a_tool_that_ignores_cancel_is_stopped_with_its_children_and_says_so(self):
+    def test_a_tool_that_ignores_cancel_is_stopped_with_its_children_and_says_so(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             pid_file = str(Path(folder) / "c.pid")
             worker = start()
@@ -482,7 +489,7 @@ class HangsAndCancel(unittest.TestCase):
             finally:
                 worker.close()
 
-    def test_a_cooperative_tool_cancelled_at_close_leaves_nothing_behind(self):
+    def test_a_cooperative_tool_cancelled_at_close_leaves_nothing_behind(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             pid_file = str(Path(folder) / "c.pid")
             worker = start()
@@ -496,7 +503,7 @@ class HangsAndCancel(unittest.TestCase):
             self.assertIsNotNone(worker.proc.poll())
             self.assertEqual(task.wait(10).status in ("CANCELED", "CRASHED"), True)
 
-    def test_a_tool_that_leaves_a_child_after_it_returned_does_not_outlive_close(self):
+    def test_a_tool_that_leaves_a_child_after_it_returned_does_not_outlive_close(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             pid_file = str(Path(folder) / "c.pid")
             worker = start()
@@ -510,7 +517,7 @@ class HangsAndCancel(unittest.TestCase):
     @unittest.skipUnless(
         os.name == "posix", "the Windows worker ends its children with a job object (tests/windows)"
     )
-    def test_children_die_when_the_host_goes_away(self):
+    def test_children_die_when_the_host_goes_away(self) -> None:
         self.assertEqual(children_problems(), [])
 
 
@@ -518,7 +525,7 @@ class TimeoutThroughRunOnce(unittest.TestCase):
     """client.run_once with a timeout: the real entry point of the command line (needs the app registered)."""
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         env = {**os.environ, "PYTHONPATH": str(_paths.ROOT)}
         done = subprocess.run(
             [sys.executable, "-m", "labconstrictor_tools", "register", "--name", "failures", "--prefix", str(_paths.GENERIC_PREFIX),
@@ -527,7 +534,7 @@ class TimeoutThroughRunOnce(unittest.TestCase):
         )  # fmt: skip
         assert done.returncode == 0, done.stderr
 
-    def test_a_task_that_outlives_its_timeout_is_stopped_and_says_so(self):
+    def test_a_task_that_outlives_its_timeout_is_stopped_and_says_so(self) -> None:
         started = time.time()
         task = client.run_once("failures", "hang", {"seconds": 300}, timeout=2)
         self.assertEqual(task.status, "CRASHED")
@@ -535,13 +542,13 @@ class TimeoutThroughRunOnce(unittest.TestCase):
         self.assertLess(time.time() - started, 30)
         self.assertIsNotNone(task.worker.proc.poll())
 
-    def test_a_run_that_completes_returns_its_outputs_and_closes_the_worker(self):
+    def test_a_run_that_completes_returns_its_outputs_and_closes_the_worker(self) -> None:
         task = client.run_once("failures", "echo", {"value": 11}, timeout=60)
         self.assertEqual(task.status, "COMPLETE")
         self.assertEqual(task.outputs["results"][0]["values"], {"value": 11})
         self.assertIsNotNone(task.worker.proc.poll())
 
-    def test_an_unwritable_results_folder_is_a_failure_with_a_message(self):
+    def test_an_unwritable_results_folder_is_a_failure_with_a_message(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             blocker = Path(folder) / "i_am_a_file"
             blocker.write_text("x", encoding="utf-8")
@@ -549,13 +556,13 @@ class TimeoutThroughRunOnce(unittest.TestCase):
         self.assertEqual(task.status, "FAILED")
         self.assertTrue(task.error and task.error.strip())
 
-    def test_an_unknown_app_is_a_start_error_with_the_installed_names(self):
+    def test_an_unknown_app_is_a_start_error_with_the_installed_names(self) -> None:
         with self.assertRaises(client.WorkerStartError) as caught:
             client.run_once("no such app", "echo", {})
         self.assertIn("failures", str(caught.exception))
 
 
-def tearDownModule():
+def tearDownModule() -> None:
     """Release what this module's tests left to the garbage collector now, so that a ResourceWarning for an unclosed pipe is
     raised here and not in whichever test happens to run next (some older tests count ResourceWarnings)."""
     import gc
