@@ -168,6 +168,12 @@ jobs:
       - name: (1,2,3) Log lines, list, doctor, version, pinned Tools
         run: |
           "$PY" $RS/sandbox_checks.py basic --app "$APP_NAME" --prefix "$PREFIX_DIR" --expect-version "$TAG" --tools-pin "$TOOLS_PIN" | tee checks_basic.txt || true
+      - name: Make the app's own test fixtures when it generates them (lc_tests/make_fixtures.py, as NucleiSky does)
+        run: |
+          if [ -f app_src/lc_tests/make_fixtures.py ]; then
+            mkdir -p app_src/lc_tests/fixtures
+            (cd app_src/lc_tests && "$PY" make_fixtures.py fixtures 2>&1 | tail -3) || echo "NOTE make_fixtures.py failed"
+          else echo "the app ships its fixtures (or needs none)"; fi
       - name: (4) The app's own cases (lc_tests/cases.json) through the worker, the CLI and the notebook form
         run: |
           "$PY" $RS/sandbox_checks.py cases --app "$APP_NAME" --module "$MODULE" --cases "$CASES" | tee checks_cases.txt || true
