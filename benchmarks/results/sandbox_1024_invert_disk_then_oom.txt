@@ -1,0 +1,6 @@
+== 1024 MiB ((23170, 23170), uint16)
+  invert    disk  run1  export 2.75  task 11.58 (load 5.74 tool 5.33 write 0.50 other 0.008)  back 0.00  total 15.29  worker faults 2888 rss 2079 MiB  psi 31ms scan 0
+  invert    disk  run2  export 1.20  task 4.63 (load 1.41 tool 2.76 write 0.45 other 0.010)  back 0.00  total 6.46  worker faults 2028 rss 2079 MiB  psi 8ms scan 0
+  invert    disk  run3  export 0.53  task 2.79 (load 0.39 tool 1.89 write 0.51 other 0.008)  back 0.00  total 3.94  worker faults 2027 rss 2079 MiB  psi 47ms scan 71
+/usr/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

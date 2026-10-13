@@ -1,0 +1,12 @@
+{"MiB":128,"tiff_disk_s":0.332,"tiff_read_s":0.350,"shm_to_short_array_s":0.105,"tiff_shmfs_s":0.160,"shm_appose_s":0.089,"shm_mmap_s":0.090}
+{"MiB":128,"tiff_disk_s":0.100,"tiff_read_s":0.196,"shm_to_short_array_s":0.100,"tiff_shmfs_s":0.118,"shm_appose_s":0.077,"shm_mmap_s":0.076}
+{"MiB":128,"tiff_disk_s":0.098,"tiff_read_s":0.186,"shm_to_short_array_s":0.097,"tiff_shmfs_s":0.109,"shm_appose_s":0.076,"shm_mmap_s":0.076}
+{"MiB":512,"tiff_disk_s":2.391,"tiff_read_s":0.914,"shm_to_short_array_s":0.433,"tiff_shmfs_s":0.527,"shm_appose_s":0.323,"shm_mmap_s":0.343}
+{"MiB":512,"tiff_disk_s":0.832,"tiff_read_s":0.809,"shm_to_short_array_s":0.393,"tiff_shmfs_s":0.439,"shm_appose_s":0.310,"shm_mmap_s":0.304}
+{"MiB":512,"tiff_disk_s":0.478,"tiff_read_s":0.553,"shm_to_short_array_s":0.163,"tiff_shmfs_s":0.437,"shm_appose_s":0.305,"shm_mmap_s":0.319}
+{"MiB":512,"tiff_disk_s":2.745,"tiff_read_s":0.916,"shm_to_short_array_s":0.399,"tiff_shmfs_s":0.699,"shm_appose_s":0.416,"shm_mmap_s":0.414}
+{"MiB":512,"tiff_disk_s":1.407,"tiff_read_s":0.782,"shm_to_short_array_s":0.367,"tiff_shmfs_s":0.433,"shm_appose_s":0.321,"shm_mmap_s":0.298}
+{"MiB":512,"tiff_disk_s":0.393,"tiff_read_s":0.565,"shm_to_short_array_s":0.157,"tiff_shmfs_s":0.430,"shm_appose_s":0.310,"shm_mmap_s":0.317}
+{"MiB":512,"tiff_disk_s":1.708,"tiff_read_s":0.930,"shm_to_short_array_s":0.375,"tiff_shmfs_s":0.505,"shm_appose_s":0.338,"shm_mmap_s":0.384}
+{"MiB":512,"tiff_disk_s":0.439,"tiff_read_s":0.758,"shm_to_short_array_s":0.385,"tiff_shmfs_s":0.427,"shm_appose_s":0.303,"shm_mmap_s":0.342}
+{"MiB":512,"tiff_disk_s":0.396,"tiff_read_s":0.604,"shm_to_short_array_s":0.192,"tiff_shmfs_s":0.437,"shm_appose_s":0.325,"shm_mmap_s":0.310}
