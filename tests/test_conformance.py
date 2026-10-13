@@ -24,12 +24,7 @@ from pathlib import Path
 import _paths  # noqa: F401  (must come first)
 from _paths import ROOT
 
-from labconstrictor_tools import compat, conformance, notebook
-
-try:
-    from labconstrictor_tools import retention
-except ImportError:  # the retention module arrives with its own change; its fixtures run as soon as it exists
-    retention = None
+from labconstrictor_tools import compat, conformance, notebook, retention
 
 
 def spec():
@@ -315,12 +310,7 @@ class AgainstTheCode(unittest.TestCase):
         self.assertEqual(limits["form_integer_max"]["value"], notebook.MAX_FORM_INTEGER)
         self.assertEqual(limits["form_integer_max"]["value"], 2**53 - 1)
         self.assertEqual(limits["unbounded_float"]["value"], 1e15)
-        if retention is not None:
-            kept = (retention.RESULTS_KEPT, retention.RUN_RECORDS_KEPT)
-        else:
-            from labconstrictor_tools import cli, runs
-
-            kept = (cli.RESULTS_KEPT, runs.KEEP)
+        kept = (retention.RESULTS_KEPT, retention.RUN_RECORDS_KEPT)
         self.assertEqual((limits["results_kept"]["value"], limits["run_records_kept"]["value"]), kept)
         self.assertIn("`RESULTS_KEPT = 20`, `RUN_RECORDS_KEPT = 50`", spec())
 
@@ -667,9 +657,6 @@ class CalibrationData(unittest.TestCase):
         self.assertEqual(sorted(self.cases), ["CAL-%02d" % i for i in range(1, 21)])
 
 
-@unittest.skipIf(
-    retention is None, "labconstrictor_tools.retention is not in this tree yet; its fixtures run once it is"
-)
 class RetentionFixturesAgainstTheReference(unittest.TestCase):
     """The `fixtures_tools` of the file, built and run for real against `retention.prune` and the CLI."""
 

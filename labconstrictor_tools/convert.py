@@ -340,6 +340,23 @@ def _read_image(value: Any, label: str = "image") -> Any:
 _MAPPED_INPUTS: list[Any] = []  # weak references to the mapped TIFF inputs of this process
 
 
+def _not_mapped(path: Path, reason: str) -> None:
+    """Return None (read the file the plain way) and, for a file of MEMMAP_MIN_BYTES or more, say why it was not mapped: one
+    warning line in the log file and on the worker's stderr. A small file is the normal case and stays quiet.
+    """
+    try:
+        big = path.stat().st_size >= MEMMAP_MIN_BYTES
+    except OSError:
+        big = False  # the plain reader will report the real problem
+    if big:
+        from . import log
+
+        text = "TIFF %s was read into memory, not memory-mapped: %s" % (path.name, reason)
+        log.warning("convert: %s", text)
+        print("LabConstrictor worker: " + text, file=sys.stderr, flush=True)
+    return None
+
+
 def _memmap_tiff(path: Path) -> Any:
     """The pixels of an uncompressed, contiguous, single-series TIFF as a copy-on-write memory map, or None to read it the plain way.
 
@@ -350,7 +367,7 @@ def _memmap_tiff(path: Path) -> Any:
     file under MEMMAP_MIN_BYTES, and the environment variable LC_TIFF_MEMMAP=0.
     """
     if os.environ.get(MEMMAP_ENV, "1") == "0":
-        return None
+        return _not_mapped(path, "switched off by %s=0" % MEMMAP_ENV)
     import numpy as np
     import tifffile
 
@@ -360,27 +377,38 @@ def _memmap_tiff(path: Path) -> Any:
                 True  # looking at every page's offsets must stay cheap for a stack of thousands of pages
             )
             native = "<" if sys.byteorder == "little" else ">"
-            if tif.byteorder != native or len(tif.series) != 1:
-                return None
+            if tif.byteorder != native:
+                return _not_mapped(
+                    path, "big-endian byte order" if native == "<" else "little-endian byte order"
+                )
+            if len(tif.series) != 1:
+                return _not_mapped(path, "multi-series (%d series)" % len(tif.series))
             series = tif.series[0]
             page = series.pages[0] if series.pages else None
-            if (
-                page is None
-                or series.kind not in MEMMAP_SERIES_KINDS
-                or len(series.levels) != 1
-                or series.dataoffset is None
-                or not page.is_memmappable
-                or not _pages_are_one_block(series.pages, series.dataoffset)
-            ):
-                return None
+            if page is None:
+                return _not_mapped(path, "no pixel data")
+            if series.kind not in MEMMAP_SERIES_KINDS:
+                return _not_mapped(path, "%s format (several files or a special layout)" % series.kind)
+            if len(series.levels) != 1:
+                return _not_mapped(path, "pyramid levels (%d)" % len(series.levels))
+            if not page.is_memmappable:
+                if page.compression != 1:
+                    return _not_mapped(path, "compressed")
+                return _not_mapped(
+                    path, "tiled" if page.is_tiled else "not contiguous (pixel layout cannot be mapped)"
+                )
+            if series.dataoffset is None:
+                return _not_mapped(path, "not contiguous (no single block of pixel data)")
+            if not _pages_are_one_block(series.pages, series.dataoffset):
+                return _not_mapped(path, "not contiguous (the pages do not follow each other)")
             shape, dtype, offset = tuple(series.shape), np.dtype(series.dtype), series.dataoffset
             nbytes = int(np.prod(shape, dtype=np.int64)) * dtype.itemsize
-            if (
-                nbytes < MEMMAP_MIN_BYTES
-                or dtype.kind not in IMAGE_DTYPE_KINDS
-                or offset + nbytes > path.stat().st_size
-            ):
-                return None
+            if nbytes < MEMMAP_MIN_BYTES:
+                return None  # small: the normal path, nothing to tell
+            if dtype.kind not in IMAGE_DTYPE_KINDS:
+                return _not_mapped(path, "pixel type %s" % dtype)
+            if offset + nbytes > path.stat().st_size:
+                return _not_mapped(path, "truncated (the file is shorter than its header says)")
         mapped = np.memmap(path, dtype=dtype, mode="c", offset=offset, shape=shape, order="C")
     except (
         OSError,
@@ -388,8 +416,8 @@ def _memmap_tiff(path: Path) -> Any:
         MemoryError,
         AttributeError,
         IndexError,
-    ):  # not mappable after all: the plain reader decides
-        return None
+    ) as error:  # not mappable after all: the plain reader decides
+        return _not_mapped(path, "the mapping failed (%s: %s)" % (type(error).__name__, error))
     _MAPPED_INPUTS.append(weakref.ref(mapped))
     return mapped.view(
         np.ndarray

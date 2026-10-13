@@ -28,7 +28,7 @@ every real path, and that the tests themselves would notice if the production co
 | `tests/test_roundtrip_hints.py` | schema hints generated from the marker list of `types.py`: valid combinations obey the manifest, invalid ones are refused |
 | `tests/test_roundtrip_failures.py` + `tests/failure_app/` | failure injection through the real client |
 | `tests/test_roundtrip_command.py` | quoting against a real shell and the Windows rules; app names with spaces and quotes |
-| `tests/roundtrip_known_failures.py` + `test_roundtrip_known_failures.py` | real defects found, and the watcher that keeps the list honest |
+| `tests/roundtrip_known_failures.py` + `test_roundtrip_known_failures.py` | real defects found and not yet fixed (empty today: every finding F1 to F21 is fixed), and the watcher that keeps the list honest |
 | `tests/test_input_loading.py` + `tests/input_app/` | how the worker reads an image input: the `order` of a shared-memory block (F read with the right strides on a non-symmetric array, anything but C/F refused) and the memory-mapped read of big TIFFs (mapped cases equal to `tifffile.imread`, every fallback, a tool that writes to its input, the mapping released after a failure) |
 | `tests/test_retention.py` | `retention` and `labconstrictor-tools prune` ([SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) 3.7: RET-01 to RET-09, RET-12, RET-13): a private `LC_HOME`, every survivor checked by the contents of a sentinel file, four real `prune` processes at once, a lock held by another process, symlinks (and on Windows junctions and read-only files; a link kind that cannot be made is reported as skipped, never as a pass) |
 | `tests/test_conformance.py` | `conformance.json` and its loader ([CONFORMANCE.md](CONFORMANCE.md)): the schema (every kind of damage is named), the data against the code (limits, `compat` vectors, retention fixtures once `retention` exists), arithmetic oracles for the coordinate formula and the unit table, and the wheel contents |
@@ -55,7 +55,20 @@ Run a slice: `LC_ROUNDTRIP_FILTER='echo_bounded' python -m unittest test_roundtr
 | Pull request | `ci` | `lint`, then `compat` (Tools against its newest `v*` tag, see below; skips with a printed reason when there is no tag) and 4 test jobs: ubuntu 3.10, ubuntu 3.12 (coverage floor 85), windows 3.12 (plus the Windows-specific suite), macos 3.12 |
 | Push to `main`, manual dispatch, nightly (03:17 UTC) | `ci` | `lint`, then `compat` and the full 3 OS x {3.10, 3.12} matrix, so Windows and macOS on 3.10 are still covered, at the latest the next night |
 | Nightly (02:41 UTC), manual dispatch | `nightly` | heavy round-trip profile on 3 OS, mutation testing |
-| Manual, or pushes to their own branches | `smoke`, `smoke_install` | end-to-end and install smoke tests (unchanged) |
+| Manual only (`smoke` also on pushes to `claude/smoke-bridge`) | `smoke`, `smoke_install`, `smoke_migration`, `release_sandbox` | end-to-end, install, template-migration and released-app smoke tests: **dispatch-only, no schedule and no pull-request trigger**, so nothing runs them unless a person starts them (a default that names a deleted branch is only found at the next run). `smoke_migration`: an old install of an app (default NucleiSky) gets the template migration, is updated, checked and uninstalled |
+
+**Which smoke workflows default to branch names.** These defaults move or disappear, so a result is only as reproducible as the ref you pass:
+
+| Workflow | Input | Default |
+|---|---|---|
+| `smoke_install` | `app_ref` | the branch `bridge-test` of `CellMigrationLab/CellTracksColab` |
+| `smoke_migration` | `template_ref` | `main` of `CellMigrationLab/LabConstrictor` |
+| `smoke_migration` | `app_ref` | the branch `claude/merge-bridge-test` of `CellMigrationLab/NucleiSky` |
+| `smoke_migration` | `old_template_ref` | a commit (`900d0cac...`, template 0.1.15): fixed |
+| `release_sandbox` | `napari_ref`, `fiji_ref`, `qupath_ref` | `main` of `LabConstrictor-napari`, `LabConstrictor-Fiji`, `labconstrictor-qupath`; pass a tag to pin (`fiji_ref` and `qupath_ref` go to `git clone --branch`: a branch or a tag, not a commit) |
+| `release_sandbox` | `tools_pin`, `tag` | the tag `v0.3.0-alpha.1` of Tools, a release tag of the app: fixed |
+
+Third-party actions (not by GitHub) are pinned by full commit SHA with the version in a comment (today only `conda-incubator/setup-miniconda`); GitHub's own `actions/*` are pinned by major tag. Their pip dependencies in the sandbox are not pinned.
 
 Why: a PR branch push used to run both the `push` and the `pull_request` trigger, each with 6 test jobs, and a superseded push kept
 running. Now `push` is limited to `main`, a newer push to the same ref cancels the older run (never on `main`), the test jobs wait for
@@ -75,6 +88,10 @@ setuptools did exactly that, 2026-10-12), because pull requests do not run those
    fail when a declared type, tool or marker has no case.
 3. Run `python -m unittest test_roundtrip_matrix`. If the case fails and the production code is wrong, do not weaken the case:
    see "Known failures". If the expectation was wrong, fix the oracle, not the tolerance.
+
+## The Playground rule
+
+Every new feature or limit needs (1) a tool or case in the Playground app (a tool in its feature tour and a case in "Check the bridge"), (2) a generated case in the round-trip matrix, and (3) the host GUI check, before its pull request is done. **Where it is checked:** (2) is enforced by tests in this repository (`test_roundtrip_cases.py` and `test_roundtrip_hints.py` fail when a declared type, tool or marker has no case); (1) and (3) live in other repositories and run in `release_sandbox` with `playground_extras` (the Playground's own tool runs, the Fiji and QuPath host runs) and in each host's own suite; nothing in Tools fails when (1) is missing, so a reviewer checks it by hand from the pull request description (feature, Playground tool or case, matrix case, ledger row when it fixes a defect). A change with no Playground case says why (a host-side API, a performance feature).
 
 ## Known failures
 
@@ -98,7 +115,7 @@ a matrix row or a test, and a row; `tests/test_roundtrip_ledger.py` checks that 
   Locally: `cd tests && python -m coverage run -m unittest discover -p "test_*.py" && python -m coverage combine && python coverage_report.py`.
 * **Unused code**: `vulture labconstrictor_tools tests/vulture_whitelist.py --min-confidence 80` runs in the lint job. Every
   whitelist entry has a reason, and a stale entry fails `test_roundtrip_unused_code.py`.
-* **Sabotage** (`tests/test_sabotage.py`, Linux, about a minute and a half): for each production function in a table, a copy of the
+* **Sabotage** (`tests/test_sabotage.py`, Linux, minutes: the breaks run in parallel): for each production function **in the table** (the converters, retention, runs, the worker, conformance; not every module has a row yet, for example `log.hint_for_exit` and the registry trust checks do not), a copy of the
   package gets one deliberate break (a flipped comparison, x and y swapped, a case dropped), the guarding slice of the matrix runs
   against the copy, and it **must fail**. A break that survives fails the test and is named. To guard a new function add a row.
 * **Mutation testing** (nightly, `.github/workflows/nightly.yml`): `mutmut` on `convert.py`, `introspection.py`, `shapes.py`,
@@ -119,7 +136,8 @@ Windows runners, exercised, and uninstalled. Run it from Actions, "release-sandb
 | `app_repo`, `tag` | the released app and release under test (its `.sh` / `.exe` installers are downloaded) |
 | `old_tag` | optional older release of the **same** app: install it, make user data, update (Linux `installer.sh -u` in place; macOS and Windows uninstall, then install, as the user docs say), check, uninstall |
 | `tools_pin` | tag of labconstrictor-tools the installed app must carry (empty: not checked). With `playground_extras` the Playground check of the installed Tools uses the same pin; when empty it reads the pin from the installed app's own `post_install` line (`LC_TOOLS_SPEC`) instead of a constant |
-| `hosts_napari`, `napari_ref` | run the Napari host check on all three systems (software OpenGL on macOS and Windows) |
+| `hosts_napari`, `napari_ref` | run the Napari host check on all three systems (software OpenGL on macOS and Windows); `napari_ref` is the branch or tag of the plugin (default `main`) |
+| `fiji_ref`, `qupath_ref` | branch or tag of the Fiji and QuPath repositories cloned for the host runs of `playground_extras` and `hosts_qupath` (default `main`) |
 | `playground_extras` | LabConstrictor Playground only: its own tool runs and failure paths (`playground_extras.py`), the Fiji host (Linux) and, with `hosts_qupath`, the QuPath host (Linux) |
 
 What is checked, for **any** app (the expectations come from the app, not from the workflow: `construct.yaml`, the registered schema and

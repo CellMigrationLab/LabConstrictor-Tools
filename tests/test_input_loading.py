@@ -9,6 +9,7 @@
 """
 
 import hashlib
+import logging
 import mmap
 import os
 import tempfile
@@ -237,6 +238,68 @@ class MappedTiff(unittest.TestCase):
         with self.assertLogs("labconstrictor.convert", "ERROR"), self.assertRaises(ToolError) as caught:
             self.read(path)
         self.assertEqual(caught.exception.code, "unreadable_image")
+
+    def told(self, path):
+        """What `_memmap_tiff` says about `path`: the log records of the worker's logger and the text on stderr."""
+        import io
+        from contextlib import redirect_stderr
+
+        with mock.patch.dict(os.environ, {"LC_HOME": str(self.folder / "home")}):
+            stderr = io.StringIO()
+            with self.assertLogs("labconstrictor", "DEBUG") as logged, redirect_stderr(stderr):
+                logging.getLogger("labconstrictor").debug("marker")  # assertLogs fails on no record at all
+                mapped = convert._memmap_tiff(path)
+        lines = [r.getMessage() for r in logged.records if r.levelno >= logging.WARNING]
+        return mapped, lines, stderr.getvalue()
+
+    def test_a_file_that_could_not_be_mapped_says_why_in_the_log_and_on_stderr(self):
+        data = non_symmetric((16, 32))
+        multi = self.folder / "multi.tif"
+        with tifffile.TiffWriter(multi) as writer:
+            writer.write(data, contiguous=False)
+            writer.write(data[::-1].copy(), contiguous=False)
+        gap = self.folder / "gap.tif"
+        write_with_a_gap(gap, non_symmetric((3, 16, 32)))
+        cut = self.write("cut.tif", non_symmetric((64, 64)))
+        cut.write_bytes(cut.read_bytes()[:-4000])
+        cases = {
+            "compressed": self.write("zlib.tif", data, compression="zlib"),
+            "tiled": self.write("tiled.tif", data, tile=(16, 16)),
+            "multi-series": multi,
+            "big-endian": self.write("be.tif", data, byteorder=">" if np.little_endian else "<"),
+            "not contiguous": gap,
+            "truncated": cut,
+        }
+        for reason, path in cases.items():
+            with self.subTest(reason):
+                mapped, lines, stderr = self.told(path)
+                self.assertIsNone(mapped)
+                self.assertEqual(len(lines), 1, lines)
+                self.assertIn(path.name, lines[0])
+                self.assertIn(reason, lines[0])
+                self.assertIn(lines[0].split("convert: ")[-1], stderr)
+                self.assertTrue(stderr.startswith("LabConstrictor worker: "), stderr)
+
+    def test_the_environment_switch_is_told_for_a_big_file(self):
+        path = self.write("a.tif", non_symmetric((7, 9)))
+        with mock.patch.dict(os.environ, {convert.MEMMAP_ENV: "0"}):
+            mapped, lines, _ = self.told(path)
+        self.assertIsNone(mapped)
+        self.assertEqual(len(lines), 1, lines)
+        self.assertIn(convert.MEMMAP_ENV, lines[0])
+
+    def test_nothing_is_said_for_a_small_file_or_a_mapped_one(self):
+        small = self.write("small.tif", non_symmetric((7, 9)))
+        small_compressed = self.write("smallz.tif", non_symmetric((16, 32)), compression="zlib")
+        with mock.patch.object(convert, "MEMMAP_MIN_BYTES", 1 << 20):
+            for path in (small, small_compressed):
+                mapped, lines, stderr = self.told(path)
+                self.assertIsNone(mapped)
+                self.assertEqual((lines, stderr), ([], ""))
+        mapped, lines, stderr = self.told(small)  # threshold 0 again: mapped, so nothing to tell either
+        self.assertIsNotNone(mapped)
+        self.assertEqual((lines, stderr), ([], ""))
+        del mapped
 
     def test_writing_to_the_input_works_and_never_reaches_the_file(self):
         path = self.write("mine.tif", non_symmetric((64, 64)))

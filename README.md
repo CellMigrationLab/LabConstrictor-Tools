@@ -50,13 +50,7 @@ The function must be available in an installed tool module and registered before
 
 ## Install and inspect
 
-The toolkit is currently installed from GitHub:
-
-```bash
-python -m pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip
-```
-
-For the first human tests, the pre-release `v0.3.0-alpha.1` (Tools `0.3.0a1`) is installed from its tag:
+The toolkit is currently installed from GitHub, from the tag of the current pre-release `v0.3.0-alpha.1` (Tools `0.3.0a1`):
 
 ```bash
 python -m pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip
