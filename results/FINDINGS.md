@@ -54,3 +54,7 @@ Candidate app bugs (agent-reported; to be re-run on the INSTALLED apps before th
 * **A-CT2 (CellTracksColab, product decision)** two spots at the same time: COMPLETE with Max Speed 1e10 (dt=0 replaced by 1e-10).
 * Decision item: a raw TrackMate export with its 3 descriptive rows below the header is refused (`missing_track_id`); the notebook loader drops those rows.
 * The sandbox demo case artifact (F-001) also appears in the app's own cases.json when run twice: covered by Tools#138.
+
+## Tools#138 merged (owner approved merge on green): 94527478 -> 8ad2dc2 on Tools main (all six checks green on head 1853e6b)
+* GitHub release sandbox for Guess the Condition 0.0.1 re-dispatched on the new main (host refs v0.1.0-alpha.1, Tools pin v0.3.0-alpha.1) to confirm the Windows and macOS legs; result to be recorded here.
+* Fiji#50 merged (e35337f), Fiji issues #29 and #31 closed with a comment (ship in the next Fiji release).

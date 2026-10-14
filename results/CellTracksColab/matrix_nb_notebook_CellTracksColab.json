@@ -2,7 +2,7 @@
  "host": "notebook",
  "app": "CellTracksColab",
  "family": "nb",
- "started": "2026-10-14T18:46:20",
+ "started": "2026-10-14T19:02:10",
  "finished": null,
  "expected": 74,
  "rows": [
@@ -17,7 +17,7 @@
    "detail": "the source checkout is at the release tag 1.1.2",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:20"
+   "ts": "2026-10-14T19:02:10"
   },
   {
    "id": "nb_CellTracksColab_notebooks_inventory",
@@ -30,7 +30,7 @@
    "detail": "8 notebooks installed, the same as construct.yaml lists: CellTracksColab_Custom, CellTracksColab_Dimensionality_Reduction, CellTracksColab_Distance_to_ROI, CellTracksColab_TrackMate, CellTracksColab_TrackMate_Plate, CellTracksColab_Track_Clustering, CellTracksColab_Viewer, Welcome",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:20"
+   "ts": "2026-10-14T19:02:10"
   },
   {
    "id": "nb_CellTracksColab_Welcome_packaged",
@@ -43,7 +43,7 @@
    "detail": "2 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:22"
+   "ts": "2026-10-14T19:02:12"
   },
   {
    "id": "nb_CellTracksColab_Welcome_valid",
@@ -56,7 +56,7 @@
    "detail": "nbformat 4.5 valid; kernelspec 'python3' resolves to /home/user/apps/CellTracksColab/bin/python (spec dir /home/user/apps/CellTracksColab/share/jupyter/kernels/python3); app interpreter /home/user/apps/CellTracksColab/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:22"
+   "ts": "2026-10-14T19:02:12"
   },
   {
    "id": "nb_CellTracksColab_Welcome_imports",
@@ -67,9 +67,9 @@
    "control": "",
    "status": "PASS",
    "detail": "12 imports resolved in /home/user/apps/CellTracksColab/bin/python",
-   "seconds": 0.42,
+   "seconds": 0.27,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:22"
+   "ts": "2026-10-14T19:02:12"
   },
   {
    "id": "nb_CellTracksColab_Welcome_kernel",
@@ -82,7 +82,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/CellTracksColab/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:23"
+   "ts": "2026-10-14T19:02:13"
   },
   {
    "id": "nb_CellTracksColab_Welcome_welcome_branch",
@@ -95,7 +95,7 @@
    "detail": "GitHub answered 200: the table is shown directly",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:24"
+   "ts": "2026-10-14T19:02:14"
   },
   {
    "id": "nb_CellTracksColab_Welcome_oracle_welcome_rows",
@@ -108,7 +108,7 @@
    "detail": "the table has a row for each of the 7 notebooks the app ships (CellTracksColab_Custom, CellTracksColab_Dimensionality_Reduction, CellTracksColab_Distance_to_ROI, CellTracksColab_TrackMate, CellTracksColab_TrackMate_Plate, CellTracksColab_Track_Clustering, CellTracksColab_Viewer)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:24"
+   "ts": "2026-10-14T19:02:14"
   },
   {
    "id": "nb_CellTracksColab_Welcome_welcome_status",
@@ -121,7 +121,7 @@
    "detail": "status cells: ['Up-to-date', 'Up-to-date', 'Up-to-date', 'Up-to-date', 'Up-to-date', 'Up-to-date', 'Up-to-date']",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:24"
+   "ts": "2026-10-14T19:02:14"
   },
   {
    "id": "nb_CellTracksColab_Welcome_oracle_welcome_open_buttons",
@@ -134,7 +134,7 @@
    "detail": "7 open buttons for 7 notebooks",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:24"
+   "ts": "2026-10-14T19:02:14"
   },
   {
    "id": "nb_CellTracksColab_Welcome_oracle_welcome_open_targets",
@@ -147,7 +147,7 @@
    "detail": "open buttons target ['notebooks/CellTracksColab_Custom/CellTracksColab_Custom.ipynb', 'notebooks/CellTracksColab_Dimensionality_Reduction/CellTracksColab_Dimensionality_Reduction.ipynb', 'notebooks/CellTracksColab_Distance_to_ROI/CellTracksColab_Distance_to_ROI.ipynb', 'notebooks/CellTracksColab_TrackMate/CellTracksColab_TrackMate.ipynb', 'notebooks/CellTracksColab_TrackMate_Plate/CellTracksColab_",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:24"
+   "ts": "2026-10-14T19:02:14"
   },
   {
    "id": "nb_CellTracksColab_Welcome_welcome_update",
@@ -160,7 +160,7 @@
    "detail": "no Update button: every notebook is up to date or GitHub was not reachable",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:24"
+   "ts": "2026-10-14T19:02:14"
   },
   {
    "id": "nb_CellTracksColab_Welcome_runs",
@@ -171,9 +171,9 @@
    "control": "",
    "status": "PASS",
    "detail": "4 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /home/user/results/CellTracksColab/executed/Welcome.ipynb",
-   "seconds": 2.38,
+   "seconds": 2.27,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:25"
+   "ts": "2026-10-14T19:02:15"
   },
   {
    "id": "nb_CellTracksColab_Welcome_oracle",
@@ -186,7 +186,7 @@
    "detail": "3 outcome assertions passed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:25"
+   "ts": "2026-10-14T19:02:15"
   },
   {
    "id": "nb_CellTracksColab_Welcome_net_0",
@@ -199,7 +199,7 @@
    "detail": "get https://api.github.com/repos/CellMigrationLab/CellTracksColab/contents/notebooks/notebook_latest_versions.yaml?ref=main -> 200 (size 1801 bytes)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:25"
+   "ts": "2026-10-14T19:02:15"
   },
   {
    "id": "nb_CellTracksColab_Welcome_net_1",
@@ -212,7 +212,7 @@
    "detail": "get https://api.github.com/repos/CellMigrationLab/CellTracksColab/contents/construct.yaml?ref=main -> 200 (size 5981 bytes)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:25"
+   "ts": "2026-10-14T19:02:15"
   },
   {
    "id": "nb_CellTracksColab_Welcome_sideeffects",
@@ -225,7 +225,7 @@
    "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/CellTracksColab/CellTracksColab: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: DNS 127.0.0.1; HTTP get https:// (full: /home/user/results/CellTracksColab/sideeffects_Welcome.txt)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:25"
+   "ts": "2026-10-14T19:02:15"
   },
   {
    "id": "nb_CellTracksColab_Welcome_downloads",
@@ -238,7 +238,7 @@
    "detail": "scratch home held 0.9 MB after the run (cap 300 MB); deleted afterwards, small text files kept",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:25"
+   "ts": "2026-10-14T19:02:15"
   },
   {
    "id": "nb_CellTracksColab_Welcome_noleak",
@@ -251,7 +251,7 @@
    "detail": "no kernel process of this notebook is left",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:25"
+   "ts": "2026-10-14T19:02:15"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_packaged",
@@ -264,7 +264,7 @@
    "detail": "81 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:27"
+   "ts": "2026-10-14T19:02:16"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_valid",
@@ -277,7 +277,7 @@
    "detail": "nbformat 4.0 valid; kernelspec 'python3' resolves to /home/user/apps/CellTracksColab/bin/python (spec dir /home/user/apps/CellTracksColab/share/jupyter/kernels/python3); app interpreter /home/user/apps/CellTracksColab/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:27"
+   "ts": "2026-10-14T19:02:17"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_imports",
@@ -288,9 +288,9 @@
    "control": "",
    "status": "PASS",
    "detail": "25 imports resolved in /home/user/apps/CellTracksColab/bin/python; optional or Colab-only unresolved: google.colab (colab): ModuleNotFoundError: No module named 'google'",
-   "seconds": 2.55,
+   "seconds": 2.29,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:30"
+   "ts": "2026-10-14T19:02:19"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_kernel",
@@ -303,7 +303,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/CellTracksColab/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:31"
+   "ts": "2026-10-14T19:02:20"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_zenodo_test_dataset",
@@ -316,7 +316,7 @@
    "detail": "the default \"Use test dataset\" downloads T_Cells_spots_only.zip from Zenodo (up to 10 minutes): not used, the synthetic dataset is loaded instead",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:33"
+   "ts": "2026-10-14T19:02:22"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_load_Find_folder",
@@ -329,7 +329,7 @@
    "detail": "button 'Find folder' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:33"
+   "ts": "2026-10-14T19:02:22"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_load_Find_folder",
@@ -342,7 +342,7 @@
    "detail": "button 'Find folder' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:33"
+   "ts": "2026-10-14T19:02:22"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_load_Submit",
@@ -355,7 +355,7 @@
    "detail": "'Submit': CallbackFailed: callback of Button('Submit') raised:     CellTracks.file_format = File_Format |                              ^^^^^^^^^^^ | NameError: name 'File_Format' is not defined",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:33"
+   "ts": "2026-10-14T19:02:22"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_workaround_file_format",
@@ -368,7 +368,7 @@
    "detail": "APP NOTEBOOK BUG: with Use test dataset unticked the Submit handler reads the global File_Format that only the test-dataset branch defines (NameError, FAIL row above). A user can define File_Format = \"csv\" in a cell: done here, and Submit is pressed again so that the rest of the notebook can be tested",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:33"
+   "ts": "2026-10-14T19:02:22"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c10_Submit",
@@ -381,7 +381,7 @@
    "detail": "clicked 'Submit':  spots... | Found 48 tracks with two or more spots. | Filtering complete. Returning filtered DataFrames.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:33"
+   "ts": "2026-10-14T19:02:22"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c12_Submit",
@@ -394,7 +394,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:33"
+   "ts": "2026-10-14T19:02:22"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c16_Submit",
@@ -407,7 +407,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:34"
+   "ts": "2026-10-14T19:02:23"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c18_Submit",
@@ -420,7 +420,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:34"
+   "ts": "2026-10-14T19:02:24"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c19_Submit",
@@ -433,7 +433,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:35"
+   "ts": "2026-10-14T19:02:25"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c21_Submit",
@@ -446,7 +446,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:36"
+   "ts": "2026-10-14T19:02:25"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c22_Submit",
@@ -459,7 +459,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:37"
+   "ts": "2026-10-14T19:02:26"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c24_Submit",
@@ -472,7 +472,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:37"
+   "ts": "2026-10-14T19:02:27"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c25_Submit",
@@ -485,7 +485,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:38"
+   "ts": "2026-10-14T19:02:27"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c28_Submit",
@@ -498,7 +498,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:39"
+   "ts": "2026-10-14T19:02:28"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c32_Apply_Filters",
@@ -511,7 +511,7 @@
    "detail": "clicked 'Apply Filters': esults/CellTracksColab/home_CellTracksColab_Custom/work/ctc_results/filtered_and_smoothed_tracks.csv",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:46:39"
+   "ts": "2026-10-14T19:02:29"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c36_Select",
@@ -524,7 +524,7 @@
    "detail": "clicked 'Select': Analysis will be performed using: Raw data",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:39"
+   "ts": "2026-10-14T19:02:29"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c42_Submit",
@@ -537,7 +537,7 @@
    "detail": "clicked 'Submit': No NaN values found in merged_tracks_df.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:39"
+   "ts": "2026-10-14T19:02:29"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c46_Submit",
@@ -550,7 +550,7 @@
    "detail": "clicked 'Submit': No NaN values found in merged_tracks_df.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:40"
+   "ts": "2026-10-14T19:02:30"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c50_Submit",
@@ -563,7 +563,7 @@
    "detail": "clicked 'Submit': No NaN values found in merged_tracks_df.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:41"
+   "ts": "2026-10-14T19:02:31"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c54_Submit",
@@ -576,7 +576,7 @@
    "detail": "clicked 'Submit': No NaN values found in merged_tracks_df.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:42"
+   "ts": "2026-10-14T19:02:33"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c58_Submit",
@@ -589,7 +589,7 @@
    "detail": "clicked 'Submit': No NaN values found in merged_tracks_df.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:43"
+   "ts": "2026-10-14T19:02:33"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c67_Select_the_track_parameters_an",
@@ -602,7 +602,7 @@
    "detail": "clicked 'Select the track parameters and visualize similarity': Rows before NaN filtering: 48 | Rows after NaN filtering: 48",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:44"
+   "ts": "2026-10-14T19:02:34"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c72_Plot_Selected_Variables",
@@ -615,7 +615,7 @@
    "detail": "clicked 'Plot Selected Variables': Plotting in progress... | No conditions selected; using all available conditions. | Plotting completed.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:47"
+   "ts": "2026-10-14T19:02:37"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_click_auto_c79_Plot_Selected_Variables",
@@ -628,7 +628,7 @@
    "detail": "clicked 'Plot Selected Variables': Plotting in progress... | No conditions selected; using all available conditions. | Plotting completed.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:51"
+   "ts": "2026-10-14T19:02:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_runs",
@@ -639,9 +639,9 @@
    "control": "",
    "status": "FAIL",
    "detail": "80 cells and stages executed; failing cells: none; failing click stages/assertions: click_auto_load_Submit; executed notebook: /home/user/results/CellTracksColab/executed/CellTracksColab_Custom.ipynb",
-   "seconds": 322.75,
+   "seconds": 22.74,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_load_spots_file",
@@ -654,7 +654,7 @@
    "detail": "merged_Spots.csv.gz: 960 rows (expected 960), conditions ['Control', 'Mutant'], 48 tracks (expected 48)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_metrics_Track_Duration",
@@ -667,7 +667,7 @@
    "detail": "Track Duration: max abs error 0 over 48 tracks",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_metrics_Mean_Speed",
@@ -680,7 +680,7 @@
    "detail": "Mean Speed: max abs error 8.88e-16 over 48 tracks",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_metrics_Total_Distance_Traveled",
@@ -693,7 +693,7 @@
    "detail": "Total Distance Traveled: max abs error 1.42e-14 over 48 tracks",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_metrics_Directionality",
@@ -706,7 +706,7 @@
    "detail": "Directionality: max abs error 4.44e-16 over 48 tracks",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_files_QC_x",
@@ -719,7 +719,7 @@
    "detail": "3 non-empty files match QC/* under /home/user/results/CellTracksColab/home_CellTracksColab_Custom/work/ctc_results (need 1)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_files_Tracks_x",
@@ -732,7 +732,7 @@
    "detail": "27 non-empty files match Tracks/* under /home/user/results/CellTracksColab/home_CellTracksColab_Custom/work/ctc_results (need 1)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_files_track_parameters_plots_x",
@@ -745,7 +745,7 @@
    "detail": "3 non-empty files match track_parameters_plots/* under /home/user/results/CellTracksColab/home_CellTracksColab_Custom/work/ctc_results (need 2)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle_balanced_keeps_all_tracks",
@@ -758,7 +758,7 @@
    "detail": "merged_Tracks_balanced_dataset.csv.gz has 48 tracks (the dataset was already balanced: 48)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_oracle",
@@ -771,7 +771,7 @@
    "detail": "9 outcome assertions passed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_net_0",
@@ -784,7 +784,7 @@
    "detail": "get https://api.github.com/repos/CellMigrationLab/CellTracksColab/contents/notebooks/notebook_latest_versions.yaml -> 200 (size 1801 bytes)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_sideeffects",
@@ -797,7 +797,7 @@
    "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/CellTracksColab/CellTracksColab: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: DNS 127.0.0.1; HTTP get https:// (full: /home/user/results/CellTracksColab/sideeffects_CellTracksColab_Custom.txt)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:52"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_downloads",
@@ -810,7 +810,7 @@
    "detail": "scratch home held 2.2 MB after the run (cap 300 MB); deleted afterwards, small text files kept",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:53"
+   "ts": "2026-10-14T19:02:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Custom_noleak",
@@ -823,7 +823,7 @@
    "detail": "no kernel process of this notebook is left",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:53"
+   "ts": "2026-10-14T19:02:43"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_packaged",
@@ -836,7 +836,7 @@
    "detail": "50 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:56"
+   "ts": "2026-10-14T19:02:45"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_valid",
@@ -849,7 +849,7 @@
    "detail": "nbformat 4.0 valid; kernelspec 'python3' resolves to /home/user/apps/CellTracksColab/bin/python (spec dir /home/user/apps/CellTracksColab/share/jupyter/kernels/python3); app interpreter /home/user/apps/CellTracksColab/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:51:56"
+   "ts": "2026-10-14T19:02:45"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_imports",
@@ -860,9 +860,9 @@
    "control": "",
    "status": "PASS",
    "detail": "26 imports resolved in /home/user/apps/CellTracksColab/bin/python; optional or Colab-only unresolved: google.colab (colab): ModuleNotFoundError: No module named 'google'",
-   "seconds": 12.02,
+   "seconds": 12.33,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:08"
+   "ts": "2026-10-14T19:02:57"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_kernel",
@@ -875,7 +875,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/CellTracksColab/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:09"
+   "ts": "2026-10-14T19:02:58"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_load_Find_file",
@@ -888,7 +888,7 @@
    "detail": "button 'Find file' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:22"
+   "ts": "2026-10-14T19:03:10"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_load_Find_file",
@@ -901,7 +901,7 @@
    "detail": "button 'Find file' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:22"
+   "ts": "2026-10-14T19:03:10"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_load_Find_folder",
@@ -914,7 +914,7 @@
    "detail": "button 'Find folder' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:22"
+   "ts": "2026-10-14T19:03:10"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_load_Submit",
@@ -927,7 +927,7 @@
    "detail": "clicked 'Submit': 'POSITION_T'}. | Dataset processing completed in 0.01 seconds. | No NaN values found in merged_spots_df.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:22"
+   "ts": "2026-10-14T19:03:10"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c12_Select_the_track_parameters",
@@ -940,7 +940,7 @@
    "detail": "clicked 'Select the track parameters': Done",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:22"
+   "ts": "2026-10-14T19:03:11"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c14_Submit",
@@ -953,7 +953,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:36"
+   "ts": "2026-10-14T19:03:23"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_hdbscan_Submit",
@@ -966,7 +966,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:36"
+   "ts": "2026-10-14T19:03:24"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c22_Plot_Selected_Variables",
@@ -979,7 +979,7 @@
    "detail": "clicked 'Plot Selected Variables': Plotting in progress...",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:38"
+   "ts": "2026-10-14T19:03:25"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c24_Plot_Selected_Variables",
@@ -992,7 +992,7 @@
    "detail": "clicked 'Plot Selected Variables': ng, therefore all available conditions are selected by default | Plotting in progress for Cluster 0...",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:40"
+   "ts": "2026-10-14T19:03:28"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c26_Submit",
@@ -1005,7 +1005,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:40"
+   "ts": "2026-10-14T19:03:28"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_human_cell_31",
@@ -1018,7 +1018,7 @@
    "detail": "needs the raw video of the experiment (Video path widget) to overlay the exemplar tracks: no video exists for the synthetic tracks",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:41"
+   "ts": "2026-10-14T19:03:28"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_human_cell_33",
@@ -1031,7 +1031,7 @@
    "detail": "exports movies of the exemplar tracks from the raw video chosen in cell 31",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:41"
+   "ts": "2026-10-14T19:03:28"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c36_Select_the_track_parameters",
@@ -1044,7 +1044,7 @@
    "detail": "clicked 'Select the track parameters': Done",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:52:41"
+   "ts": "2026-10-14T19:03:28"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c38_Submit",
@@ -1057,7 +1057,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:05"
+   "ts": "2026-10-14T19:03:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_hdbscan_Submit",
@@ -1070,7 +1070,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:05"
+   "ts": "2026-10-14T19:03:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c46_Plot_Selected_Variables",
@@ -1083,7 +1083,7 @@
    "detail": "clicked 'Plot Selected Variables': Plotting in progress...",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:07"
+   "ts": "2026-10-14T19:03:38"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_click_auto_c48_Plot_Selected_Variables",
@@ -1096,7 +1096,7 @@
    "detail": "clicked 'Plot Selected Variables': ng, therefore all available conditions are selected by default | Plotting in progress for Cluster 0...",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:08"
+   "ts": "2026-10-14T19:03:40"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_runs",
@@ -1107,9 +1107,9 @@
    "control": "",
    "status": "PASS",
    "detail": "42 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /home/user/results/CellTracksColab/executed/CellTracksColab_Dimensionality_Reduction.ipynb",
-   "seconds": 121.86,
+   "seconds": 44.14,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_oracle_pure_clusters_Cluster_UMAP",
@@ -1122,7 +1122,7 @@
    "detail": "Cluster_UMAP: 2 clusters, conditions per cluster {0: 1, 1: 1} (noise label -1 excluded)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_oracle_pure_clusters_Cluster_tsne",
@@ -1135,7 +1135,7 @@
    "detail": "Cluster_tsne: 2 clusters, conditions per cluster {0: 1, 1: 1} (noise label -1 excluded)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_oracle_files_Umap_x",
@@ -1148,7 +1148,7 @@
    "detail": "5 non-empty files match Umap/* under /home/user/results/CellTracksColab/home_CellTracksColab_Dimensionality_Reduction/work/ctc_results (need 1)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_oracle",
@@ -1161,7 +1161,7 @@
    "detail": "3 outcome assertions passed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_net_0",
@@ -1174,7 +1174,7 @@
    "detail": "get https://api.github.com/repos/CellMigrationLab/CellTracksColab/contents/notebooks/notebook_latest_versions.yaml -> 200 (size 1801 bytes)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_sideeffects",
@@ -1187,7 +1187,7 @@
    "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/CellTracksColab/CellTracksColab: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none (+2 .pyc) | network: DNS 127.0.0.1; HTTP ge (full: /home/user/results/CellTracksColab/sideeffects_CellTracksColab_Dimensionality_Reduction.txt)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_downloads",
@@ -1200,7 +1200,7 @@
    "detail": "scratch home held 1.6 MB after the run (cap 300 MB); deleted afterwards, small text files kept",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Dimensionality_Reduction_noleak",
@@ -1213,7 +1213,7 @@
    "detail": "no kernel process of this notebook is left",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:10"
+   "ts": "2026-10-14T19:03:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_packaged",
@@ -1226,7 +1226,7 @@
    "detail": "54 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:12"
+   "ts": "2026-10-14T19:03:44"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_valid",
@@ -1239,7 +1239,7 @@
    "detail": "nbformat 4.4 valid; kernelspec 'python3' resolves to /home/user/apps/CellTracksColab/bin/python (spec dir /home/user/apps/CellTracksColab/share/jupyter/kernels/python3); app interpreter /home/user/apps/CellTracksColab/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:12"
+   "ts": "2026-10-14T19:03:44"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_imports",
@@ -1250,9 +1250,9 @@
    "control": "",
    "status": "PASS",
    "detail": "27 imports resolved in /home/user/apps/CellTracksColab/bin/python; optional or Colab-only unresolved: google.colab (colab): ModuleNotFoundError: No module named 'google'",
-   "seconds": 2.62,
+   "seconds": 1.9,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:15"
+   "ts": "2026-10-14T19:03:46"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_kernel",
@@ -1265,7 +1265,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/CellTracksColab/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:16"
+   "ts": "2026-10-14T19:03:47"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_load_Find_file",
@@ -1278,7 +1278,7 @@
    "detail": "button 'Find file' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:19"
+   "ts": "2026-10-14T19:03:49"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_load_Find_file",
@@ -1291,7 +1291,7 @@
    "detail": "button 'Find file' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:19"
+   "ts": "2026-10-14T19:03:49"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_load_Find_folder",
@@ -1304,7 +1304,7 @@
    "detail": "button 'Find folder' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:19"
+   "ts": "2026-10-14T19:03:49"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_load_Submit",
@@ -1314,10 +1314,10 @@
    "tool": "CellTracksColab_Distance_to_ROI",
    "control": "",
    "status": "PASS",
-   "detail": "clicked 'Submit': 'POSITION_T'}. | Dataset processing completed in 0.02 seconds. | No NaN values found in merged_spots_df.",
+   "detail": "clicked 'Submit': 'POSITION_T'}. | Dataset processing completed in 0.01 seconds. | No NaN values found in merged_spots_df.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:19"
+   "ts": "2026-10-14T19:03:49"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_roi_Find_folder",
@@ -1330,7 +1330,7 @@
    "detail": "button 'Find folder' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:19"
+   "ts": "2026-10-14T19:03:50"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_roi_Submit",
@@ -1343,7 +1343,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:19"
+   "ts": "2026-10-14T19:03:50"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_c19_Visualize_Distances",
@@ -1356,7 +1356,7 @@
    "detail": "clicked 'Visualize Distances': In progress... |",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:20"
+   "ts": "2026-10-14T19:03:50"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_c26_Select_the_track_parameters_an",
@@ -1369,7 +1369,7 @@
    "detail": "clicked 'Select the track parameters and visualize similarity': N values found in the selected data. | PercentageChange_nuclei: 2.08% | Proceeding to handle NaN values.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:21"
+   "ts": "2026-10-14T19:03:51"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_c31_Plot_Selected_Variables",
@@ -1382,7 +1382,7 @@
    "detail": "clicked 'Plot Selected Variables': Plotting in progress... | No conditions selected; using all available conditions. | Plotting completed.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:54:42"
+   "ts": "2026-10-14T19:04:09"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_c38_Plot_Selected_Variables",
@@ -1395,7 +1395,7 @@
    "detail": "clicked 'Plot Selected Variables': Plotting in progress... | No conditions selected; using all available conditions. | Plotting completed.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:02"
+   "ts": "2026-10-14T19:04:24"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_roi_name_Submit",
@@ -1408,7 +1408,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:02"
+   "ts": "2026-10-14T19:04:24"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_classify_Submit",
@@ -1421,7 +1421,7 @@
    "detail": "clicked 'Submit': 2KClassification of tracks based on distance to nuclei: | Close to nuclei: 2 | Far from nuclei: 46",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:02"
+   "ts": "2026-10-14T19:04:24"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_c45_Plot_Selected_Variables",
@@ -1434,7 +1434,7 @@
    "detail": "clicked 'Plot Selected Variables':  Control_Close_nuclei, Mutant_Close_nuclei; affected comparisons are marked N/A. | Plotting completed.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:06"
+   "ts": "2026-10-14T19:04:29"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_click_auto_c52_Plot_Selected_Variables",
@@ -1447,7 +1447,7 @@
    "detail": "clicked 'Plot Selected Variables':  Control_Close_nuclei, Mutant_Close_nuclei; affected comparisons are marked N/A. | Plotting completed.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:11"
+   "ts": "2026-10-14T19:04:33"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_runs",
@@ -1458,9 +1458,9 @@
    "control": "",
    "status": "PASS",
    "detail": "50 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /home/user/results/CellTracksColab/executed/CellTracksColab_Distance_to_ROI.ipynb",
-   "seconds": 58.24,
+   "seconds": 49.25,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:13"
+   "ts": "2026-10-14T19:04:35"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_oracle_distance_matches_edt",
@@ -1473,7 +1473,7 @@
    "detail": "max |notebook distance - recomputed EDT distance| = 7.11e-15 over 960 spots",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:14"
+   "ts": "2026-10-14T19:04:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_oracle_classification_covers_all_tracks",
@@ -1486,20 +1486,20 @@
    "detail": "column Track_Classification_nuclei counts {'Far_nuclei': 46, 'Close_nuclei': 2} (every one of the 48 tracks must be classified)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:14"
+   "ts": "2026-10-14T19:04:36"
   },
   {
-   "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_oracle_files_Distance_to_ROI_x_x",
+   "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_oracle_files_Distance_to_ROI_xx_x_pdf",
    "family": "nb",
    "host": "notebook",
    "app": "CellTracksColab",
    "tool": "CellTracksColab_Distance_to_ROI",
    "control": "",
-   "status": "FAIL",
-   "detail": "0 non-empty files match Distance_to_ROI/*/* under /home/user/results/CellTracksColab/home_CellTracksColab_Distance_to_ROI/work/ctc_results (need 1)",
+   "status": "PASS",
+   "detail": "7 non-empty files match Distance_to_ROI/**/*.pdf under /home/user/results/CellTracksColab/home_CellTracksColab_Distance_to_ROI/work/ctc_results (need 1)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:14"
+   "ts": "2026-10-14T19:04:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_oracle",
@@ -1508,11 +1508,11 @@
    "app": "CellTracksColab",
    "tool": "CellTracksColab_Distance_to_ROI",
    "control": "",
-   "status": "FAIL",
-   "detail": "failing: oracle_files_Distance_to_ROI_x_x",
+   "status": "PASS",
+   "detail": "3 outcome assertions passed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:14"
+   "ts": "2026-10-14T19:04:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_net_0",
@@ -1525,7 +1525,7 @@
    "detail": "get https://api.github.com/repos/CellMigrationLab/CellTracksColab/contents/notebooks/notebook_latest_versions.yaml -> 200 (size 1801 bytes)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:14"
+   "ts": "2026-10-14T19:04:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_sideeffects",
@@ -1538,7 +1538,7 @@
    "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/CellTracksColab/CellTracksColab: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: DNS 127.0.0.1; HTTP get https:// (full: /home/user/results/CellTracksColab/sideeffects_CellTracksColab_Distance_to_ROI.txt)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:14"
+   "ts": "2026-10-14T19:04:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_downloads",
@@ -1551,7 +1551,7 @@
    "detail": "scratch home held 1.8 MB after the run (cap 300 MB); deleted afterwards, small text files kept",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:14"
+   "ts": "2026-10-14T19:04:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_Distance_to_ROI_noleak",
@@ -1564,7 +1564,7 @@
    "detail": "no kernel process of this notebook is left",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:15"
+   "ts": "2026-10-14T19:04:36"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_packaged",
@@ -1577,7 +1577,7 @@
    "detail": "76 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:17"
+   "ts": "2026-10-14T19:04:38"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_valid",
@@ -1590,7 +1590,7 @@
    "detail": "nbformat 4.0 valid; kernelspec 'python3' resolves to /home/user/apps/CellTracksColab/bin/python (spec dir /home/user/apps/CellTracksColab/share/jupyter/kernels/python3); app interpreter /home/user/apps/CellTracksColab/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:17"
+   "ts": "2026-10-14T19:04:38"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_imports",
@@ -1601,9 +1601,9 @@
    "control": "",
    "status": "PASS",
    "detail": "24 imports resolved in /home/user/apps/CellTracksColab/bin/python; optional or Colab-only unresolved: google.colab (colab): ModuleNotFoundError: No module named 'google'",
-   "seconds": 2.41,
+   "seconds": 2.59,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:19"
+   "ts": "2026-10-14T19:04:41"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_kernel",
@@ -1616,7 +1616,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/CellTracksColab/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:20"
+   "ts": "2026-10-14T19:04:42"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_zenodo_test_dataset",
@@ -1629,7 +1629,7 @@
    "detail": "the default \"Use test dataset\" downloads T_Cells_spots_only.zip from Zenodo (up to 10 minutes): not used, the synthetic dataset is loaded instead",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:23"
+   "ts": "2026-10-14T19:04:45"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_load_Find_folder",
@@ -1642,7 +1642,7 @@
    "detail": "button 'Find folder' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:23"
+   "ts": "2026-10-14T19:04:45"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_load_Find_folder",
@@ -1655,7 +1655,7 @@
    "detail": "button 'Find folder' opens a native or upload dialog: not clicked, the path or file is set directly in the field",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:23"
+   "ts": "2026-10-14T19:04:45"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_load_Submit",
@@ -1665,10 +1665,10 @@
    "tool": "CellTracksColab_TrackMate",
    "control": "",
    "status": "PASS",
-   "detail": "clicked 'Submit': 'POSITION_T'}. | Dataset processing completed in 0.18 seconds. | No NaN values found in merged_spots_df.",
+   "detail": "clicked 'Submit': 'POSITION_T'}. | Dataset processing completed in 0.14 seconds. | No NaN values found in merged_spots_df.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:23"
+   "ts": "2026-10-14T19:04:45"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c11_Submit",
@@ -1681,7 +1681,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:24"
+   "ts": "2026-10-14T19:04:46"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c13_Submit",
@@ -1694,7 +1694,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:25"
+   "ts": "2026-10-14T19:04:47"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c14_Submit",
@@ -1707,7 +1707,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:26"
+   "ts": "2026-10-14T19:04:48"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c16_Submit",
@@ -1720,7 +1720,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:27"
+   "ts": "2026-10-14T19:04:48"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c17_Submit",
@@ -1733,7 +1733,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:28"
+   "ts": "2026-10-14T19:04:49"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c19_Submit",
@@ -1746,7 +1746,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:28"
+   "ts": "2026-10-14T19:04:49"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c20_Submit",
@@ -1759,7 +1759,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:29"
+   "ts": "2026-10-14T19:04:50"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c23_Submit",
@@ -1772,7 +1772,7 @@
    "detail": "clicked 'Submit':",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:30"
+   "ts": "2026-10-14T19:04:51"
   },
   {
    "id": "nb_CellTracksColab_CellTracksColab_TrackMate_click_auto_c27_Apply_Filters",
@@ -1785,7 +1785,7 @@
    "detail": "clicked 'Apply Filters': lts/CellTracksColab/home_CellTracksColab_TrackMate/work/ctc_results/filtered_and_smoothed_tracks.csv",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T18:55:30"
+   "ts": "2026-10-14T19:04:51"
   }
  ]
 }
