@@ -256,14 +256,23 @@ class HostsCheckEarlyReturns(unittest.TestCase):
         )
 
     def test_a_tools_without_app_hosts_fails_hosts_3_as_not_run(self) -> None:
+        # an installed Tools (an editable install in CI) would shadow a stub package: poison the one import instead
         stub = Path(tempfile.mkdtemp(prefix="lc_stub_"))
         self.addCleanup(shutil.rmtree, stub, ignore_errors=True)
-        (stub / "labconstrictor_tools").mkdir()
-        (stub / "labconstrictor_tools" / "__init__.py").write_text("", encoding="utf-8")
+        (stub / "sitecustomize.py").write_text(
+            "import sys\nsys.modules['labconstrictor_tools.app_hosts'] = None\n", encoding="utf-8"
+        )
         (self.home / "apps" / "app.json").write_text(
             json.dumps({"name": "app", "hosts": ["notebook"]}), encoding="utf-8"
         )
-        code, out = self.check("entry", "--app", "app", "--expect-hosts", "notebook", pythonpath=str(stub))
+        code, out = self.check(
+            "entry",
+            "--app",
+            "app",
+            "--expect-hosts",
+            "notebook",
+            pythonpath=str(stub) + os.pathsep + str(ROOT),
+        )
         self.assertEqual(code, 1)
         self.assertEqual(
             self.statuses(out),
