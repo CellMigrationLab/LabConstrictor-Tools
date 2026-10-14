@@ -1,0 +1,24 @@
+{
+ "host": "napari",
+ "app": "CellTracksColab",
+ "family": "ui",
+ "host_version": "0.1.0a1",
+ "started": "2026-10-14T19:23:52Z",
+ "finished": "2026-10-14T19:23:52Z",
+ "expected": 1,
+ "rows": [
+  {
+   "id": "ui_napari_not_listed",
+   "family": "ui",
+   "host": "napari",
+   "app": "CellTracksColab",
+   "tool": "",
+   "control": "app_chooser",
+   "status": "PASS",
+   "detail": "CellTracksColab is not in the app chooser ['GuessTheCondition']",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-14T19:23:52Z"
+  }
+ ]
+}

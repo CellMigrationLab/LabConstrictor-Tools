@@ -58,3 +58,11 @@ Candidate app bugs (agent-reported; to be re-run on the INSTALLED apps before th
 ## Tools#138 merged (owner approved merge on green): 94527478 -> 8ad2dc2 on Tools main (all six checks green on head 1853e6b)
 * GitHub release sandbox for Guess the Condition 0.0.1 re-dispatched on the new main (host refs v0.1.0-alpha.1, Tools pin v0.3.0-alpha.1) to confirm the Windows and macOS legs; result to be recorded here.
 * Fiji#50 merged (e35337f), Fiji issues #29 and #31 closed with a comment (ship in the next Fiji release).
+
+## Napari UI audit on the RELEASED host v0.1.0-alpha.1 (driver branch claude/ui-audit-napari, head 83124ff)
+* Guess the Condition 0.0.1 (installed app), all 6 tools: 36 PASS, 1 FAIL, 1 HUMAN, 0 NOT_RUN (matrix results/GuessTheCondition/matrix_ui_napari_GuessTheCondition.json). Control check: 11 controls found = the 11 table rows; every tool's form opens, controls and run PASS; analyse_results ran and showed message, values, two tables and the PDF.
+* **H-N1 confirmed on the released host (class: Napari host bug):** `ui_napari_panel_run FAIL: Run stayed enabled while the tool ran (a second click is silently ignored)`.
+* CellTracksColab 1.1.2 with both apps registered in one registry: `ui_napari_not_listed PASS: CellTracksColab is not in the app chooser ['GuessTheCondition']` (hidden by design, while Guess the Condition is listed).
+* H-N2 (RGB layer leaves the Channel chooser empty) was reproduced by the agent on the repository's example app (interactions), not on a real app; H-N3 stale headings is minor; H-N4 not minimised, not claimed.
+* HUMAN: `ui_napari_panel_cancel_running` (no case with cancel_after_s in Guess the Condition's cases).
+* Screenshot checks assert only existence, freshness and plausible size; pictures are for a person to review.
