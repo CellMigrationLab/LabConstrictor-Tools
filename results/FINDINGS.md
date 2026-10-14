@@ -22,3 +22,13 @@ Classes: app bug, host bug, Tools bug, sandbox/runner bug, environment. Status: 
 * Action taken in the runner: each sandbox family run registers the app into its own empty private LC_HOME (as a clean user would). Result of the rerun is in RESULTS.md.
 * Note for the Tools sandbox: the check is only valid in an exclusive registry; that is true in CI (one app per runner), so no change is proposed.
 * F-003 result: rerun of CellTracksColab 1.1.2 in a private LC_HOME: 31 PASS, 0 FAIL (registry hosts `notebook` as required, tool cases, retention 6a to 6f all pass). Confirms F-003 was the shared registry, not the app.
+
+## GitHub release sandbox runs of 14 Oct 2026 (dispatched on Tools main at the host tags v0.1.0-alpha.1, Tools pin v0.3.0-alpha.1, no update test)
+| App | Linux | macOS arm64 | Windows | Wall time of the slowest leg |
+|---|---|---|---|---|
+| NucleiSky 0.1.4 | green | green | green | Windows 49 min |
+| LabConstrictor-Playground 0.0.4 (extras on) | green | green | green | Windows 33 min |
+| LabConstrictor-VLab4Mic 0.1.6 | green | green | green | Windows 33 min |
+| GuessTheCondition 0.0.1 | RED | RED | RED | 9 min (fails early) |
+* GuessTheCondition is red on all three systems for exactly F-001/F-002 (`4_cli_case_00_create_demo_experiment_COMPLETE FAIL already_exists`, `6_runs_complete FAIL`), reproduced independently here and in CI: it is the sandbox design, not the app.
+* What green means: the checks the sandbox has pass. It does not cover the host windows (Fiji and QuPath are only checked for listing), notebooks, or the scientific result of a tool beyond the app's own authored cases.
