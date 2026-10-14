@@ -16,6 +16,9 @@ or [TESTING.md](TESTING.md) disagree, this file is the plan and the others are c
 | J7 | Use a result later (files kept, run record, Copy as command) | "Can I find and repeat it?" |
 | J8 | Update and uninstall | "Is my data kept, is everything else gone?" |
 | J9 | Rely on the number | "Is it scientifically right (calibration, frame, no silent rounding)?" |
+| J10 | Open each notebook the app ships | "Does every notebook open in the app's environment and run?" |
+| J11 | Do my usual analysis in the plugin instead of the notebook | "Does the plugin give the same answer as the notebook workflow I know?" |
+| J12 | Install a second app next to the first | "Are both there, each with its own tools, and does one not break the other?" |
 
 ## 2. What proves what today, and the gaps
 | Layer | Proves | Where | Automated |
@@ -33,6 +36,10 @@ Gaps found (each is a bug waiting for a tester):
 4. **The human protocol repeats machine checks** (install, listing, run, cancel), so testers spend their time re-finding what CI already knows and have less for what only a person can judge.
 5. **Windows and macOS GUI are only smoke-tested** (the Fiji and QuPath drivers run on Linux/Xvfb). Known limit; stated, not hidden.
 6. **The update path (`old_tag`) is optional and off by default.**
+7. **The packaged notebooks are never opened by a test.** An app can ship a notebook that fails at its first import and every check stays green.
+8. **No check that the plugin reproduces what the notebook does.** Tools and notebooks can drift apart (different defaults, different units) unnoticed.
+9. **Two apps installed together are never tested.** Every sandbox run installs one app into a clean prefix.
+10. **A run stops being useful after its first red line.** Testers (and CI) see one failure at a time; a night of work is lost to a crash or to running out of credits.
 
 ## 3. The UI audit (new): press every control, screenshot every tool
 One driver per host, in the host's own repository, started by `release_sandbox.yml` against the **installed** app (same environment variables as the listing
@@ -65,6 +72,42 @@ the driver asserts that the app is absent from the chooser and prints no form ch
 ### 3.4 Evidence a person reviews
 The sandbox uploads `screens/` and writes one **contact sheet** per app and host (a grid of all screenshots with the tool names). Review = look at the sheets; this replaces the visual part of the human protocol.
 
+
+### 3.5 Run discipline: one app per run, never stop, write a matrix, push as you go
+* **One app at a time (session S1).** Each app is installed alone in a clean prefix and tested alone; nothing from another app can mask a failure.
+* **Never stop at a failure.** Every assertion of every check family (UI audit, notebooks, workflows, sandbox checks) is guarded: an exception or a timeout becomes a `FAIL` row with the error text and the run goes on. Per-tool and per-notebook timeouts (default 300 s) stop a hang from blocking the night. Only a crash of the whole runner ends a leg, and the rows already written stay valid.
+* **The matrix.** Every check writes a row to `matrix_<family>_<host>_<app>.json` immediately (atomic rewrite): `{id, family, host, app, tool|notebook, control, status PASS|FAIL|NOTE, detail, seconds, screenshot}`. An aggregator turns all matrices of a release into `RESULTS.md` (apps x hosts x families, counts, every FAIL with its detail and screenshot) so the review happens once, after everything ran.
+* **Push as you go.** Results must survive a failed job, a cancelled night or an empty credit balance. Each leg (a) uploads its artifacts `if: always()`, and (b) runs a background loop that commits `results/<release-run-id>/` to the branch `test-results` of this repository every 10 minutes and once more at the end (`contents: write`, only that branch, never `main`). The aggregator job also runs `if: always()`.
+* **Overnight orchestration.** One dispatch workflow `release_matrix.yml`: legs `S1` per app (`max-parallel: 1`, `fail-fast: false`), then `S2`, then the aggregator. The workflow is dispatch-only (as `release_sandbox.yml`); nothing in it tags, releases or deletes anything.
+
+### 3.6 Two or more apps installed together (session S2)
+Install the apps into separate prefixes that share one `LC_HOME` (as a user who installs a second app does) and assert, per host:
+* every installed app is listed, each with exactly its own tools (`multi_lists_<app>`), and switching between them shows the right tools (`multi_switch_<A>_<B>`);
+* an app that must not be listed in this host stays hidden while the others are listed (CellTracksColab);
+* tools with the same display name in two apps do not clash (each runs its own app's code);
+* running a tool of A while B is registered, uninstalling B, and updating B leave A listed and runnable (`multi_isolation_<A>_<B>`);
+* the registry holds one entry per app, `doctor` is clean.
+Sessions: all five apps together, and the pairs that share tool names or the same scientific stack (found by comparing the schemas).
+
+### 3.7 Notebooks (family `nb`): every packaged notebook
+Each app ships notebooks (listed in `construct.yaml` `extra_files`, plus the app's `Welcome.ipynb`). For **every** one, in the installed app's own environment, per notebook:
+| Id | Passes when |
+|---|---|
+| `nb_<app>_<nb>_packaged` | the file is in the installed prefix and byte-equal to the file at the release tag |
+| `nb_<app>_<nb>_valid` | nbformat validation passes and the kernel resolves to the app's interpreter |
+| `nb_<app>_<nb>_imports` | every import of the notebook resolves in the installed environment (import cells run, nothing else) |
+| `nb_<app>_<nb>_runs` | the notebook runs top to bottom headless (nbclient, `allow_errors`, per-cell timeout) with the data its tests provide; each failing cell is a row with its error. A cell that waits for a person (a widget with no default) is a `NOTE` naming the cell, not a silent pass |
+A notebook that needs real data or a GPU is run as far as the fixtures allow; the cells it cannot run are listed, never hidden. Notebook runs that need the network (data download) say so in the row.
+
+### 3.8 Does the plugin reproduce a typical workflow? (family `wf`)
+For each app, Tools holds (in `tests/release_sandbox/workflows/<app>.json`, never in the app repository) the **typical workflow** the app's own notebook teaches, expressed as an ordered chain of tool runs with fixture inputs. Per workflow:
+* `wf_<app>_<workflow>_chain`: the chain runs through the CLI/worker and, in each host, through the real form (UI audit machinery), every step completing and showing its results.
+* `wf_<app>_<workflow>_matches_notebook`: where the app ships an API/workflow notebook (e.g. NucleiSky `*_API_Workflow_Example`, Guess the Condition `API_Example`), the numeric outputs of the chain equal the notebook's (stated tolerance).
+* `wf_<app>_<workflow>_coverage`: a **report, not a pass/fail**: which notebook steps have a plugin tool and which have none (the plugin is allowed to cover less than the notebook; the gap must be known). CellTracksColab is expected to report "plugin covers: 1 tool (calculate_metrics); not exposed in any host".
+
+## 3.9 What each family proves
+`ui` = the host windows work; `nb` = the notebook the user opens works; `wf` = the plugin and the notebook tell the same story; `multi` = apps coexist; the sandbox checks = the installer and the registry are right. Together with the contact sheets, a person reviewing `RESULTS.md` sees every failing cell of the matrix with its evidence.
+
 ## 4. What stays human
 Only what a machine cannot judge:
 * Is the scientific result plausible for real data (not the fixtures)?
@@ -81,7 +124,12 @@ Everything else in `HUMAN_TEST_PROTOCOL.md` (install check, listing, run, cancel
 | 2 | Napari UI audit driver | napari repo | to do |
 | 3 | Fiji UI audit driver | Fiji repo | to do |
 | 4 | QuPath UI audit driver | QuPath repo | to do |
-| 5 | Sandbox wiring, required ids, contact sheet | Tools | to do |
-| 6 | Run on the five released apps; fix what it finds; trim the human protocol | all | to do |
+| 5 | Sandbox wiring, required ids, contact sheet, matrix aggregator, `test-results` push loop | Tools | to do |
+| 6 | Notebook family `nb` (runner + per-app notebook list) | Tools | to do |
+| 7 | Workflow family `wf` (per-app workflow definitions, comparison with the API notebooks, coverage report) | Tools | to do |
+| 8 | Multi-app session S2 | Tools + hosts | to do |
+| 9 | `release_matrix.yml` overnight orchestration | Tools | to do |
+| 10 | **Adversarial audit of this plan** (independent reviewer, before building 5 to 9) | Tools | to do |
+| 11 | Run on the five released apps; review `RESULTS.md`; fix what it finds; trim the human protocol | all | to do |
 
 Limits we accept: Linux only for the UI audit; fixtures, not real data; a control table is only as good as its author, which is why an unknown control fails.
