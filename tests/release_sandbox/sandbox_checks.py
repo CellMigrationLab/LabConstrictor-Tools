@@ -17,6 +17,8 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import no_case  # next to this file: the declared exemptions of 4_every_tool_has_a_case
+
 if TYPE_CHECKING:
     from typing import Any
 
@@ -167,11 +169,12 @@ def cases(a: argparse.Namespace) -> None:
         rec("4_cases_suite", False, "%s: %s %s" % (e, out[-300:], err[-300:]))
     all_ids = [t.get("id") for t in schema_tools(a.app)]
     covered = {c["tool"] for c in load_cases(a.cases)}
-    rec(
-        "4_every_tool_has_a_case",
-        not [i for i in all_ids if i not in covered],
-        "tools without a case: %s" % [i for i in all_ids if i not in covered],
-    )
+    # a tool without a case must be declared, with a reason, in lc_tests/no_case.json (no_case.py); each declaration is a NOTE
+    declared, problems = no_case.load_declared(Path(a.cases).parent / no_case.FILE_NAME)
+    found = no_case.coverage(all_ids, covered, declared, problems)
+    for note in found.notes:
+        print(note, flush=True)
+    rec("4_every_tool_has_a_case", found.ok, found.detail())
     # each COMPLETE case through the real CLI (a person's path), checking the status; failing cases check the code
     for n, c in enumerate(load_cases(a.cases)):
         if c.get("cancel_after_s") is not None or c.get("skip"):

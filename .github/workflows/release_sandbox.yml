@@ -238,6 +238,10 @@ jobs:
           "$PY" $RS/playground_extras.py basic --prefix "$PREFIX_DIR" --tools-pin "$TOOLS_PIN" | tee checks_pg_basic.txt || true
           "$PY" $RS/playground_extras.py tools --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_tools.txt || true
           "$PY" $RS/playground_extras.py failures --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_failures.txt || true
+      - name: (4) Tools declared without a case (lc_tests/no_case.json) must be run by the Playground extras
+        if: env.HAS_TOOLS == 'true'
+        run: |
+          python3 $RS/no_case.py extras --cases "$CASES" --extras "$EXTRAS" --checks checks_pg_tools.txt checks_pg_failures.txt | tee checks_no_case.txt || echo "CHECK 4_no_case_tools_are_run_by_extras FAIL no_case.py crashed (see the log of this step)" | tee -a checks_no_case.txt
 
       - name: Windows-only check W2 (no cmd syntax errors in the installer log)
         if: runner.os == 'Windows'
