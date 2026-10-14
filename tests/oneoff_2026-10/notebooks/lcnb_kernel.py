@@ -93,7 +93,13 @@ def _describe(w: Any) -> str:
     return "%s(%r)" % (type(w).__name__, str(text)[:40])
 
 
-def find(kind: str | None = None, description: str | None = None, var: str | None = None, contains: str | None = None, index: int = 0) -> Any:
+def _hidden(w: Any) -> bool:
+    """A widget a user cannot see: layout display none or visibility hidden (a click would skip hit-testing, so refuse it)."""
+    layout = getattr(w, "layout", None)
+    return getattr(layout, "display", None) == "none" or getattr(layout, "visibility", None) == "hidden"
+
+
+def find(kind: str | None = None, description: str | None = None, var: str | None = None, contains: str | None = None, index: int = 0, exact: bool = False) -> Any:
     """A widget by notebook variable name (`var`), or by class name (`kind`) and the description/placeholder text it contains (`description`), or by
     text of an HTML/Label value (`contains`); `index` picks among several matches. Raises WidgetNotFound listing what exists."""
     if var is not None:
@@ -106,12 +112,12 @@ def find(kind: str | None = None, description: str | None = None, var: str | Non
         if kind is not None and type(w).__name__ != kind:
             continue
         label = str(getattr(w, "description", "") or getattr(w, "placeholder", "") or "")
-        if description is not None and description.lower() not in label.lower():
+        if description is not None and (description.lower() != label.lower().strip() if exact else description.lower() not in label.lower()):
             continue
         if contains is not None and contains.lower() not in str(getattr(w, "value", "")).lower():
             continue
         hits.append(w)
-    if len(hits) <= index:
+    if not hits or index >= len(hits) or index < -len(hits):
         raise WidgetNotFound(
             "no widget with kind=%r description=%r contains=%r (match %d); live widgets: %s"
             % (kind, description, contains, index, ", ".join(sorted({_describe(w) for w in all_widgets()})[:40]))
@@ -123,6 +129,8 @@ def set_value(widget: Any, value: Any) -> None:
     """Set a widget value the way a user would (an observer fires), refusing a disabled widget."""
     if getattr(widget, "disabled", False):
         raise RuntimeError("%s is disabled: a user could not set it" % _describe(widget))
+    if _hidden(widget):
+        raise RuntimeError("%s is hidden by its own layout: a user could not set it" % _describe(widget))
     widget.value = value
 
 
@@ -133,13 +141,26 @@ def click(button: Any) -> dict[str, Any]:
 
     if getattr(button, "disabled", False):
         raise RuntimeError("%s is disabled: a user could not click it" % _describe(button))
-    with capture_output() as captured:
-        button.click()
+    if _hidden(button):
+        raise RuntimeError("%s is hidden by its own layout: a user could not click it" % _describe(button))
+    shell = get_ipython()  # noqa: F821 - defined in the kernel
+    original, raised = shell.showtraceback, []
+
+    def record(*args: Any, **kwargs: Any) -> None:
+        exc_tuple = args[0] if args and isinstance(args[0], tuple) else kwargs.get("exc_tuple")  # Output.capture passes the exception it caught
+        raised.append("".join(traceback.format_exception(*exc_tuple)) if exc_tuple else traceback.format_exc())
+
+    shell.showtraceback = record  # ipywidgets reports a handler's exception through showtraceback() instead of raising it
+    try:
+        with capture_output() as captured:
+            button.click()
+    finally:
+        shell.showtraceback = original
     result = {"stdout": captured.stdout, "stderr": captured.stderr, "outputs": [o.data for o in captured.outputs]}
     LAST_OUTPUT.clear()
     LAST_OUTPUT.update(result)
-    if "Traceback (most recent call last)" in captured.stderr + captured.stdout or any("Traceback (most recent call last)" in str(o) for o in result["outputs"]):
-        raise CallbackFailed(("callback of %s raised: " % _describe(button)) + (captured.stderr + captured.stdout)[-600:])
+    if raised:
+        raise CallbackFailed("callback of %s raised: %s" % (_describe(button), " | ".join(raised[0].strip().splitlines()[-3:])))
     return result
 
 
@@ -180,3 +201,37 @@ def guarded(ident: str, action: Callable[[], Any]) -> Any:
     except Exception as problem:  # a failed action is a result, never a stop
         _line("CHECK", ident, "FAIL", "%s: %s | %s" % (type(problem).__name__, problem, traceback.format_exc().splitlines()[-3:-1]))
         return None
+
+
+NATIVE_PICKER = re.compile(r"^(find (file|folder)|select from file|load structure from file|select structure from file|upload .*)$", re.I)
+NEVER_CLICK = re.compile(r"update source code", re.I)
+_CLICKED: set[str] = set()
+_SEEN: set[str] = set()
+
+
+def auto_drive(stage: str, skip: tuple[str, ...] = ()) -> int:
+    """Click, once and in creation order, every enabled and visible Button that appeared since the last call (a user pressing the buttons of the cell that just ran).
+    Native pickers are HUMAN lines, the source-update button (pip install into the app) is never clicked; a handler that raises is a FAIL line. Returns the number clicked."""
+    clicked = 0
+    for w in all_widgets():
+        if type(w).__name__ != "Button" or w.model_id in _SEEN:
+            continue
+        _SEEN.add(w.model_id)
+        label = (w.description or w.tooltip or "button").strip()
+        slug = re.sub(r"[^A-Za-z0-9]+", "_", label).strip("_")[:30] or "button"
+        ident = "click_auto_%s_%s" % (stage, slug)
+        if NATIVE_PICKER.match(label):
+            human(ident, "button %r opens a native or upload dialog: not clicked, the path or file is set directly in the field" % label)
+        elif NEVER_CLICK.search(label) or any(label.lower().startswith(x.lower()) for x in skip):
+            human(ident, "button %r is not clicked on purpose (it changes the installed app or is listed as skipped by the script)" % label)
+        elif w.disabled or _hidden(w):
+            note(ident, "button %r is %s: a user could not press it at this point" % (label, "disabled" if w.disabled else "hidden"))
+        else:
+            try:
+                result = click(w)
+                _CLICKED.add(w.model_id)
+                clicked += 1
+                check(ident, True, "clicked %r: %s" % (label, (result["stdout"] or result["stderr"]).strip()[-100:]))
+            except Exception as problem:  # a failing handler is a result, the drive goes on
+                check(ident, False, "%r: %s: %s" % (label, type(problem).__name__, str(problem)[-250:]))
+    return clicked

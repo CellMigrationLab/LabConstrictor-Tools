@@ -177,6 +177,8 @@ async def run_notebook(emit: Any, args: Any, notebook: Notebook, installed: Path
     home_before = set(nb_sidefx.snapshot(home))
 
     document = nbformat.read(str(appcopy / Path(notebook.installed_rel).relative_to(app_dir.name)), as_version=4)
+    if script is not None and hasattr(script, "edit_cells"):
+        _apply_edits(emit, document, script.edit_cells(ctx))
     timeout = int(os.environ.get("LC_NB_CELL_TIMEOUT", "300"))
     client = NotebookClient(
         document, timeout=timeout, allow_errors=True, interrupt_on_timeout=True, startup_timeout=180, kernel_name=spec_name, resources={"metadata": {"path": str(cwd)}}
@@ -184,6 +186,8 @@ async def run_notebook(emit: Any, args: Any, notebook: Notebook, installed: Path
     inputs = guarded_call(emit, "inputs", lambda: script.inputs(ctx)) if script is not None and hasattr(script, "inputs") else {}
     after_cell: dict[int, str] = dict(getattr(script, "AFTER_CELL", {})) if script else {}
     stages: dict[str, str] = dict(getattr(script, "STAGES", {})) if script else {}
+    auto_all: bool = bool(getattr(script, "AUTO_DRIVE_ALL", False)) if script else False
+    auto_skip: tuple[str, ...] = tuple(getattr(script, "AUTO_SKIP", ())) if script else ()
     human_cells: dict[int, str] = dict(getattr(script, "HUMAN_CELLS", {})) if script else {}
     original_count = len(document.cells)
     async with client.async_setup_kernel():
@@ -214,10 +218,24 @@ async def run_notebook(emit: Any, args: Any, notebook: Notebook, installed: Path
                 emit.row("cell_%d" % index, "FAIL", error, time.time() - cell_started)
             if index in after_cell and not dead:
                 dead = await _run_stage(client, emit, run, after_cell[index], stages[after_cell[index]])
+            elif auto_all and not dead:
+                dead = await _run_stage(client, emit, run, "auto%d" % index, "lcnb.auto_drive(%r, skip=%r)" % ("c%d" % index, auto_skip))
         run.dead = dead
         if script is not None and getattr(script, "ORACLE_KERNEL", "") and not dead:
             dead = await _run_stage(client, emit, run, "oracle_kernel", script.ORACLE_KERNEL)
     _finish(emit, run, ctx, script, document, results, home, before, app_dir, home_before, log_path, started)
+
+
+def _apply_edits(emit: Any, document: Any, edits: dict[int, list[tuple[str, str]]]) -> None:
+    """Edits a user must make by hand before the notebook can run (a placeholder path in a configuration cell). Each is a NOTE row; a target that is not in the cell is a FAIL."""
+    for index, pairs in edits.items():
+        for old, new in pairs:
+            source = document.cells[index].source
+            if old not in source:
+                emit.row("edit_cell_%d" % index, "FAIL", "the script expects %r in cell %d but it is not there (the notebook changed?)" % (old, index))
+                continue
+            document.cells[index].source = source.replace(old, new)
+            emit.row("edit_cell_%d" % index, "NOTE", "cell %d edited as a user would, before running: %r replaced by %r" % (index, old, new))
 
 
 def guarded_call(emit: Any, step: str, action: Any) -> Any:

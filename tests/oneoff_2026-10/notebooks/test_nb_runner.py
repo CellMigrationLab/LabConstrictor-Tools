@@ -44,6 +44,13 @@ NOTEBOOKS: dict[str, list[tuple[str, str]]] = {
     "file_dialog": [("code", "from tkinter import filedialog\npath = filedialog.askopenfilename()")],
     "wrong_outcome": [("code", "print('writes nothing at all')")],
     "stale_kernel": [("code", "print('runs on a kernelspec that points to another interpreter')")],
+    "auto_buttons": [("markdown", "# buttons"), ("code", "import ipywidgets as w\nfrom IPython.display import display\n"
+                      "def bad(_):\n    raise RuntimeError('seeded handler failure')\n"
+                      "ok = w.Button(description='Press ok'); ok.on_click(lambda _: print('did it'))\n"
+                      "broken = w.Button(description='Broken'); broken.on_click(bad)\n"
+                      "from ipywidgets import Output\nout = Output()\n"
+                      "captured = w.Button(description='Captured broken'); captured.on_click(out.capture()(bad))\n"
+                      "picker = w.Button(description='Find folder')\ndisplay(ok, broken, captured, picker)")],
 }
 SCRIPTS = {
     "good": 'AFTER_CELL = {1: "go"}\nSTAGES = {"go": """\nlcnb.set_value(lcnb.find(kind="Text", description="Name"), "x")\nlcnb.click(lcnb.find(kind="Button", description="Press"))\nlcnb.check("oracle_clicked", get_ipython().user_ns["out"] == [1], "the click handler ran")\n"""}\n',
@@ -56,6 +63,7 @@ SCRIPTS = {
     "ignores_interrupt": 'NO_ORACLE = "none"\n',
     "differs": 'NO_ORACLE = "none"\n',
     "stale_kernel": 'NO_ORACLE = "none"\n',
+    "auto_buttons": 'AUTO_DRIVE_ALL = True\nNO_ORACLE = "none"\n',
 }
 
 
@@ -137,6 +145,11 @@ def expectations() -> list[tuple[str, str, str]]:
         (i("file_dialog", "human_cell_0"), "HUMAN", "native file dialog is HUMAN"),
         (i("file_dialog", "oracle"), "HUMAN", "no oracle for a native file dialog is HUMAN, never PASS"),
         (i("stale_kernel", "valid"), "FAIL", "the KERNEL TRAP: a kernelspec resolving to another interpreter than the app's"),
+        (i("auto_buttons", "click_auto_c1_Press_ok"), "PASS", "auto-drive presses a plain button"),
+        (i("auto_buttons", "click_auto_c1_Broken"), "FAIL", "a button handler that raises is a FAIL (ipywidgets would swallow it)"),
+        (i("auto_buttons", "click_auto_c1_Captured_broken"), "FAIL", "a handler wrapped in Output.capture() that raises is a FAIL too (the widget swallows it)"),
+        (i("auto_buttons", "click_auto_c1_Find_folder"), "HUMAN", "a native folder picker button is HUMAN, never clicked"),
+        (i("auto_buttons", "runs"), "FAIL", "the seeded handler failure makes the run red"),
         (i("hangs", "kernel"), "PASS", "control: the live kernel is checked for every notebook"),
         (i("wrong_outcome", "runs"), "PASS", "no cell errors in the wrong-outcome notebook"),
         (i("wrong_outcome", "oracle"), "FAIL", "a notebook that runs clean but does nothing fails the oracle"),
