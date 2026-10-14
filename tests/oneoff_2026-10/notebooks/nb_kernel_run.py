@@ -187,6 +187,7 @@ async def run_notebook(emit: Any, args: Any, notebook: Notebook, installed: Path
     after_cell: dict[int, str] = dict(getattr(script, "AFTER_CELL", {})) if script else {}
     stages: dict[str, str] = dict(getattr(script, "STAGES", {})) if script else {}
     auto_all: bool = bool(getattr(script, "AUTO_DRIVE_ALL", False)) if script else False
+    auto_tick: tuple[str, ...] = tuple(getattr(script, "AUTO_TICK", ())) if script else ()
     auto_skip: tuple[str, ...] = tuple(getattr(script, "AUTO_SKIP", ())) if script else ()
     human_cells: dict[int, str] = dict(getattr(script, "HUMAN_CELLS", {})) if script else {}
     original_count = len(document.cells)
@@ -219,7 +220,7 @@ async def run_notebook(emit: Any, args: Any, notebook: Notebook, installed: Path
             if index in after_cell and not dead:
                 dead = await _run_stage(client, emit, run, after_cell[index], stages[after_cell[index]])
             elif auto_all and not dead:
-                dead = await _run_stage(client, emit, run, "auto%d" % index, "lcnb.auto_drive(%r, skip=%r)" % ("c%d" % index, auto_skip))
+                dead = await _run_stage(client, emit, run, "auto%d" % index, "lcnb.tick(%r)\nlcnb.auto_drive(%r, skip=%r)" % (auto_tick, "c%d" % index, auto_skip))
         run.dead = dead
         if script is not None and getattr(script, "ORACLE_KERNEL", "") and not dead:
             dead = await _run_stage(client, emit, run, "oracle_kernel", script.ORACLE_KERNEL)

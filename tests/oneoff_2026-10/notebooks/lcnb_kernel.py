@@ -240,3 +240,13 @@ def auto_drive(stage: str, skip: tuple[str, ...] = ()) -> int:
             except Exception as problem:  # a failing handler is a result, the drive goes on
                 check(ident, False, "%r: %s: %s" % (label, type(problem).__name__, str(problem)[-250:]))
     return clicked
+
+
+def tick(descriptions: tuple[str, ...]) -> int:
+    """Tick every visible, enabled Checkbox whose description is one of `descriptions` (a user choosing the variables to plot); returns how many were ticked."""
+    count = 0
+    for w in all_widgets():
+        if type(w).__name__ == "Checkbox" and (w.description or "").strip() in descriptions and not w.disabled and not _hidden(w) and not w.value:
+            w.value = True
+            count += 1
+    return count

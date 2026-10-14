@@ -91,6 +91,13 @@ def _write_trackmate(folder: Path, table: pd.DataFrame) -> None:
             frame.to_csv(handle, header=False, index=False)
 
 
+def read_table(path: Path) -> pd.DataFrame:
+    """A CSV table whatever its name: the app writes gzip content even into files called .csv (checked by the gzip magic bytes, not by the extension)."""
+    with open(path, "rb") as handle:
+        gzipped = handle.read(2) == b"\x1f\x8b"
+    return pd.read_csv(path, low_memory=False, compression="gzip" if gzipped else None)
+
+
 def load_stage(fields: dict[str, Any], note: str = "") -> str:
     """Kernel code for the loading cell: set the widgets by variable name, untick 'Use test dataset' (its default downloads a Zenodo archive), press every new button (Submit; the native
     Find folder / Find file buttons become HUMAN lines)."""
@@ -131,7 +138,7 @@ def metric_rows(results: Path, dataset: dict[str, Any], label: str = "metrics") 
     path = results / "merged_Tracks.csv.gz"
     if not path.is_file():
         return [(label + "_tracks_file", "FAIL", "%s was not written" % path)]
-    tracks = pd.read_csv(path, low_memory=False).set_index("Unique_ID")
+    tracks = read_table(path).set_index("Unique_ID")
     truth = truth_metrics(dataset)
     rows = []
     for column in truth.columns:
@@ -189,7 +196,7 @@ def condition_speed_rows(results: Path, label: str = "plate_metrics") -> list[tu
     paths = sorted(results.glob("merged_Tracks.csv*"))
     if not paths:
         return [(label + "_tracks_file", "FAIL", "no merged_Tracks.csv* under %s" % results)]
-    tracks = pd.read_csv(paths[-1], low_memory=False)
+    tracks = read_table(paths[-1])
     if "Mean Speed" not in tracks.columns:
         return [(label + "_mean_speed", "FAIL", "%s has no 'Mean Speed' column (columns %s)" % (paths[-1].name, list(tracks.columns)[:12]))]
     by = tracks.groupby("Condition")["Mean Speed"].agg(["mean", "count"])

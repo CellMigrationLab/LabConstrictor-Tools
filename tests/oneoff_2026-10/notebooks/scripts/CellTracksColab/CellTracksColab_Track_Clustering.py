@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from _ctc import files_rows, load_stage, make_dataset  # noqa: E402
 
 AUTO_DRIVE_ALL = True
+AUTO_TICK = ("Mean Speed", "Total Distance Traveled")  # the plot cells need variables ticked, as a user would
 AFTER_CELL = {6: "load"}
 STAGES = {"load": load_stage({"Data_Dims_widget": "2D", "Track_table_widget": "I['track_table']", "Spot_table_widget": "I['spot_table']", "Results_Folder_widget": "I['results']"})}
 _DATA: dict[str, Any] = {}

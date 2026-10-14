@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from _ctc import WELLS, condition_speed_rows, files_rows, load_stage, make_plate  # noqa: E402
 
 AUTO_DRIVE_ALL = True
+AUTO_TICK = ("Mean Speed", "Total Distance Traveled")  # the plot cells need variables ticked, as a user would
 AFTER_CELL = {7: "load", 9: "map"}
 STAGES = {
     "load": load_stage({"Folder_path_widget": "I['folder']", "Results_Folder_widget": "I['results']"}),

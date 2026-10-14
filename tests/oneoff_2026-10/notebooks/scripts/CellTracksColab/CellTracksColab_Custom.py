@@ -17,8 +17,14 @@ import pandas as pd  # noqa: E402
 from _ctc import files_rows, load_stage, make_dataset, metric_rows, spots_rows  # noqa: E402
 
 AUTO_DRIVE_ALL = True
+AUTO_TICK = ("Mean Speed", "Total Distance Traveled")  # the plot cells need variables ticked, as a user would
 AFTER_CELL = {7: "load"}
-STAGES = {"load": load_stage({"Folder_path_widget": "I['folder']", "Data_Dims_widget": "2D", "File_Format_widget": "csv", "Results_Folder_widget": "I['results']"})}
+STAGES = {
+    "load": load_stage({"Folder_path_widget": "I['folder']", "Data_Dims_widget": "2D", "File_Format_widget": "csv", "Results_Folder_widget": "I['results']"})
+    + "lcnb.note('workaround_file_format', 'APP NOTEBOOK BUG: with Use test dataset unticked the Submit handler reads the global File_Format that only the test-dataset branch defines (NameError, FAIL row above). A user can define File_Format = \"csv\" in a cell: done here, and Submit is pressed again so that the rest of the notebook can be tested')\n"
+    "get_ipython().user_ns['File_Format'] = 'csv'\n"
+    "lcnb.guarded('click_load_submit_after_workaround', lambda: lcnb.click(lcnb.find(var='submit_button')))\n"
+}
 _DATA: dict[str, Any] = {}
 
 
@@ -30,7 +36,7 @@ def inputs(ctx: Any) -> dict[str, Any]:
 def oracle(ctx: Any) -> list[tuple[str, str, str]]:
     results = Path(_DATA["results"])
     rows = spots_rows(results, _DATA) + metric_rows(results, _DATA)
-    rows += files_rows(results, {"QC/*": 1, "Tracks/*": 1, "track_parameters_plots/*/*": 1}, "files")
+    rows += files_rows(results, {"QC/*": 1, "Tracks/*": 1, "track_parameters_plots/*": 2}, "files")
     balanced = results / "Balanced_dataset" / "merged_Tracks_balanced_dataset.csv.gz"
     count = len(pd.read_csv(balanced)) if balanced.is_file() else -1
     rows.append(("balanced_keeps_all_tracks", "PASS" if count == _DATA["n_tracks"] else "FAIL", "%s has %d tracks (the dataset was already balanced: %d)" % (balanced.name, count, _DATA["n_tracks"])))
