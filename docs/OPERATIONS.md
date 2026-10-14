@@ -1,10 +1,13 @@
 # Operations: install, shared/network installs, security, troubleshooting
 
 ## Install
-* Each app environment needs `labconstrictor-tools` (standard library only, no dependencies).
-* Napari (nothing is on PyPI yet): `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/heads/main.zip` in the napari environment (Tools is pinned to the tag of the current pre-release; the Napari plugin has no tag yet and is the development version, `refs/heads/main`) (source archives: no `git` program needed; `git+https://github.com/...` works too if you have git). Plugins > LabConstrictor tools.
-* Fiji (no release or update site yet): either copy `LabConstrictor_Tools.groovy` (keep the underscore: Fiji lists a script in its menus only when its name contains one) from the Fiji repository (`src/main/resources/org/cellmigrationlab/labconstrictor/`) to `Fiji.app/scripts/Plugins/LabConstrictor/` (no build), or build the jar with `mvn package` and copy `target/labconstrictor-fiji-<version>.jar` to `Fiji.app/plugins/`, then restart: Plugins > LabConstrictor > LabConstrictor Tools... (jar) or Plugins > LabConstrictor > LabConstrictor Tools (script). The macro recorder needs the jar.
-* Fiji and Napari never import an app's packages, so apps with conflicting dependencies can coexist.
+How a person installs an app and the three hosts is one page: [INSTALL.md](INSTALL.md). In short:
+* Each app environment needs `labconstrictor-tools` (standard library only, no dependencies); the app installer installs it from a **tag** (`LC_TOOLS_PIN`, below), and the hosts need Tools **0.3.0a1 or newer** in the app.
+* **Install rules** (they come from the sandbox findings of 13 Oct): no space anywhere in the install path (the installers refuse it); macOS and Windows update by uninstalling first; Linux `installer.sh -u` updates in place only after a *finished* install (otherwise delete `<prefix>/pkgs` or uninstall first); testers install only tagged versions and only the latest.
+* Napari (nothing is on PyPI yet; **Python 3.11 or newer, Qt6 backend**): `pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/<NAPARI_TAG>.zip` in the napari environment. The plugin had no tag when this was written, so `<NAPARI_TAG>` does not exist yet; its README and user guide still give `refs/heads/main.zip` lines for both Tools and the plugin (an untagged install, which the rule above forbids for testers). Source archives: no `git` program needed. Plugins > LabConstrictor tools.
+* Fiji (jar from the release, `labconstrictor-fiji-<tag>.jar`): copy it to `Fiji.app/plugins/`, restart: Plugins > LabConstrictor > LabConstrictor Tools... The release also carries `labconstrictor-fiji-script-<tag>.zip` (the script **and its `lib` folder**, to unzip into `Fiji.app/scripts/Plugins/LabConstrictor/`; entry without the dots; macro calls need the jar) and `SHA256SUMS` (Fiji README at f9277af; no Fiji release existed when this was written).
+* QuPath 0.7.0 (jar from the release, `labconstrictor-qupath-<tag>.jar`): drag it onto the QuPath window and restart: Extensions > LabConstrictor tools... The Script Editor alternative is the **single file** `LabConstrictorTools-all.groovy` of the release; the repository's script is split into part files that only the jar and the build join (QuPath README at 9e64c6d; no QuPath release existed when this was written).
+* Fiji, Napari and QuPath never import an app's packages, so apps with conflicting dependencies can coexist.
 
 ## Releases and tags
 The version lives in one place, `labconstrictor_tools/_version.py` (`__version__`); `pyproject.toml` and `labconstrictor_tools.__version__` both read it. `describe`, the registry and `doctor` report it as `tools_version` ([PROTOCOL.md](PROTOCOL.md#tools-version-and-features)).
@@ -18,23 +21,24 @@ The version lives in one place, `labconstrictor_tools/_version.py` (`__version__
 
 ### Pinning Tools in app installers
 An app installer must install a **tagged** Tools, never `main`: `main` moves, so two installs of the same app a week apart would run different workers, and a breaking change (for example issue #51) would reach installed apps without any release. The installer already reads the source from `LC_TOOLS_SPEC` and installs it with one `pip install` ([LABCONSTRICTOR_INTEGRATION.md](LABCONSTRICTOR_INTEGRATION.md)); pinning only changes the default:
-* Default value: `https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.2.0.zip` (a release) or `.../refs/tags/v0.3.0-alpha.1.zip` while only a pre-release exists (a human-test round pins it, see above). Never `refs/heads/main.zip`, never a bare branch or a commit that is not a tag. An app moves to a newer Tools by a pull request that changes this one string (and runs its `lc_tests`), not by anybody tagging.
+* Default value: `https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/<tag>.zip` (for example `v0.2.0` once it exists) or `.../refs/tags/v0.3.0-alpha.1.zip` while only a pre-release exists (a human-test round pins it, see above). Never `refs/heads/main.zip`, never a bare branch or a commit that is not a tag. An app moves to a newer Tools by a pull request that changes this one string (and runs its `lc_tests`), not by anybody tagging.
 * `LC_TOOLS_SPEC` stays the override (a local wheel for tests, a mirror, a branch for a developer).
 * After installing, the hook may record the version by running `labconstrictor-tools doctor`, which shows `Tools <version>`; a test of the installer checks that the version equals the pinned tag.
 * A tag is only pinned after the maintainer created it ([Releases and tags](#releases-and-tags)); an installer that pins a tag that does not exist fails at `pip install`, which the hook already reports without stopping the rest of the install.
 
-Files that must change in the apps (the template-repository change is a later task; the lists come from a search for `refs/heads/main.zip` and `LC_TOOLS_SPEC`; search again before editing, other branches may carry more):
+State at 14 Oct 2026 (read from the `main` branches of the repositories; search again before editing, other branches may carry more). Every installed app pins **`v0.2.0-rc.1`** today (`LC_TOOLS_PIN`); the pin moves to `v0.3.0-alpha.1` by one-string pull requests that are merged only after the maintainer created the tag, and reaches users only with a new app release:
 
-| Repository | File and line (at the time of writing) | Change |
-|---|---|---|
-| `labconstrictor-vlab4mic` | `app/bash_bat_scripts/post_install.sh` (the `pip install "${LC_TOOLS_SPEC:-...refs/heads/main.zip}"` line, about 88) | the default URL, to the tag |
-| `labconstrictor-vlab4mic` | `app/bash_bat_scripts/post_install.bat` (`IF NOT DEFINED LC_TOOLS_SPEC SET "LC_TOOLS_SPEC=..."`, about 111) | the same URL |
-| `guessthecondition` | `app/bash_bat_scripts/post_install.sh` (about 88) and `post_install.bat` (about 111) | the same |
-| `labconstrictor-playground` | `app/bash_bat_scripts/post_install.sh` (about 98) and `post_install.bat` (about 120) | the same |
-| `labconstrictor-playground` | `notebooks/LabConstrictorPlayground/LabConstrictorPlayground.ipynb` (the `!pip install -q ...main.zip` cell) | the same URL |
-| `NucleiSky`, `CellTracksColab` | `app/bash_bat_scripts/post_install.sh` and `.bat` once their bridge PRs are merged (not present on `main` of the local clones when this was written) | the same |
-| `LabConstrictor` (template) | `app/bash_bat_scripts/post_install.sh` and `.bat` of the template, so new apps start pinned | the same (later task) |
-| docs and READMEs that tell people to `pip install` Tools | `LabConstrictor-Tools/README.md` (about line 35), `LabConstrictor-napari/README.md` (about 13), `labconstrictor-vlab4mic/README.md` (about 56), `docs/OPERATIONS.md` Install, above | say `refs/tags/<tag>.zip` (or keep `main` and label it "development version") |
+| Repository | Pin today (file and line) | Pin pull request (draft, do not merge before the tag) | New app release after it | Still open outside the hooks |
+|---|---|---|---|---|
+| `labconstrictor-playground` | `app/bash_bat_scripts/post_install.sh:83` and `post_install.bat:232` | #27 | 0.0.4 (latest 0.0.3) | `notebooks/LabConstrictorPlayground/LabConstrictorPlayground.ipynb` line 48 (`!pip install -q ...refs/heads/main.zip`); `.github/workflows/ci.yml` installs Tools `@main` on purpose (development CI) |
+| `NucleiSky` | `post_install.sh:73` and `post_install.bat:223`: the bridge is **merged** (`nucleisky_lc_tools` is on `main`) | #38 | 0.1.4 (latest 0.1.3) | none found |
+| `labconstrictor-vlab4mic` | `post_install.sh:73` and `post_install.bat:223` | #17 | proposed 0.1.6, to be confirmed (latest 0.1.5) | `README.md` lines 56-57 tell users to `pip install` Tools and the Napari plugin from `refs/heads/main.zip` |
+| `guessthecondition` | `post_install.sh:73` and `post_install.bat:223` | #14 | proposed 0.0.1, to be confirmed (latest 0.0.0) | none found |
+| `CellTracksColab` | **no Tools step on `main`** (no tools registered); the held branch `bridge-test` has an unpinned `refs/heads/main.zip` line | none | 1.1.2 is held until the bridge decision (latest 1.1.1) | the bridge must be pinned to a tag before it is merged |
+| `LabConstrictor` (template) | `post_install.sh:73` and `post_install.bat:223` | #33 (template 0.1.18: pin, pinned actions, template CI, install rules) | template release after #33 (tag: <fill in>) | apps get the pin and the install page by the template sync after it is released |
+| Docs that tell people to `pip install` Tools | `LabConstrictor-napari/README.md` lines 75-76 and 135 and `docs/user-guide.md` lines 20-21 (`refs/heads/main.zip`, the development version); this repository's README and docs name the tag | | | say `refs/tags/<tag>.zip` once the tags exist (the napari row is updated after napari PR #60 is merged, because that PR changes the napari docs) |
+
+The tests of this repository keep the strings `LC_TOOLS_SPEC`, `refs/tags/`, `refs/heads/main.zip`, `post_install.sh` and `post_install.bat` in the pinning section above.
 
 ## Playground rule
 Every feature or limit needs a Playground tool or case, a generated matrix case and a host GUI check; how it is checked is written in [TESTING.md](TESTING.md#the-playground-rule).
@@ -104,9 +108,8 @@ Places where the code deliberately carries on with a substitute instead of faili
 | `log.tail()` (`logs`, Details windows) | The log file does not exist or cannot be read: an empty tail | Nothing to show; a debug line explaining why |
 
 ## Known limits (testing phase)
-* Verified on Linux with real NucleiSky and CellTracksColab installers, in Napari and Fiji (an earlier VLab4Mic check is not repeated here).
-  Windows only under Wine (real Windows installer, host and worker both Windows processes); the `.bat` install hooks have never run on real
-  Windows; macOS, UNC/NFS shares and multi-user "all users" installs are untested. People can help with these: docs/HUMAN_TEST_PROTOCOL.md.
+* Verified on Linux with real NucleiSky and CellTracksColab installers (the CellTracksColab one with the bridge branch, which is not on its `main`), in Napari and Fiji, in October 2026 and earlier (an earlier VLab4Mic check is not repeated here); the release sandbox runs released apps on fresh Linux, macOS and Windows runners ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)). QuPath: GUI tests on Linux in its own CI; nobody has used it by hand on any system.
+  Windows by a person: not done; the `.bat` install hooks run in the sandbox on a Windows runner only; macOS by a person, UNC/NFS shares and multi-user "all users" installs are untested. People can help with these: [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md).
 * The worker reads image files whole (no lazy/chunked reading); TIFF always, other formats only when the app has `imageio`.
 * No sandbox: a tool runs with the user's rights, like any app code. The worker only executes tools declared by the registered module.
 * A protocol change is a major version; hosts say so in the UI when an app speaks a newer protocol than they do.

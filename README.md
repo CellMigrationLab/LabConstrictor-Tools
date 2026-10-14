@@ -4,7 +4,7 @@
 
 LabConstrictor Tools turns declared Python functions into a tool manifest: a machine-readable description of inputs, outputs and interface hints. Each host reads that description to build a form and handle results. The analysis runs in the application's own Python environment.
 
-**The bridge is application-independent.** An application with valid, registered tool declarations can be discovered by the hosts without a dedicated plugin for that application. Whether its tools are useful in Fiji, Napari or QuPath depends on the work being done there, not on a list of approved applications.
+**The bridge is application-independent.** An application with valid, registered tool declarations can be discovered by the hosts without a dedicated plugin for that application. Whether its tools are useful in Fiji, Napari or QuPath depends on the work being done there, not on a list of approved applications. Which hosts list an app is the binding `hosts:` line of the app (rule in Tools: PROTOCOL.md, section "App hosts (which host lists an app)"; hosts honour it once their PRs merge, installers pass it from template 0.1.18).
 
 This repository provides the declaration API, schema, registry, worker, CLI and tests. The graphical hosts are separate repositories.
 
@@ -56,7 +56,7 @@ The toolkit is currently installed from GitHub, from the tag of the current pre-
 python -m pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip
 ```
 
-The applications you want to use must be installed and registered separately. Their installers normally handle registration.
+The applications you want to use must be installed and registered separately. Their installers normally handle registration. How to install an app and each host (Napari, Fiji, QuPath) is on one page: [docs/INSTALL.md](docs/INSTALL.md).
 
 ```bash
 labconstrictor-tools list
@@ -86,17 +86,18 @@ The `check` command validates declarations; `test` runs declared tools with samp
 The bridge lists tools registered by installed applications. The following repositories provide applications or test tools; they are not bundled with this toolkit.
 
 - [Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground) ([releases](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases)): synthetic images, example outputs and installation diagnostics.
-- [Guess the Condition](https://github.com/CellMigrationLab/GuessTheCondition) ([releases](https://github.com/CellMigrationLab/GuessTheCondition/releases), [Colab](https://colab.research.google.com/github/CellMigrationLab/GuessTheCondition/blob/main/notebooks/GuessTheCondition/GuessTheCondition.ipynb)): blinded classification of microscopy images across biological repeats. Its code declares six tools: five game actions and a helper that supplies condition choices. The application documents Napari, Fiji and CLI use.
-- [VLab4Mic desktop](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) ([releases](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases)): fluorescence image simulation; the application documents Napari and Fiji use.
-- [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) ([releases](https://github.com/CellMigrationLab/NucleiSky/releases)): image registration from nuclei landmarks. The Fiji bridge includes NucleiSky integration tests.
-- [CellTracksColab desktop](https://github.com/CellMigrationLab/CellTracksColab_LabConstrictor) ([releases](https://github.com/CellMigrationLab/CellTracksColab_LabConstrictor/releases)): tracking-data analysis. Check which tools are available in the installed version.
+- [Guess the Condition](https://github.com/CellMigrationLab/GuessTheCondition) ([releases](https://github.com/CellMigrationLab/GuessTheCondition/releases), [Colab](https://colab.research.google.com/github/CellMigrationLab/GuessTheCondition/blob/main/notebooks/GuessTheCondition/GuessTheCondition.ipynb)): blinded classification of microscopy images across biological repeats. Its code declares six tools: five game actions and a helper that supplies condition choices. Offered by Napari, Fiji and QuPath.
+- [VLab4Mic desktop](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) ([releases](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases)): fluorescence image simulation. Offered by Napari and Fiji, not by QuPath.
+- [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) ([releases](https://github.com/CellMigrationLab/NucleiSky/releases)): image registration from nuclei landmarks. Offered by Napari, Fiji and QuPath.
+- [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab) ([releases](https://github.com/CellMigrationLab/CellTracksColab/releases)): tracking-data analysis in notebooks (desktop app released from this repository). A notebook app: no host offers it. (This list used to link `CellTracksColab_LabConstrictor`, which was not reachable when checked on 14 Oct 2026: not verified that it exists.)
 
-**These are examples, not an allowlist.** The same registered tool manifest is available to each host that supports its protocol version. The practical question is whether the tool's inputs and outputs make sense in that host: a slide-region analysis may suit QuPath, an image-registration tool may suit Fiji, and a layer-based analysis may suit Napari. Host-specific presentation differs; check [host features](docs/HOST_FEATURES.md) when it matters. Run `labconstrictor-tools list` to inspect your installed tools.
+**Which host offers which app is a rule** ([REPOSITORIES.md](docs/REPOSITORIES.md#what-is-shared): CellTracksColab is notebook only; VLab4Mic is not offered by QuPath; the rule is being implemented). For the tools of an app that a host does offer, the same registered tool manifest is available to each host that supports its protocol version. The practical question is whether the tool's inputs and outputs make sense in that host: a slide-region analysis may suit QuPath, an image-registration tool may suit Fiji, and a layer-based analysis may suit Napari. Host-specific presentation differs; check [host features](docs/HOST_FEATURES.md) when it matters. Run `labconstrictor-tools list` to inspect your installed tools.
 
 ## Documentation
 
 - [Authoring tools](docs/AUTHORING.md) — declarations, registration, notebook integration, tests
 - [Manifest reference](docs/MANIFEST.md) — types, input relationships and interface hints
+- [Install an app and the hosts](docs/INSTALL.md) — one page: installers, Napari, Fiji, QuPath, the install rules
 - [Host features](docs/HOST_FEATURES.md) — what Fiji, Napari and QuPath do with those declarations
 - [Operations](docs/OPERATIONS.md) — registration, shared installs, diagnostics, logs and security boundaries
 - [Protocol](docs/PROTOCOL.md) — schema, data formats and worker messages

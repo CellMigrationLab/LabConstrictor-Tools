@@ -2,6 +2,22 @@
 
 Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar), **QuPath** (JavaFX window). "plain" = shown as an ordinary field, nothing is lost.
 
+## Installing and requirements per host
+All three need an app whose Tools is **0.3.0a1 or newer**; how to install each host is on one page, [INSTALL.md](INSTALL.md).
+
+| | Napari | Fiji | QuPath |
+|---|---|---|---|
+| What you install | `pip install` of the Tools tag and the plugin tag into napari's Python 3.11+ environment; **Qt6 backend** (`napari[pyqt6]` or `napari[pyside6]`; PyQt5 is not tested) | the jar from the release into `Fiji.app/plugins/`; alternative: the script zip (script **and `lib`**) | the jar from the release (drag onto QuPath, QuPath **0.7.0**); alternative for the Script Editor: the **single** `LabConstrictorTools-all.groovy` (the repository's part files do not run there) |
+| Menu entry | Plugins > LabConstrictor tools | Plugins > LabConstrictor > LabConstrictor Tools... (jar) / ... Tools (script) | Extensions > LabConstrictor tools... |
+| Tested by | CI on Linux, Windows, macOS with PySide6 and PyQt6 | GUI cases on Linux in CI; Windows and macOS (arm64) only best effort in the release run | GUI cases on Linux in CI; Windows and macOS (arm64) informative in the release run |
+| Releases | no tag or release when this was written | no release when this was written (the workflow publishes jar, script zip and `SHA256SUMS` when the maintainer publishes one) | no release when this was written (jar, single script and `SHA256SUMS`) |
+
+**Fiji limits (known, stated in the Fiji README):** a pixel-size field linked to an image follows that image's calibration by itself and there is **no "use the image's calibration" button**; typing the value the box already shows cannot be detected in a SciJava dialog (conformance case CAL-T9), so that field is cleared and the run blocked with a message, never a wrong value sent; `EnabledWhen` is ignored; `Collapsed` is a plain heading; no kept worker (a new worker for each run); the Macro Recorder does not record the plugin (a hand-typed macro line works, jar only).
+
+## Which apps a host offers
+Each host reads the registry. Which app each host *must* offer is the discovery rule (decided 14 Oct 2026; binding rule in Tools, feature `app_hosts_v1`, Tools PR #133, merged): **CellTracksColab** is hidden from Napari, Fiji and QuPath (notebook only); **NucleiSky, Guess the Condition and Playground** are offered by all three; **VLab4Mic** is offered by Napari and Fiji and **not** by QuPath. discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)". Hosts honour the rule once their PRs merge (Napari #61, Fiji #47, QuPath #35: open, not merged), and installers pass it from template 0.1.18 (template PR #33, not merged); until then a host offers every registered app that passes its compatibility check (not verified for each host). A host also leaves out, with a sentence in its Log, an app whose Tools is too old. The test steps are in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#6-discovery-who-shows-which-app).
+
+
 | Feature | Napari | Fiji | QuPath |
 |---|---|---|---|
 | Plain parameters, bounds, units, tooltips | yes | yes | yes |
@@ -11,7 +27,7 @@ Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar)
 | `Widget("slider")` / `Widget("radio")` | `FloatSlider`, `Slider`, radio buttons | slider and radio styles | slider beside the box, radio buttons |
 | `Copy as command` (host feature, no manifest change) | button with a menu: terminal line or Python snippet | the Log after each run; menu entry "Copy last run as command" | menu button: terminal line or Python snippet |
 | `EnabledWhen` | greys out | ignored: every field stays editable | greys out |
-| `PixelSizeOf` | prefilled from the layer's scale and length unit; a bare scale with pixel units is *not calibrated* (blank, run blocked) | prefilled from the calibration; uncalibrated: blank, run blocked | prefilled from the image; uncalibrated: blank, run blocked |
+| `PixelSizeOf` | prefilled from the layer's scale and length unit; a bare scale with pixel units is *not calibrated* (blank, run blocked) | prefilled from the calibration; uncalibrated: blank, run blocked; no "use the image's calibration" button, and typing the value the box shows clears it (CAL-T9, see above) | prefilled from the image; uncalibrated: blank, run blocked |
 | `ChoicesFrom` (dropdown) | yes, updates when its inputs change | yes, from the previous run's values; text field the first time | yes, updates when its inputs change |
 | `ClearAfterRun` | yes | not needed (a fresh dialog every run) | yes |
 | `Replace` | updates the layer or dock in place | closes the previous window, overlay or ROIs | reuses the results window, replaces the annotation |
@@ -26,7 +42,7 @@ Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar)
 | `Affine` | overlay layer | overlay window | matrix shown |
 | Shared-memory image `order` (feature id `shm_order_v1`, Tools 0.3.0a1) | Worker side, same for every host: `C` / `F` (and Appose's `C_ORDER` / `F_ORDER`) are read in the order they were written, anything else is refused with `unreadable_image`. A host that sends an F-ordered block must require `shm_order_v1` ([PROTOCOL.md](PROTOCOL.md#tools-version-and-features)). Which host sends which order is not checked in this repository | same | same |
 | Big TIFF inputs are memory-mapped (Tools 0.3.0a1, no feature id) | Worker side, same for every host, nothing to do: a TIFF of 8 MiB or more that is uncompressed and contiguous is mapped copy-on-write; any other big TIFF is read the plain way and the worker says why in the log and on stderr (`LC_TIFF_MEMMAP=0` turns it off). On Windows a tool that keeps its input keeps the file locked until the worker ends ([OPERATIONS.md](OPERATIONS.md#troubleshooting)) | same | same |
-| Per-host listing of apps (`hosts` of the app, feature id `app_hosts_v1`, Tools 0.3.0a1) | lists an app only if its registry entry names `napari` (or has no `hosts`, logged); an excluded app is skipped with the sentence of [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app) | same, for `fiji` | same, for `qupath` |
+| Per-host listing of apps (`hosts` of the app, feature id `app_hosts_v1`, Tools 0.3.0a1) | binding rule in Tools; once Napari PR #61 merges: lists an app only if its registry entry names `napari` (or has no `hosts`, logged); an excluded app is skipped with the sentence of [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app) | same, once Fiji PR #47 merges | same, once QuPath PR #35 merges |
 | Progress, Cancel, kept worker, run details | yes | progress and Esc | yes |
 | Macro / command recording | no | yes (macro recorder, replay) | no |
 

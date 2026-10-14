@@ -1,27 +1,46 @@
-# Human test protocol: LabConstrictor tools in Napari and Fiji
+# Human test protocol: LabConstrictor apps in Napari, Fiji and QuPath
 
-**Purpose.** Check, by hand and on a real computer, that a LabConstrictor app (NucleiSky and CellTracksColab are used here) installs,
-registers its tools, and that those tools work in **Napari** and in **Fiji**, and fail in an understandable way when something is wrong.
+**Purpose.** Check, by hand and on a real computer, that the LabConstrictor apps install, register their tools, show up in the hosts that
+are meant to show them (and in no other), run there, and fail in an understandable way when something is wrong.
 
-**Who.** Anyone who can install a program and use Napari/Fiji. No programming is needed; a few steps type one command into a terminal.
+**Who.** Anyone who can install a program and use Napari, Fiji or QuPath. No programming is needed; a few steps type one command into a terminal.
 
-**How long.** About 2 hours for everything, 30 minutes for the *Quick path*. Run it once per operating system (Windows, macOS, Linux).
+**How long.** The *Quick path* below is about 45 minutes per operating system. Everything is several hours: do the parts you were asked for.
 
-**What this protocol replaces.** `docs/TESTING_PROMPT.md` is a prompt for an AI agent that tests from source; this file is the one for people.
+**What this replaces.** `docs/TESTING_PROMPT.md` is a prompt for an AI agent that tests from source; this file is the one for people.
+The automated counterpart is the release sandbox ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)): it tests a
+released app on fresh runners, but only Napari for most apps and Fiji/QuPath only for the Playground, and no human look at a screen.
+
+**How to install** the apps and the hosts: [INSTALL.md](INSTALL.md) (the one install page; section 2 and N0/F0/Q0 below repeat what a tester needs and are the test steps).
+
+## How this protocol is split
+
+| File | Content |
+|---|---|
+| this file | the **test-set record sheet**, the install rules, the discovery matrix, set-up of the hosts, tests that do not depend on an app (install, listing, errors, uninstall), the report |
+| [human_tests/nucleisky.md](human_tests/nucleisky.md) | NucleiSky in Napari, Fiji and QuPath (the long case set: values you can check) |
+| [human_tests/playground.md](human_tests/playground.md) | Playground: the diagnostic readout and every bridge feature in the three hosts |
+| [human_tests/guessthecondition.md](human_tests/guessthecondition.md) | Guess the Condition (a game played tool by tool) in the three hosts |
+| [human_tests/vlab4mic.md](human_tests/vlab4mic.md) | VLab4Mic in Napari and Fiji (and its absence from QuPath) |
+| [human_tests/celltrackscolab.md](human_tests/celltrackscolab.md) | CellTracksColab: a notebook app, which no host shows |
 
 ## How to use this document
-1. Copy this file (or paste it into a new GitHub issue: the boxes then become clickable). Print it if you prefer paper.
-2. Fill in the **Record sheet** (section 0).
-3. Do the sections in order. Each test has **Do** (what to do), **Expect** (what you should see) and three boxes. Tick exactly one:
-   * `PASS` : what you see matches **Expect**.
-   * `FAIL` : it differs. Write what you saw in *Notes*, and take a screenshot.
-   * `N/A` : you could not do the step (say why in *Notes*; "no Windows machine" is a valid reason).
+1. Copy this file and the case file of each app you test (or paste them into a GitHub issue: the boxes then become clickable). Print them if you prefer paper.
+2. Fill in the **Record sheet** (section 0). **Every result is tied to the versions in it**: a result without a filled record sheet cannot be used.
+3. Do the sections in order. Each test has **Do**, **Expect** and three boxes. Tick exactly one:
+   * `PASS`: what you see matches **Expect**.
+   * `FAIL`: it differs. Write what you saw in *Notes*, and take a screenshot.
+   * `N/A`: you could not do the step (say why; "no Windows machine" is a valid reason).
 4. Do not skip a failing test: note it and continue, unless the test says **STOP**.
-5. At the end, send the record sheet, the screenshots and a support bundle (section 10).
+5. At the end, send the record sheet, the screenshots and a support bundle (test E4).
 
-**Quick path (30 minutes, after the installers have run).** Section 2 (test data), S1, S2, S3, N0, N1, N3, N4, N6, F0, F1, F3, F5, U1, U2. Everything else is the full protocol.
+**Statements marked "not verified"** are things the authors of this protocol could not check themselves. If you see something different, that is a finding: write it down, it is not a mistake of yours.
+
+**Quick path.** S1 to S4, D1 to D3, N0/F0/Q0 for the hosts you were asked to test, then in each app file the first three tests of each host
+(listing, one normal run, one error). Everything else is the full protocol.
 
 **Severity** (use it when you write a FAIL):
+
 | Level | Meaning |
 |---|---|
 | Blocker | cannot install, cannot start, data lost, or a wrong scientific result **without any warning** |
@@ -29,50 +48,69 @@ registers its tools, and that those tools work in **Napari** and in **Fiji**, an
 | Minor | works, but confusing, slow, or a wrong label |
 | Cosmetic | spelling, alignment |
 
-**Words used.** *App* = a LabConstrictor installer program (NucleiSky, CellTracksColab). *Tool* = one function of an app that appears
-in Napari/Fiji (NucleiSky: "Relocalize 2D"; CellTracksColab: "Calculate Track Metrics"). *Registry* = the folder where installed apps
-announce themselves. *Prefix* = the folder you chose when installing the app.
+**Words used.** *App* = a LabConstrictor installer program. *Tool* = one function of an app that appears in a host. *Host* = Napari, Fiji or
+QuPath. *Registry* = the folder where installed apps announce themselves. *Prefix* = the folder you chose when installing the app.
+*Test set* = the exact versions of everything in the record sheet.
 
 ---
 
-## 0. Record sheet (fill in before you start)
+## 0. Record sheet: the test set (fill in before you start)
+
+### 0.1 The test set (the maintainer fills this in before the round; testers copy it)
+Testers install **only this set** and only the **latest** of each item: an older release or a branch is not a test of this round. If a
+row below still says `<fill in>`, the set is not ready: do not start. (Why exact versions: an installed app carries the Tools it was built
+with; hosts refuse an app whose Tools is too old; a result is meaningless without knowing which pieces met.)
+
+| Item | Value | Download link (exact) |
+|---|---|---|
+| Tools tag | `v0.3.0-alpha.1` (Python version `0.3.0a1`); commit `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/tag/v0.3.0-alpha.1 (the tag is created by the maintainer: until it exists the apps cannot install) |
+| Template version of the apps | `<fill in>` (apps are on 0.1.17 today; 0.1.18 is a template pull request that is not merged: not verified which one the releases below carry; read `.template_sync/manifest.yaml` of the release tag) | n/a |
+| Napari plugin tag | `<fill in>` (the plugin had no tag when this was written) | `https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/<NAPARI_TAG>.zip` |
+| Fiji plugin tag | `<fill in>`; file `labconstrictor-fiji-<tag>.jar` (and `labconstrictor-fiji-script-<tag>.zip`, `SHA256SUMS`) | `https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases` (no release existed when this was written: not verified) |
+| QuPath plugin tag | `<fill in>`; file `labconstrictor-qupath-<tag>.jar` (and `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | `https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases` (no release existed when this was written: not verified) |
+| Napari / Fiji / QuPath themselves | Napari `<fill in>` (Python 3.11 or newer); Fiji `<fill in>` (Java build: ask); QuPath **0.7.0** (the plugin is built against it, other versions are not supported) | https://napari.org, https://fiji.sc, https://qupath.github.io |
+| NucleiSky | planned **0.1.4** (pin pull request #38); `<fill in>` | https://github.com/CellMigrationLab/NucleiSky/releases |
+| Playground | planned **0.0.4** (pin pull request #27); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases |
+| VLab4Mic | proposed 0.1.6, to be confirmed (pin pull request #17); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases |
+| Guess the Condition | proposed 0.0.1, to be confirmed (pin pull request #14; the app is at 0.0.0 today); `<fill in>` | https://github.com/CellMigrationLab/GuessTheCondition/releases |
+| CellTracksColab | latest release (1.1.1 when this was written; no new release is planned before the bridge decision); notebook app only | https://github.com/CellMigrationLab/CellTracksColab/releases |
+| Installer file names (per app, per OS) | `<fill in>` | |
+
+The "planned" numbers are the next free release numbers of each app after its pin pull request: the table must be corrected to what was
+really published. The pins in the apps are `v0.2.0-rc.1` today and become `v0.3.0-alpha.1` only after the pin pull requests are merged and the apps
+are released ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)); an app release that still pins `v0.2.0-rc.1` is **not** part of this
+test set (Fiji and QuPath leave it out of their lists with a sentence in the Log: that is correct behaviour; what Napari does with it is not verified, see D4).
+
+### 0.2 The tester and the computer
 | Field | Your entry |
 |---|---|
 | Tester name and date | |
 | Operating system and version (e.g. Windows 11 23H2, macOS 14.5 Apple silicon (Intel Macs are not supported), Ubuntu 24.04) | |
-| Computer: RAM, is it a managed/office computer with antivirus or admin restrictions? | |
-| Are you behind a proxy or firewall? | |
-| Do you have admin rights? (Yes / No) | |
-| Napari version and how it was installed | |
-| Fiji version (Help > About ImageJ) | |
-| NucleiSky installer file name | |
-| CellTracksColab installer file name | |
+| RAM; a managed/office computer with antivirus or admin restrictions? Behind a proxy or firewall? Admin rights? | |
+| Does your user name or the folder you will install into contain a space? (see S0) | |
+| Napari: version, Python version, Qt backend (`pip list`), how it was installed | |
+| Fiji: version (Help > About ImageJ), jar or script install | |
+| QuPath: version (Help > About), jar or script install | |
 | Was LabConstrictor installed on this computer before? (existing apps, existing `.labconstrictor` folder) | |
-| Prefix (install folder) of NucleiSky / CellTracksColab | |
+| Prefix (install folder) of each app you installed | |
 
 ---
 
 ## 1. What you need
-- [ ] A computer with the operating system you will report on (Windows, Linux, or a Mac with Apple silicon: **Intel Macs are not supported**, the installers cannot install there because some required packages no longer ship Intel Mac builds; if you only have an Intel Mac, please tell us instead of testing), and at least 25 GB of free disk space (NucleiSky downloads PyTorch: its installed folder is about 9 GB, the download caches take about 5 GB more, and the optional Cellpose model 1.2 GB). On a very bare Linux system Napari may also need the `libxcb-*` system packages (error `Could not load the Qt platform plugin "xcb"`): install them with your package manager; that is a computer setup problem, not a LabConstrictor one.
-- [ ] Internet access during installation (the installers download packages) and, for item N9, for the first Cellpose/InstanSeg run.
-- [ ] The two installers for your operating system (from the project's release page or from the person who sent you this protocol): NucleiSky and CellTracksColab.
-- [ ] Python 3.10 or newer to create the Napari environment (or an existing Napari installation you are allowed to modify; a fresh one is better).
-- [ ] Fiji (https://fiji.sc, "Fiji with Java"). Use a fresh unzipped copy, not your daily one, if you can.
+- [ ] A computer with the operating system you will report on: Windows, Linux, or a Mac with Apple silicon. **Intel Macs are not supported** (some required packages no longer ship Intel Mac builds; if you only have an Intel Mac, tell us instead of testing; four app repositories still build an Intel installer, which is not a promise that it works: not verified). At least 25 GB of free disk space for NucleiSky and Playground (PyTorch: about 9 GB installed, about 5 GB of download caches).
+- [ ] Internet access during installation (the installers download packages) and for the tests that say so.
+- [ ] The installers of the apps in the record sheet for your system, from the exact links there.
+- [ ] For the hosts you test: Napari in a Python 3.11+ environment you may modify (a fresh one is better); Fiji ("Fiji with Java"), a fresh unzipped copy if you can; QuPath 0.7.0.
 - [ ] A screenshot tool, a text editor, and this document.
-
-**Folder names used below.** Replace `<PREFIX_NS>` and `<PREFIX_CT>` with the install folders of NucleiSky and CellTracksColab
-(type the real folder: nothing in `<...>` is a variable your terminal understands).
 
 **Which Python.** Each app has its own Python. The commands below start it by its full path:
 
 | | Linux / macOS (terminal) | Windows (PowerShell) |
 |---|---|---|
-| NucleiSky's Python (`<NS_PY>`) | `<PREFIX_NS>/bin/python` | `& "<PREFIX_NS>\python.exe"` |
-| CellTracksColab's Python (`<CT_PY>`) | `<PREFIX_CT>/bin/python` | `& "<PREFIX_CT>\python.exe"` |
+| `<APP_PY>` of the app installed in `<PREFIX>` | `<PREFIX>/bin/python` | `& "<PREFIX>\python.exe"` |
 
-In every command, `<NS_PY>` / `<CT_PY>` stands for the matching line of this table, typed in full (in PowerShell the `&` and the quotes are
-needed, also when the path has no space). Unless a test says otherwise, use **NucleiSky's** Python for `list`, `doctor` and `support-bundle`.
-Windows users: if your terminal is `cmd.exe` instead of PowerShell, leave out the `&`.
+In every command `<APP_PY>` stands for that line, typed in full (in PowerShell the `&` and the quotes are needed; in `cmd.exe` leave out the `&`).
+Nothing in `<...>` is a variable your terminal understands: type the real folder.
 
 **Where things are**
 | What | Linux / macOS | Windows |
@@ -85,527 +123,282 @@ Windows users: if your terminal is `cmd.exe` instead of PowerShell, leave out th
 
 ---
 
-## 2. Test data (5 minutes)
-You need three small files. They are generated with the Python that comes with the installed NucleiSky (it already has everything needed).
-
-**Do, Linux/macOS (terminal):**
-```
-mkdir testdata
-cd testdata
-curl -L -O https://raw.githubusercontent.com/CellMigrationLab/NucleiSky/bridge-test/lc_tests/make_fixtures.py
-<PREFIX_NS>/bin/python make_fixtures.py ns
-curl -L -o tracks.csv https://raw.githubusercontent.com/CellMigrationLab/CellTracksColab/bridge-test/lc_tests/fixtures/tracks.csv
-echo hello > fake.tif
-```
-**Do, Windows (PowerShell; type `curl.exe`, not `curl`, which PowerShell redirects to something else):**
-```
-mkdir testdata
-cd testdata
-curl.exe -L -O https://raw.githubusercontent.com/CellMigrationLab/NucleiSky/bridge-test/lc_tests/make_fixtures.py
-& "<PREFIX_NS>\python.exe" make_fixtures.py ns
-curl.exe -L -o tracks.csv https://raw.githubusercontent.com/CellMigrationLab/CellTracksColab/bridge-test/lc_tests/fixtures/tracks.csv
-"hello" | Out-File -Encoding ascii fake.tif
-```
-`fake.tif` is a text file that pretends to be an image (used to check the error messages). Cutting a real image short is optional (test E3).
-
-**Write down the full path of this `testdata` folder** (in the terminal: `pwd` on Linux/macOS, `Get-Location` in PowerShell). From here on,
-**`<TESTDATA>` means that exact folder**, for example `/home/anna/testdata` or `C:\Users\Anna\testdata`; `testdata/ns/reference.tif` means `<TESTDATA>/ns/reference.tif`.
-
-**Expect:** the folder `ns` contains `reference.tif` (5.1 MB), `query.tif` (0.5 MB), `reference_mask.tif`, `query_mask.tif`, `ground_truth.json`, plus a few more masks used only by the project's own automated tests (`*_binary.tif`, `*_fractions.tif`: ignore them); the last line printed by the generator is `ok (1600, 1600) (520, 520)`.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+## 2. Install rules (read before S1)
+1. **No space anywhere in the install path.** The installers refuse a destination folder that contains a space (the installer builder's
+   default `check_path_spaces`, kept on purpose). If your Windows user name contains a space, the installer's default folder contains one too
+   and is refused: choose a folder such as `C:\LabConstrictor\<app>` (Windows) or `~/labconstrictor/<app>` (macOS, Linux). Test W1 checks the refusal.
+2. **Updating.** macOS and Windows: uninstall the old version first, then install the new one (the installer does not install over an existing install).
+   Linux: `bash <installer>.sh -u -p <PREFIX>` updates in place **only if the previous install finished**; after a failed or interrupted install delete
+   `<PREFIX>/pkgs` (or uninstall and install again), otherwise the update breaks. (Source: OPERATIONS and TESTING pages of this repository, from the
+   sandbox findings of 13 Oct; the template's own install page for this is in an unmerged pull request, template #33.)
+3. **Tagged installs only.** Install exactly the tagged things in the record sheet. Never `main.zip`, never a branch archive, never
+   `pip install` of Tools from `main`. The apps install Tools from a pinned tag (`LC_TOOLS_PIN` in their `post_install` hooks); the Napari line below pins the Tools tag
+   and the plugin tag.
+4. **Only the latest.** Do not test an older release "to compare". If you already have an older app, uninstall it first (rule 2), or say so in the record sheet.
 
 ---
 
-## 3. Installation and registration
+## 3. Which host shows which app (the discovery matrix)
+This is the **decided rule**; it is the binding rule in Tools (feature `app_hosts_v1`, Tools PR #133, merged); hosts honour it once their PRs merge (Napari #61, Fiji #47,
+QuPath #35: open) and installers pass it from template 0.1.18 (template PR #33, not merged). Check the Tools tag, the host versions and the installer of your test set.
+Without them every host lists every registered app that passes its compatibility check ([REPOSITORIES.md](REPOSITORIES.md)); the tests D1 to D3 are written for the rule.
+discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)"
 
-### S1. Install NucleiSky
-**Do:** run the NucleiSky installer. Choose an install folder (write it in the record sheet). Wait until it says it has finished.
-(Linux batch example: `bash NucleiSky-0.1.1-Linux-x86_64.sh -b -p <PREFIX_NS>`. macOS: use the macOS installer file you were given, for example `bash <that file> -b -p <PREFIX_NS>`; never the Linux file.) This takes several minutes (it downloads PyTorch).
+| App | Napari | Fiji | QuPath | Notebook (the app's own window) |
+|---|---|---|---|---|
+| NucleiSky | listed | listed | listed | yes |
+| Guess the Condition | listed | listed | listed | yes |
+| Playground | listed | listed | listed | yes |
+| VLab4Mic | listed | listed | **not listed** | yes |
+| CellTracksColab | **hidden** | **hidden** | **hidden** | yes (notebook only) |
 
-**Expect:** the installer finishes without an error message and without asking to close it manually after a failure.
-The file `<PREFIX_NS>/menuinst_debug.log` exists and its last line is `Post-install completed successfully.`
+"Hidden" and "not listed" mean the same for you: the app is not in the application drop-down, and nothing is broken. The release sandbox
+tests CellTracksColab as "must be hidden" (it registers a tool there on purpose, so that hiding is what is tested); on the installer you test
+it may register no tool at all, which hides it trivially.
+
+---
+
+## 4. Install and registration
+
+### S0. The path
+**Do:** choose, for each app, a prefix without a space (rule 1) and write it in the record sheet. Windows: do not use the default folder if your user name has a space.
+
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+### S1. Install an app
+**Do:** run the installer of the app you test (Linux batch example: `bash NucleiSky-<version>-Linux-x86_64.sh -b -p <PREFIX>`; use the file of
+your system, never the Linux file on a Mac). This takes several minutes (6 to 8 for a small app; PyTorch apps longer): the window may look idle.
+
+**Expect:** the installer finishes without an error message. `<PREFIX>/menuinst_debug.log` exists and its last line is `Post-install completed successfully.`
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### S2. The tools were registered during installation
-**Do:** open `menuinst_debug.log` of NucleiSky and search for `lc_tools`. (During installation the installer downloads the small *labconstrictor-tools* package from GitHub, so the computer needs internet access at that moment; the log shows `Successfully installed labconstrictor-tools-...`.)
-* Linux/macOS: expect the lines `Found nucleisky_lc_tools: registering the tools of NucleiSky for Napari and Fiji` and
-  `Tools registered (labconstrictor-tools list shows them).` There must be **no** line starting with `WARNING: tool registration failed`.
-* Windows: expect the line `Found nucleisky_lc_tools: registering ...`, followed by a block of text that contains `"schema_path"`,
-  and **no** line starting with `WARNING: tool registration failed`. (The Windows script does not print "Tools registered".)
+**Do:** open `menuinst_debug.log`, search for `lc_tools`. (The installer downloads the small *labconstrictor-tools* package from GitHub, so it needs internet at that moment: the log shows
+`Successfully installed labconstrictor-tools-...`; the version must be `0.3.0a1`.) Then run `<APP_PY> -m labconstrictor_tools list`.
+* Linux/macOS: expect `Found <package>_lc_tools: registering the tools of <App> ...` and `Tools registered (labconstrictor-tools list shows them).`
+* Windows: expect `Found <package>_lc_tools: registering ...` followed by a block of text containing `"schema_path"`. (The Windows script does not print "Tools registered".)
+* Neither: no line starting with `WARNING: tool registration failed`.
 
-Then run, with NucleiSky's Python (see "Which Python"):
-* Linux/macOS: `<PREFIX_NS>/bin/python -m labconstrictor_tools list`
-* Windows PowerShell: `& "<PREFIX_NS>\python.exe" -m labconstrictor_tools list`
-
-**Expect:** the output contains `NucleiSky  (0.1.1)` followed by an indented line `relocalize               Relocalize 2D`.
+**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab:** no such lines and no entry in `list` is expected (see its case file).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-### S3. Install CellTracksColab
-**Do:** run the CellTracksColab installer (same as S1, install folder `<PREFIX_CT>`). Then run `list` with CellTracksColab's Python:
-* Linux/macOS: `<PREFIX_CT>/bin/python -m labconstrictor_tools list`
-* Windows PowerShell: `& "<PREFIX_CT>\python.exe" -m labconstrictor_tools list`
+### S3. Diagnose
+**Do:** `<APP_PY> -m labconstrictor_tools doctor`.
 
-**Expect:** the installer finishes; its `menuinst_debug.log` shows the same registration lines as in S2 (module `celltracks_lc_tools`).
-`list` shows **both** apps: `CellTracksColab  (1.1.0)` with `calculate_metrics        Calculate Track Metrics`, and `NucleiSky  (0.1.1)`.
+**Expect:** one line per registered app starting with a check mark, no line starting with a cross; the last lines name the registry folder and the log file.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-### S4. Diagnose
-**Do:**
-* Linux/macOS: `<PREFIX_NS>/bin/python -m labconstrictor_tools doctor`
-* Windows PowerShell: `& "<PREFIX_NS>\python.exe" -m labconstrictor_tools doctor`
-
-**Expect:** one line per app starting with a check mark, e.g. `NucleiSky    1 tool(s), schema current, interpreter <PREFIX_NS>/bin/python (0.05 s)`; no line starting with a cross.
-The last lines name the registry folder and the log file location.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### S5. Nothing unexpected was installed or written
+### S4. Nothing unexpected was installed or written
 **Do:** look in your home folder.
 
-**Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer itself may also create menu entries (on Linux under `~/.local/share/applications`, which also gets `fiji.desktop` when Fiji first starts, and `~/.local/share/desktop-directories`) and the folders of the tools it uses (`~/.conda`, `~/.mamba`, `~/.cache`, `~/.config`, `~/.local/share/mime`; later also `~/.imagej` and `~/.java` from Fiji and `~/.cellpose` from Cellpose), including dated backups of `~/.config/menus/applications.menu`: that is normal and not a failure. No error dialogs appeared during installation. Installation did not require administrator rights unless you chose a protected folder.
+**Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer may also create menu entries (on Linux under `~/.local/share/applications` and `~/.local/share/desktop-directories`) and the folders of the tools it uses (`~/.conda`, `~/.mamba`, `~/.cache`, `~/.config`, `~/.local/share/mime`, dated backups of `~/.config/menus/applications.menu`; later `~/.imagej`, `~/.java` from Fiji): normal. No error dialogs. No administrator rights needed unless you chose a protected folder.
+
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+### C1. Run a tool without any window (optional)
+**Do:** `<APP_PY> -m labconstrictor_tools run <App> <tool id> name=value ...` for a tool of the app (the case file gives one, with its tool id).
+
+**Expect:** a JSON report with `"status": "COMPLETE"` and a last line `(results are in ...results/<time>_<id>_<App>_<tool> - ...; the newest 20 runs are kept)` (it goes to the error stream: with a pipe it can appear before the JSON; not a failure). A wrong input gives `"status": "FAILED"` with a `code` and a sentence an ordinary person can read.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ---
 
-## 4. Command line (optional, 10 minutes)
-### C1. Run a tool without any window
-**Do:**
-* Linux/macOS: `<PREFIX_CT>/bin/python -m labconstrictor_tools run CellTracksColab calculate_metrics tracks=<TESTDATA>/tracks.csv`
-* Windows PowerShell: `& "<PREFIX_CT>\python.exe" -m labconstrictor_tools run CellTracksColab calculate_metrics tracks=<TESTDATA>\tracks.csv`
+## 5. The three hosts: set-up (once per host)
 
-**Expect:** a JSON report with `"status": "COMPLETE"`, a result of type `table`, and a last line `(results are in ...results/<time>_<id>_CellTracksColab_calculate_metrics - use --out DIR ...; the newest 20 runs are kept)`. (`<id>` is a short random string, so that two runs in the same second never share a folder.) The folder contains `table.csv` with two data rows.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*Note:* the `(results are in …)` line is written to the error stream: in a terminal it appears last, but if you redirect or pipe the output it can appear before the JSON. That is not a failure.
-
-### C2. A readable error
-**Do:**
-* Linux/macOS: `<PREFIX_NS>/bin/python -m labconstrictor_tools run NucleiSky relocalize reference=<TESTDATA>/fake.tif query=<TESTDATA>/ns/query.tif`
-* Windows PowerShell: `& "<PREFIX_NS>\python.exe" -m labconstrictor_tools run NucleiSky relocalize reference=<TESTDATA>\fake.tif query=<TESTDATA>\ns\query.tif`
-
-**Expect:** `"status": "FAILED"`, `"code": "unreadable_image"` and an `error` that says `cannot read fake.tif: not a TIFF file`. No Python traceback dump is needed to understand it.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
----
-
-## 5. Napari
-
-### N0. Prepare Napari (once)
-**Do:** create a fresh environment and install (Linux/macOS shown). On Windows run the same commands but activate the environment with
-PowerShell: `.\napari-env\Scripts\Activate.ps1`, or with cmd.exe: `napari-env\Scripts\activate.bat`. (If PowerShell refuses with an
-"execution of scripts is disabled" error, that is a setting of your computer, not a LabConstrictor problem: write it in the notes and use cmd.exe.)
+### N0. Napari
+**Do:** create a fresh environment (Linux/macOS shown; Windows PowerShell: `.\napari-env\Scripts\Activate.ps1`, or `cmd.exe`: `napari-env\Scripts\activate.bat`; if PowerShell says
+"execution of scripts is disabled" that is a setting of your computer: note it and use cmd.exe) and install **with a Qt6 backend**:
 ```
 python -m venv napari-env
 source napari-env/bin/activate
-pip install "napari[pyqt5]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/heads/main.zip
+pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/<NAPARI_TAG>.zip
 napari
 ```
-(The two long web addresses are the project's source archives: pip downloads them like any package, no `git` program is needed.)
+Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **not** `napari[pyqt5]`: the plugin's README says PyQt5 is not tested and napari deprecated it in 0.8.0. The two long addresses are source archives of tags: no `git` program is needed; replace `<NAPARI_TAG>` by the tag in the record sheet.
 
-**Expect:** Napari opens. `Plugins` menu contains **LabConstrictor tools** (the entry reads `LabConstrictor tools (LabConstrictor)`; on other Napari versions it may sit in a submenu). A one-time notice about the PyQt5 backend is normal.
+**Expect:** Napari opens. `Plugins` contains **LabConstrictor tools**. There is no backend notice (a PyQt5 notice would mean the wrong install). On a bare Linux system a Qt error `Could not load the Qt platform plugin "xcb"` means missing `libxcb-*` packages: a computer set-up problem, not a LabConstrictor one.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (Qt backend you have): ______________________________
 
-### N1. The apps are listed
-**Do:** `Plugins > LabConstrictor tools`. Open the first drop-down.
+### F0. Fiji
+**Do (jar, preferred):** download `labconstrictor-fiji-<tag>.jar` from the Fiji release of the record sheet, put it into `Fiji.app/plugins/` (not a subfolder; remove any older `labconstrictor-fiji-*.jar`), restart Fiji. Menu entry: **Plugins > LabConstrictor > LabConstrictor Tools...**. Check the file against `SHA256SUMS` of the release if you can.
+**Alternative (no jar):** download `labconstrictor-fiji-script-<tag>.zip` and unzip it so that **both** the script `LabConstrictor_Tools.groovy` **and its `lib` folder** sit in `Fiji.app/scripts/Plugins/LabConstrictor/` (the script alone stops with a message); the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots; Fiji also lists the `lib` helper files in the menu: harmless). **Macro calls need the jar.** Do not install both (the tool would be listed twice). Write down which one you used.
 
-**Expect:** the dock opens at the right. The first drop-down lists `CellTracksColab` and `NucleiSky`. The second lists the tool of the chosen app. The panel has the buttons **Run**, **Cancel** (greyed), **Rescan apps**, **Restart worker**, **Details...** (greyed), and the box *Keep the worker running between runs (faster repeat runs)*.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N2. The NucleiSky form
-**Do:** choose app `NucleiSky`, tool `Relocalize 2D`.
-
-**Expect:** a description line, then three bold headings in this order: **Images**, **Segmentation**, **Matching**, and below them a box **Show advanced settings** (unticked; the fourth heading, *Fine-tuning*, appears only when you tick it, see N10).
-Under *Images*: *Reference* with a layer drop-down and a row *or file* (button *Select file*), *Query* with *or file*, *Reference pixel size um (um/px)* = 0.6500, *Query pixel size um (um/px)* = 0.3250, *Reference mask* and *Query mask* (each with *or file*).
-Under *Segmentation*: *Segmentation* = threshold, *Threshold method* = otsu, *Blur sigma (px)* = 1.0000, *Min area (px)* = 5, *Watershed split* ticked, then *InstanSeg model*, *InstanSeg target*, *InstanSeg: clean up fragments* (these three greyed). Under *Matching*: *Matcher* = auto.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*What it should look like:* ![N2 the NucleiSky form in Napari](img/N2_napari_form.png)
-
-### N3. Open the test images
-**Do:** `File > Open File(s)...`, select `testdata/ns/reference.tif` and `testdata/ns/query.tif`. In the form set *Reference* = `reference`, *Query* = `query`.
-
-**Expect:** two layers appear. The drop-downs offer them. The pixel-size fields stay 0.65 and 0.325 (these files carry no calibration).
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N4. Run with default settings
-**Do:** press **Run**. (The very first run after installation can take up to 2 minutes while code is compiled and loaded. After that, a run in a new worker takes about 10 to 20 seconds and a run in a kept worker about 2 seconds.)
-
-**Expect:** the status line shows a progress message (`segmenting nuclei`, then `matching 9 query nuclei against 429 reference nuclei`) and the progress bar moves. At the end the status line reads
-`✔ done in <n>s  rotation_deg=12.1721, scale=1.0024, offset_y_px=700.3293, offset_x_px=605.5654, bbox_y0y1x0x1=[637, 963, 597, 923], n_nuclei_reference=429, n_nuclei_query=9, matcher=quad` (the digits after the decimal point may differ slightly).
-Two new layers appear: `NucleiSky:alignment` and `NucleiSky:query_aligned`. The Run button is usable again and **Details...** is enabled.
-Accept rotation between 12.0 and 12.4, scale between 0.99 and 1.01. The nucleus counts should be exactly 429 and 9.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (numbers you saw): ______________________________
-
-*What it should look like:* ![N4 result in Napari](img/N4_napari_result.png)
-
-### N5. The result is placed correctly
-**Do:** hide `reference` and `query`; show `NucleiSky:query_aligned` over `reference` (set its blending to `additive` if needed) and zoom to the bright cluster.
-
-**Expect:** the aligned query is a small bright patch located inside the large reference field, and its nuclei sit on top of the reference's nuclei (no obvious shift or rotation).
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*What it should look like:* ![N5 aligned query over the reference](img/N5_napari_aligned_over_reference.png)
-
-### N6. Choose the matcher
-**Do:** set *Matcher* to `quad`, run; then `hashing`, run; then `triangles`, run.
-
-**Expect:** `quad` and `hashing`: `✔ done`, the same rotation (about 12.17) and `matcher=quad` / `matcher=hashing` at the end of the status line. `triangles`: the status line shows **`⚠ No match found with the 'triangles' matcher. This is not an error in the images: try Matcher = auto, or another matcher.`**
-This is the correct outcome for these test images. It must be a notice (a status line beginning with ⚠), not one beginning with ✖, and the Run button must work again afterwards.
-(`graph` behaves like `triangles` on these images.)
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*What it should look like:* ![N6 no-match notice in Napari](img/N6_napari_triangles_notice.png)
-
-### N7. Images from files instead of layers
-**Do:** set *Matcher* back to `auto`. Next to *Reference*, press *Select file* (under *or file*) and choose `testdata/ns/reference.tif`; do the same for *Query* with `query.tif`. Run.
-
-**Expect:** after you pick a file, the layer drop-down above it is greyed out (the file wins). The run gives the same numbers as N4.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N8. Settings that do not apply are greyed out
-**Do:** clear both *or file* rows (empty field). Set *Segmentation* to `instanseg`.
-
-**Expect:** *Threshold method*, *Blur sigma*, *Min area* and *Watershed split* become greyed out and the three *InstanSeg* fields become usable. Switching back to `threshold` reverses it. (Do **not** run with `instanseg` here.)
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N9. Other segmentation settings (optional: needs internet; the Cellpose run can take from about 3 minutes (measured on a 4-core Linux computer) to 20 minutes or more on a computer without a graphics card)
-**Do:** set *Segmentation* = `threshold`, *Threshold method* = `li`, *Min area* = 80, run. Then set *Segmentation* = `cellpose`, run.
-
-**Expect:** the `li` run completes with `n_nuclei_reference` close to 425 (not 429) and `n_nuclei_query=9`. The Cellpose run is slow (the status line says it is loading cellpose and the progress bar keeps moving; the first time it also downloads a model of about 1 GB); it completes with about 347 reference nuclei and a rotation near 12.17, or, if the download is blocked, shows a message `segmentation_unavailable ... the first run needs internet` instead of freezing. (InstanSeg is known not to find nuclei in these synthetic images; do not report that.)
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N10. Advanced settings and "unset" values
-**Do:** tick **Show advanced settings**. Untick it, tick it again.
-
-**Expect:** a group **Fine-tuning** appears with *Peak distance (px)* = 5, *Fixed seed* and *Time limit (s)*; each of the last two has a box **set** below it, unticked, and the value field is greyed out. Unticking *Show advanced settings* hides them again.
-Now tick **set** under *Fixed seed*, type 3; tick **set** under *Time limit*, type 60; run.
-**Expect:** the run completes with the same result as N4. Untick both **set** boxes and run again: same result (an unset value must not behave like 0: a time limit of 0 would have stopped the matching).
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N11. Existing masks
-**Do:** in *Reference mask* press *Select file* (under *or file*) and choose `testdata/ns/reference_mask.tif`; run. Then also set *Query mask* from `query_mask.tif`; run. Finally set *Reference mask* to `query_mask.tif` (wrong size) and run.
-
-**Expect:** the first two runs complete with `n_nuclei_reference=393` and `n_nuclei_query=9` and a rotation near 12.17-12.19. The wrong-size run shows a status line beginning with ✖:
-`✖ [mask_shape_mismatch] Reference mask must have the same size as its image: mask (520, 520), image (1600, 1600) ...`, stops within a few seconds, and the Run button works again.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N12. Cancel
-**Do:** clear the masks. Press **Run**, and press **Cancel** as soon as the status line says `segmenting nuclei` (you have about 3 seconds). Wait. Run again. This time press **Cancel** when it says `matching 9 query nuclei against 429 reference nuclei`.
-
-**Expect:** first: the status line becomes `cancelled`. Second: it becomes `cancelled (worker stopped)` within about 5 seconds (the tool does not check for Cancel while matching, so its process is stopped). Both times Run is usable again, and a following normal run (N4) completes.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N13. An error you can understand
-**Do:** in *Reference* use *Select file* and choose `testdata/fake.tif` (the text file); *Query* = `query`. Run. Then press **Details...**.
-
-**Expect:** a status line beginning with ✖: `✖ [unreadable_image] cannot read fake.tif: not a TIFF file: header=b'hell'  - click Details... for the full report (log: ...)`. **Details...** opens a window with the error, the worker output, the run record location and the path of the log file.
-The sentence tells you what is wrong without a programmer.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### N14. The second app: a table result
-**Do:** clear *or file* rows. Choose app `CellTracksColab`, tool `Calculate Track Metrics`. For *Tracks* press *Select file* and choose `testdata/tracks.csv`. Run.
-
-**Expect:** `✔ done ... table 'table' (2 rows)`. A table panel appears at the bottom whose columns include `Unique_ID`, `Track Duration`, `Mean Speed`, `Total Distance Traveled`, `Directionality` (it also has the median, maximum, minimum and standard deviation of the speed).
-Switching between the two apps in the first drop-down works and shows the right tool each time.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*What it should look like:* ![N14 table in Napari](img/N14_napari_table_celltracks.png)
-
-### N15. Faster second run
-**Do:** choose app `NucleiSky`, tool `Relocalize 2D` again (N14 left CellTracksColab selected, which has no Matcher). Set *Reference* = `reference`, *Query* = `query`, clear the *or file* rows, and set *Matcher* = `auto`. Make sure *Keep the worker running between runs (faster repeat runs)* is ticked. Press **Restart worker**, then press **Run** three times in a row (wait for each to finish).
-
-**Expect:** the first run after the restart takes the longest (10 to 20 seconds; up to 2 minutes if it is the first run since installation), the second and third about 2 seconds each. Write the three times in the notes. Then untick the box and run twice: both take about as long as the first run.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (times): ______________________________
-
-### N16. Closing leaves nothing behind
-**Do:** close Napari. Open the process list (Task Manager on Windows, Activity Monitor on macOS, `ps aux | grep '[l]abconstrictor_tools.*serve'` on Linux).
-
-**Expect:** no `python ... labconstrictor_tools serve ...` process remains within 15 seconds.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
----
-
-## 6. Fiji
-
-### F0. Install the plugin (once)
-**Option A, no build (use this):** download the file `LabConstrictor_Tools.groovy` from
-https://github.com/CellMigrationLab/LabConstrictor-Fiji/blob/main/src/main/resources/org/cellmigrationlab/labconstrictor/LabConstrictor_Tools.groovy
-(button *Download raw file*; keep the name exactly, **the underscore matters**: Fiji lists a script in its menus only when its name contains one)
-and put it into the folder `scripts/Plugins/LabConstrictor/` inside your Fiji folder (create the two folders `scripts/Plugins` and `LabConstrictor` if they do not exist; the Fiji folder is called `Fiji.app` on macOS and Windows and `Fiji` on Linux), then restart Fiji. The menu entry is `Plugins > LabConstrictor > LabConstrictor Tools`; write down the exact menu path you see. (If you cannot find it in the menu, type `LabConstrictor` into Fiji's search bar at the top and press *Run*, and write that down as a failure of this test.)
-
-**Option B, jar (needed for the macro test F12; needs Java and Maven):** clone the Fiji repository, run `mvn package`, copy `target/labconstrictor-fiji-0.1.0.jar` into the `plugins` folder of your Fiji folder, restart Fiji. The entry is `Plugins > LabConstrictor > LabConstrictor Tools...`.
-
-**Expect:** after restart the menu entry exists. Do not install both options at the same time.
+**Expect:** after restart the menu entry exists (if you cannot find it, type `LabConstrictor` into Fiji's search bar, press *Run*, and note it as a FAIL of this test).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Menu path you used: ______________________________
 
 *What it should look like:* ![F0 the menu entry Plugins > LabConstrictor > LabConstrictor Tools](img/F0_fiji_menu.png)
 
-### F1. Choose app and tool
-**Do:** open `File > Open...` for `testdata/ns/reference.tif` first and then `testdata/ns/query.tif` (the order matters: the first open image is offered as the reference). Start the plugin from the menu.
+**Fiji limits (known; do not report them as bugs, but do check that they behave as stated):**
+* A pixel-size field linked to an image follows the image's calibration by itself, until you type a value. There is **no "use the image's calibration" button**.
+* If you type the very value the box already shows, Fiji cannot see that as an edit (conformance case CAL-T9, "undetectable in a SciJava dialog"): the field is **cleared and the run is blocked with a message**; a wrong value is never sent. Type a different value, or re-select the image.
+* Fields that do not apply (`EnabledWhen`) are **not** greyed out; a folded group (`Collapsed`) is a plain heading. Nothing is lost.
+* Fiji starts a new worker for each run (about 12 s with NucleiSky); there is no kept worker.
+(Source: `LabConstrictor-Fiji` README, "Known limits of the pixel-size field", and [HOST_FEATURES.md](HOST_FEATURES.md).)
 
-**Expect:** a small dialog titled *LabConstrictor* with a drop-down *Application* lists `CellTracksColab` and `NucleiSky` (pick `NucleiSky`, OK). (With only one app registered this dialog is skipped.) The tool has only one choice, so there is no tool dialog; the tool form opens directly, titled *Relocalize 2D*.
+### Q0. QuPath
+**Do (jar, preferred):** install QuPath **0.7.0** (QuPath 0.7 is built with Java 25 and the jar needs it; older QuPath versions are not supported). Download `labconstrictor-qupath-<tag>.jar` from the QuPath release of the record sheet, drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences), restart QuPath.
+**Alternative (Script Editor):** download the **single file** `LabConstrictorTools-all.groovy` from the same release, open it in QuPath's Script Editor (`Automate > Show script editor`) and run it. The repository's source script is split into several part files joined by the build; **the parts are not usable in the Script Editor**, only the all-in-one file from the release (the jar joins the parts itself). Write down which one you used.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### F2. The form
-**Expect (in the form from F1):** a note *Images are taken from the open windows. To use a file instead, choose it in the matching '(or file)' field.*; the headings **— Images —**, **— Segmentation —**, **— Matching —**, **— Advanced settings —**, **— Fine-tuning —** (in that order); *Reference* and *Query* choosers preselected with the two open images (check they are the right way round: reference = the big 1600 x 1600 image); *Reference (or file)* / *Query (or file)* fields; *Reference pixel size um (um/px)* and *Query pixel size um (um/px)*; checkboxes *Use reference mask* / *Use query mask*; the segmentation fields; *Matcher*; *Peak distance (px)*; **Set fixed seed** with *Fixed seed*; **Set time limit** with *Time limit (s)*.
-Fields that do not apply to the chosen segmentation are **not** greyed out in Fiji (known limitation, do not report).
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*What it should look like:* ![F2 the Fiji form](img/F2_fiji_form_top.png)
-
-### F3. Run with defaults
-**Do:** set the pixel sizes to 0.65 (reference) and 0.325 (query) if they differ, leave everything else, press OK.
-
-**Expect:** a progress bar in Fiji's status line, then: a new image window **NucleiSky:query_aligned**, a window **Alignment overlay (green = reference, magenta = query)** showing a green field of nuclei with a small white/pink cluster where the query lies, and, in the **Log** window, a line starting `NucleiSky values: [rotation_deg:12.17..., ...` that also contains `n_nuclei_reference:429`, `n_nuclei_query:9` and `matcher:quad` (the order of the entries may differ).
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (numbers): ______________________________
-
-*What it should look like:* ![F3 alignment overlay in Fiji](img/F3_fiji_alignment_overlay.png)
-
-### F4. Matcher choice and "no match"
-**Do:** start the plugin again, set *Matcher* = `hashing`, OK; then again with `triangles`.
-
-**Expect:** `hashing` works (`matcher=hashing`). `triangles` shows a plain **message** window (information, not the red error style) with `No match found with the 'triangles' matcher. This is not an error in the images: try Matcher = auto, or another matcher.`
+**Expect:** **Extensions > LabConstrictor tools...** exists. With no app registered the window says "No LabConstrictor app is registered on this machine" (install an app, press **Rescan apps**).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-*What it should look like:* ![F4 no-match message in Fiji](img/F4_fiji_triangles_message.png)
+*Not verified:* the drag-and-drop install of a released jar (the release smoke test puts the jar on the class path), and any QuPath step on Windows or macOS by a person.
 
-### F5. Unset values
-**Do:** start the plugin; tick **Set fixed seed** and type 3; tick **Set time limit** and type 60; OK. Then run again with both boxes unticked.
+---
 
-**Expect:** both runs complete with the same result as F3.
+## 6. Discovery: who shows which app
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+### D1. The list in each host, for each installed app
+**Do:** with the apps of your test set installed, open the application list: Napari `Plugins > LabConstrictor tools` (first drop-down; **Rescan apps** after installing); Fiji the *Application* drop-down of the plugin dialog (with a single usable app the dialog is skipped and the tool form opens directly);
+QuPath `Extensions > LabConstrictor tools...` (app chooser).
 
-### F6. Files instead of windows
-**Do:** `Window > Close All`. Start the plugin.
+**Expect:** the list equals the matrix of section 3 for the apps you installed (hosts you did not set up: N/A). Fill the table with L (listed), - (not listed):
 
-**Expect:** the form now shows file-chooser fields named *Reference*, *Query* and the optional masks, and no open-image selectors (there is no open image to choose from). Select `testdata/ns/reference.tif` and `query.tif` through them and run: same result as F3.
+| App | Napari | Fiji | QuPath |
+|---|---|---|---|
+| NucleiSky | | | |
+| Guess the Condition | | | |
+| Playground | | | |
+| VLab4Mic | | | |
+| CellTracksColab | | | |
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### F7. Cancel
-**Do:** run again and press the **Esc** key while the progress bar is moving.
-
-**Expect:** the run stops within a few seconds, no result windows appear, the Log window says `LabConstrictor: the run was cancelled` (Fiji's own status line may only say that the command finished), and the next run works.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*Tip:* click once on Fiji's main window (the one with the menu bar) before pressing **Esc**, so that it has keyboard focus, and start pressing about 3 seconds after you press OK (a run takes about 12 seconds). On a bare Linux X server without a window manager Fiji never gets keyboard focus and Esc does nothing: that is a computer setup problem.
-
-### F8. An error you can understand
-**Do:** start the plugin with no image open, choose `testdata/fake.tif` as *Reference (or file)* and `query.tif` as the query; OK.
-
-**Expect:** an error window titled `LabConstrictor: NucleiSky` saying `[unreadable_image] cannot read fake.tif: not a TIFF file ...` and naming the log file. No Java stack trace shown.
+A mismatch is a **Major** FAIL (an app that must be hidden is shown, or one that must be listed is missing); write the host, app, and what the Log or status line says.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-*Note:* the error window may also list the worker's last output lines (at most 8, each cut at 300 characters). If it is still wider than your screen, close it with **Alt+F4** (Windows/Linux) or Cmd+W (macOS) and write the screen size in the notes.
-
-*What it should look like:* ![F8 the Fiji error window (very wide)](img/F8_fiji_error_dialog.png)
-
-### F9. CellTracksColab: a table result
-**Do:** start the plugin, choose `CellTracksColab`; this tool has a single input, so Fiji shows only a plain *Choose a file* window instead of a form: choose `testdata/tracks.csv` in it.
-
-**Expect:** a window named **table** (Fiji Results table) with 2 rows whose columns include `Unique_ID`, `Track Duration`, `Mean Speed`, `Total Distance Traveled`, `Directionality`.
+### D2. VLab4Mic is not offered in QuPath
+**Do:** install VLab4Mic. Open QuPath's app chooser. Press **Rescan apps**.
+**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. This holds only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet): not verified until the apps are re-installed with an installer that passes the hosts. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-*What it should look like:* ![F9 table in Fiji](img/F9_fiji_table_result.png)
-
-### F10. Run a one-image tool twice (known open question; needs a real desktop, not a remote or virtual screen)
-**Do:** register the small example app that ships with the tools package, using the Python of your Napari environment (it has everything the example needs):
-`<napari-env>/bin/python -m labconstrictor_tools register --name synthetic --prefix <napari-env> --module labconstrictor_tools.examples.synthetic`
-(Windows PowerShell: `& "<napari-env>\Scripts\python.exe" -m labconstrictor_tools register --name synthetic --prefix "<napari-env>" --module labconstrictor_tools.examples.synthetic`). In Fiji open `testdata/ns/query.tif`. Start the plugin, choose application `synthetic`, tool `Image stats`, OK. Then start the plugin **again** and run `Image stats` a second time with the image still open.
-
-**Expect:** both runs show the same dialog (with the open image selected) and print a line `synthetic values: [shape:[520, 520], dtype:uint16, mean:...]` (the order may differ) in the Log window.
-**Mark FAIL** if the second run shows only a bare *Choose a file* prompt instead of the dialog, and describe exactly what you did (this is a known, unexplained problem; your observation is what we need).
-Clean up afterwards: `<napari-env>/bin/python -m labconstrictor_tools unregister --name synthetic` (Windows: the same with `& "<napari-env>\Scripts\python.exe"`).
+### D3. CellTracksColab is offered nowhere
+**Do:** install CellTracksColab next to another app. Look at all three hosts (Rescan apps / restart Fiji).
+**Expect:** not in any list, no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. This holds only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet): not verified until the apps are re-installed with an installer that passes the hosts.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-### F11. Skipped or missing apps are reported (do this together with E1)
-**Do:** while CellTracksColab is broken as described in E1, start the plugin in Fiji and open the **Log** window (`Window > Log`; the line may already be there).
-
-**Expect:** a line `LabConstrictor: skipped CellTracksColab: not available on this machine (interpreter ... is missing)` explains why the app is missing from the list.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*Note:* the **Log** window opens by itself when the plugin runs and has something to say; there is no `Window > Log` entry before that. Start the plugin first, then look for the Log window.
-
-*What it should look like:* ![F11 Log line for a skipped app](img/F11_fiji_log_skipped_app.png)
-
-### F12. Macro call typed by hand (jar only: option B)
-The Macro Recorder does **not** record this plugin yet (it writes a wrong line); do not use it. A macro line typed by hand works.
-
-**Do:** open `reference.tif` and `query.tif` (File > Open). `Plugins > Macros > New...`, type this single line, and run it:
-
-`run("LabConstrictor Tools...", "app=NucleiSky tool=[Relocalize 2D] reference=reference.tif query=query.tif reference_pixel_size_um=0.65 query_pixel_size_um=0.325 segmentation=threshold");`
-
-Then run it again with `tool=[No such tool]`.
-
-**Expect:** the first run shows no dialog and gives the same result as F3 (rotation about 12.17, `n_nuclei_query:9`). The second shows a message that lists the valid tools.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### F13. Closing leaves nothing behind
-**Do:** close Fiji and check the process list as in N16.
-
-**Expect:** no `labconstrictor_tools serve` process remains.
+### D4. An app with an old Tools is refused with a sentence (only if you have one)
+**Do:** if you have an app installed from an older release (Tools `0.2.0rc1`), open the three hosts. (This is the situation for every released installer before the pin pull requests; do not install one on purpose.)
+**Expect:** Fiji and QuPath leave it out of the list with a sentence in the Log such as `this app's labconstrictor-tools 0.2.0rc1 is older than the 0.3.0a1 this host needs: update it`; QuPath refuses a run with the same sentence; Napari: not verified (its plugin requires Tools 0.3.0a1 and checks it at load).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ---
 
-## 7. When something is wrong (these tests change the app: do them last, and restore afterwards)
+## 7. Tests of the apps
+Now open the case file of each app you were asked to test ([the table at the top](#how-this-protocol-is-split)). They use the host set-up above. They number their tests `NS-` (NucleiSky), `PG-`, `GC-`, `VL-`, `CT-`, then `N` (Napari), `F` (Fiji), `Q` (QuPath).
+
+---
+
+## 8. When something is wrong (these tests change an app: do them last, and restore afterwards)
+
+Use an app that is **not** the one you are mid-way through (for the "broken app" below, the Playground is a good choice; any installed app works).
 
 ### E1. Registry listing survives a broken app
-**Do:** first **close Napari and Fiji completely** and check in the process list that no CellTracksColab worker (`python ... labconstrictor_tools serve`) is left; Windows will not rename a program that is still running. Then rename CellTracksColab's Python:
-* Linux/macOS: `mv <PREFIX_CT>/bin/python <PREFIX_CT>/bin/python.off`
-* Windows PowerShell: `Rename-Item "<PREFIX_CT>\python.exe" python.off`
+**Do:** first **close all hosts completely** and check in the process list that no worker (`python ... labconstrictor_tools serve`) of that app is left (Windows will not rename a running program). Rename the app's Python:
+* Linux/macOS: `mv <PREFIX>/bin/python <PREFIX>/bin/python.off`
+* Windows PowerShell: `Rename-Item "<PREFIX>\python.exe" python.off`
 
-Run `doctor` and `list` with **NucleiSky's** Python (see "Which Python"). Start Napari, open the widget, and read the status line. Start Fiji and open its **Log** window after starting the plugin.
+Run `doctor` and `list` with **another app's** Python. Start the hosts and read the status line / Log.
 
-**Expect:** `doctor` shows a cross for `CellTracksColab` with `not available on this machine (interpreter ... is missing)`; `list` says `CellTracksColab  -- skipped: ...`. NucleiSky stays usable. Napari lists only `NucleiSky` and its status line reads `⚠ skipped: CellTracksColab (...)`. **Restore the file name before you continue** (Linux/macOS: `mv <PREFIX_CT>/bin/python.off <PREFIX_CT>/bin/python`; Windows PowerShell: `Rename-Item "<PREFIX_CT>\python.off" python.exe`) and check that `doctor` is clean again.
+**Expect:** `doctor` shows a cross for the broken app with `not available on this machine (interpreter ... is missing)`; `list` says `<App>  -- skipped: ...`. The other app stays usable. Napari lists only the other app and its status line reads `⚠ skipped: <App> (...)`; Fiji's Log has `LabConstrictor: skipped <App>: not available on this machine (interpreter ... is missing)`; QuPath: not verified (write down what it says). **Restore the file name before you continue** (`mv <PREFIX>/bin/python.off <PREFIX>/bin/python`; `Rename-Item "<PREFIX>\python.off" python.exe`) and check that `doctor` is clean again.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+*What the Fiji line looks like (older screenshot: the skipped app was CellTracksColab then):* ![F11 Log line for a skipped app](img/F11_fiji_log_skipped_app.png)
 
 ### E2. A package is missing inside an app
-**Do:** first write down the installed version: `<CT_PY> -m pip show pandas` (look at the `Version:` line; write it in the notes). Then `<CT_PY> -m pip uninstall -y pandas`, and run `Calculate Track Metrics` in Napari. Afterwards reinstall **exactly the version you wrote down**: `<CT_PY> -m pip install pandas==<that version>`. (`<CT_PY>`: see "Which Python"; on Windows it is `& "<PREFIX_CT>\python.exe"`.)
+**Do:** `<APP_PY> -m pip show pandas` (write the `Version:`); `<APP_PY> -m pip uninstall -y pandas`; run a tool of that app that needs it (Playground "Summarise a table") in a host. Reinstall **exactly that version**: `<APP_PY> -m pip install pandas==<version>`.
 
-**Expect:** `✖ [ModuleNotFoundError] No module named 'pandas'  - click Details...`. Details shows the traceback. After reinstalling, the tool works again.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### E3. Damaged and unusual files
-**Do:** in Napari (and Fiji if you like) use these as the *Reference* file: (a) a text file called `fake.tif` (done in N13); (b) a TIFF cut short: Linux/macOS `head -c 3000000 <TESTDATA>/ns/reference.tif > <TESTDATA>/short.tif`; Windows PowerShell `$b=[IO.File]::ReadAllBytes("<TESTDATA>\ns\reference.tif"); [IO.File]::WriteAllBytes("<TESTDATA>\short.tif",$b[0..2999999])`; (c) a path with spaces and non-English letters (copy `query.tif` to a folder `test é 日本` and use it).
-
-**Expect:** (a) as N13. (b) `✖ [unreadable_image] cannot read short.tif: failed to read ... bytes, got ...`. (c) the run works exactly as with the normal path.
+**Expect:** `✖ [ModuleNotFoundError] No module named 'pandas'  - click Details...` (Napari; Fiji: an error window naming the log; QuPath: the status line and **Details**). Details shows the traceback. After reinstalling, the tool works again.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-### E4. A process killed from outside
-**Do:** start a NucleiSky run in Napari. While it runs, in the process list end the `python ... labconstrictor_tools serve` process of NucleiSky.
-
-**Expect:** the status line says `✖ worker exited unexpectedly (code ...)` with a likely cause (for example "the worker was killed"), Run is usable again, and the next run works.
-
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-### E5. Support bundle
-**Do:** `<NS_PY> -m labconstrictor_tools support-bundle --out <TESTDATA>/bundle.zip` (Windows PowerShell: `& "<PREFIX_NS>\python.exe" -m labconstrictor_tools support-bundle --out "<TESTDATA>\bundle.zip"`), open the zip.
-
-**Expect:** it contains `logs/labconstrictor.log`, `apps/*.json`, the latest `runs/*/run.json`, `doctor.txt` and `environment.txt`. It contains file names, folder names and the parameter values of recent runs, but **no image or table contents**. The tool does not intentionally collect passwords or tokens, but the logs and run records are **not scrubbed of secrets**: read through the files in the zip before you share it, and remove it if it contains paths, parameter values, tokens or anything else private (your user name will appear in paths; that is expected, tell us if you do not want to share it).
+### E3. A process killed from outside
+**Do:** start a long run (Playground "Stress: slow run with progress", 60 s). In the process list end the `python ... labconstrictor_tools serve` process of that app.
+**Expect:** the host says `worker exited unexpectedly (code ...)` with a likely cause, the run button is usable again, and the next run works.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
----
+### E4. Support bundle
+**Do:** `<APP_PY> -m labconstrictor_tools support-bundle --out <somewhere>/bundle.zip`, open the zip.
+**Expect:** it contains `logs/labconstrictor.log`, `apps/*.json`, the latest `runs/*/run.json`, `doctor.txt` and `environment.txt`: file names, folder names and parameter values of recent runs, **no image or table contents**. Logs and run records are **not scrubbed of secrets**: read the files before you share the zip, remove anything private (your user name appears in paths).
 
-## 8. Several apps, updates and uninstall
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-### U1. Both apps work side by side
-**Do:** with both apps installed (S3), in one Napari session switch between NucleiSky and CellTracksColab and run each (N4, N14); in Fiji the same.
+### E5. Closing leaves nothing behind
+**Do:** close each host you used; open the process list (Task Manager, Activity Monitor, or `ps aux | grep '[l]abconstrictor_tools.*serve'`).
+**Expect:** no `python ... labconstrictor_tools serve` process remains within 15 seconds (QuPath and Fiji: Fiji's worker may take up to 10 s to exit after its input is closed, then it is killed).
 
-**Expect:** each app runs in its own Python (no conflict between their packages); both runs succeed in the same session.
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+### U1. Two apps side by side
+**Do:** with two apps installed, switch between them in one host session and run a tool of each.
+**Expect:** each runs in its own Python (no conflict between their packages); both succeed in the same session.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### U2. Uninstall one app
-**Do:** first close Napari and Fiji and check in the process list that no CellTracksColab worker is running (on Windows a running worker locks files). Then uninstall CellTracksColab with its normal uninstaller (Windows: *Apps & features*; Linux/macOS: run `bash <PREFIX>/uninstall.sh`, where `<PREFIX>` is the folder you installed into). Then run `list` (NucleiSky's Python) and reopen Napari and Fiji only now: look at Napari (press *Rescan apps*) and Fiji (restart the plugin).
-
-**Expect:** `CellTracksColab` is gone from all three; `NucleiSky` is still listed and still runs. `~/.labconstrictor/apps` no longer contains `CellTracksColab.json`.
+**Do:** close all hosts and check that no worker of that app runs. Uninstall it with its normal uninstaller (Windows: *Apps & features*; Linux/macOS: `bash <PREFIX>/uninstall.sh`). Run `list` with another app's Python, then reopen the hosts (Rescan apps / restart).
+**Expect:** the app is gone from `list` and from every host; the other app is still listed and runs; `~/.labconstrictor/apps` no longer holds its `.json`.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
-### U3. Install the same app twice, then remove the older one
-**Do:** (close Napari and Fiji before every uninstall below, and reopen them only when the uninstall has finished) install CellTracksColab into a folder `A` (it may already exist from S3 or U2; install it again if you removed it). Then install it **again** into a different folder `B`. Uninstall the copy in `A` only. Run `list` and run the tool in Napari.
-
-**Expect:** after uninstalling `A`, `list` still shows `CellTracksColab` and the tool still runs (the newer installation, `B`, owns the registration). After you also uninstall `B`, `CellTracksColab` disappears from `list`.
+### U3. Update an app (the install rules in practice)
+**Do:** with an older installed version (if you have one) follow rule 2 of section 2: macOS/Windows uninstall then install; Linux `-u` on a **finished** install. Then, once, do the failure case on Linux: interrupt an install (Ctrl+C during the download), then run the `-u` update.
+**Expect:** the update keeps your data (`~/.labconstrictor/results`, your own files). The `-u` after an interrupted install fails or breaks; deleting `<PREFIX>/pkgs` (or uninstalling) and installing again repairs it. (If you have no older version: N/A.)
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### U4. Installation without internet for the tools package (optional, advanced)
-**Do:** before running an installer, set an unreachable source: Linux/macOS `LC_TOOLS_SPEC=/nonexistent/x.whl bash installer.sh -b -p <new folder>`; Windows cmd.exe: `set LC_TOOLS_SPEC=C:\nonexistent\x.whl`, Windows PowerShell: `$env:LC_TOOLS_SPEC='C:\nonexistent\x.whl'`, then start the installer from the same window.
-**Afterwards, in that same window, remove the setting** (cmd.exe: `set LC_TOOLS_SPEC=`; PowerShell: `Remove-Item Env:LC_TOOLS_SPEC`), or every later installer started from it fails the same way.
-
-**Expect:** the installation still **finishes** and the app itself works; `menuinst_debug.log` contains `WARNING: tool registration failed - ...`; `list` does not show the app. (Remove that install afterwards.)
+**Do:** before running an installer set an unreachable source: Linux/macOS `LC_TOOLS_SPEC=/nonexistent/x.whl bash installer.sh -b -p <new folder>`; Windows cmd.exe `set LC_TOOLS_SPEC=C:\nonexistent\x.whl` (PowerShell `$env:LC_TOOLS_SPEC='C:\nonexistent\x.whl'`), then start the installer from the same window. **Afterwards remove the setting** (`set LC_TOOLS_SPEC=` / `Remove-Item Env:LC_TOOLS_SPEC`), or every later installer from that window fails the same way.
+**Expect:** the installation still **finishes** and the app works; `menuinst_debug.log` has `WARNING: tool registration failed - ...`; `list` does not show the app. Remove that install afterwards.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
-
-*Note:* a warning `could not remove ... from the LabConstrictor tools list; ... delete the files ...` appears at uninstall only if an entry was really left behind; if you see it, delete the two files it names and write it in the notes.
 
 ---
 
 ## 9. Operating-system specific checks
 ### Windows only
-- [ ] **W1** The installer path contains a space (for example `C:\Users\Your Name\Apps\NucleiSky`) and installation, registration (S2) and a run still work. Notes: ______
-- [ ] **W2** `menuinst_debug.log` has the registration lines described in S2 (Windows variant) and none of: `The syntax of the command is incorrect`, `was unexpected at this time`, `is not recognized`. Notes: ______
-- [ ] **W3** The registered version is correct: `list` (S2) shows `NucleiSky  (0.1.1)` and **not** `(0)` or `(no version)`. Notes: ______
+- [ ] **W1 (a refusal test)** Start an installer with a destination whose path contains a space (for example `C:\Users\Your Name\Apps\NucleiSky`, or `C:\lc test\App`). **Expect: the installer refuses.** The wizard shows the sentence **`Destination Folder contains 1 space`** (the number counts the spaces) and does not continue; nothing is written to that folder. PASS = the refusal; FAIL = the installation went ahead (write what it did). In silent mode (`/S`) only the exit code (not 0; 2 in the sandbox) and "nothing written" can be seen. Notes: ______
+- [ ] **W2** `menuinst_debug.log` has the registration lines described in S2 and none of: `The syntax of the command is incorrect`, `was unexpected at this time`, `is not recognized`. Notes: ______
+- [ ] **W3** The registered version is right: `list` shows the release version and **not** `(0)` or `(no version)`. Notes: ______
 - [ ] **W4** Antivirus / SmartScreen did not block the worker (a run starts within 30 s of pressing Run). Notes: ______
-- [ ] **W5** After closing Napari or Fiji, no `python.exe` of the app remains in Task Manager. Notes: ______
+- [ ] **W5** After closing a host, no `python.exe` of the app remains in Task Manager. Notes: ______
 ### macOS only
-- [ ] **M1** Gatekeeper/notarisation: the installer starts after the usual "downloaded from the internet" confirmation; describe any extra step needed. Notes: ______
-- [ ] **M2** Apple silicon and Intel (state which): Napari widget and Fiji both run NucleiSky with the N4 result. Notes: ______
+- [ ] **M1** Gatekeeper: the installer (`.pkg`) starts after the usual "downloaded from the internet" confirmation (System Settings, Privacy & Security, Open Anyway); describe any extra step. Notes: ______
+- [ ] **M2** Apple silicon: Napari, Fiji and QuPath each run an app of the test set. (Fiji and QuPath on macOS: not verified by a person; the QuPath release run tries them.) Notes: ______
 ### Linux only
 - [ ] **L1** Napari under Wayland or X11 (state which): the widget is usable (no Qt platform error). Notes: ______
+- [ ] **L2** Linux/macOS with a path that contains a space: run the installer into `~/lc test/app`. Not verified what happens (the Windows installer refuses): write down exactly what the installer prints and whether anything was installed. Notes: ______
 
 ---
 
 ## 10. Report back
-Send, in one message or issue titled `Test report: <OS> <your name> <date>`:
-- [ ] this document with all boxes ticked and the record sheet filled in;
-- [ ] screenshots of: N2 (the form), N4 (result), N6 (triangles message), F2 (Fiji form), F3 (overlay), and one screenshot per FAIL;
-- [ ] the support bundle zip (test E5) if anything failed. **Open it first**: the logs and run records are not scrubbed of secrets; leave out or remove anything private;
+Send, in one message or issue titled `Test report: <OS> <your name> <date> <Tools tag>`:
+- [ ] the filled **record sheet (section 0.1 and 0.2)**: without it a result cannot be tied to versions;
+- [ ] this document and the case files you used with all boxes ticked, and the D1 table;
+- [ ] screenshots: the first form of each app in each host, each result, and one per FAIL;
+- [ ] the support bundle zip (E4) if anything failed. **Open it first** and remove anything private;
+- [ ] the report of the Playground tool **Check everything** (`report.json` and the readout) if you installed the Playground;
 - [ ] a short free-text answer to: *Was anything confusing, slow, or surprising even though the test passed?*
 
-**Bug description template** (one per FAIL): Test number; what you did (exact clicks/commands); what you expected; what happened; severity; screenshot; support bundle attached (yes/no).
+**Bug description template** (one per FAIL): test number; the record-sheet versions; what you did (exact clicks/commands); what you expected; what happened; severity; screenshot; support bundle attached (yes/no).
 
 ---
 
-## Appendix A. Reference values (default NucleiSky settings, test data from `make_fixtures.py`)
-| Quantity | Value |
-|---|---|
-| rotation | 12.17° (accept 12.0 to 12.4) |
-| scale | 1.002 (accept 0.99 to 1.01) |
-| nuclei found: reference / query | 429 / 9 |
-| matcher chosen by `auto` | quad |
-| with `li` threshold and min area 80 | 425 / 9 |
-| with reference mask (and query mask) | 393 / 9 |
-| `triangles` and `graph` | "No match found ..." (this is expected on these images) |
-| time of a normal run | about 10 to 20 s (first run after installation up to 2 minutes; measured on a 4-core Linux computer: 12 s, never 2 minutes) |
-| repeat run in a kept worker (Napari) | about 2 s |
-| run in Fiji | about 12 s every time (Fiji starts a new worker for each run) |
-| installing NucleiSky / CellTracksColab (Linux, fast network) | about 6 min / 1 min |
-| Cellpose run (Napari) | 347 reference nuclei, rotation 12.17, about 3 minutes on 4 CPU cores |
-
-## Appendix B. What the author of this protocol did and did not verify
-The commands, file names, expected texts and numbers were checked on **Linux** (Ubuntu 24.04, Python 3.12 app environments, Napari 0.9, Fiji with Java 21) with the real installers and the same fixtures,
-driving Napari and Fiji from automated scripts rather than by hand. **Not verified:** any Windows or macOS step (including every Windows command here and the `.bat` installer hooks), the exact menu path of the Fiji script
-(F0), the on-screen look of a real desktop session, the Napari `Plugins` menu wording on other Napari versions, and F10 (needs a real desktop). If a step in this document is wrong or unclear, please say so; that is a documentation bug.
+## Appendix. What the author of this protocol did and did not verify
+Written on 14 Oct 2026 from the repositories (Tools `main` 535450d, the host READMEs of Napari 7ddf41f, Fiji f9277af, QuPath 9e64c6d, the app
+repositories at their `main`) and from the case files (`lc_tests/cases.json`) of the apps. **Not run by a person from this file:** every step on
+Windows and macOS; any step with a released Fiji or QuPath jar (none was published when this was written); the discovery rule (not yet in the
+code); the release numbers of the apps (planned); how the hosts show the "helper" tools of an app (for example "List the devices"). The older
+Linux checks (Ubuntu 24.04, Napari 0.9, Fiji with Java 21) were made with NucleiSky 0.1.1 and an earlier Tools; the numbers in the NucleiSky
+file are the ones of that run and of the app's own cases, and they are marked there. If a step in this document is wrong or unclear, please say so; that is a documentation bug.
