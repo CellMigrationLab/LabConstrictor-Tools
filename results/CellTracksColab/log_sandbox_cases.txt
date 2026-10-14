@@ -1,0 +1,24 @@
+CHECK 4_cases_suite PASS reports=9 problems=[] untested=[]
+CHECK 4_every_tool_has_a_case PASS tools without a case and not declared in no_case.json: [] | stale exemptions: [] | file problems: [] | declared: 0
+CHECK 4_cli_case_00_calculate_metrics_COMPLETE PASS status=COMPLETE code=None
+CHECK 4_cli_case_01_calculate_metrics_FAILED PASS status=FAILED code=missing_columns
+CHECK 4_cli_case_02_calculate_metrics_FAILED PASS status=FAILED code=missing_track_id
+CHECK 4_cli_case_03_calculate_metrics_COMPLETE PASS status=COMPLETE code=None
+CHECK 4_cli_case_04_calculate_metrics_COMPLETE PASS status=COMPLETE code=None
+CHECK 4_cli_case_05_calculate_metrics_COMPLETE PASS status=COMPLETE code=None
+CHECK 4_cli_case_06_calculate_metrics_COMPLETE PASS status=COMPLETE code=None
+CHECK 4_cli_case_07_calculate_metrics_COMPLETE PASS status=COMPLETE code=None
+CHECK 4_cli_case_08_calculate_metrics_FAILED PASS status=FAILED code=missing_columns
+VBox(children=(HTML(value='<b>Calculate Track Metrics</b><br><i>Duration, speed statistics, distance and directionality per track.</i>'), Text(value='', description='Tracks', layout=Layout(width='auto'), placeholder='path to a CSV file', style=TextStyle(description_width='initial'), tooltip='CSV with one row per spot: a track id column (default Unique_ID), POSITION_T, POSITION_X, POSITION_Y and, for 3D data, POSITION_Z. Without POSITION_Z the data is treated as 2D (Z = 0). Positions and times in the units of your file: speeds are in those position units per time unit.'), Text(value='Unique_ID', description='Track id column', layout=Layout(width='auto'), placeholder='', style=TextStyle(description_width='initial'), tooltip='Name of the column that identifies the track of each spot, e.g. TRACK_ID. Default: Unique_ID'), Button(button_style='primary', description='Run', style=ButtonStyle()), FloatProgress(value=0.0, layout=Layout(visibility='hidden', width='100%'), max=1.0), HTML(value=''), Output()))
+CHECK 4n_notebook_forms_build_for_every_tool PASS 1 of 1
+VBox(children=(HTML(value='<b>Calculate Track Metrics</b><br><i>Duration, speed statistics, distance and directionality per track.</i>'), Text(value='', description='Tracks', layout=Layout(width='auto'), placeholder='path to a CSV file', style=TextStyle(description_width='initial'), tooltip='CSV with one row per spot: a track id column (default Unique_ID), POSITION_T, POSITION_X, POSITION_Y and, for 3D data, POSITION_Z. Without POSITION_Z the data is treated as 2D (Z = 0). Positions and times in the units of your file: speeds are in those position units per time unit.'), Text(value='Unique_ID', description='Track id column', layout=Layout(width='auto'), placeholder='', style=TextStyle(description_width='initial'), tooltip='Name of the column that identifies the track of each spot, e.g. TRACK_ID. Default: Unique_ID'), Button(button_style='primary', description='Run', style=ButtonStyle()), FloatProgress(value=0.0, layout=Layout(visibility='hidden', width='100%'), max=1.0), HTML(value=''), Output()))
+[2K
+[2K
+  Unique_ID  Track Duration  ...  Total Distance Traveled  Directionality
+0         A             2.0  ...                      2.0        1.000000
+1         B             2.0  ...                     17.0        0.764706
+
+[2 rows x 9 columns]
+2 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)
+CHECK 4n_notebook_form_runs_calculate_metrics PASS [{'type': 'table', 'name': 'table', 'path': '/tmp/lcnb_6c6p_t66/table.csv'}, {'type': 'message', 'name': 'summary', 'text': '2 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'}]
+SECTION cases: 13 checks, 0 failed []

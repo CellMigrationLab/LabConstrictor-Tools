@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "experiment_dir": "/home/user/results/GuessTheCondition/home_GuessTheCondition_API_Example/tmp/guessthecondition_demo_casrt24n/Experiment",
+  "user_name": "Simulated",
+  "percentage_to_test": 50.0,
+  "seed": 1,
+  "pending": null,
+  "created": "2026-10-14T17:48:51+00:00",
+  "last_answered": "Control/R3/FOV5.tif"
+}

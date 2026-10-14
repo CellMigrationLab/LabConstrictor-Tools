@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "experiment_dir": "/home/user/results/GuessTheCondition/home_GuessTheCondition/work/lc_tests/fixtures/experiment",
+  "user_name": "Ana",
+  "percentage_to_test": 25.0,
+  "seed": 7,
+  "pending": null,
+  "created": "2026-10-14T17:48:40+00:00",
+  "last_answered": "Mutant/R2/FOV1.tif"
+}

@@ -1,0 +1,4 @@
+CHECK hosts_1_registry_entry_declares_the_hosts PASS entry hosts=['notebook'] expected=['notebook']
+CHECK hosts_2_reference_function_matches_the_matrix PASS napari, fiji and qupath as expected
+CHECK hosts_3_list_shows_the_declaration PASS hosts: notebook
+SECTION hosts: 0 failed []
