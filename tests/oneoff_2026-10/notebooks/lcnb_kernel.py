@@ -66,7 +66,7 @@ def install_audit(log_path: str, watch: list[str], ignore: list[str]) -> None:
             except Exception as problem:  # the observer records and re-raises: the notebook sees the same failure
                 log("http", method=method, url=str(url)[:200], error="%s: %s" % (type(problem).__name__, str(problem)[:150]))
                 raise
-            log("http", method=method, url=str(url)[:200], status=response.status_code)
+            log("http", method=method, url=str(url)[:200], status=response.status_code, size=str(response.headers.get("Content-Length", "unknown")))
             return response
 
         requests.sessions.Session.request = logged

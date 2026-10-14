@@ -90,6 +90,23 @@ def drain(path: Path, offset: int, matrix: Matrix, notebook: str) -> tuple[int, 
     return offset + len(complete), done
 
 
+DOWNLOAD_CAP_BYTES = int(os.environ.get("LC_NB_DOWNLOAD_CAP_MB", "300")) * 1024 * 1024
+KEEP_SUFFIXES = (".json", ".jsonl", ".txt", ".log")
+
+
+def clean_scratch(matrix: Matrix, args: argparse.Namespace, notebook: Notebook, home: Path) -> None:
+    """Record the size of what the notebook left in its scratch home (FAIL above the cap, 300 MB by default: it downloaded or wrote too much), then delete everything but
+    the small text files (disk is shared and small). The cap is checked after the run, a runaway download is bounded by the watchdog."""
+    total = sum(f.stat().st_size for f in home.rglob("*") if f.is_file())
+    status = "FAIL" if total > DOWNLOAD_CAP_BYTES else "NOTE"
+    matrix.add(check_id(args.app, notebook.name, "downloads"), status, "scratch home held %.1f MB after the run (cap %d MB); deleted afterwards, small text files kept" % (total / 1e6, DOWNLOAD_CAP_BYTES // (1024 * 1024)), notebook.name)
+    for item in sorted(home.rglob("*"), key=lambda p: len(p.parts), reverse=True):
+        if item.is_file() and not (item.suffix in KEEP_SUFFIXES and item.stat().st_size <= 1_000_000):
+            item.unlink()
+        elif item.is_dir() and not any(item.iterdir()):
+            item.rmdir()
+
+
 def run_one(args: argparse.Namespace, matrix: Matrix, notebook: Notebook) -> None:
     app, results = args.app, Path(args.results)
     prefix = Path(args.prefix)
@@ -130,6 +147,7 @@ def run_one(args: argparse.Namespace, matrix: Matrix, notebook: Notebook) -> Non
     elif process.returncode != 0 and not done:
         tail = log.read_text(encoding="utf-8", errors="replace")[-300:]
         matrix.add(check_id(app, notebook.name, "worker"), "FAIL", "the worker crashed with exit %s: %s" % (process.returncode, tail), notebook.name, seconds=seconds)
+    clean_scratch(matrix, args, notebook, home)
     leaked = processes_of(str(home / "runtime"))
     for pid in leaked:
         try:

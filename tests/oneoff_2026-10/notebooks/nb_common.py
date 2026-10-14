@@ -14,7 +14,7 @@ import yaml
 
 WELCOME = "Welcome"
 FAMILY = "nb"
-CHECKS = ("packaged", "valid", "imports", "kernel", "runs", "oracle", "sideeffects", "noleak")
+CHECKS = ("packaged", "valid", "imports", "kernel", "runs", "oracle", "sideeffects", "downloads", "noleak")
 
 
 def sanitise(text: str) -> str:

@@ -270,6 +270,8 @@ def _finish(emit: Any, run: Run, ctx: Ctx, script: ModuleType | None, document: 
     text = nb_sidefx.summarise(nb_sidefx.read_log(log_path), (created, changed, removed), home_created, str(app_dir))
     report = results / ctx.app / ("sideeffects_%s.txt" % sanitise(ctx.notebook))
     report.write_text(text + "\n", encoding="utf-8")
+    for number, event in enumerate(e for e in nb_sidefx.read_log(log_path) if e["kind"] == "http"):
+        emit.row("net_%d" % number, "NOTE", "%s %s -> %s (size %s bytes)" % (event["method"], event["url"], event.get("status", "FAILED: " + str(event.get("error"))), event.get("size", "n/a")))
     emit.row("sideeffects", "NOTE", "app folder created %d, changed %d, removed %d files; %s" % (len(created), len(changed), len(removed), text[:220]) + " (full: %s)" % report)
 
 
