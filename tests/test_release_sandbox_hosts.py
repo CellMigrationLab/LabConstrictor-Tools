@@ -38,8 +38,9 @@ class ExpectedHosts(unittest.TestCase):
             found = expected_hosts.expectation(data, name, row["repo"])
             self.assertEqual({h: found[h] for h in expected_hosts.GUI_HOSTS}, MATRIX[name], name)
             self.assertIn("notebook", row["hosts"], name)
-        self.assertEqual(data["apps"]["CellTracksColab"]["tools_module"], "optional")
-        for name in set(MATRIX) - {"CellTracksColab"}:
+        # CellTracksColab ships a bridge module but is hidden from every GUI host (hosts: [notebook]) until a use case exists:
+        # the sandbox must still run its tools through the worker, so the module is required like the others
+        for name in MATRIX:
             self.assertEqual(data["apps"][name]["tools_module"], "required", name)
 
     def test_it_agrees_with_the_reference_function_for_every_app_and_host(self) -> None:

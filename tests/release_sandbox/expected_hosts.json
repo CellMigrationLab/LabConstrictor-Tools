@@ -25,7 +25,7 @@
     "CellTracksColab": {
       "repo": "CellMigrationLab/CellTracksColab",
       "hosts": ["notebook"],
-      "tools_module": "optional"
+      "tools_module": "required"
     }
   }
 }
