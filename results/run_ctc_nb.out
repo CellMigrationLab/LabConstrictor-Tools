@@ -6,3 +6,4 @@
 == CellTracksColab / CellTracksColab_TrackMate_Plate
 == CellTracksColab / CellTracksColab_Track_Clustering
 == CellTracksColab / CellTracksColab_Viewer
+nb CellTracksColab: {'PASS': 153, 'FAIL': 59, 'NOT_RUN': 0, 'HUMAN': 23, 'NOTE': 28}
