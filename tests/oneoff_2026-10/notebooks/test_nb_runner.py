@@ -168,6 +168,13 @@ def main() -> int:
     return 1 if bad else 0
 
 
+def test_scripts_cover_every_notebook() -> None:
+    """Every notebook of the five app checkouts has a click script that imports and agrees with the notebook at its tag (check_scripts.py, run with the app interpreter)."""
+    root = os.environ.get("LC_NB_SRC_ROOT", "/home/user/apps/src")
+    done = subprocess.run([str(APP_PREFIX / "bin" / "python"), str(HERE / "check_scripts.py"), root], capture_output=True, text=True, timeout=600)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
 def test_negative_controls() -> None:
     rows = run_controls()
     wrong = [(r, w, rows.get(r, {}).get("status")) for r, w, _ in expectations() if rows.get(r, {}).get("status") != w]

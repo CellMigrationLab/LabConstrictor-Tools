@@ -33,8 +33,10 @@ def install_audit(log_path: str, watch: list[str], ignore: list[str]) -> None:
         try:
             with open(log_path, "a", encoding="utf-8") as handle:
                 handle.write(json.dumps({"t": round(time.time(), 2), "kind": kind, **fields}) + "\n")
-        except OSError:
+        except OSError as problem:
             _LOG_FAILURES += 1
+            if _LOG_FAILURES == 1:
+                print("LCNB audit log not writable (%s): side effects of this run may be incomplete" % problem, file=sys.stderr)
 
     def writing(args: tuple[Any, ...]) -> bool:
         mode, flags = str(args[1] or ""), args[2] if len(args) > 2 and isinstance(args[2], int) else 0
@@ -161,6 +163,9 @@ def click(button: Any) -> dict[str, Any]:
     LAST_OUTPUT.update(result)
     if raised:
         raise CallbackFailed("callback of %s raised: %s" % (_describe(button), " | ".join(raised[0].strip().splitlines()[-3:])))
+    printed = captured.stderr + captured.stdout
+    if "Traceback (most recent call last)" in printed:  # a handler that catches its own error and prints it (traceback.print_exc) has still failed
+        raise CallbackFailed("callback of %s printed a traceback: %s" % (_describe(button), " | ".join(printed.strip().splitlines()[-3:])))
     return result
 
 
