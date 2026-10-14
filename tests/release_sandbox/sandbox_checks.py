@@ -157,7 +157,8 @@ def cli_params(case: "dict[str, Any]", base: Path) -> list[str]:
 
 def fresh_fixtures(base: Path) -> tuple[bool, str]:
     """Regenerate the fixtures of an app that makes them (lc_tests/make_fixtures.py). The case suite and every earlier phase write into them, and a case that
-    creates a folder fails when it already exists, so each phase starts from the generated state. An app that ships its fixtures has no generator and is left as it is (said)."""
+    creates a folder fails when it already exists, so each phase starts from the generated state. An app that ships its fixtures has no generator and is left as it is (said).
+    """
     maker = base / "make_fixtures.py"
     if not maker.is_file():
         return True, "the app ships its fixtures (no make_fixtures.py): left as they are"
@@ -166,9 +167,17 @@ def fresh_fixtures(base: Path) -> tuple[bool, str]:
         shutil.rmtree(target)
     target.mkdir()
     done = subprocess.run(
-        [sys.executable, "make_fixtures.py", "fixtures"], cwd=base, capture_output=True, text=True, errors="replace", timeout=600
+        [sys.executable, "make_fixtures.py", "fixtures"],
+        cwd=base,
+        capture_output=True,
+        text=True,
+        errors="replace",
+        timeout=600,
     )
-    return done.returncode == 0, "make_fixtures.py exit %d: %s" % (done.returncode, (done.stdout + done.stderr).strip()[-200:])
+    return done.returncode == 0, "make_fixtures.py exit %d: %s" % (
+        done.returncode,
+        (done.stdout + done.stderr).strip()[-200:],
+    )
 
 
 def run_case(app: str, case: "dict[str, Any]", base: Path) -> "tuple[dict[str, Any], str]":
@@ -188,9 +197,12 @@ def completes(case: "dict[str, Any]") -> bool:
     )
 
 
-def repeatable_case(app: str, all_cases: "list[dict[str, Any]]", base: Path) -> "tuple[dict[str, Any] | None, list[str]]":
+def repeatable_case(
+    app: str, all_cases: "list[dict[str, Any]]", base: Path
+) -> "tuple[dict[str, Any] | None, list[str]]":
     """The first COMPLETE case that runs twice in a row from a fresh fixture state (retention repeats one case many times: a case that creates a folder that must
-    not exist cannot be repeated). The cases that were skipped, and why, are returned for the message when none qualifies."""
+    not exist cannot be repeated). The cases that were skipped, and why, are returned for the message when none qualifies.
+    """
     tried: list[str] = []
     for case in all_cases:
         if not completes(case):
@@ -202,7 +214,10 @@ def repeatable_case(app: str, all_cases: "list[dict[str, Any]]", base: Path) -> 
         for attempt in (1, 2):
             report, tail = run_case(app, case, base)
             if report.get("status") != "COMPLETE":
-                tried.append("%s: run %d is %s %s" % (case["tool"], attempt, report.get("status"), report.get("code") or tail[-120:]))
+                tried.append(
+                    "%s: run %d is %s %s"
+                    % (case["tool"], attempt, report.get("status"), report.get("code") or tail[-120:])
+                )
                 break
         else:
             return case, tried
@@ -315,9 +330,18 @@ def retention(a: argparse.Namespace) -> None:
         (d / "keep.txt").write_text("user data")
     case, tried = repeatable_case(a.app, load_cases(a.cases), base)
     if case is None:
-        rec("6_retention", False, "no COMPLETE case in the app's cases.json can be run twice in a row to repeat: " + "; ".join(tried))
+        rec(
+            "6_retention",
+            False,
+            "no COMPLETE case in the app's cases.json can be run twice in a row to repeat: "
+            + "; ".join(tried),
+        )
         return
-    print("NOTE 6_retention_case: %s is repeated %s times%s" % (case["tool"], a.n_runs, (" (skipped: " + "; ".join(tried) + ")") if tried else ""), flush=True)
+    print(
+        "NOTE 6_retention_case: %s is repeated %s times%s"
+        % (case["tool"], a.n_runs, (" (skipped: " + "; ".join(tried) + ")") if tried else ""),
+        flush=True,
+    )
     ok, why = fresh_fixtures(base)
     rec("6_fixtures_fresh_before_retention", ok, why)
     names = []

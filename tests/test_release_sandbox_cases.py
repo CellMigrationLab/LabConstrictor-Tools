@@ -1,5 +1,6 @@
 """sandbox_checks.py: the case phases start from regenerated fixtures (an app that creates a folder in its fixtures is not red on the second phase) and the retention step repeats
-the first case that can be run twice in a row. Sabotage: `LC_SANDBOX_DIR=<a copy of the old sandbox_checks.py>` makes the integration test fail."""
+the first case that can be run twice in a row. Sabotage: `LC_SANDBOX_DIR=<a copy of the old sandbox_checks.py>` makes the integration test fail.
+"""
 
 import contextlib
 import io
@@ -74,7 +75,11 @@ class RepeatableCase(unittest.TestCase):
         return lc
 
     def cases(self) -> list[dict[str, Any]]:
-        return [{"tool": "create_demo", "inputs": {}}, {"tool": "failing_by_design", "inputs": {}, "expect": {"status": "FAILED"}}, {"tool": "prepare", "inputs": {}}]
+        return [
+            {"tool": "create_demo", "inputs": {}},
+            {"tool": "failing_by_design", "inputs": {}, "expect": {"status": "FAILED"}},
+            {"tool": "prepare", "inputs": {}},
+        ]
 
     def test_skips_a_case_that_cannot_run_twice_and_names_it(self) -> None:
         sc.lc = self.fake({"create_demo"})
@@ -116,7 +121,17 @@ class CasesPhases(unittest.TestCase):
             (base / "make_fixtures.py").write_text(MAKER)
             (base / "fixtures" / "results").mkdir(parents=True)
             cases = base / "cases.json"
-            cases.write_text(json.dumps([{"tool": "create_demo", "inputs": {"output_folder": "fixtures/results"}, "expect": {"max_seconds": 5}}]))
+            cases.write_text(
+                json.dumps(
+                    [
+                        {
+                            "tool": "create_demo",
+                            "inputs": {"output_folder": "fixtures/results"},
+                            "expect": {"max_seconds": 5},
+                        }
+                    ]
+                )
+            )
             demo = base / "fixtures" / "results" / "demo"
 
             def lc(*args: str, timeout: float = 900) -> tuple[int, str, str]:
