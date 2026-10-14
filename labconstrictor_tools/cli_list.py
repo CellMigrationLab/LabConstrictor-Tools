@@ -15,7 +15,12 @@ def cmd_list(args: argparse.Namespace) -> int:
     entries = registry.load_entries()[0]
     if args.json:
         hosts = {name: entries[name].get("hosts") for name in schemas if name in entries}
-        print(json.dumps({"apps": schemas, "problems": problems, "hosts": hosts}, indent=2))
+        status = {name: app_hosts.declaration_status(entries[name]) for name in hosts}
+        print(
+            json.dumps(
+                {"apps": schemas, "problems": problems, "hosts": hosts, "hosts_status": status}, indent=2
+            )
+        )
         return 0
     for name, schema in sorted(schemas.items()):
         print("%s  (%s)" % (name, schema.get("version") or "no version"))

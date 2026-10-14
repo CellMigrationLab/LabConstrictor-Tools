@@ -231,6 +231,13 @@ def _main(argv: list[str] | None = None) -> int:
         except ValueError as problem:
             print("labconstrictor-tools register: %s; nothing was registered" % problem, file=sys.stderr)
             return 2
+        if hosts is None and args.app_manifest:
+            # exit 0 is kept (the installers pass the manifest of every app, with or without a hosts: line), but not silently
+            print(
+                "labconstrictor-tools register: %s has no hosts: line. %s"
+                % (args.app_manifest, app_hosts.ABSENT.format(app=args.name)),
+                file=sys.stderr,
+            )
         entry = registry.register(
             args.name,
             args.prefix,

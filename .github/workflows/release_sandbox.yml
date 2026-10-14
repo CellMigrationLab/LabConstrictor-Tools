@@ -298,6 +298,8 @@ jobs:
             "$RUNNER_TEMP/napenv/$VBIN/python" $RS/napari_check.py > napari_out.txt 2>&1
           fi
           echo "napari exit code $?"; grep -a "^CHECK\|Traceback\|Error\|NAPARI" napari_out.txt | cut -c1-300 | tee checks_napari.txt
+          # a driver that crashed (pip failure, import error) prints no CHECK line: that is a red check, never a count of 0 failed
+          grep -aq "^CHECK napari_" napari_out.txt || echo "CHECK napari_driver_printed_no_check FAIL tests/release_sandbox/napari_check.py printed no CHECK napari_ line (see the Traceback above)" | tee -a checks_napari.txt
           tail -12 napari_out.txt | cut -c1-200
           sleep 8
           if [ "$RUNNER_OS" = "Windows" ]; then
@@ -348,7 +350,10 @@ jobs:
           git clone -q --depth 1 --branch "$QUPATH_REF" https://github.com/CellMigrationLab/labconstrictor-qupath qupath_repo
           QV=0.7.0; QSHA=165e27a0731d58ba039e9d0d34a54acf896bb92e81922370df295cb85418ce53
           curl -fsSL --retry 5 -o qupath.tar.xz "https://github.com/qupath/qupath/releases/download/v$QV/QuPath-v$QV-Linux.tar.xz"
-          echo "$QSHA  qupath.tar.xz" | sha256sum -c - || exit 0
+          if ! echo "$QSHA  qupath.tar.xz" | sha256sum -c -; then
+            echo "CHECK qupath_jar_sha256 FAIL qupath.tar.xz (QuPath $QV) does not have the pinned sha256 $QSHA: the QuPath host check did not run" | tee checks_qupath_listing.txt
+            exit 0
+          fi
           mkdir qupath-dist && tar -xJf qupath.tar.xz -C qupath-dist && rm qupath.tar.xz
           export QUPATH="$PWD/qupath-dist/QuPath"
           (cd qupath_repo && ./build.sh) 2>&1 | tail -3
@@ -495,11 +500,21 @@ jobs:
           test -f "$LC_HOME/results/user_own_folder_kept/keep.txt"; ok 7j_user_results_kept_after_uninstall $?
           test -f "$H/${APP_NAME}_user_data/keep.txt"; ok 7k_user_home_data_kept_after_uninstall $?
 
+      - name: Record the host checks that were skipped by input
+        if: always()
+        env:
+          HOSTS_NAPARI: ${{ inputs.hosts_napari }}
+          HOSTS_FIJI: ${{ inputs.hosts_fiji }}
+          HOSTS_QUPATH: ${{ inputs.hosts_qupath }}
+        run: |
+          for pair in napari:"$HOSTS_NAPARI" fiji:"$HOSTS_FIJI" qupath:"$HOSTS_QUPATH"; do
+            if [ "${pair#*:}" = skip ]; then echo "NOTE ${pair%%:*} skipped by input" | tee -a checks_skipped_by_input.txt; fi
+          done
       - name: Summary of every CHECK line
         if: always()
         run: |
           cat checks_*.txt napari_out.txt 2>/dev/null | grep -a "^CHECK \|^NOTE " | sort | uniq > all_checks.txt || true
-          { echo "### ${{ matrix.os_name }}: $(grep -c ' PASS' all_checks.txt) passed, $(grep -c ' FAIL' all_checks.txt) failed"; grep -a ' FAIL' all_checks.txt | cut -c1-200 | sed 's/^/- /'; } >> "$GITHUB_STEP_SUMMARY" || true
+          { echo "### ${{ matrix.os_name }}: $(grep -c ' PASS' all_checks.txt) passed, $(grep -c ' FAIL' all_checks.txt) failed"; grep -a ' FAIL' all_checks.txt | cut -c1-200 | sed 's/^/- /'; grep -a '^NOTE .* skipped by input' all_checks.txt | sed 's/^/- /'; } >> "$GITHUB_STEP_SUMMARY" || true
       - name: Keep the evidence
         if: always()
         uses: actions/upload-artifact@v4

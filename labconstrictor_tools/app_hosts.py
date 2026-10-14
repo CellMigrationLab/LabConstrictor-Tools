@@ -37,9 +37,11 @@ EMPTY = "hosts is empty; write at least notebook"
 NOT_TEXT = "hosts must contain only text"
 UNKNOWN = "unknown host name {name!r} (known: " + ", ".join(HOSTS) + ")"
 REPEATED = "host name {name!r} appears twice"
+EMPTY_ITEM = "hosts has an empty item (a trailing or doubled comma, or a bare '-')"  # only the manifest reader and --hosts
 
-_TOP_KEY = re.compile(r"^hosts[ \t]*:(.*)$")
-_BLOCK_ITEM = re.compile(r"^[ \t]+-[ \t]*(.*)$")
+_TOP_KEY = re.compile(r"""^(?:hosts|"hosts"|'hosts')[ \t]*:(.*)$""")  # the key may be quoted (valid YAML)
+# a block item may be unindented (`hosts:` then `- fiji` at column 0 is valid YAML)
+_BLOCK_ITEM = re.compile(r"^[ \t]*-(?:[ \t]+|$)(.*)$")
 
 
 def parse_declared(value: object) -> list[str]:
@@ -77,6 +79,17 @@ def listed_for(entry: Mapping[str, Any], host: str) -> tuple[bool, str]:
     return False, NOT_LISTED.format(app=app, host=host, hosts=", ".join(declared))
 
 
+def declaration_status(entry: Mapping[str, Any]) -> str:
+    """`declared` (a valid list), `absent` (no `hosts` field: listed in every host) or `invalid` (present but not valid)."""
+    if "hosts" not in entry:
+        return "absent"
+    try:
+        parse_declared(entry["hosts"])
+    except ValueError:
+        return "invalid"
+    return "declared"
+
+
 def declaration_text(entry: Mapping[str, Any]) -> str:
     """One line for `labconstrictor-tools list`: what the entry declares, including that nothing is declared."""
     if "hosts" not in entry:
@@ -94,6 +107,13 @@ def _strip_comment(text: str) -> str:
 
 def _name(text: str) -> str:
     return _strip_comment(text).strip("'\"")
+
+
+def _without_empty_items(names: list[str]) -> list[str]:
+    """The names, or a ValueError when one is empty (`[notebook, ]`, `- ` alone): the problem is the comma, not a host name."""
+    if "" in names:
+        raise ValueError(EMPTY_ITEM)
+    return names
 
 
 def hosts_in_manifest(text: str) -> list[str] | None:
@@ -114,7 +134,7 @@ def hosts_in_manifest(text: str) -> list[str] | None:
         if not rest.endswith("]"):
             raise ValueError("the hosts list must be written on one line, like hosts: [notebook, napari]")
         inner = rest[1:-1].strip()
-        return [_name(part) for part in inner.split(",")] if inner else []
+        return _without_empty_items([_name(part) for part in inner.split(",")]) if inner else []
     if rest:
         raise ValueError(NOT_A_LIST)
     names: list[str] = []
@@ -125,7 +145,7 @@ def hosts_in_manifest(text: str) -> list[str] | None:
         if not item:
             break
         names.append(_name(item.group(1)))
-    return names
+    return _without_empty_items(names)
 
 
 def from_arguments(hosts: str | None, manifest: str | None) -> list[str] | None:
@@ -135,11 +155,11 @@ def from_arguments(hosts: str | None, manifest: str | None) -> list[str] | None:
     if hosts is not None and manifest is not None:
         raise ValueError("give --hosts or --app-manifest, not both")
     if hosts is not None:
-        return parse_declared([name.strip() for name in hosts.split(",")])
+        return parse_declared(_without_empty_items([name.strip() for name in hosts.split(",")]))
     if manifest is None:
         return None
     try:
-        declared = hosts_in_manifest(Path(manifest).read_text(encoding="utf-8"))
+        declared = hosts_in_manifest(Path(manifest).read_text(encoding="utf-8-sig"))
     except OSError as error:
         raise ValueError("cannot read %s: %s" % (manifest, error)) from error
     return None if declared is None else parse_declared(declared)

@@ -207,6 +207,12 @@ class Workflow(unittest.TestCase):
         self.assertIn('LC_EXPECT_LISTED="$EXPECT_FIJI"', self.text)
         self.assertIn('LC_EXPECT_LISTED="$EXPECT_QUPATH"', self.text)
 
+    def test_a_host_step_that_prints_no_check_is_red_and_a_skip_is_recorded(self) -> None:
+        self.assertIn("CHECK napari_driver_printed_no_check FAIL", self.text)
+        self.assertIn("CHECK qupath_jar_sha256 FAIL", self.text)
+        self.assertNotIn("sha256sum -c - || exit 0", self.text)
+        self.assertIn('echo "NOTE ${pair%%:*} skipped by input"', self.text)
+
     def test_an_app_without_tools_is_accepted_explicitly(self) -> None:
         self.assertIn("CHECK tools_module_absent_as_declared PASS", self.text)
         self.assertIn("tools_module is required", self.text)

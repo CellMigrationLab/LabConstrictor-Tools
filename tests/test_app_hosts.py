@@ -193,6 +193,47 @@ class Manifest(unittest.TestCase):
             with self.subTest(text), self.assertRaises(ValueError):
                 app_hosts.hosts_in_manifest(text)
 
+    def test_a_quoted_key_and_an_unindented_block_list_are_read(self) -> None:
+        cases = {
+            '"hosts": [qupath]\n': ["qupath"],
+            "'hosts' : [fiji, notebook]\n": ["fiji", "notebook"],
+            "hosts:\n- fiji\n- qupath\nkind: x\n": ["fiji", "qupath"],
+            "hosts:\r\n  - fiji\r\n": ["fiji"],
+            "hosts:\t[fiji]\n": ["fiji"],
+            "hosts:\n---\n": [],
+        }
+        for text, expected in cases.items():
+            with self.subTest(text):
+                self.assertEqual(app_hosts.hosts_in_manifest(text), expected)
+
+    def test_crlf_lines_and_a_comment_after_the_value_are_read(self) -> None:
+        text = "name: A\r\nhosts: [notebook, fiji]   # tested\r\nkind: utility\r\n"
+        self.assertEqual(app_hosts.hosts_in_manifest(text), ["notebook", "fiji"])
+        self.assertEqual(app_hosts.hosts_in_manifest("hosts: [notebook#x]\n"), ["notebook#x"])
+
+    def test_an_empty_item_is_named_as_such(self) -> None:
+        for text in ("hosts: [notebook, ]\n", "hosts: [,]\n", "hosts:\n  - notebook\n  -\n"):
+            with self.subTest(text), self.assertRaisesRegex(ValueError, "empty item"):
+                app_hosts.hosts_in_manifest(text)
+        with self.assertRaisesRegex(ValueError, "empty item"):
+            app_hosts.from_arguments("napari,", None)
+
+    def test_a_second_top_level_key_in_any_spelling_is_refused(self) -> None:
+        with self.assertRaisesRegex(ValueError, "twice"):
+            app_hosts.hosts_in_manifest('hosts: [napari]\n"hosts": [fiji]\n')
+
+    def test_a_file_with_a_byte_order_mark_is_read(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "labconstrictor-app.yaml"
+            path.write_bytes(b"\xef\xbb\xbfhosts: [qupath]\r\nkind: x\r\n")  # what Windows Notepad writes
+            self.assertEqual(app_hosts.from_arguments(None, str(path)), ["qupath"])
+
+    def test_the_status_of_an_entry(self) -> None:
+        self.assertEqual(app_hosts.declaration_status(entry(ALL)), "declared")
+        self.assertEqual(app_hosts.declaration_status(entry(present=False)), "absent")
+        for bad in (None, [], ["emacs"], "fiji"):
+            self.assertEqual(app_hosts.declaration_status(entry(bad)), "invalid", bad)
+
     def test_from_arguments(self) -> None:
         self.assertIsNone(app_hosts.from_arguments(None, None))
         self.assertEqual(app_hosts.from_arguments("notebook, fiji", None), ["notebook", "fiji"])
@@ -269,6 +310,27 @@ class Registration(unittest.TestCase):
         self.assertNotIn("hosts", json.loads((self.home / "apps" / "app.json").read_text(encoding="utf-8")))
         self.assertIn(app_hosts.ABSENT.format(app="app"), lines)
 
+    def test_a_manifest_without_a_hosts_line_registers_and_says_so_on_stderr(self) -> None:
+        manifest = self.home / "labconstrictor-app.yaml"
+        manifest.write_text("schema: 1\nname: x\n", encoding="utf-8")
+        code, written, error = self.register("--app-manifest", str(manifest))
+        self.assertEqual(code, 0, error)
+        assert written is not None
+        self.assertNotIn("hosts", written)
+        self.assertIn("has no hosts: line", error)
+        self.assertIn(app_hosts.ABSENT.format(app="app"), error)
+
+    def test_a_manifest_with_a_byte_order_mark_or_a_quoted_key_is_not_read_as_absent(self) -> None:
+        for raw in (b"\xef\xbb\xbfhosts: [qupath]\r\n", b'"hosts": [qupath]\n'):
+            with self.subTest(raw):
+                manifest = self.home / "labconstrictor-app.yaml"
+                manifest.write_bytes(raw)
+                code, written, error = self.register("--app-manifest", str(manifest))
+                self.assertEqual(code, 0, error)
+                assert written is not None
+                self.assertEqual(written["hosts"], ["qupath"])
+                self.assertNotIn("no hosts", error)
+
     def test_an_invalid_declaration_writes_nothing_and_exits_2(self) -> None:
         for extra in (("--hosts", "emacs"), ("--hosts", ""), ("--hosts", "fiji,fiji")):
             with self.subTest(extra):
@@ -333,6 +395,9 @@ class CommandLine(unittest.TestCase):
         self.assertIn("old  (1)\n    hosts: not declared (listed in every host)\n", text)
         listed = json.loads(cli("list", "--json", home=self.home).stdout)
         self.assertEqual(listed["hosts"], {"only_notebook": ["notebook"], "everywhere": ALL, "old": None})
+        self.assertEqual(
+            listed["hosts_status"], {"only_notebook": "declared", "everywhere": "declared", "old": "absent"}
+        )
         self.assertIn(
             "tools", listed["apps"]["only_notebook"]
         )  # an app hidden from every host is still listed here
