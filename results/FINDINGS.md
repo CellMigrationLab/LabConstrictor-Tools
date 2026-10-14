@@ -21,3 +21,4 @@ Classes: app bug, host bug, Tools bug, sandbox/runner bug, environment. Status: 
 * `6b_results_keep_newest_20` asserts that the kept results are exactly the names of THIS run's last 20 results. In a shared registry (the one-off run installs several apps and runs agents in parallel) other tool runs interleave, so `kept=20` still reports FAIL (16 CellTracksColab results + 4 Guess the Condition results).
 * Action taken in the runner: each sandbox family run registers the app into its own empty private LC_HOME (as a clean user would). Result of the rerun is in RESULTS.md.
 * Note for the Tools sandbox: the check is only valid in an exclusive registry; that is true in CI (one app per runner), so no change is proposed.
+* F-003 result: rerun of CellTracksColab 1.1.2 in a private LC_HOME: 31 PASS, 0 FAIL (registry hosts `notebook` as required, tool cases, retention 6a to 6f all pass). Confirms F-003 was the shared registry, not the app.

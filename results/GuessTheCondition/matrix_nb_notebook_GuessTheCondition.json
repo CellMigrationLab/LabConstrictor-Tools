@@ -2,8 +2,8 @@
  "host": "notebook",
  "app": "GuessTheCondition",
  "family": "nb",
- "started": "2026-10-14T17:48:28",
- "finished": "2026-10-14T17:48:59",
+ "started": "2026-10-14T18:00:27",
+ "finished": "2026-10-14T18:00:56",
  "expected": 26,
  "rows": [
   {
@@ -17,7 +17,7 @@
    "detail": "the source checkout is at the release tag 0.0.1",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:28"
+   "ts": "2026-10-14T18:00:27"
   },
   {
    "id": "nb_GuessTheCondition_notebooks_inventory",
@@ -30,7 +30,7 @@
    "detail": "3 notebooks installed, the same as construct.yaml lists: GuessTheCondition, GuessTheCondition_API_Example, Welcome",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:28"
+   "ts": "2026-10-14T18:00:27"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_packaged",
@@ -43,7 +43,7 @@
    "detail": "2 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:30"
+   "ts": "2026-10-14T18:00:29"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_valid",
@@ -56,7 +56,7 @@
    "detail": "nbformat 4.5 valid; kernelspec 'python3' resolves to /home/user/apps/GuessTheCondition/bin/python (spec dir /home/user/apps/GuessTheCondition/share/jupyter/kernels/python3); app interpreter /home/user/apps/GuessTheCondition/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:30"
+   "ts": "2026-10-14T18:00:29"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_imports",
@@ -67,9 +67,9 @@
    "control": "",
    "status": "PASS",
    "detail": "12 imports resolved in /home/user/apps/GuessTheCondition/bin/python",
-   "seconds": 0.34,
+   "seconds": 0.27,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:30"
+   "ts": "2026-10-14T18:00:30"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_kernel",
@@ -82,7 +82,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/GuessTheCondition/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:31"
+   "ts": "2026-10-14T18:00:30"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_welcome_branch",
@@ -95,7 +95,7 @@
    "detail": "GitHub answered 200: the table is shown directly",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:32"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_oracle_welcome_rows",
@@ -108,7 +108,7 @@
    "detail": "the table has a row for each of the 2 notebooks the app ships (GuessTheCondition, GuessTheCondition_API_Example)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:32"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_welcome_status",
@@ -121,7 +121,7 @@
    "detail": "status cells: ['Up-to-date', 'Up-to-date']",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:32"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_oracle_welcome_open_buttons",
@@ -134,7 +134,7 @@
    "detail": "2 open buttons for 2 notebooks",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:32"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_oracle_welcome_open_targets",
@@ -147,7 +147,7 @@
    "detail": "open buttons target ['notebooks/GuessTheCondition/GuessTheCondition.ipynb', 'notebooks/GuessTheCondition_API_Example/GuessTheCondition_API_Example.ipynb'], construct.yaml ships ['notebooks/GuessTheCondition/GuessTheCondition.ipynb', 'notebooks/GuessTheCondition_API_Example/GuessTheCondition_API_Example.ipynb']",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:32"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_welcome_update",
@@ -160,7 +160,7 @@
    "detail": "no Update button: every notebook is up to date or GitHub was not reachable",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:32"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_runs",
@@ -171,9 +171,9 @@
    "control": "",
    "status": "PASS",
    "detail": "4 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /home/user/results/GuessTheCondition/executed/Welcome.ipynb",
-   "seconds": 2.14,
+   "seconds": 2.11,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:33"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_oracle",
@@ -186,7 +186,7 @@
    "detail": "3 outcome assertions passed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:33"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_sideeffects",
@@ -199,7 +199,7 @@
    "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/GuessTheCondition/GuessTheCondition: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: DNS 127.0.0.1; HTTP get http (full: /home/user/results/GuessTheCondition/sideeffects_Welcome.txt)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:33"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_Welcome_noleak",
@@ -212,7 +212,7 @@
    "detail": "no kernel process of this notebook is left",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:33"
+   "ts": "2026-10-14T18:00:32"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_packaged",
@@ -225,7 +225,7 @@
    "detail": "11 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:36"
+   "ts": "2026-10-14T18:00:33"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_valid",
@@ -238,7 +238,7 @@
    "detail": "nbformat 4.5 valid; kernelspec 'python3' resolves to /home/user/apps/GuessTheCondition/bin/python (spec dir /home/user/apps/GuessTheCondition/share/jupyter/kernels/python3); app interpreter /home/user/apps/GuessTheCondition/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:36"
+   "ts": "2026-10-14T18:00:34"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_imports",
@@ -249,9 +249,9 @@
    "control": "",
    "status": "PASS",
    "detail": "7 imports resolved in /home/user/apps/GuessTheCondition/bin/python; optional or Colab-only unresolved: google.colab (colab): ModuleNotFoundError: No module named 'google'",
-   "seconds": 1.63,
+   "seconds": 1.3,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:38"
+   "ts": "2026-10-14T18:00:35"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_kernel",
@@ -264,7 +264,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/GuessTheCondition/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:39"
+   "ts": "2026-10-14T18:00:36"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_click_prepare_ready",
@@ -277,7 +277,7 @@
    "detail": "output: 2 conditions, 12 images | - Control: 3 repeat(s), 6 images (R1: 2, R2: 2, R3: 2) | - Mutant: 3 repeat(s), 6 images (R1: 2, R2: 2, R3: 2) |  | Conditions: 1: Control | 2: Mutant | Images to guess: 3 (0 guessed so far, 3 to go) | Your game is in: /home/user/results/GuessTheCondition/home_Gue",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:40"
+   "ts": "2026-10-14T18:00:37"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_click_prepare_counts",
@@ -290,7 +290,7 @@
    "detail": "expected 3 images to guess and conditions 1: Control | 2: Mutant",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:40"
+   "ts": "2026-10-14T18:00:37"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_click_play_first_image",
@@ -303,7 +303,7 @@
    "detail": "after Start / continue the progress label reads Image 1 of 3; choices ['Control', 'Mutant']",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:42"
+   "ts": "2026-10-14T18:00:38"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_click_play_no_choice_refused",
@@ -316,7 +316,7 @@
    "detail": "submit with no condition chosen answered 0 images (must stay 0); the notebook says: Choose a condition first.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:42"
+   "ts": "2026-10-14T18:00:38"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_click_play_answer_1",
@@ -329,7 +329,7 @@
    "detail": "after the first submit 1 guessed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:42"
+   "ts": "2026-10-14T18:00:38"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_click_play_answer_2_wrong",
@@ -342,7 +342,7 @@
    "detail": "after the second (wrong) submit 2 guessed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:42"
+   "ts": "2026-10-14T18:00:38"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_click_play_undo",
@@ -355,7 +355,7 @@
    "detail": "after Undo last guess 1 guessed (expected 1)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:42"
+   "ts": "2026-10-14T18:00:38"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_click_play_finished",
@@ -368,7 +368,7 @@
    "detail": "after the last submit 3 guessed; the notebook says: \ud83c\udf89 All 3 images to guess have been guessed. Thank you! Analyse the results, or raise the percentage to go on. |",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:42"
+   "ts": "2026-10-14T18:00:38"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_runs",
@@ -379,9 +379,9 @@
    "control": "",
    "status": "PASS",
    "detail": "8 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /home/user/results/GuessTheCondition/executed/GuessTheCondition.ipynb",
-   "seconds": 7.53,
+   "seconds": 6.66,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:45"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_oracle_game_csv_guesses",
@@ -394,7 +394,7 @@
    "detail": "3 guesses in /home/user/results/GuessTheCondition/home_GuessTheCondition/work/lc_tests/fixtures/results/Ana/game_results.csv (expected 3: 25% of 12 images, the undone guess is gone)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_oracle_game_csv_columns",
@@ -407,7 +407,7 @@
    "detail": "columns ['image_file', 'condition', 'biological_repeat', 'play_order', 'guess', 'decision_time_s', 'answered_at', 'skipped']",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_oracle_game_csv_condition_matches_folder",
@@ -420,7 +420,7 @@
    "detail": "the condition column equals the folder name of every guessed image",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_oracle_correct_is_2_of_3",
@@ -433,7 +433,7 @@
    "detail": "recomputed from the csv and the fixture folders: 2 correct of 3 (expected 2: the first and the re-answered image right, the last wrong)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_oracle_report_states_2_of_3",
@@ -446,7 +446,7 @@
    "detail": "summary.txt says: Images guessed: 3, correct: 2 (accuracy 66.7%, exact 95% interval 9.4-99.2%); chance 50.0%",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_oracle_report_pdf",
@@ -456,10 +456,10 @@
    "tool": "GuessTheCondition",
    "control": "",
    "status": "PASS",
-   "detail": "/home/user/results/GuessTheCondition/home_GuessTheCondition/work/lc_tests/fixtures/results/Ana/analysis/analysis_results.pdf: 49947",
+   "detail": "/home/user/results/GuessTheCondition/home_GuessTheCondition/work/lc_tests/fixtures/results/Ana/analysis/analysis_results.pdf: 50124",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_oracle_report_tables",
@@ -472,7 +472,7 @@
    "detail": "tables present: ['per_repeat.csv', 'per_condition.csv', 'confusion_counts.csv']",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_oracle",
@@ -485,7 +485,7 @@
    "detail": "7 outcome assertions passed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_sideeffects",
@@ -498,7 +498,7 @@
    "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/GuessTheCondition/GuessTheCondition: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: no lookups; HTTP none | subp (full: /home/user/results/GuessTheCondition/sideeffects_GuessTheCondition.txt)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:42"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_noleak",
@@ -511,7 +511,7 @@
    "detail": "no kernel process of this notebook is left",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:46"
+   "ts": "2026-10-14T18:00:43"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_packaged",
@@ -524,7 +524,7 @@
    "detail": "13 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:48"
+   "ts": "2026-10-14T18:00:45"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_valid",
@@ -537,7 +537,7 @@
    "detail": "nbformat 4.5 valid; kernelspec 'python3' resolves to /home/user/apps/GuessTheCondition/bin/python (spec dir /home/user/apps/GuessTheCondition/share/jupyter/kernels/python3); app interpreter /home/user/apps/GuessTheCondition/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:48"
+   "ts": "2026-10-14T18:00:45"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_imports",
@@ -548,9 +548,9 @@
    "control": "",
    "status": "PASS",
    "detail": "11 imports resolved in /home/user/apps/GuessTheCondition/bin/python; optional or Colab-only unresolved: google.colab (colab): ModuleNotFoundError: No module named 'google'",
-   "seconds": 1.33,
+   "seconds": 0.74,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:50"
+   "ts": "2026-10-14T18:00:46"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_kernel",
@@ -563,7 +563,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/GuessTheCondition/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:50"
+   "ts": "2026-10-14T18:00:47"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_runs",
@@ -574,9 +574,9 @@
    "control": "",
    "status": "PASS",
    "detail": "9 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /home/user/results/GuessTheCondition/executed/GuessTheCondition_API_Example.ipynb",
-   "seconds": 8.86,
+   "seconds": 9.11,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:58"
+   "ts": "2026-10-14T18:00:55"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_oracle_images_on_disk",
@@ -589,7 +589,7 @@
    "detail": "48 tif files in the synthetic experiment (expected 48)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:59"
+   "ts": "2026-10-14T18:00:55"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_oracle_guesses_24",
@@ -602,7 +602,7 @@
    "detail": "24 guesses in game_results.csv (expected 24 = 50% of 48)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:59"
+   "ts": "2026-10-14T18:00:55"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_oracle_accuracy_in_report",
@@ -615,7 +615,7 @@
    "detail": "recomputed 23/24 correct; summary.txt: Images guessed: 24, correct: 23 (accuracy 95.8%, exact 95% interval 78.9-99.9%);",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:59"
+   "ts": "2026-10-14T18:00:55"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_oracle_report_pdf",
@@ -628,7 +628,7 @@
    "detail": "analysis_results.pdf starts with %PDF",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:59"
+   "ts": "2026-10-14T18:00:55"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_oracle_reread_readout",
@@ -641,7 +641,7 @@
    "detail": "the readout of the re-read results is '\u2705' 'Distinguishable across repeats'",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:59"
+   "ts": "2026-10-14T18:00:55"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_oracle",
@@ -654,7 +654,7 @@
    "detail": "5 outcome assertions passed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:59"
+   "ts": "2026-10-14T18:00:55"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_sideeffects",
@@ -667,7 +667,7 @@
    "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/GuessTheCondition/GuessTheCondition: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: no lookups; HTTP none | subp (full: /home/user/results/GuessTheCondition/sideeffects_GuessTheCondition_API_Example.txt)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:59"
+   "ts": "2026-10-14T18:00:55"
   },
   {
    "id": "nb_GuessTheCondition_GuessTheCondition_API_Example_noleak",
@@ -680,7 +680,7 @@
    "detail": "no kernel process of this notebook is left",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-14T17:48:59"
+   "ts": "2026-10-14T18:00:56"
   }
  ]
 }
