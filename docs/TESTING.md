@@ -56,17 +56,17 @@ Run a slice: `LC_ROUNDTRIP_FILTER='echo_bounded' python -m unittest test_roundtr
 | Pull request | `ci` | `lint` (black, ruff, the annotation check, mypy, vulture), then `compat` (Tools against its newest `v*` tag, see below; skips with a printed reason when there is no tag) and 4 test jobs: ubuntu 3.10, ubuntu 3.12 (coverage floor 85), windows 3.12 (plus the Windows-specific suite), macos 3.12 |
 | Push to `main`, manual dispatch, nightly (03:17 UTC) | `ci` | `lint`, then `compat` and the full 3 OS x {3.10, 3.12} matrix, so Windows and macOS on 3.10 are still covered, at the latest the next night |
 | Nightly (02:41 UTC), manual dispatch | `nightly` | heavy round-trip profile on 3 OS, mutation testing |
-| Manual only (`smoke` also on pushes to `claude/smoke-bridge`) | `smoke`, `smoke_install`, `smoke_migration`, `release_sandbox` | end-to-end, install, template-migration and released-app smoke tests: **dispatch-only, no schedule and no pull-request trigger**, so nothing runs them unless a person starts them (a default that names a deleted branch is only found at the next run). `smoke_migration`: an old install of an app (default NucleiSky) gets the template migration, is updated, checked and uninstalled |
+| Manual only (`smoke` also on pushes to `claude/smoke-bridge`) | `smoke`, `smoke_install`, `smoke_migration`, `release_sandbox` | end-to-end, install, template-migration and released-app smoke tests: **dispatch-only, no schedule and no pull-request trigger**, so nothing runs them unless a person starts them (a default that names a deleted branch is only found at the next run). `smoke_migration`: an old install of an app (default NucleiSky) gets the template migration, is updated, checked and uninstalled. People test by hand with the [human test protocol](HUMAN_TEST_PROTOCOL.md) |
 
 **Which smoke workflows default to branch names.** These defaults move or disappear, so a result is only as reproducible as the ref you pass:
 
 | Workflow | Input | Default |
 |---|---|---|
-| `smoke_install` | `app_ref` | the branch `bridge-test` of `CellMigrationLab/CellTracksColab` |
+| `smoke_install` | `app_ref` | the branch `bridge-test` of `CellMigrationLab/CellTracksColab` (branch exists, checked 14 Oct 2026; it is the held bridge branch, not `main`, which registers no tools) |
 | `smoke_migration` | `template_ref` | `main` of `CellMigrationLab/LabConstrictor` |
-| `smoke_migration` | `app_ref` | the branch `claude/merge-bridge-test` of `CellMigrationLab/NucleiSky` |
+| `smoke_migration` | `app_ref` | the branch `claude/merge-bridge-test` of `CellMigrationLab/NucleiSky` (branch exists, checked 14 Oct 2026 in the GitHub branch list; the bridge it carried is now on NucleiSky `main`, so the branch is only a leftover: if it is deleted the default breaks and `app_ref` must be `main` or a tag; `.github/workflows/smoke_migration.yml` lines 31 and 67) |
 | `smoke_migration` | `old_template_ref` | a commit (`900d0cac...`, template 0.1.15): fixed |
-| `release_sandbox` | `napari_ref`, `fiji_ref`, `qupath_ref` | `main` of `LabConstrictor-napari`, `LabConstrictor-Fiji`, `labconstrictor-qupath`; pass a tag to pin (`fiji_ref` and `qupath_ref` go to `git clone --branch`: a branch or a tag, not a commit) |
+| `release_sandbox` | `napari_ref`, `fiji_ref`, `qupath_ref` | `main` of `LabConstrictor-napari`, `LabConstrictor-Fiji`, `labconstrictor-qupath`; pass a tag to pin `fiji_ref` and `qupath_ref` (they go to `git clone --branch`: a branch or a tag, not a commit). **`napari_ref` is put into `.../archive/refs/heads/<napari_ref>.zip` (`release_sandbox.yml` line 237), so only a branch works there; a tag would give a 404: the input text says "give a tag", this is not verified by a run** |
 | `release_sandbox` | `tools_pin`, `tag` | the tag `v0.3.0-alpha.1` of Tools, a release tag of the app: fixed |
 
 Third-party actions (not by GitHub) are pinned by full commit SHA with the version in a comment (today only `conda-incubator/setup-miniconda`); GitHub's own `actions/*` are pinned by major tag. Their pip dependencies in the sandbox are not pinned.
@@ -170,7 +170,7 @@ Windows runners, exercised, and uninstalled. Run it from Actions, "release-sandb
 | Input | Meaning |
 |---|---|
 | `app_repo`, `tag` | the released app and release under test (its `.sh` / `.exe` installers are downloaded) |
-| `old_tag` | optional older release of the **same** app: install it, make user data, update (Linux `installer.sh -u` in place; macOS and Windows uninstall, then install, as the user docs say), check, uninstall |
+| `old_tag` | optional older release of the **same** app: install it, make user data, update (Linux `installer.sh -u` in place; macOS and Windows uninstall, then install, as the user docs say), check, uninstall. The Linux `-u` works only if the previous install finished: after a failed install the update breaks (conda-standalone) until `<prefix>/pkgs` is deleted or the app is uninstalled ([INSTALL.md](INSTALL.md)) |
 | `tools_pin` | tag of labconstrictor-tools the installed app must carry (empty: not checked). With `playground_extras` the Playground check of the installed Tools uses the same pin; when empty it reads the pin from the installed app's own `post_install` line (`LC_TOOLS_SPEC`) instead of a constant |
 | `hosts_napari`, `napari_ref` | run the Napari host check on all three systems (software OpenGL on macOS and Windows); `napari_ref` is the branch or tag of the plugin (default `main`) |
 | `fiji_ref`, `qupath_ref` | branch or tag of the Fiji and QuPath repositories cloned for the host runs of `playground_extras` and `hosts_qupath` (default `main`) |
@@ -186,13 +186,27 @@ What is checked, for **any** app (the expectations come from the app, not from t
 6. update from `old_tag` keeps user data (results in `LC_HOME`, files in the home folder and, for the in-place Linux update, a file in the prefix);
 7. Windows: the installer **refuses** a destination folder whose path contains a space (the constructor default `check_path_spaces`; kept on purpose, documented). In silent mode only the exit code (2) and "nothing written" can be asserted; a UI Automation read of the wizard's text ("Destination Folder contains 1 space") is attempted and reported as a note when it works; no `cmd.exe` syntax error in `menuinst_debug.log`; the registered version is the release's, not `(0)`; no python.exe of the app is left after the Napari host (W5) or after worker processes are closed.
 
-The Napari host check (`napari_check.py`) opens the dock widget, requires the app and every tool of its schema to be listed and, for the Playground, runs
+The Napari host check (`napari_check.py`) runs in a venv with `napari[pyqt6]` (Qt6; `napari[pyqt5]` is not used: the plugin's README says PyQt5 is not tested) and the plugin from the branch `napari_ref`; it opens the dock widget, requires the app and every tool of its schema to be listed and, for the Playground, runs
 the stress scenarios (cancel, an ignored cancel is shown as "cancelled (worker stopped)", a crash, a layer that changes size during a run).
 **Software OpenGL on Windows:** Mesa llvmpipe as in the Napari CI. A venv's `python.exe` is only a launcher that starts the base interpreter, and Windows
 looks for `opengl32.dll` next to the process image: copy the Mesa DLLs next to `sys._base_executable`, not next to the venv's `python.exe`
 (otherwise Qt gets "GDI Generic" OpenGL 1.1 and napari stops with `GLError 1280 invalid enumerant`).
 
-Not covered: Fiji and QuPath on macOS and Windows (their GUI test runners need Xvfb), Intel Macs, the `.pkg` and `.msi` installers, installers into a path with a space.
+Not covered: Fiji and QuPath on macOS and Windows (their GUI test runners need Xvfb), Intel Macs, the `.pkg` and `.msi` installers, installers into a path with a space on Linux and macOS (on Windows it is tested, as a refusal: W1 above).
+
+### Which apps and hosts the sandbox covers today
+
+The discovery matrix (decided 14 Oct; the Tools rule that enforces it is being implemented on the branch `claude/app-hosts-discovery`; discovery rule: see PROTOCOL.md section <TBD by the discovery PR>) is in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix): CellTracksColab hidden from Napari, Fiji and QuPath (notebook only, tested in the sandbox as "must be hidden"); Guess the Condition, Playground and NucleiSky listed in all three; VLab4Mic listed in Napari and Fiji, not in QuPath. What the workflow can assert today (read from `release_sandbox.yml`, `tests/release_sandbox/napari_check.py` and the checks, 14 Oct 2026):
+
+| Item | Today |
+|---|---|
+| Napari listing (`hosts_napari`, default true, all three systems) | any app: the app and every tool of its schema are listed; no "not listed" assertion anywhere, so "VLab4Mic is absent from QuPath" and "CellTracksColab is hidden" cannot be asserted yet |
+| Fiji and QuPath (Linux) | only with `playground_extras`, only Playground cases (`tests/release_sandbox/fiji_cases/playground_*.json`, the QuPath body for the Playground) |
+| An app with no tools (CellTracksColab on `main`) | the workflow needs a `*_lc_tools` module and `lc_tests/cases.json` in the app: it cannot run for CellTracksColab as it is (needs the `bridge-test` branch) |
+| Per-host expectation input (listed / not listed) | does not exist |
+| Apps run so far | which app each of the five `release-sandbox` runs on `claude/release-sandbox-run` tested: not verified |
+
+Only released installers can be tested (they are downloaded from the app's release), so an app is tested after its release with the new pin, with `tools_pin=v0.3.0-alpha.1`.
 
 ## Platforms
 

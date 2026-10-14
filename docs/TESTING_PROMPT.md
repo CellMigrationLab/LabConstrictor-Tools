@@ -1,6 +1,6 @@
 # Prompt: test the LabConstrictor tools bridge from the repositories (for an AI agent)
 
-*This page is a prompt for an AI coding agent. Testing by a person on a real computer (Windows, macOS, Linux; Napari and Fiji by hand): use [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md).*
+*This page is a prompt for an AI coding agent. Testing by a person on a real computer (Windows, macOS, Linux; Napari, Fiji and QuPath by hand): use [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md).*
 
 Copy everything below the line into a fresh Claude Code session (a new container) that has access to the six repositories.
 

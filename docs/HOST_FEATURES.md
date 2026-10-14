@@ -2,6 +2,22 @@
 
 Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar), **QuPath** (JavaFX window). "plain" = shown as an ordinary field, nothing is lost.
 
+## Installing and requirements per host
+All three need an app whose Tools is **0.3.0a1 or newer**; how to install each host is on one page, [INSTALL.md](INSTALL.md).
+
+| | Napari | Fiji | QuPath |
+|---|---|---|---|
+| What you install | `pip install` of the Tools tag and the plugin tag into napari's Python 3.11+ environment; **Qt6 backend** (`napari[pyqt6]` or `napari[pyside6]`; PyQt5 is not tested) | the jar from the release into `Fiji.app/plugins/`; alternative: the script zip (script **and `lib`**) | the jar from the release (drag onto QuPath, QuPath **0.7.0**); alternative for the Script Editor: the **single** `LabConstrictorTools-all.groovy` (the repository's part files do not run there) |
+| Menu entry | Plugins > LabConstrictor tools | Plugins > LabConstrictor > LabConstrictor Tools... (jar) / ... Tools (script) | Extensions > LabConstrictor tools... |
+| Tested by | CI on Linux, Windows, macOS with PySide6 and PyQt6 | GUI cases on Linux in CI; Windows and macOS (arm64) only best effort in the release run | GUI cases on Linux in CI; Windows and macOS (arm64) informative in the release run |
+| Releases | no tag or release when this was written | no release when this was written (the workflow publishes jar, script zip and `SHA256SUMS` when the maintainer publishes one) | no release when this was written (jar, single script and `SHA256SUMS`) |
+
+**Fiji limits (known, stated in the Fiji README):** a pixel-size field linked to an image follows that image's calibration by itself and there is **no "use the image's calibration" button**; typing the value the box already shows cannot be detected in a SciJava dialog (conformance case CAL-T9), so that field is cleared and the run blocked with a message, never a wrong value sent; `EnabledWhen` is ignored; `Collapsed` is a plain heading; no kept worker (a new worker for each run); the Macro Recorder does not record the plugin (a hand-typed macro line works, jar only).
+
+## Which apps a host offers
+Each host reads the registry. Which app each host *must* offer is the discovery rule (decided 14 Oct 2026; implemented in Tools by a pull request on the branch `claude/app-hosts-discovery`): **CellTracksColab** is hidden from Napari, Fiji and QuPath (notebook only); **NucleiSky, Guess the Condition and Playground** are offered by all three; **VLab4Mic** is offered by Napari and Fiji and **not** by QuPath. discovery rule: see PROTOCOL.md section <TBD by the discovery PR>. Until that rule is in a Tools tag a host offers every registered app that passes its compatibility check (not verified for each host). A host also leaves out, with a sentence in its Log, an app whose Tools is too old. The test steps are in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#6-discovery-who-shows-which-app).
+
+
 | Feature | Napari | Fiji | QuPath |
 |---|---|---|---|
 | Plain parameters, bounds, units, tooltips | yes | yes | yes |
@@ -11,7 +27,7 @@ Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar)
 | `Widget("slider")` / `Widget("radio")` | `FloatSlider`, `Slider`, radio buttons | slider and radio styles | slider beside the box, radio buttons |
 | `Copy as command` (host feature, no manifest change) | button with a menu: terminal line or Python snippet | the Log after each run; menu entry "Copy last run as command" | menu button: terminal line or Python snippet |
 | `EnabledWhen` | greys out | ignored: every field stays editable | greys out |
-| `PixelSizeOf` | prefilled from the layer's scale and length unit; a bare scale with pixel units is *not calibrated* (blank, run blocked) | prefilled from the calibration; uncalibrated: blank, run blocked | prefilled from the image; uncalibrated: blank, run blocked |
+| `PixelSizeOf` | prefilled from the layer's scale and length unit; a bare scale with pixel units is *not calibrated* (blank, run blocked) | prefilled from the calibration; uncalibrated: blank, run blocked; no "use the image's calibration" button, and typing the value the box shows clears it (CAL-T9, see above) | prefilled from the image; uncalibrated: blank, run blocked |
 | `ChoicesFrom` (dropdown) | yes, updates when its inputs change | yes, from the previous run's values; text field the first time | yes, updates when its inputs change |
 | `ClearAfterRun` | yes | not needed (a fresh dialog every run) | yes |
 | `Replace` | updates the layer or dock in place | closes the previous window, overlay or ROIs | reuses the results window, replaces the annotation |
