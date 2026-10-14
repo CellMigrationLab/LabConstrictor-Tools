@@ -16,7 +16,7 @@ needs a row in the same PR that adds it to the matrix.
 |---|---|---|---|---|---|
 | LabConstrictorPlayground, NucleiSky, GuessTheCondition | notebook, napari, fiji, qupath | listed | listed | listed | required |
 | VLab4Mic | notebook, napari, fiji | listed | listed | **not listed** | required |
-| CellTracksColab | notebook | **not listed** | **not listed** | **not listed** | optional |
+| CellTracksColab | notebook | **not listed** | **not listed** | **not listed** | required (ships the bridge module, hidden from the hosts) |
 
 `tests/test_release_sandbox_hosts.py` keeps this file equal to the matrix, to the reference function and to the vectors of
 `conformance.json`.
@@ -56,10 +56,9 @@ An exemption must be backed by a run: the step "(4) Tools declared without a cas
 | `fiji_*`, `qupath_*` | the host drivers below | see the contract |
 | `tools_module_absent_as_declared` | workflow | the app has no `*_lc_tools` module and its row says `optional`: stated, and the tool, cases and retention checks do not run (`HAS_TOOLS=false`); `1b_app_without_tools_registered_nothing` and `hosts_1_app_without_tools_registers_nothing` then assert that nothing was registered |
 
-An app without a tools module whose row says `required` stops the run. CellTracksColab is "no tools: hidden everywhere, notebook
-run only": if its installer registers a module, the registry entry must say `hosts: [notebook]` (hidden in all three hosts) and
-the command-line cases still run, because `run` is never filtered; if it registers nothing, the sandbox checks that nothing is
-listed anywhere.
+An app without a tools module whose row says `required` stops the run. CellTracksColab ships a bridge module (`celltracks_lc_tools`) but is
+hidden from every GUI host until a use case exists: its registry entry must say `hosts: [notebook]` (not listed in Napari, Fiji, QuPath), and
+the registration, list, doctor and command-line case checks still run, because `run` is never filtered by hosts.
 
 ## Driver contract for the host repositories (Fiji and QuPath have their drivers on `main`; Napari is `napari_check.py`)
 The workflow clones the host repository at `fiji_ref` / `qupath_ref` (Linux, Xvfb), installs the Tools tag `tools_pin`, and runs a
