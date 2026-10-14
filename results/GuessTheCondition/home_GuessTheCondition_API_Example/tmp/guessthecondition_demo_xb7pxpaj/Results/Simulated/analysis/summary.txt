@@ -1,0 +1,18 @@
+✅ Distinguishable across repeats
+Significant across repeats: accuracy minus chance, mean 46 points (95% interval 28 to 64), n = 3 repeats, p = 0.004. 3 of 3 repeats were above chance.
+
+Images guessed: 24, correct: 23 (accuracy 95.8%, exact 95% interval 78.9-99.9%); chance 50.0% (always naming the most common condition of the experiment).
+Exploratory, the images you saw (randomization test, true conditions shuffled within each repeat, 10000 times): p < 0.001. It counts every image as independent, so it does not say whether the effect repeats; with 3 or more repeats the test across repeats above is the one to read.
+
+By biological repeat (n = 3 compared with chance):
+- R1: 8/8 correct, 100.0% (chance 50.0%)
+- R2: 8/8 correct, 100.0% (chance 50.0%)
+- R3: 7/8 correct, 87.5% (chance 50.0%)
+Exploratory: do the repeats differ in accuracy? permutation p = 1.000.
+
+By condition (pooled over repeats):
+- Control: 11/12 recognised, 91.7% (95% interval 61.5-99.8%)
+- Mutant: 12/12 recognised, 100.0% (95% interval 73.5-100.0%)
+
+Most frequent confusions:
+- Control guessed as Mutant: 1 time(s), 8.3% of its images

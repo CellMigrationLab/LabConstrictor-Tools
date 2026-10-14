@@ -32,3 +32,25 @@ Classes: app bug, host bug, Tools bug, sandbox/runner bug, environment. Status: 
 | GuessTheCondition 0.0.1 | RED | RED | RED | 9 min (fails early) |
 * GuessTheCondition is red on all three systems for exactly F-001/F-002 (`4_cli_case_00_create_demo_experiment_COMPLETE FAIL already_exists`, `6_runs_complete FAIL`), reproduced independently here and in CI: it is the sandbox design, not the app.
 * What green means: the checks the sandbox has pass. It does not cover the host windows (Fiji and QuPath are only checked for listing), notebooks, or the scientific result of a tool beyond the app's own authored cases.
+
+## Candidate host bugs from the Napari UI audit (agent-reported, reproduced by the agent, NOT yet verified by the parent; class: Napari host)
+* **H-N1 Run button stays enabled while a tool runs.** The plugin sets `call_button.enabled = False`, but magicgui's `_disable_button_and_call` sets `enabled = True` in its `finally` right after the click handler returns (`_function_gui.py` lines 230-237), so a second click is silently ignored instead of being blocked. Repro: click Run on any tool and read `gui.call_button.enabled` immediately. The audit reports `ui_napari_panel_run FAIL` for this on Guess the Condition.
+* **H-N2 Channel chooser stays empty for an RGB layer.** In the interactions example tool "Mean of a channel": add `viewer.add_image(zeros((8,8,3),uint8), rgb=True)` and pick it; the Channel box stays `['']`, while `w._refresh_channels("image")` called by hand lists Red/Green/Blue. HOST_PARITY C14 says an RGB layer's colours are offered; existing tests cover only RGB files.
+* **H-N3 Stale group headings.** `_group_heading` is never cleared when a form is replaced (`_widget.py` lines 685-686), so headings of earlier forms persist.
+* **H-N4 (not claimed)** a stale ChoicesFrom callback once raised "'FunctionGui' object has no attribute 'random_seed'" in a Qt slot in an audit variant; not reproduced by hand.
+* Environment: the app's source tree under /home/user/apps/src had dirty fixtures from earlier runs by other processes (explains why the first sandbox runs hit `already_exists` there; F-001 stands because the private-copy runs fail the same way).
+
+## F-001 and F-002: fix proposed and proven (owner chose "fix the sandbox in Tools"; PR opened for review, not merged)
+* Branch claude/sandbox-idempotent-cases (0ff654f): fresh fixtures between the case phases; retention repeats the first case that runs twice.
+* Real run on Guess the Condition 0.0.1 with the change: 46 PASS, 0 FAIL, 0 NOT_RUN (before: 37 PASS, 2 FAIL, 5 NOT_RUN). Negative control: the integration test fails against the old code.
+
+## Synthetic datasets with ground truth (branch claude/oneoff-synthetic, 174 MB, deterministic): proofs and candidate app bugs
+Proof state: Guess the Condition (installed app, real worker): all 109 synthetic cases match their `expect`, ground-truth check 146 PASS, 0 FAIL, 0 NOT_RUN. Playground and CellTracksColab were run from SOURCE (not the installed apps; CellTracksColab with matplotlib/ipywidgets stubbed): 162 PASS / 3 FAIL and 51 PASS / 2 FAIL. NucleiSky and VLab4Mic: generators validated only; tool runs pending the installs. Negative controls: 9 right results pass, 25 deliberately wrong results fail. Truth was fixed before each run and never adjusted to match a result (two corrections of the generator are documented in its report).
+Candidate app bugs (agent-reported; to be re-run on the INSTALLED apps before they are called confirmed):
+* **A-PG1 (Playground, silent wrong result)** `count_above_level` on a float image with one NaN pixel, percentile mode: COMPLETE with `pixels: 0, level_used: None`.
+* **A-PG2 (Playground, silent wrong result)** `bright_area` on a rectangle with one NaN pixel: COMPLETE with `area_um2: 0.0` (truth 150 or a refusal).
+* **A-PG3 (Playground, doc mismatch)** `make_test_data` three_channels: docstring says channel means 10, 20, 30; the file has 42.7, 20, 30 (channel 0 includes the nuclei).
+* **A-CT1 (CellTracksColab, no validation)** `calculate_metrics` with one infinite coordinate: COMPLETE with infinite speeds and distance.
+* **A-CT2 (CellTracksColab, product decision)** two spots at the same time: COMPLETE with Max Speed 1e10 (dt=0 replaced by 1e-10).
+* Decision item: a raw TrackMate export with its 3 descriptive rows below the header is refused (`missing_track_id`); the notebook loader drops those rows.
+* The sandbox demo case artifact (F-001) also appears in the app's own cases.json when run twice: covered by Tools#138.

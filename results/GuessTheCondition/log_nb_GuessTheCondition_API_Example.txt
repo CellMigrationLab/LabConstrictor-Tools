@@ -1,8 +1,1 @@
-Traceback (most recent call last):
-  File "/home/user/wt_notebooks/tests/oneoff_2026-10/notebooks/nb_worker.py", line 27, in <module>
-    import nb_kernel_run  # noqa: E402
-    ^^^^^^^^^^^^^^^^^^^^
-  File "/home/user/wt_notebooks/tests/oneoff_2026-10/notebooks/nb_kernel_run.py", line 163
-    emit.row("net_%d" % number, "NOTE", "%s %s -> %s (size %s bytes)" % (event["method"], event["url"], event.get("status", "FAILED: " + str(event.get("error"))), event.get("size", "n/a")))
-    ^^^^
-IndentationError: expected an indented block after 'for' statement on line 162
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.

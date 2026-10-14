@@ -1,0 +1,9 @@
+NOTE 6_retention_case: prepare_game is repeated 60 times (skipped: create_demo_experiment: run 2 is FAILED already_exists)
+CHECK 6_fixtures_fresh_before_retention PASS make_fixtures.py exit 0: wrote the experiment (12 images) and an empty results folder to fixtures
+CHECK 6_runs_complete PASS 60 runs of prepare_game
+CHECK 6a_markers_present PASS folders=20
+CHECK 6b_results_keep_newest_20 PASS kept=20
+CHECK 6d_prune_dry_run_json PASS results keep=20 kept=20 deleted=0 | runs keep=50 kept=50 deleted=0
+CHECK 6e_foreign_folders_left_alone PASS 
+CHECK 6f_run_records_keep_50 PASS run record folders=50 after 60 runs
+SECTION retention: 7 checks, 0 failed []
