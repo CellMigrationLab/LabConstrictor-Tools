@@ -139,9 +139,9 @@ Nothing in `<...>` is a variable your terminal understands: type the real folder
 ---
 
 ## 3. Which host shows which app (the discovery matrix)
-This is the **decided rule**; it is the binding rule in Tools (feature `app_hosts_v1`, Tools PR #133, merged); hosts honour it once their PRs merge (Napari #61, Fiji #47,
-QuPath #35: open) and installers pass it from template 0.1.18 (template PR #33, not merged). Check the Tools tag, the host versions and the installer of your test set.
-Without them every host lists every registered app that passes its compatibility check ([REPOSITORIES.md](REPOSITORIES.md)); the tests D1 to D3 are written for the rule.
+This is the **decided rule**; it is the binding rule in Tools (feature `app_hosts_v1`, Tools PR #133, merged); the three hosts honour it (merged: Napari #61, Fiji #47,
+QuPath #35; no host has a tag yet) and installers pass it from template 0.1.18 (template PR #33, not merged). Check the Tools tag, the host versions and the installer of your test set.
+An app installed by an older installer has no declaration and every host lists it, logging the 'declares no hosts' sentence ([REPOSITORIES.md](REPOSITORIES.md)); the tests D1 to D3 are written for the rule.
 discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)"
 
 | App | Napari | Fiji | QuPath | Notebook (the app's own window) |
@@ -275,13 +275,13 @@ A mismatch is a **Major** FAIL (an app that must be hidden is shown, or one that
 
 ### D2. VLab4Mic is not offered in QuPath
 **Do:** install VLab4Mic. Open QuPath's app chooser. Press **Rescan apps**.
-**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. This holds only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet): not verified until the apps are re-installed with an installer that passes the hosts. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
+**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. The hosts honour the rule; what is still future is the declaration: it exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so this is not verified until the apps are re-installed with an installer that passes the hosts. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### D3. CellTracksColab is offered nowhere
 **Do:** install CellTracksColab next to another app. Look at all three hosts (Rescan apps / restart Fiji).
-**Expect:** not in any list, no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. This holds only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet): not verified until the apps are re-installed with an installer that passes the hosts.
+**Expect:** not in any list, no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule; the declaration exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so this is not verified until the apps are re-installed with an installer that passes the hosts; before that the app is listed in every host.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -398,7 +398,6 @@ Send, in one message or issue titled `Test report: <OS> <your name> <date> <Tool
 ## Appendix. What the author of this protocol did and did not verify
 Written on 14 Oct 2026 from the repositories (Tools `main` 535450d, the host READMEs of Napari 7ddf41f, Fiji f9277af, QuPath 9e64c6d, the app
 repositories at their `main`) and from the case files (`lc_tests/cases.json`) of the apps. **Not run by a person from this file:** every step on
-Windows and macOS; any step with a released Fiji or QuPath jar (none was published when this was written); the discovery rule (not yet in the
-code); the release numbers of the apps (planned); how the hosts show the "helper" tools of an app (for example "List the devices"). The older
+Windows and macOS; any step with a released Fiji or QuPath jar (none was published when this was written); the discovery rule (in Tools and in the three hosts since 14 Oct; no installer passes the declaration yet); the release numbers of the apps (planned); how the hosts show the "helper" tools of an app (for example "List the devices"). The older
 Linux checks (Ubuntu 24.04, Napari 0.9, Fiji with Java 21) were made with NucleiSky 0.1.1 and an earlier Tools; the numbers in the NucleiSky
 file are the ones of that run and of the app's own cases, and they are marked there. If a step in this document is wrong or unclear, please say so; that is a documentation bug.

@@ -137,6 +137,10 @@ runs them again and **fails when one starts to pass**, so the fix PR must delete
 `<transport>:<case id>`, `property:<name>`, `hint:<id>`, `failure:<tool>`, `lifecycle:<name>`, `test:<module.Class.method>`,
 `winquote:<label>`, `winproc:<label>` (the real Windows process start). A finding can be limited to a Python version (`min_python`) or machine type (`machines`): F20 only on ARM.
 
+## Known CI flake
+
+Napari Windows PySide6 test jobs crashed intermittently (about 6% of jobs) after printing `FAILURES: none`, when the test process called `os._exit` with the viewer still open; root cause found by experiment on 14 Oct (closing the viewer first: 0 of 90 crashes; control 6 of 60); the permanent fix is Napari PR #62 (updated, not merged yet): until it merges a rerun passes and product assertions are true.
+
 ## The ledger
 
 `docs/REGRESSION_LEDGER.md` has one row per bug (date, symptom, root cause, fix PR, guarding test). A bug found in the field becomes
@@ -204,11 +208,11 @@ The discovery matrix (decided 14 Oct; binding rule in Tools, feature `app_hosts_
 | Expectation per app | `expected_hosts.json` (one row per app: `hosts`, `repo`, `tools_module`); the `expected_hosts` input overrides it; an app with neither stops the run |
 | Registry and Tools (`hosts_check.py`) | the entry the installer wrote declares the expected `hosts` (red for an installer that passes none), `listed_for` gives the expected answer for each host, `list` shows the declaration |
 | Napari listing (`hosts_napari`, `auto`, all three systems) | any app: "lists the app" (with every tool of its schema) or "does not list the app" (a "not listed" assertion) plus the skip sentence in the Tools log |
-| Fiji and QuPath listing (`hosts_fiji`, `hosts_qupath`, Linux) | any app, through a driver in the host repository (Fiji `tests/sandbox_listing.py`, QuPath `tests/gui_test_listing_body.groovy`); until a host repository has its driver the workflow prints `CHECK fiji_listing_driver_present FAIL` / `CHECK qupath_listing_body_present FAIL`. Their tool cases still need `playground_extras` and only exist for the Playground |
+| Fiji and QuPath listing (`hosts_fiji`, `hosts_qupath`, Linux) | any app, through a driver in the host repository (Fiji `tests/sandbox_listing.py`, QuPath `tests/gui_test_listing_body.groovy`; both are on the `main` of their repository); for a `fiji_ref` / `qupath_ref` that lacks its driver the workflow prints `CHECK fiji_listing_driver_present FAIL` / `CHECK qupath_listing_body_present FAIL`. Their tool cases still need `playground_extras` and only exist for the Playground |
 | An app with no tools (CellTracksColab, tools module `optional`) | stated (`tools_module_absent_as_declared`); the tool, case and retention checks do not run; the sandbox asserts that nothing is registered or, if the installer registers a module, that its `hosts` is `[notebook]`; an app whose row says `required` and has no module stops the run |
 | Apps run so far | which app each of the five `release-sandbox` runs on `claude/release-sandbox-run` tested: not verified |
 
-Whether a host passes depends on its own pull request (Napari #61, Fiji #47, QuPath #35: open, not merged) and on the installer passing `hosts` (template 0.1.18, template PR #33: not merged); until then the matching checks are expected to fail.
+The three hosts honour the rule (Napari #61, Fiji #47, QuPath #35: merged; no host has a tag, so the default `main` of each is the ref to use). What still fails is the registry check: it needs an installer that passes `hosts` (template 0.1.18, template PR #33: not merged, it waits for the Tools tag `v0.3.0-alpha.1`), so `hosts_1_registry_entry_declares_the_hosts` is red for every app released before that and the hosts list such an app everywhere.
 
 Only released installers can be tested (they are downloaded from the app's release), so an app is tested after its release with the new pin, with `tools_pin=v0.3.0-alpha.1`.
 

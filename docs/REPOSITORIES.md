@@ -18,12 +18,12 @@ Two other kinds of repository have different jobs:
 | Application | Repository | Tools registered for hosts | Tag of the next release (planned) |
 |---|---|---|---|
 | NucleiSky | [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) | 2 (List the devices, Relocalize 2D) | 0.1.4 (latest 0.1.3) |
-| Guess the Condition | [GuessTheCondition](https://github.com/CellMigrationLab/GuessTheCondition) | 6 (five game actions and one helper) | 0.0.1 (latest 0.0.0) |
+| Guess the Condition | [GuessTheCondition](https://github.com/CellMigrationLab/GuessTheCondition) | 6 (five game actions and one helper) | 0.0.1, proposed (latest 0.0.0) |
 | Playground | the Playground row above | 17 | 0.0.4 (latest 0.0.3) |
-| VLab4Mic | [LabConstrictor-VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) | 2 (Simulate imaging of a virtual sample, Compare an image with a reference) | 0.1.6 (latest 0.1.5) |
+| VLab4Mic | [LabConstrictor-VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) | 2 (Simulate imaging of a virtual sample, Compare an image with a reference) | 0.1.6, proposed (latest 0.1.5) |
 | CellTracksColab | [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab) (its desktop app is released from this repository; the repository name `CellTracksColab_LabConstrictor` that this page and the README used to link was not reachable from here: not verified that it exists) | none on `main` (a bridge exists on the held branch `bridge-test`) | 1.1.2, held until the bridge decision (latest 1.1.1) |
 
-Tool counts and latest releases are as of 14 Oct 2026 (the code of each repository's `main`, the GitHub release lists); "planned" numbers are the next free ones after the pin pull requests ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)).
+Tool counts and latest releases are as of 14 Oct 2026 (the code of each repository's `main`, the GitHub release lists); "planned" numbers are the next free ones after the pin pull requests (NucleiSky 0.1.4 and Playground 0.0.4 are stated by the maintainer; VLab4Mic 0.1.6 and Guess the Condition 0.0.1 are proposed and to be confirmed; [OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)).
 
 ## What is shared
 
@@ -31,7 +31,7 @@ The toolkit defines the [schema and worker protocol](PROTOCOL.md). Hosts read ca
 
 Hosts do **not** need to install the application's scientific dependencies. The application does **not** need to import Napari, Fiji or QuPath.
 
-**Which host shows which app is a rule, not a side effect of registration.** An application with a valid registered manifest is discoverable by every host its `hosts:` line names; no other host lists it ([PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app)). Decided 14 Oct 2026; the rule is in Tools (feature `app_hosts_v1`, Tools PR #133, merged). The hosts honour it once their pull requests merge (Napari #61, Fiji #47, QuPath #35: open, not merged); until then a host lists every registered app that passes its compatibility check. The practical value of a particular tool still depends on the host's workflow and on whether its inputs and outputs are relevant there.
+**Which host shows which app is a rule, not a side effect of registration.** An application with a valid registered manifest is discoverable by every host its `hosts:` line names; no other host lists it ([PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app)). Decided 14 Oct 2026; the rule is in Tools (feature `app_hosts_v1`, Tools PR #133, merged). The three hosts honour it (merged: Napari #61, Fiji #47, QuPath #35); an app with no declaration (installed before template 0.1.18 reaches the apps) is listed in every host, with the 'declares no hosts' sentence in the Tools log. The practical value of a particular tool still depends on the host's workflow and on whether its inputs and outputs are relevant there.
 
 | App | Napari | Fiji | QuPath | Notebook |
 |---|---|---|---|---|
@@ -41,7 +41,7 @@ Hosts do **not** need to install the application's scientific dependencies. The 
 
 discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)"
 
-The `hosts:` line of an app's `labconstrictor-app.yaml` (App-Centre metadata, schema `.tools/schema/labconstrictor-app.schema.json` of the template) is the binding rule in Tools (PROTOCOL.md, section "App hosts (which host lists an app)"); hosts honour it once their PRs merge; installers pass it from template 0.1.18 (`--app-manifest` or `--hosts`; template PR #33, not merged).
+The `hosts:` line of an app's `labconstrictor-app.yaml` (App-Centre metadata, schema `.tools/schema/labconstrictor-app.schema.json` of the template) is the binding rule in Tools (PROTOCOL.md, section "App hosts (which host lists an app)"); the three hosts honour it (merged); installers pass it from template 0.1.18 (`--app-manifest` or `--hosts`; template PR #33, not merged: it waits for the Tools tag `v0.3.0-alpha.1`).
 
 This is a shared contract, **not a promise that every host implements every presentation hint**. For example, an image selection, a dynamic dropdown or an output table may be handled differently by each host. Consult the relevant host README for current behavior and limits.
 
