@@ -4,7 +4,7 @@
 
 LabConstrictor Tools turns declared Python functions into a tool manifest: a machine-readable description of inputs, outputs and interface hints. Each host reads that description to build a form and handle results. The analysis runs in the application's own Python environment.
 
-**The bridge is application-independent.** An application with valid, registered tool declarations can be discovered by the hosts without a dedicated plugin for that application. Whether its tools are useful in Fiji, Napari or QuPath depends on the work being done there, not on a list of approved applications. Which hosts list an app is the binding `hosts:` line of the app (rule in Tools: PROTOCOL.md, section "App hosts (which host lists an app)"; hosts honour it once their PRs merge, installers pass it from template 0.1.18).
+**The bridge is application-independent.** An application with valid, registered tool declarations can be discovered by the hosts without a dedicated plugin for that application. Whether its tools are useful in Fiji, Napari or QuPath depends on the work being done there, not on a list of approved applications. Which hosts list an app is the binding `hosts:` line of the app (rule in Tools: PROTOCOL.md, section "App hosts (which host lists an app)"; the three hosts honour it; installers pass it from template 0.1.18, which is not released yet, so an app installed before that has no declaration and is listed in every host).
 
 This repository provides the declaration API, schema, registry, worker, CLI and tests. The graphical hosts are separate repositories.
 

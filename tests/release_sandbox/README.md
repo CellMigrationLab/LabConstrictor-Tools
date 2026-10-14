@@ -44,7 +44,7 @@ run only": if its installer registers a module, the registry entry must say `hos
 the command-line cases still run, because `run` is never filtered; if it registers nothing, the sandbox checks that nothing is
 listed anywhere.
 
-## Driver contract for the host repositories (to be filled by the Fiji and QuPath work; Napari is `napari_check.py`)
+## Driver contract for the host repositories (Fiji and QuPath have their drivers on `main`; Napari is `napari_check.py`)
 The workflow clones the host repository at `fiji_ref` / `qupath_ref` (Linux, Xvfb), installs the Tools tag `tools_pin`, and runs a
 driver with these environment variables, in a registry (`LC_HOME`) that holds the installed app:
 
@@ -64,5 +64,5 @@ The driver prints exactly one line per run and exits non-zero on FAIL:
 * `CHECK fiji_lists_the_app PASS|FAIL <detail>` (Fiji) / `CHECK qupath_lists_the_app ...` (QuPath) when `LC_EXPECT_LISTED=listed`: the app is offered with every tool of its schema.
 * `CHECK fiji_does_not_list_the_app ...` / `CHECK qupath_does_not_list_the_app ...` when `not_listed`: the app is NOT offered, and for a registered app the skip sentence is in the Tools log; for an app with no registry entry the driver prints `NOTE <host>_no_registry_entry` as well.
 
-Until a host repository has its driver the workflow prints `CHECK fiji_listing_driver_present FAIL` / `CHECK qupath_listing_body_present FAIL`
+For a ref of a host repository that lacks its driver the workflow prints `CHECK fiji_listing_driver_present FAIL` / `CHECK qupath_listing_body_present FAIL`
 (never a silent skip). The Playground's own Fiji cases (`fiji_cases/`) and QuPath bodies still run with `playground_extras`.
