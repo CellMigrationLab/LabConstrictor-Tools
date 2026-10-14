@@ -15,15 +15,15 @@ Two other kinds of repository have different jobs:
 - [LabConstrictor](https://github.com/CellMigrationLab/LabConstrictor) is the **notebook-to-desktop-application packaging template**, not another graphical host for the tools.
 - Scientific applications own their analysis code and tool declarations. LabConstrictor installers register the applications' tool modules automatically when they are packaged; the toolkit also supports manual registration. The applications of the first human-test round:
 
-| Application | Repository | Tools registered for hosts | Tag of the next release (planned) |
+| Application | Repository | Tools registered for hosts | Tag of the next release (decided) |
 |---|---|---|---|
 | NucleiSky | [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) | 2 (List the devices, Relocalize 2D) | 0.1.4 (latest 0.1.3) |
-| Guess the Condition | [GuessTheCondition](https://github.com/CellMigrationLab/GuessTheCondition) | 6 (five game actions and one helper) | 0.0.1, proposed (latest 0.0.0) |
+| Guess the Condition | [GuessTheCondition](https://github.com/CellMigrationLab/GuessTheCondition) | 6 (five game actions and one helper) | 0.0.1, decided (latest 0.0.0) |
 | Playground | the Playground row above | 17 | 0.0.4 (latest 0.0.3) |
-| VLab4Mic | [LabConstrictor-VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) | 2 (Simulate imaging of a virtual sample, Compare an image with a reference) | 0.1.6, proposed (latest 0.1.5) |
+| VLab4Mic | [LabConstrictor-VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) | 2 (Simulate imaging of a virtual sample, Compare an image with a reference) | 0.1.6, decided (latest 0.1.5) |
 | CellTracksColab | [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab) (its desktop app is released from this repository; the repository name `CellTracksColab_LabConstrictor` that this page and the README used to link was not reachable from here: not verified that it exists) | none on `main` (a bridge exists on the held branch `bridge-test`) | 1.1.2, held until the bridge decision (latest 1.1.1) |
 
-Tool counts and latest releases are as of 14 Oct 2026 (the code of each repository's `main`, the GitHub release lists); "planned" numbers are the next free ones after the pin pull requests (NucleiSky 0.1.4 and Playground 0.0.4 are stated by the maintainer; VLab4Mic 0.1.6 and Guess the Condition 0.0.1 are proposed and to be confirmed; [OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)).
+Tool counts and latest releases are as of 14 Oct 2026 (the code of each repository's `main`, the GitHub release lists); "decided" numbers are the next free ones after the pin pull requests, decided by the maintainer (NucleiSky 0.1.4, Playground 0.0.4, VLab4Mic 0.1.6, Guess the Condition 0.0.1; [OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)).
 
 ## What is shared
 

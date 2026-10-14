@@ -139,7 +139,11 @@ runs them again and **fails when one starts to pass**, so the fix PR must delete
 
 ## Known CI flake
 
-Napari Windows PySide6 test jobs crashed intermittently (about 6% of jobs) after printing `FAILURES: none`, when the test process called `os._exit` with the viewer still open; root cause found by experiment on 14 Oct (closing the viewer first: 0 of 90 crashes; control 6 of 60); the permanent fix is Napari PR #62 (updated, not merged yet): until it merges a rerun passes and product assertions are true.
+Napari Windows PySide6 test jobs crashed intermittently (about 6% of jobs) after printing `FAILURES: none`, when the test process called `os._exit` with the viewer still open. Root cause found by experiment on 14 Oct: closing the viewer first gave 0 fatal crashes in 90 runs, the control 6 in 60.
+
+**Status: fixed in the test that crashed, not observed since; watch.** Napari PR #62 is merged (9e5f24c): the viewer is closed before `os._exit`. After the merge the Windows PySide6 job passed 4 of 4 and `test_calibration_transitions.py` printed no fatal-exception line. The crash rate after the fix is **not measured**; 4 passes prove little. A loop of 15 runs is a regression guard, not a proof. If a job crashes again after `FAILURES: none`, a rerun passes and the product assertions are true, but report it here.
+
+Five scripts still print the first-chance line `Windows fatal exception: access violation` (`test_async_close`, `test_parity_copy_notes`, `test_parity_region`, `test_region`, `test_retention_exit`). They all exit 0 with `FAILURES: none`; the line is harmless as far as seen, and its cause is not investigated.
 
 ## The ledger
 
@@ -188,7 +192,7 @@ What is checked, for **any** app (the expectations come from the app, not from t
 `lc_tests/cases.json`; `sandbox_checks.py`):
 1. the installer exits 0; `menuinst_debug.log` ends with "Post-install completed successfully." and shows the tools were registered (the `.sh` hook prints "Tools registered", the `.bat` hook "registering the tools of ...");
 2. `labconstrictor-tools list` shows every tool of the app's schema at the release version; `doctor` is clean; the installed Tools is the pin;
-3. every case of `lc_tests/cases.json` through the worker (`labconstrictor-tools test`), every COMPLETE/FAILED case again through the command line, a notebook form for every tool, and every tool must have a case or be declared with a reason in the optional `lc_tests/no_case.json` (`{tool_id: reason}`): an undeclared tool, a stale exemption (the tool has a case or is not in the schema) and a malformed file are FAIL; each exemption is a `NOTE 4_no_case_declared_<id>`; `4_no_case_tools_are_run_by_extras` requires the Playground extras to have run each exempt tool (a NOTE saying they were not run when `playground_extras` is false);
+3. every case of `lc_tests/cases.json` through the worker (`labconstrictor-tools test`), every COMPLETE/FAILED case again through the command line, a notebook form for every tool, and every tool must have a case or be declared with a reason in the optional `lc_tests/no_case.json` (`{tool_id: reason}`; the Playground has one since its PR #29): an undeclared tool, a stale exemption (the tool has a case or is not in the schema) and a malformed file are FAIL; each exemption is a `NOTE 4_no_case_declared_<id>`; `4_no_case_tools_are_run_by_extras` requires the Playground extras to have run each exempt tool (a NOTE saying they were not run when `playground_extras` is false);
 4. retention: 60 command-line runs of the first COMPLETE case leave exactly the newest 20 result folders (each with `.lc-owner.json` and `.lc-done.json`) and 50 run records, and `prune --dry-run --json` reports keep 20 / 50, nothing deleted, a user's own folders left alone;
 5. uninstall removes the registry entry and the prefix and nothing else of the user's (planted files in the home folder, in `LC_HOME/results`, another app's registry entry);
 6. update from `old_tag` keeps user data (results in `LC_HOME`, files in the home folder and, for the in-place Linux update, a file in the prefix);

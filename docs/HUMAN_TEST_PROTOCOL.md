@@ -69,15 +69,15 @@ with; hosts refuse an app whose Tools is too old; a result is meaningless withou
 | Fiji plugin tag | `<fill in>`; file `labconstrictor-fiji-<tag>.jar` (and `labconstrictor-fiji-script-<tag>.zip`, `SHA256SUMS`) | `https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases` (no release existed when this was written: not verified) |
 | QuPath plugin tag | `<fill in>`; file `labconstrictor-qupath-<tag>.jar` (and `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | `https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases` (no release existed when this was written: not verified) |
 | Napari / Fiji / QuPath themselves | Napari `<fill in>` (Python 3.11 or newer); Fiji `<fill in>` (Java build: ask); QuPath **0.7.0** (the plugin is built against it, other versions are not supported) | https://napari.org, https://fiji.sc, https://qupath.github.io |
-| NucleiSky | planned **0.1.4** (pin pull request #38); `<fill in>` | https://github.com/CellMigrationLab/NucleiSky/releases |
-| Playground | planned **0.0.4** (pin pull request #27); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases |
-| VLab4Mic | proposed 0.1.6, to be confirmed (pin pull request #17); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases |
-| Guess the Condition | proposed 0.0.1, to be confirmed (pin pull request #14; the app is at 0.0.0 today); `<fill in>` | https://github.com/CellMigrationLab/GuessTheCondition/releases |
+| NucleiSky | **0.1.4**, decided (pin pull request #38); `<fill in>` | https://github.com/CellMigrationLab/NucleiSky/releases |
+| Playground | **0.0.4**, decided (pin pull request #27); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases |
+| VLab4Mic | **0.1.6**, decided (pin pull request #17); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases |
+| Guess the Condition | **0.0.1**, decided (pin pull request #14; the app is at 0.0.0 today); `<fill in>` | https://github.com/CellMigrationLab/GuessTheCondition/releases |
 | CellTracksColab | latest release (1.1.1 when this was written; no new release is planned before the bridge decision); notebook app only | https://github.com/CellMigrationLab/CellTracksColab/releases |
 | Installer file names (per app, per OS) | `<fill in>` | |
 
-The "planned" numbers are the next free release numbers of each app after its pin pull request: the table must be corrected to what was
-really published. The pins in the apps are `v0.2.0-rc.1` today and become `v0.3.0-alpha.1` only after the pin pull requests are merged and the apps
+The release numbers of the four apps are decided by the maintainer (the next free numbers after each pin pull request); correct the table to what was
+really published if it differs. The pins in the apps are `v0.2.0-rc.1` today and become `v0.3.0-alpha.1` only after the pin pull requests are merged and the apps
 are released ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)); an app release that still pins `v0.2.0-rc.1` is **not** part of this
 test set (Fiji and QuPath leave it out of their lists with a sentence in the Log: that is correct behaviour; what Napari does with it is not verified, see D4).
 
@@ -398,6 +398,6 @@ Send, in one message or issue titled `Test report: <OS> <your name> <date> <Tool
 ## Appendix. What the author of this protocol did and did not verify
 Written on 14 Oct 2026 from the repositories (Tools `main` 535450d, the host READMEs of Napari 7ddf41f, Fiji f9277af, QuPath 9e64c6d, the app
 repositories at their `main`) and from the case files (`lc_tests/cases.json`) of the apps. **Not run by a person from this file:** every step on
-Windows and macOS; any step with a released Fiji or QuPath jar (none was published when this was written); the discovery rule (in Tools and in the three hosts since 14 Oct; no installer passes the declaration yet); the release numbers of the apps (planned); how the hosts show the "helper" tools of an app (for example "List the devices"). The older
+Windows and macOS; any step with a released Fiji or QuPath jar (none was published when this was written); the discovery rule (in Tools and in the three hosts since 14 Oct; no installer passes the declaration yet); the release of the apps (the numbers are decided: NucleiSky 0.1.4, Playground 0.0.4, VLab4Mic 0.1.6, Guess the Condition 0.0.1; the releases do not exist yet); how the hosts show the "helper" tools of an app (for example "List the devices"). The older
 Linux checks (Ubuntu 24.04, Napari 0.9, Fiji with Java 21) were made with NucleiSky 0.1.1 and an earlier Tools; the numbers in the NucleiSky
 file are the ones of that run and of the app's own cases, and they are marked there. If a step in this document is wrong or unclear, please say so; that is a documentation bug.
