@@ -32,6 +32,8 @@ Python 3.11 or newer, in the environment you start Napari from. Use a **Qt6** ba
 Both addresses are source archives of tags (no `git` needed); `<NAPARI_TAG>` is the plugin tag of the test set (the plugin had no tag when this was written: not verified that the line works). Then start Napari and choose **Plugins > LabConstrictor tools**. The plugin installs no Qt backend of its own.
 
 ## 4. Fiji
+**State today:** no Fiji or QuPath plugin release (tag, jar) exists yet; the maintainer creates them next, and until then these steps have nothing to download. **After the tags exist, fill the record sheet** of the [human test protocol](HUMAN_TEST_PROTOCOL.md) (the tag and file names).
+
 1. Download `labconstrictor-fiji-<tag>.jar` from the [LabConstrictor-Fiji Releases page](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases) (`SHA256SUMS` lists the checksums).
 2. Put it into `Fiji.app/plugins/` (not a subfolder; remove an older `labconstrictor-fiji-*.jar`) and restart Fiji.
 3. Run **Plugins > LabConstrictor > LabConstrictor Tools...**.

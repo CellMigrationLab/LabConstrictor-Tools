@@ -1,6 +1,6 @@
 # Human tests: Guess the Condition (Napari, Fiji, QuPath)
 
-Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install the app (proposed release 0.0.1, to be confirmed; 0.0.0 is the only release today) and the host(s) as it says.
+Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install the app (release 0.0.1, decided; 0.0.0 is the only release today) and the host(s) as it says.
 Guess the Condition shows microscopy images without their condition; you guess, and the app compares your accuracy with chance, per biological repeat. **Discovery:** listed in Napari, Fiji and QuPath.
 Registered name `GuessTheCondition`; six tools: **Create a demo experiment**, **Prepare the game**, **Show the conditions** (a helper that fills the guess list), **Play a round**, **Undo my last guess**,
 **Analyse the results**. Expected values come from the app's README and its `lc_tests/cases.json` (22 cases, 22 run and passed in a local check by the authors, not in CI); the way each host shows a step: not verified unless stated.
