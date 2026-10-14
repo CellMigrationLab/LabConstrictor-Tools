@@ -108,6 +108,7 @@ def _error_of(cell: Any) -> str | None:
 
 async def _execute(client: NotebookClient, cell: Any, index: int, run: Run, label: str) -> tuple[str | None, bool]:
     """Run one cell; returns (error text or None, kernel_is_dead). Timeouts, a dead kernel and nbclient errors are results, never raised."""
+    started = time.time()
     try:
         await client.async_execute_cell(cell, index)
     except CellTimeoutError:
@@ -117,7 +118,10 @@ async def _execute(client: NotebookClient, cell: Any, index: int, run: Run, labe
     except CellExecutionError as problem:
         return "CellExecutionError: %s" % str(problem)[:300], False
     run.executed += 1
-    return _error_of(cell), False
+    error = _error_of(cell)
+    if error and error.startswith("KeyboardInterrupt") and time.time() - started >= float(client.timeout or 0) - 1:
+        error = "timeout after %s s in %s (nbclient interrupted the cell): %s" % (client.timeout, label, error)
+    return error, False
 
 
 def _inject(client: NotebookClient, source: str) -> tuple[Any, int]:

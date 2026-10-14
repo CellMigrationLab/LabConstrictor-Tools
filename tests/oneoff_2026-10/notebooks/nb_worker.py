@@ -20,7 +20,7 @@ from typing import Any
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE / "scripts"))
+sys.path.insert(0, str(HERE / "scripts"))  # shared scripts such as _welcome.py
 
 import nb_checks  # noqa: E402
 import nb_imports  # noqa: E402
@@ -42,7 +42,7 @@ class Emitter:
 
 def load_script(app: str, notebook: str) -> ModuleType | None:
     """The click script scripts/<app>/<notebook>.py, or None when there is none (the caller records that as a FAIL: a missing script is a gap)."""
-    path = HERE / "scripts" / app / (notebook + ".py")
+    path = Path(os.environ.get("LC_NB_SCRIPTS", str(HERE / "scripts"))) / app / (notebook + ".py")
     if not path.is_file():
         return None
     spec = importlib.util.spec_from_file_location("nbscript_%s_%s" % (sanitise(app), sanitise(notebook)), path)
