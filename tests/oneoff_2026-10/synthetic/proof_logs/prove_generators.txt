@@ -1,0 +1,39 @@
+== NucleiSky
+  generic: 31 datasets, 30 cases, 62 TIFFs opened with calibration read back
+  ns_normal                  corr(truth matrix) 0.997  corr(offset +6 px) 0.653  corr(opposite rotation) -0.056
+  ns_pure_shift              corr(truth matrix) 0.997  corr(offset +6 px) 0.675  corr(opposite rotation) -1.000
+  ns_rotation_only           corr(truth matrix) 0.997  corr(offset +6 px) 0.648  corr(opposite rotation) -0.018
+  ns_stress_3000             corr(truth matrix) 0.997  corr(offset +6 px) 0.662  corr(opposite rotation) -0.032
+  ns_small_um                corr(truth matrix) 0.997  corr(offset +6 px) 0.618  corr(opposite rotation) 0.102
+  ns_small_nm                corr(truth matrix) 0.997  corr(offset +6 px) 0.618  corr(opposite rotation) 0.101
+  ns_small_micro             corr(truth matrix) 0.997  corr(offset +6 px) 0.619  corr(opposite rotation) 0.101
+  ns_small_micron            corr(truth matrix) 0.997  corr(offset +6 px) 0.618  corr(opposite rotation) 0.101
+  ns_small_u8                corr(truth matrix) 0.997  corr(offset +6 px) 0.618  corr(opposite rotation) 0.101
+  ns_small_f32               corr(truth matrix) 0.994  corr(offset +6 px) 0.622  corr(opposite rotation) 0.102
+  ns_masks_exact             corr(truth matrix) 0.997  corr(offset +6 px) 0.618  corr(opposite rotation) 0.102
+  ns_masks_binary            corr(truth matrix) 0.997  corr(offset +6 px) 0.618  corr(opposite rotation) 0.102
+  ns_region_nonzero_origin   corr(truth matrix) 0.997  corr(offset +6 px) 0.618  corr(opposite rotation) 0.102
+  NucleiSky: OK
+== LabConstrictor-Playground
+  generic: 67 datasets, 65 cases, 76 TIFFs opened with calibration read back
+  playground: 37 datasets recomputed from their files
+  LabConstrictor-Playground: OK
+== CellTracksColab
+  generic: 25 datasets, 25 cases, 0 TIFFs opened with calibration read back
+  celltracks: 14 datasets, metrics recomputed with numpy from the CSV files
+  CellTracksColab: OK
+== LabConstrictor-VLab4Mic
+  generic: 41 datasets, 37 cases, 42 TIFFs opened with calibration read back
+  vm_identical               pearson from the files 1.0000  (truth range 0.999..1.001)
+  vm_gain_offset             pearson from the files 1.0000  (truth range 0.999..1.001)
+  vm_inverted                pearson from the files -1.0000  (truth range -1.001..-0.999)
+  vm_half_res_right_units    pearson from the files 0.9952  (truth range 0.950..2.000)
+  vm_half_res_wrong_units    pearson from the files 0.0994  (truth range -2.000..0.500)
+  vm_different_fields        pearson from the files 0.0167  (truth range -0.300..0.300)
+  vm_stress_identical        pearson from the files 1.0000  (truth range 0.999..1.001)
+  LabConstrictor-VLab4Mic: OK
+== GuessTheCondition
+  generic: 35 datasets, 109 cases, 97 TIFFs opened with calibration read back
+  guessthecondition: experiment trees and display shapes recomputed
+  GuessTheCondition: OK
+TOTAL problems: 0

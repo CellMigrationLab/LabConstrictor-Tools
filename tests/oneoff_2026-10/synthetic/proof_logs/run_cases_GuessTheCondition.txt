@@ -1,0 +1,110 @@
+CASE 000 COMPLETE prepare_game                 OK [gtc_balanced_const] prepare: 12 images, all to guess
+CASE 001 COMPLETE play_round                   OK [gtc_balanced_const] the first image
+CASE 002 COMPLETE play_round                   OK [gtc_balanced_const] guess 1 of 12: Control
+CASE 003 COMPLETE play_round                   OK [gtc_balanced_const] guess 2 of 12: Control
+CASE 004 COMPLETE play_round                   OK [gtc_balanced_const] guess 3 of 12: Control
+CASE 005 COMPLETE play_round                   OK [gtc_balanced_const] guess 4 of 12: Control
+CASE 006 COMPLETE play_round                   OK [gtc_balanced_const] guess 5 of 12: Control
+CASE 007 COMPLETE play_round                   OK [gtc_balanced_const] guess 6 of 12: Control
+CASE 008 COMPLETE play_round                   OK [gtc_balanced_const] guess 7 of 12: Control
+CASE 009 COMPLETE play_round                   OK [gtc_balanced_const] guess 8 of 12: Control
+CASE 010 COMPLETE play_round                   OK [gtc_balanced_const] guess 9 of 12: Control
+CASE 011 COMPLETE play_round                   OK [gtc_balanced_const] guess 10 of 12: Control
+CASE 012 COMPLETE play_round                   OK [gtc_balanced_const] guess 11 of 12: Control
+CASE 013 FAILED   play_round                   OK [gtc_balanced_const] guess 12 of 12: Control
+CASE 014 COMPLETE analyze_results              OK [gtc_balanced_const] 2 conditions x 3 repeats x 2 images (12
+CASE 015 COMPLETE prepare_game                 OK [gtc_unbalanced_const] prepare: 9 images, all to guess
+CASE 016 COMPLETE play_round                   OK [gtc_unbalanced_const] the first image
+CASE 017 COMPLETE play_round                   OK [gtc_unbalanced_const] guess 1 of 9: Mutant
+CASE 018 COMPLETE play_round                   OK [gtc_unbalanced_const] guess 2 of 9: Mutant
+CASE 019 COMPLETE play_round                   OK [gtc_unbalanced_const] guess 3 of 9: Mutant
+CASE 020 COMPLETE play_round                   OK [gtc_unbalanced_const] guess 4 of 9: Mutant
+CASE 021 COMPLETE play_round                   OK [gtc_unbalanced_const] guess 5 of 9: Mutant
+CASE 022 COMPLETE play_round                   OK [gtc_unbalanced_const] guess 6 of 9: Mutant
+CASE 023 COMPLETE play_round                   OK [gtc_unbalanced_const] guess 7 of 9: Mutant
+CASE 024 COMPLETE play_round                   OK [gtc_unbalanced_const] guess 8 of 9: Mutant
+CASE 025 FAILED   play_round                   OK [gtc_unbalanced_const] guess 9 of 9: Mutant
+CASE 026 COMPLETE analyze_results              OK [gtc_unbalanced_const] Control 2 and Mutant 1 images per rep
+CASE 027 COMPLETE prepare_game                 OK [gtc_three_by_number] prepare: 18 images, all to guess
+CASE 028 COMPLETE play_round                   OK [gtc_three_by_number] the first image
+CASE 029 COMPLETE list_conditions              OK [gtc_three_by_number] the options of the guess list: the con
+CASE 030 COMPLETE play_round                   OK [gtc_three_by_number] guess 1 of 18: 3
+CASE 031 COMPLETE undo_last_guess              OK [gtc_three_by_number] undo the first guess: it is forgotten
+CASE 032 COMPLETE play_round                   OK [gtc_three_by_number] the undone image is guessed again
+CASE 033 COMPLETE play_round                   OK [gtc_three_by_number] guess 2 of 18: dRuG2
+CASE 034 COMPLETE play_round                   OK [gtc_three_by_number] guess 3 of 18: 3
+CASE 035 COMPLETE play_round                   OK [gtc_three_by_number] guess 4 of 18: dRuG2
+CASE 036 COMPLETE play_round                   OK [gtc_three_by_number] guess 5 of 18: 3
+CASE 037 COMPLETE play_round                   OK [gtc_three_by_number] guess 6 of 18: dRuG2
+CASE 038 COMPLETE play_round                   OK [gtc_three_by_number] guess 7 of 18: 3
+CASE 039 COMPLETE play_round                   OK [gtc_three_by_number] guess 8 of 18: dRuG2
+CASE 040 COMPLETE play_round                   OK [gtc_three_by_number] guess 9 of 18: 3
+CASE 041 COMPLETE play_round                   OK [gtc_three_by_number] guess 10 of 18: dRuG2
+CASE 042 COMPLETE play_round                   OK [gtc_three_by_number] guess 11 of 18: 3
+CASE 043 COMPLETE play_round                   OK [gtc_three_by_number] guess 12 of 18: dRuG2
+CASE 044 COMPLETE play_round                   OK [gtc_three_by_number] guess 13 of 18: 3
+CASE 045 COMPLETE play_round                   OK [gtc_three_by_number] guess 14 of 18: dRuG2
+CASE 046 COMPLETE play_round                   OK [gtc_three_by_number] guess 15 of 18: 3
+CASE 047 COMPLETE play_round                   OK [gtc_three_by_number] guess 16 of 18: dRuG2
+CASE 048 COMPLETE play_round                   OK [gtc_three_by_number] guess 17 of 18: 3
+CASE 049 FAILED   play_round                   OK [gtc_three_by_number] guess 18 of 18: dRuG2
+CASE 050 COMPLETE analyze_results              OK [gtc_three_by_number] 3 conditions (1, 2, 3 images per repea
+CASE 051 COMPLETE prepare_game                 OK [gtc_one_condition_repeat] prepare: 10 images, all to guess
+CASE 052 COMPLETE play_round                   OK [gtc_one_condition_repeat] the first image
+CASE 053 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 1 of 10: Control
+CASE 054 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 2 of 10: Control
+CASE 055 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 3 of 10: Control
+CASE 056 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 4 of 10: Control
+CASE 057 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 5 of 10: Control
+CASE 058 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 6 of 10: Control
+CASE 059 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 7 of 10: Control
+CASE 060 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 8 of 10: Control
+CASE 061 COMPLETE play_round                   OK [gtc_one_condition_repeat] guess 9 of 10: Control
+CASE 062 FAILED   play_round                   OK [gtc_one_condition_repeat] guess 10 of 10: Control
+CASE 063 COMPLETE analyze_results              OK [gtc_one_condition_repeat] repeat R3 holds Control images on
+CASE 064 COMPLETE create_demo_experiment       OK [gtc_demo_experiment] 'Create a demo experiment' with 2 imag
+CASE 065 FAILED   create_demo_experiment       OK [gtc_demo_zero] 'Create a demo experiment' with images_per_r
+CASE 066 FAILED   create_demo_experiment       OK [gtc_demo_too_many] 'Create a demo experiment' with images_p
+CASE 067 COMPLETE prepare_game                 OK [gtc_percentage_1] 10 images, 1 % to guess
+CASE 068 COMPLETE prepare_game                 OK [gtc_percentage_25] 10 images, 25 % to guess
+CASE 069 COMPLETE prepare_game                 OK [gtc_percentage_33] 10 images, 33 % to guess
+CASE 070 COMPLETE prepare_game                 OK [gtc_percentage_50] 10 images, 50 % to guess
+CASE 071 COMPLETE prepare_game                 OK [gtc_percentage_51] 10 images, 51 % to guess
+CASE 072 COMPLETE prepare_game                 OK [gtc_percentage_100] 10 images, 100 % to guess
+CASE 073 FAILED   prepare_game                 OK [gtc_percentage_0] percentage 0 (declared range 1..100)
+CASE 074 FAILED   prepare_game                 OK [gtc_percentage_101] percentage 101 (declared range 1..100)
+CASE 075 FAILED   prepare_game                 OK [gtc_single_condition] an experiment with one condition
+CASE 076 FAILED   prepare_game                 OK [gtc_no_images] conditions and repeats but no TIFF image
+CASE 077 FAILED   prepare_game                 OK [gtc_case_clash] conditions 'Control' and 'control' (differ 
+CASE 078 FAILED   prepare_game                 OK [gtc_no_experiment] an experiment folder that does not exist
+CASE 079 FAILED   prepare_game                 OK [gtc_bad_user_name] a user name that is not a folder name ('
+CASE 080 COMPLETE prepare_game                 OK [gtc_scan_rules] hidden files, non-TIFF files, a folder star
+CASE 081 COMPLETE prepare_game                 OK [gtc_corrupt] prepare: 4 files, 2 of them broken
+CASE 082 COMPLETE play_round                   OK [gtc_corrupt] two conditions, each with a good and an undeco
+CASE 083 COMPLETE prepare_game                 OK [gtc_view_yx_u8] prepare
+CASE 084 COMPLETE play_round                   OK [gtc_view_yx_u8] the first image shown for an 8-bit 2D image
+CASE 085 COMPLETE prepare_game                 OK [gtc_view_yx_u16] prepare
+CASE 086 COMPLETE play_round                   OK [gtc_view_yx_u16] the first image shown for a 16-bit 2D imag
+CASE 087 COMPLETE prepare_game                 OK [gtc_view_yx_f32] prepare
+CASE 088 COMPLETE play_round                   OK [gtc_view_yx_f32] the first image shown for a 32-bit float 2
+CASE 089 COMPLETE prepare_game                 OK [gtc_view_cyx3] prepare
+CASE 090 COMPLETE play_round                   OK [gtc_view_cyx3] the first image shown for 3 channels (shown 
+CASE 091 COMPLETE prepare_game                 OK [gtc_view_tyx] prepare
+CASE 092 COMPLETE play_round                   OK [gtc_view_tyx] the first image shown for a time series (maxi
+CASE 093 COMPLETE prepare_game                 OK [gtc_view_zyx] prepare
+CASE 094 COMPLETE play_round                   OK [gtc_view_zyx] the first image shown for a z-stack (maximum 
+CASE 095 COMPLETE prepare_game                 OK [gtc_view_tzcyx] prepare
+CASE 096 COMPLETE play_round                   OK [gtc_view_tzcyx] the first image shown for T x Z x 2 channel
+CASE 097 COMPLETE prepare_game                 OK [gtc_view_rgb] prepare
+CASE 098 COMPLETE play_round                   OK [gtc_view_rgb] the first image shown for an RGB image: the c
+CASE 099 COMPLETE prepare_game                 OK [gtc_view_unlabelled_3planes] prepare
+CASE 100 COMPLETE play_round                   OK [gtc_view_unlabelled_3planes] the first image shown for 3 pl
+CASE 101 COMPLETE prepare_game                 OK [gtc_view_unlabelled_8planes] prepare
+CASE 102 COMPLETE play_round                   OK [gtc_view_unlabelled_8planes] the first image shown for 8 pl
+CASE 103 COMPLETE prepare_game                 OK [gtc_view_flat] prepare
+CASE 104 COMPLETE play_round                   OK [gtc_view_flat] a flat (all-equal) image
+CASE 105 COMPLETE prepare_game                 OK [gtc_view_nan] prepare
+CASE 106 COMPLETE play_round                   OK [gtc_view_nan] a float image with a block of NaN
+CASE 107 COMPLETE prepare_game                 OK [gtc_stress_big] prepare: two 3000x3000 16-bit images
+CASE 108 COMPLETE play_round                   OK [gtc_stress_big] stress: two 3000x3000 uint16 images (18 MB 
+SUMMARY 109 cases, 0 differ from their own expectation
