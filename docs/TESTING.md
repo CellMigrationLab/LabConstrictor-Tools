@@ -66,7 +66,7 @@ Run a slice: `LC_ROUNDTRIP_FILTER='echo_bounded' python -m unittest test_roundtr
 | `smoke_migration` | `template_ref` | `main` of `CellMigrationLab/LabConstrictor` |
 | `smoke_migration` | `app_ref` | the branch `claude/merge-bridge-test` of `CellMigrationLab/NucleiSky` (branch exists, checked 14 Oct 2026 in the GitHub branch list; the bridge it carried is now on NucleiSky `main`, so the branch is only a leftover: if it is deleted the default breaks and `app_ref` must be `main` or a tag; `.github/workflows/smoke_migration.yml` lines 31 and 67) |
 | `smoke_migration` | `old_template_ref` | a commit (`900d0cac...`, template 0.1.15): fixed |
-| `release_sandbox` | `napari_ref`, `fiji_ref`, `qupath_ref` | `main` of `LabConstrictor-napari`, `LabConstrictor-Fiji`, `labconstrictor-qupath`; pass a tag to pin `fiji_ref` and `qupath_ref` (they go to `git clone --branch`: a branch or a tag, not a commit). **`napari_ref` is put into `.../archive/refs/heads/<napari_ref>.zip` (`release_sandbox.yml` line 237), so only a branch works there; a tag would give a 404: the input text says "give a tag", this is not verified by a run** |
+| `release_sandbox` | `napari_ref`, `fiji_ref`, `qupath_ref` | `main` of `LabConstrictor-napari`, `LabConstrictor-Fiji`, `labconstrictor-qupath`; pass a tag to pin `fiji_ref` and `qupath_ref` (they go to `git clone --branch`: a branch or a tag, not a commit). **`napari_ref` is put into `.../archive/refs/heads/<napari_ref>.zip` (`release_sandbox.yml`, step "Napari host check"), so only a branch works there; a tag would give a 404: the input text says "give a tag", this is not verified by a run** |
 | `release_sandbox` | `tools_pin`, `tag` | the tag `v0.3.0-alpha.1` of Tools, a release tag of the app: fixed |
 
 Third-party actions (not by GitHub) are pinned by full commit SHA with the version in a comment (today only `conda-incubator/setup-miniconda`); GitHub's own `actions/*` are pinned by major tag. Their pip dependencies in the sandbox are not pinned.
@@ -196,7 +196,7 @@ Not covered: Fiji and QuPath on macOS and Windows (their GUI test runners need X
 
 ### Which apps and hosts the sandbox covers today
 
-The discovery matrix (decided 14 Oct; the Tools rule that enforces it is being implemented on the branch `claude/app-hosts-discovery`; discovery rule: see PROTOCOL.md section <TBD by the discovery PR>) is in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix): CellTracksColab hidden from Napari, Fiji and QuPath (notebook only, tested in the sandbox as "must be hidden"); Guess the Condition, Playground and NucleiSky listed in all three; VLab4Mic listed in Napari and Fiji, not in QuPath. What the workflow can assert today (read from `release_sandbox.yml`, `tests/release_sandbox/napari_check.py` and the checks, 14 Oct 2026):
+The discovery matrix (decided 14 Oct; the Tools rule that enforces it is added by Tools PR #133, feature `app_hosts_v1`; discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)") is in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix): CellTracksColab hidden from Napari, Fiji and QuPath (notebook only, tested in the sandbox as "must be hidden"); Guess the Condition, Playground and NucleiSky listed in all three; VLab4Mic listed in Napari and Fiji, not in QuPath. What the workflow can assert today (read from `release_sandbox.yml`, `tests/release_sandbox/napari_check.py` and the checks, 14 Oct 2026):
 
 | Item | Today |
 |---|---|

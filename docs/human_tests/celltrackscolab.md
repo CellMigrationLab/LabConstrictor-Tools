@@ -20,7 +20,7 @@ a bridge exists only on the held branch `bridge-test` (one tool, "Calculate Trac
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ## CT-3. Not offered in any host
-This is test D3 of the protocol. With CellTracksColab installed next to another app: Napari (Rescan apps), Fiji (restart) and QuPath (Rescan apps) do not list it, show no error about it, and the other app still works. Record the result here too.
+This is test D3 of the protocol. With CellTracksColab installed next to another app: Napari (Rescan apps), Fiji (restart) and QuPath (Rescan apps) do not list it, show no error about it, and the other app still works. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps. This holds only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet): not verified until the apps are re-installed with an installer that passes the hosts. Record the result here too.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (host): ______________________________
 

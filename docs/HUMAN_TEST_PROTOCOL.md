@@ -32,7 +32,7 @@ released app on fresh runners, but only Napari for most apps and Fiji/QuPath onl
    * `FAIL`: it differs. Write what you saw in *Notes*, and take a screenshot.
    * `N/A`: you could not do the step (say why; "no Windows machine" is a valid reason).
 4. Do not skip a failing test: note it and continue, unless the test says **STOP**.
-5. At the end, send the record sheet, the screenshots and a support bundle (section 9).
+5. At the end, send the record sheet, the screenshots and a support bundle (test E4).
 
 **Statements marked "not verified"** are things the authors of this protocol could not check themselves. If you see something different, that is a finding: write it down, it is not a mistake of yours.
 
@@ -65,21 +65,21 @@ with; hosts refuse an app whose Tools is too old; a result is meaningless withou
 |---|---|---|
 | Tools tag | `v0.3.0-alpha.1` (Python version `0.3.0a1`); commit `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/tag/v0.3.0-alpha.1 (the tag is created by the maintainer: until it exists the apps cannot install) |
 | Template version of the apps | `<fill in>` (apps are on 0.1.17 today; 0.1.18 is a template pull request that is not merged: not verified which one the releases below carry; read `.template_sync/manifest.yaml` of the release tag) | n/a |
-| Napari plugin tag | `<fill in>` (the plugin had no tag when this was written) | `https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/<tag>.zip` |
+| Napari plugin tag | `<fill in>` (the plugin had no tag when this was written) | `https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/<NAPARI_TAG>.zip` |
 | Fiji plugin tag | `<fill in>`; file `labconstrictor-fiji-<tag>.jar` (and `labconstrictor-fiji-script-<tag>.zip`, `SHA256SUMS`) | `https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases` (no release existed when this was written: not verified) |
 | QuPath plugin tag | `<fill in>`; file `labconstrictor-qupath-<tag>.jar` (and `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | `https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases` (no release existed when this was written: not verified) |
 | Napari / Fiji / QuPath themselves | Napari `<fill in>` (Python 3.11 or newer); Fiji `<fill in>` (Java build: ask); QuPath **0.7.0** (the plugin is built against it, other versions are not supported) | https://napari.org, https://fiji.sc, https://qupath.github.io |
 | NucleiSky | planned **0.1.4** (pin pull request #38); `<fill in>` | https://github.com/CellMigrationLab/NucleiSky/releases |
 | Playground | planned **0.0.4** (pin pull request #27); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases |
-| VLab4Mic | planned **0.1.6** (pin pull request #17); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases |
-| Guess the Condition | planned **0.0.1** (pin pull request #14; the app is at 0.0.0 today); `<fill in>` | https://github.com/CellMigrationLab/GuessTheCondition/releases |
+| VLab4Mic | proposed 0.1.6, to be confirmed (pin pull request #17); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases |
+| Guess the Condition | proposed 0.0.1, to be confirmed (pin pull request #14; the app is at 0.0.0 today); `<fill in>` | https://github.com/CellMigrationLab/GuessTheCondition/releases |
 | CellTracksColab | latest release (1.1.1 when this was written; no new release is planned before the bridge decision); notebook app only | https://github.com/CellMigrationLab/CellTracksColab/releases |
 | Installer file names (per app, per OS) | `<fill in>` | |
 
 The "planned" numbers are the next free release numbers of each app after its pin pull request: the table must be corrected to what was
 really published. The pins in the apps are `v0.2.0-rc.1` today and become `v0.3.0-alpha.1` only after the pin pull requests are merged and the apps
 are released ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)); an app release that still pins `v0.2.0-rc.1` is **not** part of this
-test set (Fiji and QuPath leave it out of their lists, Napari refuses it: that is correct behaviour, see D4).
+test set (Fiji and QuPath leave it out of their lists with a sentence in the Log: that is correct behaviour; what Napari does with it is not verified, see D4).
 
 ### 0.2 The tester and the computer
 | Field | Your entry |
@@ -139,10 +139,10 @@ Nothing in `<...>` is a variable your terminal understands: type the real folder
 ---
 
 ## 3. Which host shows which app (the discovery matrix)
-This is the **decided rule**; it is enforced by a rule in the Tools repository that is being implemented (branch `claude/app-hosts-discovery`) and is not
+This is the **decided rule**; it is enforced by a rule in the Tools repository that is added by Tools PR #133, feature `app_hosts_v1`, and is not
 in the code you test until that pull request is merged and part of the test set (not verified: check the Tools tag of your set).
 Today, without it, every host lists every registered app that passes its compatibility check ([REPOSITORIES.md](REPOSITORIES.md)); the tests D1 to D3 are written for the rule.
-discovery rule: see PROTOCOL.md section <TBD by the discovery PR>
+discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)"
 
 | App | Napari | Fiji | QuPath | Notebook (the app's own window) |
 |---|---|---|---|---|
@@ -275,13 +275,13 @@ A mismatch is a **Major** FAIL (an app that must be hidden is shown, or one that
 
 ### D2. VLab4Mic is not offered in QuPath
 **Do:** install VLab4Mic. Open QuPath's app chooser. Press **Rescan apps**.
-**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected.
+**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. This holds only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet): not verified until the apps are re-installed with an installer that passes the hosts. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### D3. CellTracksColab is offered nowhere
 **Do:** install CellTracksColab next to another app. Look at all three hosts (Rescan apps / restart Fiji).
-**Expect:** not in any list, no error, no "skipped" line about it (what the Log says about a hidden app is not specified: write down any line you see). The other app still works.
+**Expect:** not in any list, no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. This holds only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet): not verified until the apps are re-installed with an installer that passes the hosts.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
