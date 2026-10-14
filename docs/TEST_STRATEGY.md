@@ -12,6 +12,8 @@ or [TESTING.md](TESTING.md) disagree, this file is the plan and the others are c
 
 **Dropped by the decisions:** B5 and B6 (no write token in CI; text-only branch), H6 (no Actions time budget), H7 (disk is the local limit, handled by serial install and uninstall).
 
+**Later (owner note, 14 Oct): apps may ship their own synthetic datasets.** The generators written for this run are built to be lifted: one self-contained folder per app (`make_<app>.py`, README, `ground_truth.json`, checker), depending only on numpy, tifffile, pandas and scipy, producing the `lc_tests` layout (`cases.json`, `fixtures/`). When an app adopts one, the drivers and the sandbox consume it unchanged through `LC_APP_TESTS`; the protocol, the drivers and the docs stay in Tools and the host repositories.
+
 **Status vocabulary** (matrix rows): `PASS`, `FAIL`, `NOT_RUN` (expected, not executed, red), `HUMAN` (cannot be automated, listed for a person, never green).
 
 ## 1. What a user needs (the journeys the tests must cover)
