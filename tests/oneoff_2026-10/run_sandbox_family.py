@@ -38,6 +38,21 @@ def run_step(command: list[str], env: dict[str, str], timeout: int, cwd: Path | 
         return 127, "[could not start: %s]" % problem
 
 
+def register_privately(py: str, source_home: Path, private_home: Path, app: str, prefix: Path, matrix: Matrix) -> str:
+    """Register the installed app into a fresh private LC_HOME the way the installer's post-install does (name, prefix, module, version, display name, --app-manifest),
+    so that retention and prune checks see only this app's runs. The row says what happened; a failure is a FAIL row and the shared home is used instead (said)."""
+    if private_home.exists():
+        matrix.add("sandbox_private_home", "FAIL", "%s already exists: refusing to reuse a registry that may hold other runs; using the shared home" % private_home)
+        return str(source_home)
+    entry = json.loads((source_home / "apps" / (app + ".json")).read_text(encoding="utf-8"))
+    manifests = sorted(prefix.glob("*/labconstrictor-app.yaml"))
+    command = [py, "-m", "labconstrictor_tools", "register", "--name", app, "--prefix", str(prefix), "--module", entry["module"],
+               "--version", str(entry["version"]), "--display-name", str(entry.get("display_name") or app)] + (["--app-manifest", str(manifests[0])] if manifests else [])
+    code, out = run_step(command, dict(os.environ, LC_HOME=str(private_home)), 300)
+    matrix.add("sandbox_private_home", "PASS" if code == 0 else "FAIL", "register into %s: exit %d %s" % (private_home, code, out[-200:]))
+    return str(private_home) if code == 0 else str(source_home)
+
+
 def expected_hosts(app: str) -> str:
     """The comma list of hosts the matrix expects for this app (expected_hosts.json), or '' when the app has no row."""
     import expected_hosts as table
@@ -57,6 +72,7 @@ def main() -> int:
     parser.add_argument("--lc-home", required=True)
     parser.add_argument("--sections", default="basic,hosts,cases,retention")
     parser.add_argument("--tools-pin", default="v0.3.0-alpha.1")
+    parser.add_argument("--private-home", default="", help="register the installed app into this EMPTY scratch LC_HOME and use it (no other process may share it)")
     parser.add_argument("--install-log", default="", help="the installer's log, ending in a line exit=<code> (written by the orchestrator)")
     args = parser.parse_args()
 
@@ -68,7 +84,10 @@ def main() -> int:
     spec = json.loads((RS / "required_checks.json").read_text(encoding="utf-8"))
     wanted = verdict.required_ids({"sections": {k: v for k, v in spec["sections"].items() if k in sections}}, has_tools, "Linux")
     matrix = Matrix(Path(args.results) / args.app, "sandbox", "cli", args.app, expected=wanted)
-    env = dict(os.environ, LC_HOME=args.lc_home, PYTHONIOENCODING="utf-8")
+    lc_home = args.lc_home
+    if args.private_home:
+        lc_home = register_privately(py, Path(args.lc_home), Path(args.private_home), args.app, Path(args.prefix), matrix)
+    env = dict(os.environ, LC_HOME=lc_home, PYTHONIOENCODING="utf-8")
     hosts = expected_hosts(args.app)
     if args.install_log:
         log = Path(args.install_log).read_text(encoding="utf-8", errors="replace") if Path(args.install_log).is_file() else ""
