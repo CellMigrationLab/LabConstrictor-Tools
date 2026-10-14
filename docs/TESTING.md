@@ -172,9 +172,10 @@ Windows runners, exercised, and uninstalled. Run it from Actions, "release-sandb
 | `app_repo`, `tag` | the released app and release under test (its `.sh` / `.exe` installers are downloaded) |
 | `old_tag` | optional older release of the **same** app: install it, make user data, update (Linux `installer.sh -u` in place; macOS and Windows uninstall, then install, as the user docs say), check, uninstall. The Linux `-u` works only if the previous install finished: after a failed install the update breaks (conda-standalone) until `<prefix>/pkgs` is deleted or the app is uninstalled ([INSTALL.md](INSTALL.md)) |
 | `tools_pin` | tag of labconstrictor-tools the installed app must carry (empty: not checked). With `playground_extras` the Playground check of the installed Tools uses the same pin; when empty it reads the pin from the installed app's own `post_install` line (`LC_TOOLS_SPEC`) instead of a constant |
-| `hosts_napari`, `napari_ref` | run the Napari host check on all three systems (software OpenGL on macOS and Windows); `napari_ref` is the branch or tag of the plugin (default `main`) |
-| `fiji_ref`, `qupath_ref` | branch or tag of the Fiji and QuPath repositories cloned for the host runs of `playground_extras` and `hosts_qupath` (default `main`) |
-| `playground_extras` | LabConstrictor Playground only: its own tool runs and failure paths (`playground_extras.py`), the Fiji host (Linux) and, with `hosts_qupath`, the QuPath host (Linux) |
+| `hosts_napari`, `hosts_fiji`, `hosts_qupath` | choice `auto` (default) or `skip`: `auto` runs that host's check and asserts "listed" or "not listed" as the app's expectation says (Napari on all three systems, software OpenGL on macOS and Windows; Fiji and QuPath on Linux); `skip` does not run it |
+| `napari_ref`, `fiji_ref`, `qupath_ref` | branch or tag of the Napari, Fiji and QuPath repositories (default `main`) |
+| `expected_hosts` | optional override of the expected hosts, e.g. `notebook,fiji`; empty: the row of the app in `tests/release_sandbox/expected_hosts.json` (an app without a row fails the run) |
+| `playground_extras` | LabConstrictor Playground only: its own tool runs and failure paths (`playground_extras.py`) and its Fiji and QuPath tool cases (Linux); the listing checks of Fiji and QuPath run for any app |
 
 What is checked, for **any** app (the expectations come from the app, not from the workflow: `construct.yaml`, the registered schema and
 `lc_tests/cases.json`; `sandbox_checks.py`):
@@ -186,7 +187,7 @@ What is checked, for **any** app (the expectations come from the app, not from t
 6. update from `old_tag` keeps user data (results in `LC_HOME`, files in the home folder and, for the in-place Linux update, a file in the prefix);
 7. Windows: the installer **refuses** a destination folder whose path contains a space (the constructor default `check_path_spaces`; kept on purpose, documented). In silent mode only the exit code (2) and "nothing written" can be asserted; a UI Automation read of the wizard's text ("Destination Folder contains 1 space") is attempted and reported as a note when it works; no `cmd.exe` syntax error in `menuinst_debug.log`; the registered version is the release's, not `(0)`; no python.exe of the app is left after the Napari host (W5) or after worker processes are closed.
 
-The Napari host check (`napari_check.py`) runs in a venv with `napari[pyqt6]` (Qt6; `napari[pyqt5]` is not used: the plugin's README says PyQt5 is not tested) and the plugin from the branch `napari_ref`; it opens the dock widget, requires the app and every tool of its schema to be listed and, for the Playground, runs
+The Napari host check (`napari_check.py`) runs in a venv with `napari[pyqt6]` (Qt6; `napari[pyqt5]` is not used: the plugin's README says PyQt5 is not tested) and the plugin from the branch `napari_ref`; it opens the dock widget, requires the app and every tool of its schema to be listed (or, when the expectation says "not listed", the app to be absent from the dropdown with the skip sentence in the Tools log) and, for the Playground, runs
 the stress scenarios (cancel, an ignored cancel is shown as "cancelled (worker stopped)", a crash, a layer that changes size during a run).
 **Software OpenGL on Windows:** Mesa llvmpipe as in the Napari CI. A venv's `python.exe` is only a launcher that starts the base interpreter, and Windows
 looks for `opengl32.dll` next to the process image: copy the Mesa DLLs next to `sys._base_executable`, not next to the venv's `python.exe`
@@ -196,15 +197,18 @@ Not covered: Fiji and QuPath on macOS and Windows (their GUI test runners need X
 
 ### Which apps and hosts the sandbox covers today
 
-The discovery matrix (decided 14 Oct; the Tools rule that enforces it is added by Tools PR #133, feature `app_hosts_v1`; discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)") is in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix): CellTracksColab hidden from Napari, Fiji and QuPath (notebook only, tested in the sandbox as "must be hidden"); Guess the Condition, Playground and NucleiSky listed in all three; VLab4Mic listed in Napari and Fiji, not in QuPath. What the workflow can assert today (read from `release_sandbox.yml`, `tests/release_sandbox/napari_check.py` and the checks, 14 Oct 2026):
+The discovery matrix (decided 14 Oct; binding rule in Tools, feature `app_hosts_v1`, Tools PR #133, merged; discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)") is in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix): CellTracksColab hidden from Napari, Fiji and QuPath (notebook only); Guess the Condition, Playground and NucleiSky listed in all three; VLab4Mic listed in Napari and Fiji, not in QuPath. The sandbox reads the expectation from `tests/release_sandbox/expected_hosts.json` (the contract for the host drivers is in [tests/release_sandbox/README.md](../tests/release_sandbox/README.md)). What the workflow can assert (read from `release_sandbox.yml` and `tests/release_sandbox/`, 14 Oct 2026):
 
 | Item | Today |
 |---|---|
-| Napari listing (`hosts_napari`, default true, all three systems) | any app: the app and every tool of its schema are listed; no "not listed" assertion anywhere, so "VLab4Mic is absent from QuPath" and "CellTracksColab is hidden" cannot be asserted yet |
-| Fiji and QuPath (Linux) | only with `playground_extras`, only Playground cases (`tests/release_sandbox/fiji_cases/playground_*.json`, the QuPath body for the Playground) |
-| An app with no tools (CellTracksColab on `main`) | the workflow needs a `*_lc_tools` module and `lc_tests/cases.json` in the app: it cannot run for CellTracksColab as it is (needs the `bridge-test` branch) |
-| Per-host expectation input (listed / not listed) | does not exist |
+| Expectation per app | `expected_hosts.json` (one row per app: `hosts`, `repo`, `tools_module`); the `expected_hosts` input overrides it; an app with neither stops the run |
+| Registry and Tools (`hosts_check.py`) | the entry the installer wrote declares the expected `hosts` (red for an installer that passes none), `listed_for` gives the expected answer for each host, `list` shows the declaration |
+| Napari listing (`hosts_napari`, `auto`, all three systems) | any app: "lists the app" (with every tool of its schema) or "does not list the app" (a "not listed" assertion) plus the skip sentence in the Tools log |
+| Fiji and QuPath listing (`hosts_fiji`, `hosts_qupath`, Linux) | any app, through a driver in the host repository (Fiji `tests/sandbox_listing.py`, QuPath `tests/gui_test_listing_body.groovy`); until a host repository has its driver the workflow prints `CHECK fiji_listing_driver_present FAIL` / `CHECK qupath_listing_body_present FAIL`. Their tool cases still need `playground_extras` and only exist for the Playground |
+| An app with no tools (CellTracksColab, tools module `optional`) | stated (`tools_module_absent_as_declared`); the tool, case and retention checks do not run; the sandbox asserts that nothing is registered or, if the installer registers a module, that its `hosts` is `[notebook]`; an app whose row says `required` and has no module stops the run |
 | Apps run so far | which app each of the five `release-sandbox` runs on `claude/release-sandbox-run` tested: not verified |
+
+Whether a host passes depends on its own pull request (Napari #61, Fiji #47, QuPath #35: open, not merged) and on the installer passing `hosts` (template 0.1.18, template PR #33: not merged); until then the matching checks are expected to fail.
 
 Only released installers can be tested (they are downloaded from the app's release), so an app is tested after its release with the new pin, with `tools_pin=v0.3.0-alpha.1`.
 

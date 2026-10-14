@@ -139,9 +139,9 @@ Nothing in `<...>` is a variable your terminal understands: type the real folder
 ---
 
 ## 3. Which host shows which app (the discovery matrix)
-This is the **decided rule**; it is enforced by a rule in the Tools repository that is added by Tools PR #133, feature `app_hosts_v1`, and is not
-in the code you test until that pull request is merged and part of the test set (not verified: check the Tools tag of your set).
-Today, without it, every host lists every registered app that passes its compatibility check ([REPOSITORIES.md](REPOSITORIES.md)); the tests D1 to D3 are written for the rule.
+This is the **decided rule**; it is the binding rule in Tools (feature `app_hosts_v1`, Tools PR #133, merged); hosts honour it once their PRs merge (Napari #61, Fiji #47,
+QuPath #35: open) and installers pass it from template 0.1.18 (template PR #33, not merged). Check the Tools tag, the host versions and the installer of your test set.
+Without them every host lists every registered app that passes its compatibility check ([REPOSITORIES.md](REPOSITORIES.md)); the tests D1 to D3 are written for the rule.
 discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)"
 
 | App | Napari | Fiji | QuPath | Notebook (the app's own window) |

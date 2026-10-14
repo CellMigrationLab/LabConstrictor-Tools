@@ -31,17 +31,17 @@ The toolkit defines the [schema and worker protocol](PROTOCOL.md). Hosts read ca
 
 Hosts do **not** need to install the application's scientific dependencies. The application does **not** need to import Napari, Fiji or QuPath.
 
-**Which host shows which app is a rule, not a side effect of registration.** An application with a valid registered manifest is discoverable by a host that supports the protocol, unless the discovery rule says that host must not offer it. Decided 14 Oct 2026 (the rule is added by Tools PR #133, feature `app_hosts_v1`; until it is merged and tagged every host lists every registered app that passes its compatibility check, which is the behaviour of `v0.3.0-alpha.1` as far as this repository's code shows at 535450d: not verified for the hosts):
+**Which host shows which app is a rule, not a side effect of registration.** An application with a valid registered manifest is discoverable by every host its `hosts:` line names; no other host lists it ([PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app)). Decided 14 Oct 2026; the rule is in Tools (feature `app_hosts_v1`, Tools PR #133, merged). The hosts honour it once their pull requests merge (Napari #61, Fiji #47, QuPath #35: open, not merged); until then a host lists every registered app that passes its compatibility check. The practical value of a particular tool still depends on the host's workflow and on whether its inputs and outputs are relevant there.
 
 | App | Napari | Fiji | QuPath | Notebook |
 |---|---|---|---|---|
 | NucleiSky, Guess the Condition, Playground | listed | listed | listed | yes |
 | VLab4Mic | listed | listed | **not listed** | yes |
-| CellTracksColab | hidden | hidden | hidden | yes (notebook only; tested in the release sandbox as "must be hidden") |
+| CellTracksColab | hidden | hidden | hidden | yes (notebook only; no tools: the release sandbox expects "not listed" in all three) |
 
 discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)"
 
-The `hosts:` line of an app's `labconstrictor-app.yaml` (App-Centre metadata, schema `.tools/schema/labconstrictor-app.schema.json` of the template) is binding: the installer passes it to registration (`--app-manifest` or `--hosts`) and Napari, Fiji and QuPath list the app only if it names them (see PROTOCOL.md, section "App hosts (which host lists an app)"). The practical value of a particular tool still depends on the host's workflow and on whether its inputs and outputs are relevant there.
+The `hosts:` line of an app's `labconstrictor-app.yaml` (App-Centre metadata, schema `.tools/schema/labconstrictor-app.schema.json` of the template) is the binding rule in Tools (PROTOCOL.md, section "App hosts (which host lists an app)"); hosts honour it once their PRs merge; installers pass it from template 0.1.18 (`--app-manifest` or `--hosts`; template PR #33, not merged).
 
 This is a shared contract, **not a promise that every host implements every presentation hint**. For example, an image selection, a dynamic dropdown or an output table may be handled differently by each host. Consult the relevant host README for current behavior and limits.
 

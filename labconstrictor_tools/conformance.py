@@ -22,6 +22,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
+from . import app_hosts
 from .compat import OK, REFUSE, WARN, parse_version
 
 CONFORMANCE_VERSION = 1
@@ -34,7 +35,7 @@ TASK_STATUSES = (
     "FAILED",
     "CRASHED",
 )  # how a task can end (client.Task.status after it is done)
-_TOP = ("conformance", "limits", "host_internal_codes", "messages", "compat", "wrong_science")
+_TOP = ("conformance", "limits", "host_internal_codes", "messages", "compat", "wrong_science", "app_hosts")
 _SECTIONS = ("coordinate", "calibration", "retention", "run_identity", "async_lookups", "number_limits")
 _IDENTIFIER = re.compile(r"^[a-z][a-z0-9_]*$")
 _ID_PATTERNS = {
@@ -87,6 +88,7 @@ def validate(data: Any) -> list[str]:
     _codes(data["host_internal_codes"], problems)
     _messages(data["messages"], problems)
     _compat(data["compat"], problems)
+    problems.extend(app_hosts.validate_vectors(data["app_hosts"]))
     wrong = data["wrong_science"]
     if not isinstance(wrong, dict):
         problems.append("'wrong_science' must be an object")

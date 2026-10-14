@@ -9,6 +9,8 @@ class _EntryOptional(TypedDict, total=False):
     # the Tools version that generated the schema (absent in entries written by Tools before 0.2)
     tools_version: str
     features: list[str]  # its feature ids (absent: unknown/old)
+    # the hosts that may list the app (app_hosts.py, feature app_hosts_v1); absent: no declaration, listed in every host
+    hosts: list[str]
 
 
 class RegistryEntry(_EntryOptional):

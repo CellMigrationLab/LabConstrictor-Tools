@@ -1,7 +1,7 @@
 """Checks of an INSTALLED LabConstrictor app (run with the app's own Python), for any app: the expectations come from the app itself
 (its registered schema and its lc_tests/cases.json), not from this file. Prints `CHECK <id> PASS|FAIL <detail>` lines.
 
-    python sandbox_checks.py basic     --app NAME --prefix P [--expect-version V] [--tools-pin TAG]
+    python sandbox_checks.py basic     --app NAME --prefix P [--expect-version V] [--tools-pin TAG] [--no-tools]
     python sandbox_checks.py cases     --app NAME --module M --cases lc_tests/cases.json
     python sandbox_checks.py retention --app NAME --cases lc_tests/cases.json [--n-runs 60]
 App-specific extras (the Playground's own failure paths and tool runs) live in playground_extras.py and are selected by the workflow.
@@ -59,6 +59,16 @@ def basic(a: argparse.Namespace) -> None:
     txt = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
     last = txt.strip().splitlines()[-1] if txt.strip() else "no log"
     rec("1a_post_install_ok", "Post-install completed successfully." in txt, "log tail: " + last)
+    if (
+        a.no_tools
+    ):  # the app may ship no tools (expected_hosts.json, tools_module optional): said, and nothing may be registered
+        rec(
+            "1b_app_without_tools_registered_nothing",
+            "Tools registered" not in txt and "registering the tools of" not in txt,
+            "no *_lc_tools module: the post-install step must not register anything",
+        )
+        pin_and_notebooks(a, prefix)
+        return
     # the .sh hook prints "Tools registered"; the .bat hook prints "Found <module>: registering" only (by design)
     registered = "Tools registered" in txt or (os.name == "nt" and "registering the tools of" in txt)
     rec(
@@ -92,14 +102,33 @@ def basic(a: argparse.Namespace) -> None:
         rc == 0 and bool(mine) and all(x.get("level") == "ok" for x in f),
         "rc=%s findings=%s" % (rc, f),
     )
-    ver = md.version("labconstrictor-tools")
+    pin_and_notebooks(a, prefix)
+
+
+def pin_and_notebooks(a: argparse.Namespace, prefix: Path) -> None:
+    try:
+        ver = md.version("labconstrictor-tools")
+    except md.PackageNotFoundError:
+        if not a.no_tools:
+            raise
+        # an app that ships no tools need not install Tools at all: said here, not skipped silently
+        print(
+            "NOTE 3_tools_not_installed: the app ships no tools and installs no labconstrictor-tools, so no pin to check",
+            flush=True,
+        )
+        ver = ""
     du = ""
     try:
         du = md.distribution("labconstrictor-tools").read_text("direct_url.json") or ""
     except Exception:
         pass
-    ok = bool(ver) and (not a.tools_pin or a.tools_pin in du)
-    rec("3_tools_version_is_the_pin", ok, "version=%s pin=%s direct_url=%s" % (ver, a.tools_pin, du.strip()))
+    if ver:
+        ok = not a.tools_pin or a.tools_pin in du
+        rec(
+            "3_tools_version_is_the_pin",
+            ok,
+            "version=%s pin=%s direct_url=%s" % (ver, a.tools_pin, du.strip()),
+        )
     nb = [
         p
         for p in prefix.rglob("*.ipynb")
@@ -306,6 +335,9 @@ def main() -> int:
     ap.add_argument("--prefix", default=sys.prefix)
     ap.add_argument("--module")
     ap.add_argument("--cases")
+    ap.add_argument(
+        "--no-tools", action="store_true", help="the app ships no tools module (see expected_hosts.json)"
+    )
     ap.add_argument("--expect-version", default="")
     ap.add_argument("--tools-pin", default="")
     ap.add_argument("--n-runs", default="60")
