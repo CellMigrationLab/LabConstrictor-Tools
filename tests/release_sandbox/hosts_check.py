@@ -17,15 +17,32 @@ from pathlib import Path
 from typing import Any
 
 GUI_HOSTS = ("napari", "fiji", "qupath")
+# every id a run must print (the workflow's guard, verdict.py and required_checks.json, expect the same ids); hosts_2_list_does_not_show_it
+# is not required for an app without tools: without labconstrictor_tools there is no `list` to ask, and a NOTE says so
+REQUIRED_ENTRY = (
+    "hosts_1_registry_entry_declares_the_hosts",
+    "hosts_2_reference_function_matches_the_matrix",
+    "hosts_3_list_shows_the_declaration",
+)
+REQUIRED_NO_TOOLS = ("hosts_1_app_without_tools_registers_nothing",)
 failed: list[str] = []
+seen: list[str] = []
 
 
 def rec(cid: str, ok: bool, detail: object = "") -> None:
+    seen.append(cid)
     print(
         "CHECK %s %s %s" % (cid, "PASS" if ok else "FAIL", str(detail).replace("\n", " | ")[:600]), flush=True
     )
     if not ok:
         failed.append(cid)
+
+
+def not_run(ids: tuple[str, ...], reason: str) -> None:
+    """Every id of `ids` that has not printed yet fails: a check that did not run is red, never absent."""
+    for cid in ids:
+        if cid not in seen:
+            rec(cid, False, "not run: %s" % reason)
 
 
 def entry_path(app: str) -> Path:
@@ -71,6 +88,7 @@ def check_entry(app: str, expected: list[str]) -> None:
     entry = read_entry(app)
     if entry is None:
         rec("hosts_1_registry_entry_declares_the_hosts", False, "no registry entry for %s" % app)
+        not_run(REQUIRED_ENTRY, "no registry entry for %s" % app)
         return
     declared = entry.get("hosts")
     if declared is None:
@@ -90,6 +108,7 @@ def check_entry(app: str, expected: list[str]) -> None:
             False,
             "this Tools has no app_hosts (older than app_hosts_v1): %s" % problem,
         )
+        not_run(REQUIRED_ENTRY, "this Tools has no app_hosts (older than app_hosts_v1)")
         return
     wrong = []
     for host in GUI_HOSTS:
@@ -124,10 +143,16 @@ def main() -> int:
     if args.command == "sentence":
         print(sentence(args.app, args.host))
         return 0
-    if args.no_tools:
-        check_no_tools(args.app)
-    else:
-        check_entry(args.app, [h for h in args.expect_hosts.split(",") if h])
+    try:
+        if args.no_tools:
+            check_no_tools(args.app)
+        else:
+            check_entry(args.app, [h for h in args.expect_hosts.split(",") if h])
+    except Exception as problem:  # noqa: BLE001  (named in a FAIL line, never swallowed)
+        rec("hosts_0_check_crashed", False, "%s: %s" % (type(problem).__name__, problem))
+    for cid in REQUIRED_NO_TOOLS if args.no_tools else REQUIRED_ENTRY:
+        if cid not in seen:
+            rec(cid, False, "printed no CHECK line")
     print("SECTION hosts: %d failed %s" % (len(failed), failed))
     return 1 if failed else 0
 

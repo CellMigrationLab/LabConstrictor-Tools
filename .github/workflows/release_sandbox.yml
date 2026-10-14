@@ -44,7 +44,7 @@ on:
         options: [auto, skip]
         default: auto
       napari_ref:
-        description: "Branch or tag of LabConstrictor-napari (default main: the development version; give a tag to pin it)"
+        description: "Branch or tag of LabConstrictor-napari, fetched as .../archive/<ref>.zip (default main: the development version; give a tag to pin it)"
         required: false
         default: main
       fiji_ref:
@@ -66,6 +66,10 @@ on:
         type: choice
         options: [auto, skip]
         default: auto
+      expected_fail:
+        description: "CHECK ids expected to be red in this run, comma separated (empty: none; for a run on an old release). The verdict step ignores exactly these ids and prints a NOTE with them"
+        required: false
+        default: ""
 
 env:
   APP_REPO: ${{ inputs.app_repo }}
@@ -234,11 +238,15 @@ jobs:
           "$PY" $RS/playground_extras.py basic --prefix "$PREFIX_DIR" --tools-pin "$TOOLS_PIN" | tee checks_pg_basic.txt || true
           "$PY" $RS/playground_extras.py tools --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_tools.txt || true
           "$PY" $RS/playground_extras.py failures --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_failures.txt || true
+      - name: (4) Tools declared without a case (lc_tests/no_case.json) must be run by the Playground extras
+        if: env.HAS_TOOLS == 'true'
+        run: |
+          python3 $RS/no_case.py extras --cases "$CASES" --extras "$EXTRAS" --checks checks_pg_tools.txt checks_pg_failures.txt | tee checks_no_case.txt || echo "CHECK 4_no_case_tools_are_run_by_extras FAIL no_case.py crashed (see the log of this step)" | tee -a checks_no_case.txt
 
       - name: Windows-only check W2 (no cmd syntax errors in the installer log)
         if: runner.os == 'Windows'
         run: |
-          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS $3"; else echo "CHECK $1 FAIL $3"; fi; }
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS $3"; else echo "CHECK $1 FAIL $3"; fi | tee -a checks_install.txt; }
           BAD=0
           for PHRASE in "The syntax of the command is incorrect" "was unexpected at this time" "is not recognized"; do
             if grep -aqi "$PHRASE" "$PREFIX_DIR/menuinst_debug.log"; then echo "  found '$PHRASE': $(grep -ai -m1 "$PHRASE" "$PREFIX_DIR/menuinst_debug.log")"; BAD=1; fi
@@ -247,7 +255,7 @@ jobs:
       - name: Windows-only checks W3 and W5a (list shows the real version; no app python left after workers closed)
         if: runner.os == 'Windows' && env.HAS_TOOLS == 'true'
         run: |
-          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS $3"; else echo "CHECK $1 FAIL $3"; fi; }
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS $3"; else echo "CHECK $1 FAIL $3"; fi | tee -a checks_install.txt; }
           "$PY" -m labconstrictor_tools list | tee w3_list.txt | head -2
           grep -Fq "$APP_NAME  ($TAG)" w3_list.txt; ok W3_list_shows_the_real_version $? "$(head -1 w3_list.txt)"
           "$PY" - <<'PYEOF'
@@ -276,7 +284,7 @@ jobs:
           fi
           python -m venv --copies "$RUNNER_TEMP/napenv"
           TOOLS_SPEC="https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/${TOOLS_PIN:-main}.zip"; [ -z "$TOOLS_PIN" ] && TOOLS_SPEC="https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/heads/main.zip"
-          "$RUNNER_TEMP/napenv/$VBIN/pip" install -q "napari[pyqt6]" "$TOOLS_SPEC" "https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/heads/${{ inputs.napari_ref }}.zip" pandas scipy imageio
+          "$RUNNER_TEMP/napenv/$VBIN/pip" install -q "napari[pyqt6]" "$TOOLS_SPEC" "https://github.com/CellMigrationLab/LabConstrictor-napari/archive/${{ inputs.napari_ref }}.zip" pandas scipy imageio
           "$RUNNER_TEMP/napenv/$VBIN/pip" list 2>/dev/null | grep -i "napari\|labconstrictor\|pyqt"
           if [ "$RUNNER_OS" = "Windows" ]; then
             # Mesa llvmpipe (the napari CI step). A venv's python.exe is a launcher that starts the BASE interpreter, and Windows looks for
@@ -390,26 +398,28 @@ jobs:
           ENTRY="$LC_HOME/apps/$APP_NAME.json"
           test -f "$ENTRY" && echo "registry entry present before uninstall" || echo "FAIL: registry entry missing before uninstall"
           bash "$PREFIX_DIR/uninstall.sh" 2> uninstall.err; echo "uninstall exit code $?"; cat uninstall.err
-          test ! -d "$PREFIX_DIR" && echo "CHECK 8a_prefix_removed PASS" || echo "CHECK 8a_prefix_removed FAIL"
-          test ! -f "$ENTRY" && echo "CHECK 8b_registry_entry_removed PASS" || echo "CHECK 8b_registry_entry_removed FAIL"
-          ! grep -q WARNING uninstall.err && echo "CHECK 8c_no_warning PASS" || echo "CHECK 8c_no_warning FAIL"
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi | tee -a checks_uninstall.txt; }
+          test ! -d "$PREFIX_DIR"; ok 8a_prefix_removed $?
+          test ! -f "$ENTRY"; ok 8b_registry_entry_removed $?
+          ! grep -q WARNING uninstall.err; ok 8c_no_warning $?
       - name: (8) Uninstall (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          function Chk([string]$m) { Write-Host $m; Add-Content -Path checks_uninstall.txt -Value $m }   # the CHECK lines reach all_checks.txt
           $dir = "$env:USERPROFILE\lcsandbox\app"
           $entry = "$env:LC_HOME\apps\$env:APP_NAME.json"
           if (Test-Path $entry) { Write-Host "registry entry present before uninstall" } else { Write-Host "FAIL: registry entry missing before uninstall" }
           $u = (Get-ChildItem "$dir\Uninstall-*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
-          if ($u) { $p = Start-Process -FilePath $u -ArgumentList '/S',"_?=$dir" -Wait -PassThru; $code = $p.ExitCode } else { Write-Host "CHECK 8_uninstaller_exists FAIL"; $code = -1 }
+          if ($u) { $p = Start-Process -FilePath $u -ArgumentList '/S',"_?=$dir" -Wait -PassThru; $code = $p.ExitCode } else { Chk "CHECK 8_uninstaller_exists FAIL"; $code = -1 }
           Write-Host "uninstaller exit code: $code (the NSIS uninstaller of a constructor installer is known to exit 2 in its conda step)"
           Get-Content "$dir\.step.log" -Tail 15 -ErrorAction SilentlyContinue
-          if (Test-Path $entry) { Write-Host "CHECK 8b_registry_entry_removed_by_uninstaller FAIL (exit $code); running pre_uninstall.bat by hand"; $env:PREFIX = $dir; cmd /c "`"$dir\pre_uninstall.bat`" 2>&1" } else { Write-Host "CHECK 8b_registry_entry_removed_by_uninstaller PASS (exit $code)" }
+          if (Test-Path $entry) { Chk "CHECK 8b_registry_entry_removed_by_uninstaller FAIL (exit $code)"; Write-Host "running pre_uninstall.bat by hand"; $env:PREFIX = $dir; cmd /c "`"$dir\pre_uninstall.bat`" 2>&1" } else { Chk "CHECK 8b_registry_entry_removed_by_uninstaller PASS (exit $code)" }
           Remove-Item -Recurse -Force $dir -ErrorAction SilentlyContinue
           if (Test-Path $dir) { Write-Host "NOTE 8a_folder_left_behind_after_uninstall_and_delete" }
       - name: (8) Nothing else of the user's was touched
         run: |
-          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi; }
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi | tee -a checks_uninstall.txt; }
           test -f "$USER_SENTINEL/keep.txt"; ok 8d_user_sentinel_kept $?
           test -f "$LC_HOME/results/user_own_folder_kept/keep.txt"; ok 8e_user_results_kept $?
           test -f "$LC_HOME/apps/OtherApp.json"; ok 8f_other_app_entry_kept $?
@@ -480,7 +490,7 @@ jobs:
         run: |
           set +e
           "$UPD_PY" $RS/sandbox_checks.py basic --app "$APP_NAME" --prefix "$UPD_DIR" --expect-version "$TAG" --tools-pin "$TOOLS_PIN" $NO_TOOLS_FLAG | sed 's/^CHECK /CHECK 7_after_update_/' | tee -a checks_update.txt
-          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi; }
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi | tee -a checks_update.txt; }
           test -f "$LC_HOME/results/user_own_folder_kept/keep.txt"; ok 7f_user_results_kept $?
           test -f "$H/${APP_NAME}_user_data/keep.txt"; ok 7g_user_home_data_kept $?
           if [ "$RUNNER_OS" = "Linux" ]; then test -f "$UPD_DIR/user_notebooks/my_work.txt"; ok 7h_user_file_in_prefix_kept_by_the_in_place_update $?; else echo "7h not applicable: the update is uninstall then install, the prefix is removed"; fi
@@ -489,7 +499,7 @@ jobs:
         if: inputs.old_tag != ''
         run: |
           set +e
-          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi; }
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi | tee -a checks_update.txt; }
           if [ "$RUNNER_OS" = "Windows" ]; then
             D="$(cygpath -w "$UPD_DIR")"
             powershell -NoProfile -Command "\$d='$D'; \$u=(Get-ChildItem \"\$d\\Uninstall-*.exe\" -ErrorAction SilentlyContinue|Select -First 1).FullName; if (\$u) { \$p=Start-Process -FilePath \$u -ArgumentList '/S',\"_?=\$d\" -Wait -PassThru; Write-Host \"uninstaller exit \$(\$p.ExitCode)\" } else { Write-Host 'no uninstaller' }"
@@ -514,6 +524,9 @@ jobs:
         if: always()
         run: |
           cat checks_*.txt napari_out.txt 2>/dev/null | grep -a "^CHECK \|^NOTE " | sort | uniq > all_checks.txt || true
+          # fail-safe: a CHECK that never printed (a step that crashed or returned early) is a red `missing_<id>` line, never a count of 0 failed
+          # (required ids: tests/release_sandbox/required_checks.json; HAS_TOOLS is the app variant set by the first step)
+          python3 $RS/verdict.py guard --checks all_checks.txt --os "$RUNNER_OS" --has-tools "${HAS_TOOLS:-}" || echo "CHECK guard_could_not_run FAIL verdict.py guard exited non-zero (see the log of this step)" | tee -a all_checks.txt
           { echo "### ${{ matrix.os_name }}: $(grep -c ' PASS' all_checks.txt) passed, $(grep -c ' FAIL' all_checks.txt) failed"; grep -a ' FAIL' all_checks.txt | cut -c1-200 | sed 's/^/- /'; grep -a '^NOTE .* skipped by input' all_checks.txt | sed 's/^/- /'; } >> "$GITHUB_STEP_SUMMARY" || true
       - name: Keep the evidence
         if: always()
@@ -532,3 +545,14 @@ jobs:
             uninstall*.err
             qupath-logs/summary.md
           if-no-files-found: ignore
+      # last, after the evidence is uploaded: the job is green only when no CHECK failed (except the ids of the expected_fail input)
+      - name: Verdict (red when any CHECK failed, except the ids of expected_fail)
+        if: always()
+        env:
+          EXPECTED_FAIL: ${{ inputs.expected_fail }}
+        run: |
+          set +e
+          python3 $RS/verdict.py verdict --checks all_checks.txt --expected-fail "$EXPECTED_FAIL" | tee verdict.txt
+          RC=${PIPESTATUS[0]}
+          { echo "#### Verdict (${{ matrix.os_name }}): exit code $RC"; sed 's/^/- /' verdict.txt; } >> "$GITHUB_STEP_SUMMARY"
+          exit $RC

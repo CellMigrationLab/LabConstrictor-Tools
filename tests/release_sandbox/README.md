@@ -26,16 +26,33 @@ needs a row in the same PR that adds it to the matrix.
 |---|---|
 | `expected_hosts` | optional override of the row, e.g. `notebook,fiji` (for an app that has no row yet) |
 | `hosts_napari`, `hosts_fiji`, `hosts_qupath` | `auto` (default): run the host check and assert listed or not_listed from the expectation; `skip`: do not run it. They replace the old boolean `hosts_napari` (default true, always "listed") and `hosts_qupath` (only with `playground_extras`) |
+| `expected_fail` | optional, comma separated CHECK ids that may be red in this run (default empty): see "Verdict" below |
+| `napari_ref` | fetched as `.../archive/<ref>.zip`: a branch or a tag (it was `.../archive/refs/heads/<ref>.zip`, branches only) |
 | `playground_extras` | unchanged in meaning, but only the Playground's own tool runs and failure paths and its Fiji and QuPath tool cases: the listing checks of Fiji and QuPath now run for every app |
+
+## Verdict (`verdict.py`, `required_checks.json`)
+The steps end in `|| true`, so only the last step decides whether the job is red:
+1. "Summary of every CHECK line" writes `all_checks.txt` and runs `verdict.py guard`: every id of `required_checks.json` for this system (`Linux`, `macOS`, `Windows`) and app variant (tools, or `tools_module: optional` without tools; `HAS_TOOLS`) that has no `CHECK` line is appended as `CHECK missing_<id> FAIL expected CHECK line never printed`. Sections: basic, hosts, cases, retention, uninstall, Windows-only (W2, W3, W5a). A new check that must always print is added to that file in the same change; the tests fail when an id in it is printed by nothing.
+2. "Keep the evidence" uploads the artifacts (`if: always()`).
+3. "Verdict" (`if: always()`, last) runs `verdict.py verdict`: exit 1 when a `CHECK <id> FAIL` line is left, or when there is no `CHECK` line at all; exit 2 for bad input. The ids of the input `expected_fail` do not count; the step prints a `NOTE expected_fail input is set: <ids>`, a `NOTE <id> FAILED, as expected_fail says` per id and a `NOTE ... did not fail (stale expectation)` for an id that passed.
+
+Gating: every `CHECK ... FAIL` line, whichever step printed it (also from the `continue-on-error` steps: Napari, Fiji, QuPath, `W1a`), and every missing required id. Not gating: `NOTE` lines (the Windows wizard message `W1b`, `tools_not_installed` notes), the exit code of the Windows uninstaller (not a `CHECK`), and a `continue-on-error` step failing without printing a FAIL. Not covered by the missing-id guard: the Napari, Fiji, QuPath and Playground-extras checks (their steps print `..._printed_no_check` or `..._present` FAIL lines themselves) and the update test.
+
+## Tools without a case: `lc_tests/no_case.json` (`no_case.py`)
+`4_every_tool_has_a_case` fails for a tool of the registered schema that has no case in `cases.json`, unless the app declares it in the optional file `lc_tests/no_case.json` next to `cases.json`: a JSON object `{tool_id: reason}`, each reason non-empty text. Each declared exemption is printed as `NOTE 4_no_case_declared_<id>: <reason>`. FAIL (with the reason in the detail): a tool without a case that is not declared; a stale exemption (the tool has a case, or is not in the schema); a malformed file (not an object, empty or non-text reason, not JSON). An absent file declares nothing.
+
+An exemption must be backed by a run: the step "(4) Tools declared without a case" prints `4_no_case_tools_are_run_by_extras`. With `playground_extras` it is a `PASS` when `playground_extras.py` printed a CHECK line for each exempt tool (`stress_real_memory`: `4_stress_real_memory`; `stress_hang`: `5c_killed_after_cancel_names_the_cancel`; the table is `EXTRAS_CHECKS` in `no_case.py`), and a `FAIL` naming the tool otherwise (also for an exempt tool that has no entry in that table). Without `playground_extras` it is a `NOTE` saying the exempt tools were NOT run in this run (it is not a pass and not a missing id). The Playground declares `stress_hang` and `stress_real_memory`.
 
 ## Checks (every line is `CHECK <id> PASS|FAIL <detail>`; `NOTE` lines say what does not apply and why)
 | Id | Who | Meaning |
 |---|---|---|
+| `hosts_0_check_crashed` | `hosts_check.py` | the check raised: the exception is named; every id below that did not print is FAIL `printed no CHECK line` |
 | `hosts_1_registry_entry_declares_the_hosts` | `hosts_check.py` | the registry entry written by the installer has exactly the expected `hosts`. Red when the installer passes none (an older installer: the entry has no `hosts`, so every host would list the app) |
 | `hosts_2_reference_function_matches_the_matrix` | `hosts_check.py` | `app_hosts.listed_for(entry, host)` gives the expected answer for napari, fiji and qupath |
-| `hosts_3_list_shows_the_declaration` | `hosts_check.py` | `labconstrictor-tools list` prints `hosts: ...` for the app |
+| `hosts_3_list_shows_the_declaration` | `hosts_check.py` | `labconstrictor-tools list` prints `hosts: ...` for the app. When `hosts_1` has no entry, or this Tools has no `app_hosts`, the ids that could not run are FAIL `not run: <reason>` (never absent) |
 | `napari_lists_the_app` / `napari_does_not_list_the_app` | `napari_check.py` | the Napari app dropdown contains (or lacks) the app |
 | `napari_logs_why_it_skipped_the_app` | `napari_check.py` | for a registered, not listed app: the exact skip sentence is in `<LC_HOME>/logs/labconstrictor.log` |
+| `4_every_tool_has_a_case`, `4_no_case_tools_are_run_by_extras` | `sandbox_checks.py`, `no_case.py` | see "Tools without a case" above |
 | `fiji_*`, `qupath_*` | the host drivers below | see the contract |
 | `tools_module_absent_as_declared` | workflow | the app has no `*_lc_tools` module and its row says `optional`: stated, and the tool, cases and retention checks do not run (`HAS_TOOLS=false`); `1b_app_without_tools_registered_nothing` and `hosts_1_app_without_tools_registers_nothing` then assert that nothing was registered |
 

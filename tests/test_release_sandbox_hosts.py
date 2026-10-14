@@ -218,7 +218,9 @@ class Workflow(unittest.TestCase):
         self.assertIn("tools_module is required", self.text)
         self.assertIn("HAS_TOOLS=false", self.text)
         self.assertEqual(
-            self.text.count("env.HAS_TOOLS == 'true'"), 4, "cases, retention, playground extras, Windows W3"
+            self.text.count("env.HAS_TOOLS == 'true'"),
+            5,
+            "cases, retention, playground extras, no_case, Windows W3",
         )
 
 

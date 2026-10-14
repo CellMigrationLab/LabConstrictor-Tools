@@ -1,0 +1,53 @@
+{
+  "required_checks": 1,
+  "_about": "The CHECK ids every sandbox run MUST print, per section. An id that never printed becomes `CHECK missing_<id> FAIL expected CHECK line never printed` in all_checks.txt (verdict.py guard), so a crashed or skipped step is red, never a count of 0 failed. Lists are added up: `all`, then `tools` or `no_tools` (the app ships a *_lc_tools module, or expected_hosts.json says tools_module optional and it ships none), then `unix` (Linux and macOS) or `windows`, and `windows_tools` on Windows when the app has tools. Ids whose name carries a variable part (4_cli_case_NN_..., 4n_notebook_form_runs_...) and the Napari, Fiji, QuPath and Playground-extras checks are not listed: their own steps print a FAIL when the driver printed no CHECK line. The update test (old_tag) is not listed either. Read by verdict.py; tests/test_release_sandbox_verdict.py keeps it in step with the workflow and the check scripts.",
+  "sections": {
+    "basic": {
+      "all": ["1_installer_succeeds", "1a_post_install_ok", "4n_notebooks_installed"],
+      "tools": [
+        "1b_tools_registered",
+        "2a_list_shows_the_apps_tools",
+        "2c_registered_version_is_the_release",
+        "2b_doctor_clean",
+        "3_tools_version_is_the_pin"
+      ],
+      "no_tools": ["1b_app_without_tools_registered_nothing"]
+    },
+    "hosts": {
+      "tools": [
+        "hosts_1_registry_entry_declares_the_hosts",
+        "hosts_2_reference_function_matches_the_matrix",
+        "hosts_3_list_shows_the_declaration"
+      ],
+      "no_tools": ["hosts_1_app_without_tools_registers_nothing"]
+    },
+    "cases": {
+      "tools": ["4_cases_suite", "4_every_tool_has_a_case", "4n_notebook_forms_build_for_every_tool"]
+    },
+    "retention": {
+      "tools": [
+        "6_runs_complete",
+        "6a_markers_present",
+        "6b_results_keep_newest_20",
+        "6d_prune_dry_run_json",
+        "6e_foreign_folders_left_alone",
+        "6f_run_records_keep_50"
+      ]
+    },
+    "uninstall": {
+      "all": [
+        "8d_user_sentinel_kept",
+        "8e_user_results_kept",
+        "8f_other_app_entry_kept",
+        "8g_home_file_kept",
+        "8h_app_home_data_kept"
+      ],
+      "unix": ["8a_prefix_removed", "8b_registry_entry_removed", "8c_no_warning"],
+      "windows": ["8b_registry_entry_removed_by_uninstaller"]
+    },
+    "windows_only": {
+      "windows": ["W2_no_cmd_syntax_errors_in_menuinst_debug_log"],
+      "windows_tools": ["W3_list_shows_the_real_version", "W5a_no_app_python_left_after_workers_closed"]
+    }
+  }
+}
