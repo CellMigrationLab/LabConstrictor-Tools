@@ -254,4 +254,7 @@ class Documented(unittest.TestCase):
     def test_there_is_no_feature_id_for_them(self) -> None:
         from labconstrictor_tools import features
 
-        self.assertEqual(sorted(features.FEATURES), ["reserved_inputs_v1", "retention_prune", "shm_order_v1"])
+        self.assertEqual(
+            sorted(features.FEATURES),
+            ["app_hosts_v1", "reserved_inputs_v1", "retention_prune", "shm_order_v1"],
+        )

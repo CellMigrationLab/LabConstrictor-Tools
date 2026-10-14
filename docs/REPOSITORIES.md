@@ -21,7 +21,7 @@ The toolkit defines the [schema and worker protocol](PROTOCOL.md). Hosts read ca
 
 Hosts do **not** need to install the application's scientific dependencies. The application does **not** need to import Napari, Fiji or QuPath.
 
-**Registration is not a host-by-host approval process.** An application with a valid registered manifest is discoverable by any host supporting that protocol. The practical value of a particular tool depends on the host's workflow and on whether its inputs and outputs are relevant there.
+**Registration is not a host-by-host approval process, but the app's `hosts:` line is binding.** An application with a valid registered manifest is discoverable by every host its `hosts:` names (none of the others lists it, [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app)). The practical value of a particular tool depends on the host's workflow and on whether its inputs and outputs are relevant there.
 
 This is a shared contract, **not a promise that every host implements every presentation hint**. For example, an image selection, a dynamic dropdown or an output table may be handled differently by each host. Consult the relevant host README for current behavior and limits.
 

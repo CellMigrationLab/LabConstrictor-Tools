@@ -22,6 +22,7 @@ import time
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
+from . import app_hosts
 from .command import quote
 from .structures import AppSchema, RegistryEntry
 
@@ -119,9 +120,19 @@ def register(
     pythonpath: Sequence[str | Path] = (),
     display_name: str | None = None,
     directory: str | Path | None = None,
+    hosts: Sequence[str] | None = None,
 ) -> RegistryEntry:
-    """Register an installed app: generate its schema with the app's own interpreter, cache it, write the entry."""
+    """Register an installed app: generate its schema with the app's own interpreter, cache it, write the entry.
+
+    `hosts` is the app's declared list (app_hosts.py): invalid -> ValueError and nothing is written; None -> the entry has no
+    `hosts` field, so every host lists the app, and that is logged (older installers register this way).
+    """
     _check_name(name)
+    declared = (
+        None
+        if hosts is None
+        else app_hosts.parse_declared(hosts if isinstance(hosts, (str, list)) else list(hosts))
+    )
     # a relative path is only meaningful from the folder the person registered in: store absolute ones (not resolved, a venv's python is a symlink)
     prefix = os.path.abspath(prefix)
     pythonpath = [os.path.abspath(x) for x in pythonpath]
@@ -153,6 +164,12 @@ def register(
         "tools_version": str(generated.get("tools_version", "")),
         "features": [str(x) for x in generated.get("features", [])],
     }
+    if declared is None:
+        from . import log
+
+        log.warning(app_hosts.ABSENT.format(app=name))
+    else:
+        entry["hosts"] = declared
     _write_atomic(
         target / (name + ".json"), json.dumps(entry, indent=2)
     )  # entry last: it is what makes the app visible

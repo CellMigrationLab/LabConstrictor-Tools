@@ -30,7 +30,10 @@ class Schema(unittest.TestCase):
 
     def test_the_ids_of_this_version(self) -> None:
         # shm_order_v1 (PR #125) is what tells 0.3.0a1 from the rc.1 / rc.2 / main that all reported 0.2.0rc1 with the first two
-        self.assertEqual(sorted(features.FEATURES), ["reserved_inputs_v1", "retention_prune", "shm_order_v1"])
+        self.assertEqual(
+            sorted(features.FEATURES),
+            ["app_hosts_v1", "reserved_inputs_v1", "retention_prune", "shm_order_v1"],
+        )
         text = (ROOT / "docs" / "PROTOCOL.md").read_text(encoding="utf-8")
         self.assertIn("The behaviour already existed (PR #125) before the id", text)
         self.assertIn(

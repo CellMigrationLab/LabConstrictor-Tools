@@ -2171,5 +2171,500 @@
    ],
    "cli": "the worker is the reference"
   }
+ },
+ "app_hosts": {
+  "_about": "docs/PROTOCOL.md, 'App hosts'. Reference: labconstrictor_tools.app_hosts.listed_for(entry, host) -> (listed, sentence). A host reads the registry entry's `hosts` and never lists an app that excludes it. Each case: the `entry` (only the fields that matter), the asking `host`, `expect` listed | not_listed | error, and the exact `sentence` (the text the host shows or logs; empty for none). 'error' means the host's own code is wrong (an unknown host name): the host test expects an exception, never a verdict. The three sentences are the templates in `messages` of this section (not the top-level `messages`, which are tied to SPEC_WRONG_SCIENCE).",
+  "feature": "app_hosts_v1",
+  "messages": {
+   "not_listed": {
+    "template": "'{app}' is not listed in {host}: the app declares hosts: {hosts}"
+   },
+   "absent": {
+    "template": "'{app}' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose"
+   },
+   "invalid": {
+    "template": "'{app}' is not listed in {host}: its hosts declaration is not valid ({problem}); register the app again with a valid one"
+   }
+  },
+  "known_hosts": [
+   "notebook",
+   "napari",
+   "fiji",
+   "qupath"
+  ],
+  "cases": [
+   {
+    "case": "matrix: CellTracksColab in napari",
+    "entry": {
+     "name": "CellTracksColab",
+     "hosts": [
+      "notebook"
+     ]
+    },
+    "host": "napari",
+    "expect": "not_listed",
+    "sentence": "'CellTracksColab' is not listed in napari: the app declares hosts: notebook"
+   },
+   {
+    "case": "matrix: CellTracksColab in fiji",
+    "entry": {
+     "name": "CellTracksColab",
+     "hosts": [
+      "notebook"
+     ]
+    },
+    "host": "fiji",
+    "expect": "not_listed",
+    "sentence": "'CellTracksColab' is not listed in fiji: the app declares hosts: notebook"
+   },
+   {
+    "case": "matrix: CellTracksColab in qupath",
+    "entry": {
+     "name": "CellTracksColab",
+     "hosts": [
+      "notebook"
+     ]
+    },
+    "host": "qupath",
+    "expect": "not_listed",
+    "sentence": "'CellTracksColab' is not listed in qupath: the app declares hosts: notebook"
+   },
+   {
+    "case": "matrix: GuessTheCondition in napari",
+    "entry": {
+     "name": "GuessTheCondition",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "napari",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: GuessTheCondition in fiji",
+    "entry": {
+     "name": "GuessTheCondition",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "fiji",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: GuessTheCondition in qupath",
+    "entry": {
+     "name": "GuessTheCondition",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "qupath",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: Playground in napari",
+    "entry": {
+     "name": "Playground",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "napari",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: Playground in fiji",
+    "entry": {
+     "name": "Playground",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "fiji",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: Playground in qupath",
+    "entry": {
+     "name": "Playground",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "qupath",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: NucleiSky in napari",
+    "entry": {
+     "name": "NucleiSky",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "napari",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: NucleiSky in fiji",
+    "entry": {
+     "name": "NucleiSky",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "fiji",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: NucleiSky in qupath",
+    "entry": {
+     "name": "NucleiSky",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji",
+      "qupath"
+     ]
+    },
+    "host": "qupath",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: VLab4Mic in napari",
+    "entry": {
+     "name": "VLab4Mic",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji"
+     ]
+    },
+    "host": "napari",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: VLab4Mic in fiji",
+    "entry": {
+     "name": "VLab4Mic",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji"
+     ]
+    },
+    "host": "fiji",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: VLab4Mic in qupath",
+    "entry": {
+     "name": "VLab4Mic",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji"
+     ]
+    },
+    "host": "qupath",
+    "expect": "not_listed",
+    "sentence": "'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji"
+   },
+   {
+    "case": "matrix: CellTracksColab in notebook (the notebook is always allowed to list a notebook app)",
+    "entry": {
+     "name": "CellTracksColab",
+     "hosts": [
+      "notebook"
+     ]
+    },
+    "host": "notebook",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "matrix: VLab4Mic in notebook",
+    "entry": {
+     "name": "VLab4Mic",
+     "hosts": [
+      "notebook",
+      "napari",
+      "fiji"
+     ]
+    },
+    "host": "notebook",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "absent field: listed in napari, and the sentence says why",
+    "entry": {
+     "name": "OldApp"
+    },
+    "host": "napari",
+    "expect": "listed",
+    "sentence": "'OldApp' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose"
+   },
+   {
+    "case": "absent field: listed in fiji, and the sentence says why",
+    "entry": {
+     "name": "OldApp"
+    },
+    "host": "fiji",
+    "expect": "listed",
+    "sentence": "'OldApp' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose"
+   },
+   {
+    "case": "absent field: listed in qupath, and the sentence says why",
+    "entry": {
+     "name": "OldApp"
+    },
+    "host": "qupath",
+    "expect": "listed",
+    "sentence": "'OldApp' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose"
+   },
+   {
+    "case": "declaration order is kept in the sentence",
+    "entry": {
+     "name": "Odd",
+     "hosts": [
+      "qupath",
+      "notebook"
+     ]
+    },
+    "host": "fiji",
+    "expect": "not_listed",
+    "sentence": "'Odd' is not listed in fiji: the app declares hosts: qupath, notebook"
+   },
+   {
+    "case": "only one host",
+    "entry": {
+     "name": "Solo",
+     "hosts": [
+      "fiji"
+     ]
+    },
+    "host": "fiji",
+    "expect": "listed",
+    "sentence": ""
+   },
+   {
+    "case": "only one host: another host",
+    "entry": {
+     "name": "Solo",
+     "hosts": [
+      "fiji"
+     ]
+    },
+    "host": "napari",
+    "expect": "not_listed",
+    "sentence": "'Solo' is not listed in napari: the app declares hosts: fiji"
+   },
+   {
+    "case": "empty list is invalid: not listed anywhere",
+    "entry": {
+     "name": "Empty",
+     "hosts": []
+    },
+    "host": "napari",
+    "expect": "not_listed",
+    "sentence": "'Empty' is not listed in napari: its hosts declaration is not valid (hosts is empty; write at least notebook); register the app again with a valid one"
+   },
+   {
+    "case": "string instead of a list is invalid",
+    "entry": {
+     "name": "Text",
+     "hosts": "napari"
+    },
+    "host": "napari",
+    "expect": "not_listed",
+    "sentence": "'Text' is not listed in napari: its hosts declaration is not valid (hosts must be a list of host names); register the app again with a valid one"
+   },
+   {
+    "case": "null is invalid (the key is present)",
+    "entry": {
+     "name": "Null",
+     "hosts": null
+    },
+    "host": "fiji",
+    "expect": "not_listed",
+    "sentence": "'Null' is not listed in fiji: its hosts declaration is not valid (hosts must be a list of host names); register the app again with a valid one"
+   },
+   {
+    "case": "a number is invalid",
+    "entry": {
+     "name": "Num",
+     "hosts": 3
+    },
+    "host": "qupath",
+    "expect": "not_listed",
+    "sentence": "'Num' is not listed in qupath: its hosts declaration is not valid (hosts must be a list of host names); register the app again with a valid one"
+   },
+   {
+    "case": "an object is invalid",
+    "entry": {
+     "name": "Obj",
+     "hosts": {
+      "napari": true
+     }
+    },
+    "host": "napari",
+    "expect": "not_listed",
+    "sentence": "'Obj' is not listed in napari: its hosts declaration is not valid (hosts must be a list of host names); register the app again with a valid one"
+   },
+   {
+    "case": "a non-text item is invalid",
+    "entry": {
+     "name": "Item",
+     "hosts": [
+      "napari",
+      1
+     ]
+    },
+    "host": "napari",
+    "expect": "not_listed",
+    "sentence": "'Item' is not listed in napari: its hosts declaration is not valid (hosts must contain only text); register the app again with a valid one"
+   },
+   {
+    "case": "unknown host name in the list is invalid for every host",
+    "entry": {
+     "name": "Typo",
+     "hosts": [
+      "napari",
+      "napary"
+     ]
+    },
+    "host": "napari",
+    "expect": "not_listed",
+    "sentence": "'Typo' is not listed in napari: its hosts declaration is not valid (unknown host name 'napary' (known: notebook, napari, fiji, qupath)); register the app again with a valid one"
+   },
+   {
+    "case": "names are case sensitive",
+    "entry": {
+     "name": "Case",
+     "hosts": [
+      "Napari"
+     ]
+    },
+    "host": "napari",
+    "expect": "not_listed",
+    "sentence": "'Case' is not listed in napari: its hosts declaration is not valid (unknown host name 'Napari' (known: notebook, napari, fiji, qupath)); register the app again with a valid one"
+   },
+   {
+    "case": "a repeated name is invalid",
+    "entry": {
+     "name": "Twice",
+     "hosts": [
+      "fiji",
+      "fiji"
+     ]
+    },
+    "host": "fiji",
+    "expect": "not_listed",
+    "sentence": "'Twice' is not listed in fiji: its hosts declaration is not valid (host name 'fiji' appears twice); register the app again with a valid one"
+   },
+   {
+    "case": "unknown asking host is an error of the host, not an answer",
+    "entry": {
+     "name": "Any",
+     "hosts": [
+      "napari"
+     ]
+    },
+    "host": "emacs",
+    "expect": "error"
+   },
+   {
+    "case": "unknown asking host is an error even when hosts is absent",
+    "entry": {
+     "name": "Any"
+    },
+    "host": "Napari",
+    "expect": "error"
+   }
+  ],
+  "compat_cases": [
+   {
+    "case": "Tools with the feature",
+    "schema": {
+     "protocol": 1,
+     "tools_version": "0.3.0a1",
+     "features": [
+      "reserved_inputs_v1",
+      "app_hosts_v1"
+     ]
+    },
+    "expect": "ok"
+   },
+   {
+    "case": "Tools without the id (a 0.3.0a1 build from before app_hosts_v1)",
+    "schema": {
+     "protocol": 1,
+     "tools_version": "0.3.0a1",
+     "features": [
+      "reserved_inputs_v1",
+      "retention_prune",
+      "shm_order_v1"
+     ]
+    },
+    "expect": "refuse",
+    "reason_contains": "app_hosts_v1"
+   },
+   {
+    "case": "Tools 0.2.0rc1 lists no app_hosts_v1",
+    "schema": {
+     "protocol": 1,
+     "tools_version": "0.2.0rc1",
+     "features": [
+      "reserved_inputs_v1",
+      "retention_prune"
+     ]
+    },
+    "expect": "refuse",
+    "reason_contains": "app_hosts_v1"
+   }
+  ],
+  "compat_rule": {
+   "min_tools_version": "0.3.0a1",
+   "required_features": [
+    "app_hosts_v1"
+   ]
+  }
  }
 }
