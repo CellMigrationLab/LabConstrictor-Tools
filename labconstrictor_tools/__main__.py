@@ -65,6 +65,14 @@ def _add_register_command(sub: "Subparsers") -> None:
     register.add_argument("--version", default="")
     register.add_argument("--display-name")
     register.add_argument("--pythonpath", action="append", default=[])
+    declared = register.add_mutually_exclusive_group()
+    declared.add_argument(
+        "--hosts", help="hosts that may list the app, e.g. notebook,napari,fiji (app_hosts.py)"
+    )
+    declared.add_argument(
+        "--app-manifest",
+        help="labconstrictor-app.yaml of the app: its hosts: line says which hosts may list it",
+    )
     register.add_argument(
         "--dir", help="write the entry here instead of the per-user registry (e.g. a shared folder)"
     )
@@ -102,6 +110,7 @@ def _add_check_command(sub: "Subparsers") -> None:
     check = sub.add_parser("check", help="validate a declaration module (for app authors)")
     check.add_argument("--module", required=True)
     check.add_argument("--pythonpath", action="append", default=[])
+    check.add_argument("--app-manifest", help="also check the hosts: line of this labconstrictor-app.yaml")
 
 
 def _add_test_command(sub: "Subparsers") -> None:
@@ -215,10 +224,22 @@ def _main(argv: list[str] | None = None) -> int:
 
         Worker(args.module, args.pythonpath).serve()
     elif args.command == "register":
-        from . import registry
+        from . import app_hosts, registry
 
+        try:
+            hosts = app_hosts.from_arguments(args.hosts, args.app_manifest)
+        except ValueError as problem:
+            print("labconstrictor-tools register: %s; nothing was registered" % problem, file=sys.stderr)
+            return 2
         entry = registry.register(
-            args.name, args.prefix, args.module, args.version, args.pythonpath, args.display_name, args.dir
+            args.name,
+            args.prefix,
+            args.module,
+            args.version,
+            args.pythonpath,
+            args.display_name,
+            args.dir,
+            hosts,
         )
         print(json.dumps(entry, indent=2))
     elif args.command == "unregister":
@@ -226,10 +247,10 @@ def _main(argv: list[str] | None = None) -> int:
 
         print(registry.unregister(args.name, args.dir, args.prefix))
     else:
-        from . import cli
+        from . import cli, cli_list
 
         return {
-            "list": cli.cmd_list,
+            "list": cli_list.cmd_list,
             "run": cli.cmd_run,
             "check": cli.cmd_check,
             "test": cli.cmd_test,

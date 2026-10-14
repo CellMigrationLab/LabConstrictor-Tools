@@ -1,0 +1,31 @@
+{
+  "expected_hosts": 1,
+  "_about": "Which hosts must list each app in the release sandbox: the per-host discovery matrix decided on 14 Oct 2026 (docs/PROTOCOL.md, 'App hosts'). Keys are the app's name in construct.yaml. `hosts` is what the app's labconstrictor-app.yaml must declare; every host listed there must LIST the app and every other host must NOT list it (a `not_listed` assertion, not an absence of a check). `tools_module`: 'required' = the app must ship a *_lc_tools module and lc_tests/cases.json; 'optional' = the app may have none (then nothing is registered, the sandbox says so and checks that nothing is, instead of skipping silently). Read by expected_hosts.py; shared with the Fiji and QuPath drivers (README.md).",
+  "apps": {
+    "LabConstrictorPlayground": {
+      "repo": "CellMigrationLab/LabConstrictor-Playground",
+      "hosts": ["notebook", "napari", "fiji", "qupath"],
+      "tools_module": "required"
+    },
+    "NucleiSky": {
+      "repo": "CellMigrationLab/NucleiSky",
+      "hosts": ["notebook", "napari", "fiji", "qupath"],
+      "tools_module": "required"
+    },
+    "GuessTheCondition": {
+      "repo": "CellMigrationLab/guessthecondition",
+      "hosts": ["notebook", "napari", "fiji", "qupath"],
+      "tools_module": "required"
+    },
+    "VLab4Mic": {
+      "repo": "CellMigrationLab/labconstrictor-vlab4mic",
+      "hosts": ["notebook", "napari", "fiji"],
+      "tools_module": "required"
+    },
+    "CellTracksColab": {
+      "repo": "CellMigrationLab/CellTracksColab",
+      "hosts": ["notebook"],
+      "tools_module": "optional"
+    }
+  }
+}

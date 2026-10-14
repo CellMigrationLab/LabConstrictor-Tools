@@ -53,6 +53,9 @@ A tool declares itself with Python types and a few markers; hosts (Napari, Fiji,
 | `ClearAfterRun()` | after a successful run the parameter goes back to its default (or unset) |
 | `Replace()` | a new run replaces the previous result of this output (one layer, window or table) instead of adding another |
 
+## 5. Where the app is listed: `hosts:` (app manifest, not a tool marker)
+This one is not a marker on a tool: it is a line of the app's `labconstrictor-app.yaml`, `hosts: [notebook, napari, fiji, qupath]`, and it is **binding**. Registration copies it into the registry entry and a host never lists an app that does not name it ([PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app), feature `app_hosts_v1`). Write the hosts you have tested the app in; `[notebook]` alone means "no host lists it" (the tools stay usable from the command line). An empty list, a misspelt or capitalised name and a repeated name are refused at registration. A manifest with no `hosts:` line is accepted and the app is then listed in every host, with a warning in the log and in `check --app-manifest`: older installers work that way, new apps should say what they mean. `labconstrictor-tools check --module M --app-manifest labconstrictor-app.yaml` prints the line, and the installer's `register` step passes `--app-manifest` (the file has to be one of the installer's bundled files).
+
 ## Errors and progress (not markers)
 `ToolError("code", "message")` gives the person a readable message (`no_result` and `no_match` are shown as notices, not failures); `progress(fraction, "text")` updates the progress bar; `check_cancel()` lets Cancel stop the tool between steps.
 

@@ -1,11 +1,21 @@
 """Napari host check for an installed app (LC_APP; LC_EXTRAS=playground adds the Playground's stress scenarios) (run in a venv with napari + labconstrictor-tools + napari-labconstrictor, under xvfb).
-LC_HOME must hold the Playground's registry entry."""
+LC_HOME must hold the app's registry entry (none when the app ships no tools).
+
+LC_EXPECT_NAPARI is required and never defaulted: `listed` (the app and every tool of it are offered) or `not_listed` (the app
+is NOT offered, and when it is registered the sentence of the hosts rule is in the Tools log: LC_EXPECT_SENTENCE). The value
+comes from tests/release_sandbox/expected_hosts.json (docs/PROTOCOL.md, "App hosts")."""
 
 import json
 import os
 import sys
 import time
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, NoReturn
+
+EXPECT = os.environ.get("LC_EXPECT_NAPARI", "")
+SENTENCE = os.environ.get("LC_EXPECT_SENTENCE", "")
+if EXPECT not in ("listed", "not_listed"):
+    sys.exit("LC_EXPECT_NAPARI must be 'listed' or 'not_listed' (from expected_hosts.json), got %r" % EXPECT)
 
 import napari
 import numpy as np
@@ -61,9 +71,32 @@ def run() -> "Any":
     return wait()
 
 
+def finish() -> NoReturn:
+    print("NAPARI SUMMARY failed=%s" % bad, flush=True)
+    v.close()
+    pump(3.0)
+    sys.exit(1 if bad else 0)
+
+
+def log_text() -> str:
+    log = Path(os.environ["LC_HOME"]) / "logs" / "labconstrictor.log"
+    return log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
+
+
 pump(1.0)
 apps = list(w.app_box.choices)
-rec("napari_lists_playground", APP in apps, "apps=%s" % apps)
+if EXPECT == "not_listed":
+    rec("napari_does_not_list_the_app", APP not in apps, "apps=%s" % apps)
+    if (Path(os.environ["LC_HOME"]) / "apps" / (APP + ".json")).exists():
+        rec(
+            "napari_logs_why_it_skipped_the_app",
+            bool(SENTENCE) and SENTENCE in log_text(),
+            "sentence=%r" % SENTENCE,
+        )
+    else:
+        print("NOTE napari_no_registry_entry: the app ships no tools, there is nothing to skip", flush=True)
+    finish()
+rec("napari_lists_the_app", APP in apps, "apps=%s" % apps)
 w.app_box.value = APP
 pump(0.5)
 labels = list(w.tool_box.choices)
@@ -157,7 +190,4 @@ if EXTRAS:
     )
 
 
-print("NAPARI SUMMARY failed=%s" % bad, flush=True)
-v.close()
-pump(3.0)
-sys.exit(1 if bad else 0)
+finish()

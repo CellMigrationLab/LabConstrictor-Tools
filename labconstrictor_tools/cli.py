@@ -1,6 +1,6 @@
 """Command-line tools for authors and administrators (the same declarations also give batch use for free).
 
-labconstrictor-tools list                          installed apps and their tools
+labconstrictor-tools list                          installed apps, their tools and the hosts that may list them (cli_list.py)
 labconstrictor-tools run APP TOOL name=value ...   run a tool without any GUI (see `run APP TOOL --help`)
 labconstrictor-tools check --module M              validate a declaration module (cheap to import? bounds sane? ...)
 labconstrictor-tools doctor                        diagnose the installation (interpreters, schemas, staleness)
@@ -21,7 +21,7 @@ from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
-from . import log, registry, retention
+from . import app_hosts, log, registry, retention
 from .client import Task
 from .command import quote
 from .structures import AppSchema, ParamSchema, RegistryEntry, ToolSchema
@@ -37,21 +37,6 @@ HEAVY_MODULES = (
     "cellpose",
     "numba",
 )
-
-
-# ---------------------------------------------------------------- list
-def cmd_list(args: argparse.Namespace) -> int:
-    schemas, problems = registry.load_schemas()
-    if args.json:
-        print(json.dumps({"apps": schemas, "problems": problems}, indent=2))
-        return 0
-    for name, schema in sorted(schemas.items()):
-        print("%s  (%s)" % (name, schema.get("version") or "no version"))
-        for tool in schema["tools"]:
-            print("    %-24s %s" % (tool["id"], tool["label"]))
-    for name, reason in problems:
-        print("%s  -- skipped: %s" % (name, reason))
-    return 0
 
 
 # ---------------------------------------------------------------- run
@@ -308,6 +293,10 @@ def cmd_check(args: argparse.Namespace) -> int:
         for o in tool["outputs"]:
             print("      out %-24s %-8s%s" % (o["name"], o["type"], _hints(o)))
     print("%d tool(s); declarations load in %.0f ms" % (len(tools_in(args.module)), seconds * 1000))
+    manifest_code = 0
+    if args.app_manifest:
+        manifest_code, line = app_hosts.manifest_report(args.app_manifest)
+        print(line)
     if heavy:
         print(
             "⚠ importing this module also imported %s - move those imports inside the tool functions so that"
@@ -318,7 +307,7 @@ def cmd_check(args: argparse.Namespace) -> int:
         )
     if seconds > SLOW_DECLARATIONS_S:
         print("⚠ loading the declarations took %.1f s" % seconds)
-    return 0
+    return manifest_code
 
 
 # ---------------------------------------------------------------- test (for authors)

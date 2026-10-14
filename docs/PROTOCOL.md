@@ -63,6 +63,7 @@ Feature ids (the implemented ones are in `FEATURES`; a planned id appears there 
 | `calibration_per_axis` | the worker copies the per-axis `_calibration` into the run record ([SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) 2.3.4) | planned (registration/calibration PRs) |
 | `retention_prune` | the CLI command `labconstrictor-tools prune [--root results\|runs\|all] [--dry-run] [--json]` and `labconstrictor_tools.retention`: only folders carrying a valid `.lc-owner.json` and a `.lc-done.json` are ever removed ([SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) section 3; hosts only mark a run finished, then start `prune`) | in 0.2.0rc1 (tag `v0.2.0-rc.1`) and every later version |
 | `shm_order_v1` | a shared-memory image descriptor's `order` is honoured: `C` / `C_ORDER` (or no `order`) and `F` / `F_ORDER` read the block in the order it was written, the tool always gets a C-ordered copy; any other value is refused with `unreadable_image` and a message naming `'C' or 'F'` (a block read in the wrong order would give the transposed image with no error) | in 0.3.0a1. **The behaviour already existed (PR #125) before the id: this is the one case where the id is added after the change, because versions 0.2.0rc1 and 0.2.0rc2 and `main` all reported the same `features` and could not be told apart; from now on an id is added in the change that implements the behaviour.** A host that sends `F` blocks requires it |
+| `app_hosts_v1` | `register` records the app's declared `hosts` (a list of `notebook`, `napari`, `fiji`, `qupath`) in the registry entry, and every host lists an app only for a host named in that list ([App hosts](#app-hosts-which-host-lists-an-app) below); an entry without `hosts` stays listed in every host and says so | in 0.3.0a1 (added before the tag `v0.3.0-alpha.1`). A host that honours the rule requires it |
 
 ### Compatibility rules for hosts
 A host that needs a minimum states it as `(min_tools_version, required_features)` and applies the rules below to every schema it loads, with `labconstrictor_tools.compat.check_schema` (Python hosts: Napari, notebooks) or the same rules written in its own language (Fiji, QuPath; the data is in `conformance.json`, [CONFORMANCE.md](CONFORMANCE.md), `compat` section). The result is `ok`, `warn` or `refuse`, with one sentence for the person:
@@ -72,9 +73,38 @@ A host that needs a minimum states it as `(min_tools_version, required_features)
 4. `tools_version` below the minimum: `refuse`. Below the optional `warn_below` version but not below the minimum: `warn`.
 5. Otherwise `ok`. A `tools_version` the host cannot parse is `warn` (never a crash).
 6. A host that starts `prune` after a run lists `retention_prune` in its required features, or checks the feature before it starts the subprocess: a Tools without it has no `prune` command. If the feature is missing the host starts nothing and never deletes a folder itself (SPEC_WRONG_SCIENCE 3.1.4); the folders then accumulate until Tools is updated.
+7. A host that applies the per-host listing rule ([App hosts](#app-hosts-which-host-lists-an-app)) lists `app_hosts_v1` in its required features (with `min_tools_version` `0.3.0a1`): an app whose Tools lacks it is refused by rule 2, with the sentence "lacks app_hosts_v1: update it" (`conformance.json`, `app_hosts.compat_cases`).
 Version order is PEP 440 for the forms used here: `0.2.0a1 < 0.2.0b1 < 0.2.0rc1 < 0.2.0 < 0.2.1`. A host in the release-candidate phase writes the minimum as `0.2.0rc1`; the alpha for the first human tests is `0.3.0a1` (tag `v0.3.0-alpha.1`), and `0.2.0rc1 < 0.3.0a1 < 0.3.0`.
 
-**Which Tools is which.** `v0.2.0-rc.1`, `v0.2.0-rc.2` and `main` until `0.3.0a1` all reported `__version__` `0.2.0rc1` and `features` `[reserved_inputs_v1, retention_prune]` although their code differs; `0.3.0a1` is the first number that tells them apart. Differences a host can rely on, by number: `shm_order_v1` (feature id) and the three `runs` functions below need `0.3.0a1`. Not an id, because it has no behavioural contract: **Tools >= 0.3.0a1 maps big TIFF files** (uncompressed, contiguous files of at least 8 MiB are opened as a copy-on-write memory map, so loading is faster and uses less memory; `LC_TIFF_MEMMAP=0` reads them the plain way). A host can only observe it as speed and memory use, and as the Windows file lock described in [OPERATIONS.md](OPERATIONS.md#troubleshooting).
+**Which Tools is which.** `v0.2.0-rc.1`, `v0.2.0-rc.2` and `main` until `0.3.0a1` all reported `__version__` `0.2.0rc1` and `features` `[reserved_inputs_v1, retention_prune]` although their code differs; `0.3.0a1` is the first number that tells them apart. Differences a host can rely on, by number: `shm_order_v1` and `app_hosts_v1` (feature ids) and the three `runs` functions below need `0.3.0a1`. Not an id, because it has no behavioural contract: **Tools >= 0.3.0a1 maps big TIFF files** (uncompressed, contiguous files of at least 8 MiB are opened as a copy-on-write memory map, so loading is faster and uses less memory; `LC_TIFF_MEMMAP=0` reads them the plain way). A host can only observe it as speed and memory use, and as the Windows file lock described in [OPERATIONS.md](OPERATIONS.md#troubleshooting).
+
+## App hosts (which host lists an app)
+Decision of 14 Oct 2026: **the per-host discovery matrix is enforced by Tools and honoured by every host.** An app declares which hosts may list it; a host never lists an app whose declaration excludes it. Feature id `app_hosts_v1`; reference: `labconstrictor_tools.app_hosts` (`listed_for`), vectors: `conformance.json`, section `app_hosts`.
+
+**Where the declaration comes from.** The app's `labconstrictor-app.yaml` (App Centre metadata, schema `.tools/schema/labconstrictor-app.schema.json`) has `hosts: [notebook, napari, fiji, qupath]`. The installer passes it to registration: `labconstrictor-tools register ... --app-manifest <labconstrictor-app.yaml>` (reads that one key; the file must be bundled with the installer) or `--hosts notebook,napari` (the same list typed out; the two are exclusive). `register` validates the list and writes it into the registry entry `<name>.json` as `hosts` (a list, in the order declared). `labconstrictor-tools check --module M --app-manifest <file>` shows the same line to an author before release. The cached schema is not changed: the field is in the entry only.
+
+**The rule, for every host.** For each registered app the host calls `listed_for(entry, "<its own name>")` (`napari`, `fiji` or `qupath`; Fiji and QuPath write the same rule in their language) and acts on the pair `(listed, sentence)`:
+
+| Entry `hosts` | listed | sentence (exact; `{app}` is the entry's `name`, the list is written as declared, separated by `, `) |
+|---|---|---|
+| contains the host | yes | none |
+| valid, does not contain the host | **no** | `'{app}' is not listed in {host}: the app declares hosts: {hosts}` |
+| absent (older installers) | yes, **in every host** | `'{app}' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose` |
+| present but not valid: not a list, empty, a non-text item, an unknown or repeated name, a name in capitals | **no**, in no host | `'{app}' is not listed in {host}: its hosts declaration is not valid ({problem}); register the app again with a valid one` |
+
+The problems are: `hosts must be a list of host names`, `hosts is empty; write at least notebook`, `hosts must contain only text`, `unknown host name 'x' (known: notebook, napari, fiji, qupath)`, `host name 'x' appears twice`. An unknown name for the asking host is a bug in the host, not an answer: the function raises ValueError (the vectors expect an error).
+
+**Not silent.** A host writes every non-empty sentence to the Tools log (a skipped app, a listing by the compatibility rule); it shows the skip sentence wherever it already reports apps it leaves out. The absent-field case is the backward-compatibility rule: it exists so that an app installed by an older installer keeps working, and it is logged each time so nobody believes the app made a choice.
+
+**What is not filtered.** The command line (`labconstrictor-tools list|run|check|test`), notebooks (`%%lc_tool`, `run_once`) and the worker are never filtered: `hosts` decides what Napari, Fiji and QuPath offer, nothing else. `labconstrictor-tools list` prints the declaration of every app (`hosts: notebook, fiji`, `not declared (listed in every host)`, or `INVALID (...)`), and `list --json` adds `"hosts": {app: [...] | null}` (null: not declared). An app that declares only `notebook` (CellTracksColab) is registered, usable from the command line and hidden from all three hosts.
+
+**Matrix agreed on 14 Oct 2026** (the sandbox reads it from `tests/release_sandbox/expected_hosts.json`, [tests/release_sandbox/README.md](../tests/release_sandbox/README.md)):
+
+| App | `hosts:` | Napari | Fiji | QuPath |
+|---|---|---|---|---|
+| CellTracksColab | `[notebook]` | no | no | no |
+| GuessTheCondition, Playground, NucleiSky | `[notebook, napari, fiji, qupath]` | yes | yes | yes |
+| VLab4Mic | `[notebook, napari, fiji]` | yes | yes | no |
 
 ## Result folders and run records (retention)
 Under `<LC_HOME>` two folders hold what runs leave behind: `results/<YYYYMMDDTHHMMSS>_<6 hex>_<app>_<tool>` (the files of a run) and `runs/<time>_<app>_<tool>` (the run record). Feature `retention_prune`; the full policy is [SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) section 3, in short:
@@ -152,7 +182,7 @@ Rules the worker enforces (each violation is written to the worker log/stderr):
   native libraries touch the stdin handle during initialisation and a pending read would deadlock them).
 
 ## Registry
-Entry `<name>.json` = `{name, display_name, version, prefix, python, module, pythonpath, runtime_path, schema_path, tools_version?, features?}` (the last two copy the schema's, see "Tools version and features"; an entry without them is from Tools before 0.2).
+Entry `<name>.json` = `{name, display_name, version, prefix, python, module, pythonpath, runtime_path, schema_path, tools_version?, features?, hosts?}` (`tools_version` and `features` copy the schema's, see "Tools version and features"; an entry without them is from Tools before 0.2; `hosts` is the app's declaration, see "App hosts": absent means listed in every host).
 Search order (first wins): `$LC_HOME/apps` (default `~/.labconstrictor/apps`), the directories in `$LC_APPS_PATH`, then the system
 directory (`%ProgramData%\LabConstrictor\apps`, `/Library/Application Support/LabConstrictor/apps`, `/etc/labconstrictor/apps`).
 An entry is skipped and reported when its interpreter is missing, is not inside `prefix`, its file is not owned by the user / is

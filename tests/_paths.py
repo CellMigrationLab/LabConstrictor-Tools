@@ -53,7 +53,7 @@ def register_synthetic(home: str | Path) -> None:
     env = {**os.environ, "LC_HOME": str(home), "PYTHONPATH": str(ROOT)}
     subprocess.run(
         [sys.executable, "-m", "labconstrictor_tools", "register", "--name", "synthetic", "--prefix", str(GENERIC_PREFIX),
-         "--module", SYNTHETIC_MODULE, "--version", "0.0"],
+         "--module", SYNTHETIC_MODULE, "--version", "0.0", "--hosts", "notebook,napari,fiji,qupath"],
         check=True, capture_output=True, env=env,
     )  # fmt: skip
 

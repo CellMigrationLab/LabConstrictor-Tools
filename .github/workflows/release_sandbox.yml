@@ -1,8 +1,11 @@
 # Clean-sandbox test of a RELEASED LabConstrictor app, dispatch only. The installers are downloaded from the release (nothing is built),
 # installed for real as a plain user into a fresh prefix with a scratch LC_HOME on fresh Linux / macOS (Apple silicon) / Windows runners, and
 # exercised with tests/release_sandbox/sandbox_checks.py (the app's own Python). What is checked comes from the app itself: its registered
-# schema, its lc_tests/cases.json and construct.yaml. Extras that only make sense for the LabConstrictor Playground (its own tool runs and
-# failure paths, the Fiji and QuPath host runs) are switched on with `playground_extras`.
+# schema, its lc_tests/cases.json and construct.yaml. Which hosts must LIST the app (and which must not) comes from
+# tests/release_sandbox/expected_hosts.json (the per-host discovery matrix, docs/PROTOCOL.md "App hosts"): Napari, Fiji and QuPath
+# each get a `listed` or a `not_listed` assertion for every app. Extras that only make sense for the LabConstrictor Playground (its own
+# tool runs and failure paths, its Fiji and QuPath tool cases) are switched on with `playground_extras`. Driver contract and
+# inputs: tests/release_sandbox/README.md.
 # Nothing is released, pushed or merged; the app repository is only read. See docs/TESTING.md ("Release sandbox").
 name: release-sandbox
 on:
@@ -24,33 +27,45 @@ on:
         description: "Tag of labconstrictor-tools the installed app must carry (empty: not checked)"
         required: false
         default: v0.3.0-alpha.1
-      hosts_napari:
-        description: "Run the Napari host check (LabConstrictor-napari) on all three systems"
+      expected_hosts:
+        description: "Hosts that must list the app, comma separated (empty: the row of this app in tests/release_sandbox/expected_hosts.json; an app without a row fails the run)"
         required: false
-        type: boolean
-        default: true
+        default: ""
+      hosts_napari:
+        description: "Napari host check on all three systems: auto = assert listed or not_listed as the app is expected; skip = do not run it"
+        required: false
+        type: choice
+        options: [auto, skip]
+        default: auto
+      hosts_fiji:
+        description: "Fiji host check (Linux): auto = run the listing driver (and the Playground cases with playground_extras); skip = do not run it"
+        required: false
+        type: choice
+        options: [auto, skip]
+        default: auto
       napari_ref:
         description: "Branch or tag of LabConstrictor-napari (default main: the development version; give a tag to pin it)"
         required: false
         default: main
       fiji_ref:
-        description: "Branch or tag of LabConstrictor-Fiji used with playground_extras (default main; give a tag to pin it)"
+        description: "Branch or tag of LabConstrictor-Fiji used for the Fiji host check (default main; give a tag to pin it)"
         required: false
         default: main
       qupath_ref:
-        description: "Branch or tag of labconstrictor-qupath used with playground_extras (default main; give a tag to pin it)"
+        description: "Branch or tag of labconstrictor-qupath used for the QuPath host check (default main; give a tag to pin it)"
         required: false
         default: main
       playground_extras:
-        description: "Playground only: its own tool runs and failure paths, Fiji (Linux) and QuPath (Linux) host runs"
+        description: "Playground only: its own tool runs and failure paths, and its Fiji and QuPath tool cases (Linux)"
         required: false
         type: boolean
         default: false
       hosts_qupath:
-        description: "With playground_extras: also run the QuPath GUI bodies (Linux)"
+        description: "QuPath host check (Linux): auto = run the listing body (and the Playground bodies with playground_extras); skip = do not run it"
         required: false
-        type: boolean
-        default: true
+        type: choice
+        options: [auto, skip]
+        default: auto
 
 env:
   APP_REPO: ${{ inputs.app_repo }}
@@ -60,6 +75,7 @@ env:
   PYTHONIOENCODING: utf-8
   TOOLS_PIN: ${{ inputs.tools_pin }}
   EXTRAS: ${{ inputs.playground_extras && 'playground' || '' }}
+  EXPECTED_HOSTS_OVERRIDE: ${{ inputs.expected_hosts }}
   RS: tests/release_sandbox
 
 jobs:
@@ -96,7 +112,20 @@ jobs:
           APP_NAME="$(sed -n 's/^name: *//p' app_src/construct.yaml | head -1 | tr -d "\"'\r ")"
           MODULE="$(ls app_src/src | grep '_lc_tools$' | head -1 | sed 's/\.py$//')"
           echo "app: $APP_NAME module: $MODULE cases: $(ls app_src/lc_tests/cases.json 2>&1)"
-          test -n "$APP_NAME" && test -n "$MODULE" && test -f app_src/lc_tests/cases.json
+          test -n "$APP_NAME"
+          # which hosts must list the app: expected_hosts.json (an app without a row, and no expected_hosts input, stops the run)
+          python3 $RS/expected_hosts.py env --app-name "$APP_NAME" --repo "$APP_REPO" --override "$EXPECTED_HOSTS_OVERRIDE" | tee expected_hosts.env
+          cat expected_hosts.env >> "$GITHUB_ENV"
+          TOOLS_MODULE="$(sed -n 's/^TOOLS_MODULE=//p' expected_hosts.env)"
+          if [ -n "$MODULE" ]; then
+            test -f app_src/lc_tests/cases.json
+            echo "HAS_TOOLS=true" >> "$GITHUB_ENV"; echo "NO_TOOLS_FLAG=" >> "$GITHUB_ENV"
+          elif [ "$TOOLS_MODULE" = optional ]; then
+            echo "CHECK tools_module_absent_as_declared PASS $APP_NAME has no *_lc_tools module and expected_hosts.json allows that: it must register nothing and no host may list it; tool, case and retention checks do not apply" | tee -a checks_install.txt
+            echo "HAS_TOOLS=false" >> "$GITHUB_ENV"; echo "NO_TOOLS_FLAG=--no-tools" >> "$GITHUB_ENV"
+          else
+            echo "$APP_NAME has no *_lc_tools module but expected_hosts.json says tools_module is required"; exit 1
+          fi
           { echo "H=$H"; echo "APP_NAME=$APP_NAME"; echo "MODULE=$MODULE"; echo "CASES=$PWD/app_src/lc_tests/cases.json"
             echo "PREFIX_DIR=$H/lcsandbox/app"; echo "UPD_DIR=$H/lcsandbox/upd"; echo "LC_HOME=$H/lcsandbox/lc_home"; echo "USER_SENTINEL=$H/lcsandbox/user_sentinel"; } >> "$GITHUB_ENV"
           if [ "$RUNNER_OS" = "Windows" ]; then echo "PY=$H/lcsandbox/app/python.exe" >> "$GITHUB_ENV"; echo "UPD_PY=$H/lcsandbox/upd/python.exe" >> "$GITHUB_ENV"
@@ -175,7 +204,14 @@ jobs:
 
       - name: (1,2,3) Log lines, list, doctor, version, pinned Tools
         run: |
-          "$PY" $RS/sandbox_checks.py basic --app "$APP_NAME" --prefix "$PREFIX_DIR" --expect-version "$TAG" --tools-pin "$TOOLS_PIN" | tee checks_basic.txt || true
+          "$PY" $RS/sandbox_checks.py basic --app "$APP_NAME" --prefix "$PREFIX_DIR" --expect-version "$TAG" --tools-pin "$TOOLS_PIN" $NO_TOOLS_FLAG | tee checks_basic.txt || true
+      - name: (H) The registered app declares the hosts of the matrix (registry entry, reference function, list)
+        run: |
+          if [ "$HAS_TOOLS" = true ]; then
+            "$PY" $RS/hosts_check.py entry --app "$APP_NAME" --expect-hosts "$EXPECT_HOSTS" | tee checks_hosts.txt || true
+          else
+            "$PY" $RS/hosts_check.py entry --app "$APP_NAME" --no-tools | tee checks_hosts.txt || true
+          fi
       - name: Make the app's own test fixtures when it generates them (lc_tests/make_fixtures.py, as NucleiSky does)
         run: |
           if [ -f app_src/lc_tests/make_fixtures.py ]; then
@@ -183,21 +219,23 @@ jobs:
             (cd app_src/lc_tests && "$PY" make_fixtures.py fixtures 2>&1 | tail -3) || echo "NOTE make_fixtures.py failed"
           else echo "the app ships its fixtures (or needs none)"; fi
       - name: (4) The app's own cases (lc_tests/cases.json) through the worker, the CLI and the notebook form
+        if: env.HAS_TOOLS == 'true'
         run: |
           "$PY" $RS/sandbox_checks.py cases --app "$APP_NAME" --module "$MODULE" --cases "$CASES" | tee checks_cases.txt || true
       - name: (6) Retention markers and prune (60 CLI runs, newest 20 results, 50 run records)
+        if: env.HAS_TOOLS == 'true'
         run: |
           "$PY" $RS/sandbox_checks.py retention --app "$APP_NAME" --cases "$CASES" --n-runs 60 | tee checks_retention.txt || true
           "$PY" -m labconstrictor_tools prune --dry-run --json > prune_dry.json || true
           head -c 1500 prune_dry.json || true
       - name: (4,5) Playground extras, its explicit tool runs and failure paths (missing pixel size, cancel, kill after cancel, crash)
-        if: env.EXTRAS == 'playground'
+        if: env.EXTRAS == 'playground' && env.HAS_TOOLS == 'true'
         run: |
           "$PY" $RS/playground_extras.py basic --prefix "$PREFIX_DIR" --tools-pin "$TOOLS_PIN" | tee checks_pg_basic.txt || true
           "$PY" $RS/playground_extras.py tools --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_tools.txt || true
           "$PY" $RS/playground_extras.py failures --prefix "$PREFIX_DIR" --fixtures app_src/lc_tests --work "$RUNNER_TEMP/work" | tee checks_pg_failures.txt || true
 
-      - name: Windows-only checks W2, W3 and W5 with worker processes
+      - name: Windows-only check W2 (no cmd syntax errors in the installer log)
         if: runner.os == 'Windows'
         run: |
           ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS $3"; else echo "CHECK $1 FAIL $3"; fi; }
@@ -206,6 +244,10 @@ jobs:
             if grep -aqi "$PHRASE" "$PREFIX_DIR/menuinst_debug.log"; then echo "  found '$PHRASE': $(grep -ai -m1 "$PHRASE" "$PREFIX_DIR/menuinst_debug.log")"; BAD=1; fi
           done
           ok W2_no_cmd_syntax_errors_in_menuinst_debug_log $BAD
+      - name: Windows-only checks W3 and W5a (list shows the real version; no app python left after workers closed)
+        if: runner.os == 'Windows' && env.HAS_TOOLS == 'true'
+        run: |
+          ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS $3"; else echo "CHECK $1 FAIL $3"; fi; }
           "$PY" -m labconstrictor_tools list | tee w3_list.txt | head -2
           grep -Fq "$APP_NAME  ($TAG)" w3_list.txt; ok W3_list_shows_the_real_version $? "$(head -1 w3_list.txt)"
           "$PY" - <<'PYEOF'
@@ -222,8 +264,8 @@ jobs:
           sleep 5
           powershell -NoProfile -Command "\$p=\$env:PREFIX_DIR.Replace('/','\\'); \$left=Get-CimInstance Win32_Process | Where-Object { \$_.ExecutablePath -and \$_.ExecutablePath.StartsWith(\$p) }; if (\$left) { \$left | ForEach-Object { Write-Host ('left over: ' + \$_.ProcessId + ' ' + \$_.CommandLine) }; Write-Host 'CHECK W5a_no_app_python_left_after_workers_closed FAIL' } else { Write-Host 'CHECK W5a_no_app_python_left_after_workers_closed PASS' }" | tee -a checks_install.txt
 
-      - name: Napari host check (software OpenGL on Windows and macOS, as the napari CI)
-        if: inputs.hosts_napari
+      - name: Napari host check, listed or not_listed as expected_hosts.json says (software OpenGL on Windows and macOS, as the napari CI)
+        if: inputs.hosts_napari != 'skip'
         continue-on-error: true
         run: |
           set +e
@@ -247,7 +289,9 @@ jobs:
             export GALLIUM_DRIVER=llvmpipe QT_OPENGL=desktop
           fi
           if [ "$RUNNER_OS" = "macOS" ]; then export QT_OPENGL=software; fi
-          export LC_APP="$APP_NAME" LC_EXTRAS="$EXTRAS"
+          # the exact sentence a host must log when it skips the app (empty when the app is listed or ships no tools)
+          SENT=""; if [ "$HAS_TOOLS" = true ]; then SENT="$("$PY" $RS/hosts_check.py sentence --app "$APP_NAME" --host napari)" || SENT=""; fi
+          export LC_APP="$APP_NAME" LC_EXTRAS="$EXTRAS" LC_EXPECT_NAPARI="$EXPECT_NAPARI" LC_EXPECT_SENTENCE="$SENT"
           if [ "$RUNNER_OS" = "Linux" ]; then
             xvfb-run -a -s "-screen 0 1600x1000x24" "$RUNNER_TEMP/napenv/bin/python" $RS/napari_check.py > napari_out.txt 2>&1
           else
@@ -262,8 +306,8 @@ jobs:
             if pgrep -f "labconstrictor_tools.* serve" >/dev/null; then echo "CHECK no_worker_left_after_host_closed FAIL"; pgrep -af "labconstrictor_tools.* serve"; else echo "CHECK no_worker_left_after_host_closed PASS"; fi | tee -a checks_napari.txt
           fi
 
-      - name: Fiji host check with the installed Playground (Linux, Xvfb; the Fiji repo's own case runner with Playground cases)
-        if: runner.os == 'Linux' && env.EXTRAS == 'playground'
+      - name: "Fiji host check (Linux, Xvfb): the listing driver for any app, and with playground_extras the Playground cases"
+        if: runner.os == 'Linux' && inputs.hosts_fiji != 'skip'
         continue-on-error: true
         env:
           FIJI_REF: ${{ inputs.fiji_ref }}
@@ -274,16 +318,27 @@ jobs:
           curl -fsSL --retry 5 -o fiji.zip https://downloads.imagej.net/fiji/latest/fiji-latest-linux64-jdk.zip && mkdir fijid && unzip -q fiji.zip -d fijid && rm fiji.zip
           export LC_FIJI_HOME="$(dirname "$(find "$PWD/fijid" -maxdepth 2 -name fiji-linux-x64 | head -1)")"
           python3 -m venv "$HOME/fvenv"; "$HOME/fvenv/bin/pip" install -q "https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/$TOOLS_PIN.zip" numpy pandas tifffile scipy scikit-image
-          mkdir -p fix/playground; cp app_src/lc_tests/fixtures/data/* fix/playground/
-          cp $RS/fiji_cases/playground_*.json fiji_repo/tests/cases_real_apps/
+          SENT=""; if [ "$HAS_TOOLS" = true ]; then SENT="$("$PY" $RS/hosts_check.py sentence --app "$APP_NAME" --host fiji)" || SENT=""; fi
           cd fiji_repo
-          LC_REAL_FIXTURES="$GITHUB_WORKSPACE/fix" FIJI_TIMEOUT=300 xvfb-run -a -s "-screen 0 1600x1000x24" bash -c '(openbox >/dev/null 2>&1 &); sleep 1; "$HOME/fvenv/bin/python" tests/run_cases.py --real-apps playground_look_inside playground_summarise_table playground_feature_tour' 2>&1 | tail -40 | tee ../checks_fiji.txt
+          # driver contract (tests/release_sandbox/README.md): a missing driver is a red check, never a skipped one
+          if [ -f tests/sandbox_listing.py ]; then
+            LC_EXPECT_APP="$APP_NAME" LC_EXPECT_LISTED="$EXPECT_FIJI" LC_EXPECT_SENTENCE="$SENT" xvfb-run -a -s "-screen 0 1600x1000x24" bash -c '(openbox >/dev/null 2>&1 &); sleep 1; "$HOME/fvenv/bin/python" tests/sandbox_listing.py' 2>&1 | tail -40 | tee ../checks_fiji_listing_out.txt
+            grep -a "^CHECK " ../checks_fiji_listing_out.txt > ../checks_fiji_listing.txt
+            grep -aq "^CHECK fiji_" ../checks_fiji_listing.txt || echo "CHECK fiji_listing_driver_printed_no_check FAIL tests/sandbox_listing.py at $FIJI_REF printed no CHECK fiji_ line" | tee ../checks_fiji_listing.txt
+          else
+            echo "CHECK fiji_listing_driver_present FAIL tests/sandbox_listing.py not found in LabConstrictor-Fiji at $FIJI_REF (expected: $APP_NAME $EXPECT_FIJI in Fiji)" | tee ../checks_fiji_listing.txt
+          fi
+          if [ "$EXTRAS" = playground ]; then
+            mkdir -p ../fix/playground; cp ../app_src/lc_tests/fixtures/data/* ../fix/playground/
+            cp ../$RS/fiji_cases/playground_*.json tests/cases_real_apps/
+            LC_REAL_FIXTURES="$GITHUB_WORKSPACE/fix" FIJI_TIMEOUT=300 xvfb-run -a -s "-screen 0 1600x1000x24" bash -c '(openbox >/dev/null 2>&1 &); sleep 1; "$HOME/fvenv/bin/python" tests/run_cases.py --real-apps playground_look_inside playground_summarise_table playground_feature_tour' 2>&1 | tail -40 | tee ../checks_fiji.txt
+          fi
 
       - uses: actions/setup-java@v4
-        if: runner.os == 'Linux' && env.EXTRAS == 'playground' && inputs.hosts_qupath
+        if: runner.os == 'Linux' && inputs.hosts_qupath != 'skip'
         with: { distribution: temurin, java-version: "25" }
-      - name: QuPath host check with the installed Playground (Linux, Xvfb; the QuPath repo's own GUI bodies for the Playground)
-        if: runner.os == 'Linux' && env.EXTRAS == 'playground' && inputs.hosts_qupath
+      - name: "QuPath host check (Linux, Xvfb): the listing body for any app, and with playground_extras the Playground bodies"
+        if: runner.os == 'Linux' && inputs.hosts_qupath != 'skip'
         continue-on-error: true
         env:
           QUPATH_REF: ${{ inputs.qupath_ref }}
@@ -297,13 +352,24 @@ jobs:
           mkdir qupath-dist && tar -xJf qupath.tar.xz -C qupath-dist && rm qupath.tar.xz
           export QUPATH="$PWD/qupath-dist/QuPath"
           (cd qupath_repo && ./build.sh) 2>&1 | tail -3
-          # the second app the cancel body needs (the Tools example app), registered next to the INSTALLED Playground
-          python3 -m venv --copies "$HOME/qp_tools"; "$HOME/qp_tools/bin/pip" install -q "https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/$TOOLS_PIN.zip" numpy pandas tifffile scipy scikit-image
-          LC_HOME="$LC_HOME" "$HOME/qp_tools/bin/python" -m labconstrictor_tools register --name interactions --prefix "$HOME/qp_tools" --module labconstrictor_tools.examples.interactions
-          chmod -R go-w "$HOME/qp_tools"
+          SENT=""; if [ "$HAS_TOOLS" = true ]; then SENT="$("$PY" $RS/hosts_check.py sentence --app "$APP_NAME" --host qupath)" || SENT=""; fi
           cd qupath_repo
-          LOGS="$GITHUB_WORKSPACE/qupath-logs" LC_HOME="$LC_HOME" tests/run_gui_ci.sh gui_test_playground_body.groovy gui_test_parity_cancel_body.groovy 2>&1 | tail -40 | tee ../checks_qupath.txt
-          cd ..; LC_HOME="$LC_HOME" "$HOME/qp_tools/bin/python" -m labconstrictor_tools unregister --name interactions --prefix "$HOME/qp_tools" || true
+          # driver contract (tests/release_sandbox/README.md): a missing body is a red check, never a skipped one
+          if [ -f tests/gui_test_listing_body.groovy ]; then
+            LC_EXPECT_APP="$APP_NAME" LC_EXPECT_LISTED="$EXPECT_QUPATH" LC_EXPECT_SENTENCE="$SENT" LOGS="$GITHUB_WORKSPACE/qupath-logs-listing" LC_HOME="$LC_HOME" tests/run_gui_ci.sh gui_test_listing_body.groovy 2>&1 | tail -40 | tee ../checks_qupath_listing_out.txt
+            grep -a "^CHECK " ../checks_qupath_listing_out.txt > ../checks_qupath_listing.txt
+            grep -aq "^CHECK qupath_" ../checks_qupath_listing.txt || echo "CHECK qupath_listing_body_printed_no_check FAIL tests/gui_test_listing_body.groovy at $QUPATH_REF printed no CHECK qupath_ line" | tee ../checks_qupath_listing.txt
+          else
+            echo "CHECK qupath_listing_body_present FAIL tests/gui_test_listing_body.groovy not found in labconstrictor-qupath at $QUPATH_REF (expected: $APP_NAME $EXPECT_QUPATH in QuPath)" | tee ../checks_qupath_listing.txt
+          fi
+          if [ "$EXTRAS" = playground ]; then
+            # the second app the cancel body needs (the Tools example app), registered next to the INSTALLED Playground
+            python3 -m venv --copies "$HOME/qp_tools"; "$HOME/qp_tools/bin/pip" install -q "https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/$TOOLS_PIN.zip" numpy pandas tifffile scipy scikit-image
+            LC_HOME="$LC_HOME" "$HOME/qp_tools/bin/python" -m labconstrictor_tools register --name interactions --prefix "$HOME/qp_tools" --module labconstrictor_tools.examples.interactions
+            chmod -R go-w "$HOME/qp_tools"
+            LOGS="$GITHUB_WORKSPACE/qupath-logs" LC_HOME="$LC_HOME" tests/run_gui_ci.sh gui_test_playground_body.groovy gui_test_parity_cancel_body.groovy 2>&1 | tail -40 | tee ../checks_qupath.txt
+            LC_HOME="$LC_HOME" "$HOME/qp_tools/bin/python" -m labconstrictor_tools unregister --name interactions --prefix "$HOME/qp_tools" || true
+          fi
 
       - name: Plant user data that must survive an uninstall
         run: |
@@ -408,7 +474,7 @@ jobs:
         if: inputs.old_tag != ''
         run: |
           set +e
-          "$UPD_PY" $RS/sandbox_checks.py basic --app "$APP_NAME" --prefix "$UPD_DIR" --expect-version "$TAG" --tools-pin "$TOOLS_PIN" | sed 's/^CHECK /CHECK 7_after_update_/' | tee -a checks_update.txt
+          "$UPD_PY" $RS/sandbox_checks.py basic --app "$APP_NAME" --prefix "$UPD_DIR" --expect-version "$TAG" --tools-pin "$TOOLS_PIN" $NO_TOOLS_FLAG | sed 's/^CHECK /CHECK 7_after_update_/' | tee -a checks_update.txt
           ok() { if [ "$2" = 0 ]; then echo "CHECK $1 PASS"; else echo "CHECK $1 FAIL"; fi; }
           test -f "$LC_HOME/results/user_own_folder_kept/keep.txt"; ok 7f_user_results_kept $?
           test -f "$H/${APP_NAME}_user_data/keep.txt"; ok 7g_user_home_data_kept $?
