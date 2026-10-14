@@ -1,0 +1,32 @@
+ok   PASS   (expected PASS ) nb_NegControl_good_packaged | control: installed notebook with outputs cleared and other metadata equals the release by cells | 3 cells, types and sources equal to the release (installer rewrites outputs and metadata only)
+ok   PASS   (expected PASS ) nb_NegControl_good_valid | control: nbformat valid and the kernel resolves to the app interpreter | nbformat 4.5 valid; kernelspec 'python3' resolves to /tmp/nb_negative_ebvgxzcp/prefix/bin/python (spec dir /tm
+ok   PASS   (expected PASS ) nb_NegControl_good_imports | control: imports resolve | 1 imports resolved in /tmp/nb_negative_ebvgxzcp/prefix/bin/python
+ok   PASS   (expected PASS ) nb_NegControl_good_runs | control: runs, the scripted click and type work | 5 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /t
+ok   PASS   (expected PASS ) nb_NegControl_good_oracle | control: the oracle sees the effect of the click | 1 outcome assertions passed
+ok   PASS   (expected PASS ) nb_NegControl_good_kernel | control: live kernel is the app interpreter | live kernel 'python3' runs /tmp/nb_negative_ebvgxzcp/prefix/bin/python (the app's interpreter)
+ok   PASS   (expected PASS ) nb_NegControl_good_noleak | control: no kernel left over | no kernel process of this notebook is left
+ok   FAIL   (expected FAIL ) nb_NegControl_bad_import_imports | seeded bad import | definitely_not_a_module_xyz (required): ModuleNotFoundError: No module named 'definitely_not_a_module_xyz' | 0
+ok   FAIL   (expected FAIL ) nb_NegControl_bad_import_cell_0 | seeded bad import also fails when run | ModuleNotFoundError: No module named 'definitely_not_a_module_xyz'
+ok   FAIL   (expected FAIL ) nb_NegControl_raises_cell_1 | seeded cell that raises | ValueError: seeded failure
+ok   FAIL   (expected FAIL ) nb_NegControl_raises_runs | seeded cell that raises makes the run red | 5 cells and stages executed; failing cells: 1; failing click stages/assertions: none; executed notebook: /tmp/
+ok   FAIL   (expected FAIL ) nb_NegControl_hangs_cell_0 | seeded hanging cell is a timeout row | timeout after 6 s in cell 0 (nbclient interrupted the cell): KeyboardInterrupt: 
+ok   FAIL   (expected FAIL ) nb_NegControl_hangs_runs | seeded hanging cell makes the run red | 4 cells and stages executed; failing cells: 0; failing click stages/assertions: none; executed notebook: /tmp/
+ok   FAIL   (expected FAIL ) nb_NegControl_ignores_interrupt_watchdog | a cell that ignores the interrupt is killed by the outer watchdog | the worker exceeded the watchdog of 45 s and was killed with its kernel (log: /tmp/nb_negative_ebvgxzcp/result
+ok   FAIL   (expected FAIL ) nb_NegControl_ignores_interrupt_runs | watchdog writes the runs FAIL row | killed by the watchdog after 45 s before the run finished
+ok   PASS   (expected PASS ) nb_NegControl_ignores_interrupt_noleak | after the watchdog kill no kernel is left | no kernel process of this notebook is left
+ok   FAIL   (expected FAIL ) nb_NegControl_widget_missing_click_go | seeded widget that is never found | WidgetNotFound: no widget with kind='Button' description='Button that does not exist' contains=None (match 0);
+ok   FAIL   (expected FAIL ) nb_NegControl_widget_missing_runs | widget never found makes the run red | 4 cells and stages executed; failing cells: none; failing click stages/assertions: go; executed notebook: /tmp
+ok   FAIL   (expected FAIL ) nb_NegControl_differs_packaged | packaged notebook differing by one cell | cell 1 source differs (installed 35 chars, release 39 chars)
+ok   HUMAN  (expected HUMAN) nb_NegControl_file_dialog_human_cell_0 | native file dialog is HUMAN | native file dialog (tkinter askopenfilename) needs a display and a person
+ok   HUMAN  (expected HUMAN) nb_NegControl_file_dialog_oracle | no oracle for a native file dialog is HUMAN, never PASS | the outcome is the file a person picks
+ok   FAIL   (expected FAIL ) nb_NegControl_stale_kernel_valid | the KERNEL TRAP: a kernelspec resolving to another interpreter than the app's | kernel resolves to a different interpreter: nbformat 4.5 valid; kernelspec 'stale' resolves to /tmp/nb_negativ
+ok   PASS   (expected PASS ) nb_NegControl_auto_buttons_click_auto_c1_Press_ok | auto-drive presses a plain button | clicked 'Press ok': did it
+ok   FAIL   (expected FAIL ) nb_NegControl_auto_buttons_click_auto_c1_Broken | a button handler that raises is a FAIL (ipywidgets would swallow it) | 'Broken': CallbackFailed: callback of Button('Broken') raised:   File "/tmp/nb_negative_ebvgxzcp/results/NegCo
+ok   FAIL   (expected FAIL ) nb_NegControl_auto_buttons_click_auto_c1_Captured_broken | a handler wrapped in Output.capture() that raises is a FAIL too (the widget swallows it) | 'Captured broken': CallbackFailed: ck of Button('Captured broken') raised:   File "/tmp/nb_negative_ebvgxzcp/r
+ok   HUMAN  (expected HUMAN) nb_NegControl_auto_buttons_click_auto_c1_Find_folder | a native folder picker button is HUMAN, never clicked | button 'Find folder' opens a native or upload dialog: not clicked, the path or file is set directly in the fie
+ok   FAIL   (expected FAIL ) nb_NegControl_auto_buttons_runs | the seeded handler failure makes the run red | 4 cells and stages executed; failing cells: none; failing click stages/assertions: click_auto_c1_Broken, click
+ok   PASS   (expected PASS ) nb_NegControl_hangs_kernel | control: the live kernel is checked for every notebook | live kernel 'python3' runs /tmp/nb_negative_ebvgxzcp/prefix/bin/python (the app's interpreter)
+ok   PASS   (expected PASS ) nb_NegControl_wrong_outcome_runs | no cell errors in the wrong-outcome notebook | 3 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /t
+ok   FAIL   (expected FAIL ) nb_NegControl_wrong_outcome_oracle | a notebook that runs clean but does nothing fails the oracle | failing: oracle_file_written
+negative controls: 30 of 30 as expected
+exit=0
