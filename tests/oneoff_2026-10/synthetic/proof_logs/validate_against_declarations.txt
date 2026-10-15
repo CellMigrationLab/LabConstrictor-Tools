@@ -1,5 +1,0 @@
-NucleiSky                     30 cases against 2 declared tools: 0 problem(s); tools with no case and no no_case.json entry: none
-LabConstrictor-Playground     65 cases against 17 declared tools: 0 problem(s); tools with no case and no no_case.json entry: none
-LabConstrictor-VLab4Mic       37 cases against 2 declared tools: 0 problem(s); tools with no case and no no_case.json entry: none
-GuessTheCondition            109 cases against 6 declared tools: 0 problem(s); tools with no case and no no_case.json entry: none
-CellTracksColab               25 cases against 1 declared tools: 0 problem(s); tools with no case and no no_case.json entry: none
