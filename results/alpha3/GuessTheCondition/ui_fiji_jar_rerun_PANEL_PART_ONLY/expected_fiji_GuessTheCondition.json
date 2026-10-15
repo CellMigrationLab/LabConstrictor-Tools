@@ -1,0 +1,18 @@
+{
+ "host": "fiji",
+ "app": "GuessTheCondition",
+ "ids": [
+  "ui_fiji_controls_all_known",
+  "ui_fiji_panel_chooser_app",
+  "ui_fiji_panel_chooser_tool",
+  "ui_fiji_panel_chooser_ok",
+  "ui_fiji_panel_chooser_cancel",
+  "ui_fiji_panel_form_ok",
+  "ui_fiji_panel_form_cancel",
+  "ui_fiji_panel_menu",
+  "ui_fiji_panel_copy_empty",
+  "ui_fiji_panel_copy_terminal",
+  "ui_fiji_panel_copy_python",
+  "ui_fiji_panel_log"
+ ]
+}

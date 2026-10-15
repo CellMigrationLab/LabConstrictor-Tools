@@ -1,1 +1,7 @@
 NOTE ui_fiji_parts not run: only ['tools'] ran (LC_UI_PARTS)
+CHECK ui_fiji_form_simulate_sample_opens PASS 38 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_simulate_sample_controls PASS 62 control(s) activated and read back: choice_combo, file_browse, flag_checkbox, number_spinner, set_checkbox, slider, text_field
+CHECK ui_fiji_run_simulate_sample PASS status COMPLETE; every declared result shown (simulated:image, noiseless:image, values:values); inputs from case {"random_seed": 1}
+CHECK ui_fiji_panel_log PASS the Log window holds the run's command line and Python snippet, equal to the saved last command
+CHECK ui_fiji_screens_simulate_sample PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_controls_all_known PASS 162 control(s) in 2 form(s) and 2 chooser(s), every one in the control table (20 kinds)

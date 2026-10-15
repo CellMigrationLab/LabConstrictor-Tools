@@ -1,0 +1,11 @@
+{
+ "host": "fiji",
+ "app": "VLab4Mic",
+ "ids": [
+  "ui_fiji_controls_all_known",
+  "ui_fiji_form_simulate_sample_opens",
+  "ui_fiji_form_simulate_sample_controls",
+  "ui_fiji_run_simulate_sample",
+  "ui_fiji_screens_simulate_sample"
+ ]
+}

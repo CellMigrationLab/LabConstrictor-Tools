@@ -6,10 +6,10 @@
 |---|---|---|---|---|---|---|---|
 | sandbox | cli | 46 | 0 | 0 | 0 | 2 | 2026-10-15T12:36:11 |
 | synthetic | cli | 146 | 0 | 0 | 0 | 0 | 2026-10-15T12:44:49 |
-| ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
 | synthetic | napari | 142 | 0 | 0 | 0 | 4 | 2026-10-15T13:04:26 |
 | ui | fiji | 71 | 0 | 0 | 10 | 0 | 2026-10-15T12:52:28 |
 | ui | fiji | 33 | 1 | 0 | 5 | 0 | 2026-10-15T13:09:28 |
+| ui | fiji | 20 | 0 | 4 | 4 | 0 | 2026-10-15T13:11:47 |
 | ui | fiji | 20 | 0 | 4 | 4 | 0 | 2026-10-15T13:11:47 |
 | ui | napari | 37 | 0 | 0 | 1 | 0 | 2026-10-15T12:37:44Z |
 | ui | qupath | 37 | 0 | 0 | 7 | 0 | 2026-10-15T13:18:41Z |
@@ -18,14 +18,18 @@
 
 * `ui_fiji_fj1b_cancel_form_prepare_game` (ui/fiji) a real click on form_cancel did not close the dialog within 5000 ms
 
-### GuessTheCondition: NOT_RUN (4)
+### GuessTheCondition: NOT_RUN (8)
 
 * `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
 * `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
 * `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
 * `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
+* `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
+* `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
 
-### GuessTheCondition: HUMAN (27)
+### GuessTheCondition: HUMAN (31)
 
 * `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
 * `ui_fiji_run_create_demo_experiment` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
@@ -41,6 +45,10 @@
 * `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
 * `ui_fiji_run_create_demo_experiment` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
 * `ui_fiji_run_prepare_game` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
+* `ui_fiji_fj1b_missing_image` (ui/fiji) no tool of this app has a required image input: nothing to refuse
+* `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
+* `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+* `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
 * `ui_fiji_fj1b_missing_image` (ui/fiji) no tool of this app has a required image input: nothing to refuse
 * `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
 * `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
@@ -62,13 +70,14 @@
 | sandbox | cli | 55 | 0 | 0 | 0 | 3 | 2026-10-15T13:24:09 |
 | alpha3 | napari | 15 | 0 | 0 | 0 | 0 | 2026-10-15T13:28:33Z |
 | synthetic | cli | 163 | 2 | 0 | 2 | 0 | 2026-10-15T13:29:55 |
-| ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
 | synthetic | napari | 169 | 3 | 0 | 0 | 5 | 2026-10-15T14:20:51 |
-| ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
 | synthetic | napari | 163 | 10 | 0 | 0 | 4 | 2026-10-15T14:09:51 |
 | ui | fiji | 120 | 0 | 0 | 18 | 0 | 2026-10-15T13:46:34 |
 | ui | fiji | 17 | 0 | 4 | 2 | 0 | 2026-10-15T14:06:12 |
+| ui | fiji | 17 | 0 | 4 | 2 | 0 | 2026-10-15T14:06:12 |
 | ui | fiji | 17 | 0 | 4 | 3 | 0 | 2026-10-15T14:04:06 |
+| ui | fiji | 17 | 0 | 4 | 3 | 0 | 2026-10-15T14:04:06 |
+| ui | fiji | 17 | 0 | 4 | 3 | 0 | 2026-10-15T14:01:57 |
 | ui | fiji | 17 | 0 | 4 | 3 | 0 | 2026-10-15T14:01:57 |
 | ui | napari | 66 | 2 | 0 | 15 | 0 | 2026-10-15T13:59:31Z |
 | ui | napari | 64 | 4 | 0 | 14 | 0 | 2026-10-15T13:31:43Z |
@@ -98,8 +107,20 @@
 * `ui_napari_run_align_centres` (ui/napari) AssertionError: prerequisite case 27 (bright_area) ended FAILED pixel_size_unknown, its expect says FAILED invalid_pixel_size | ✖ [pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.  - click Details… for the full report (log: /home/user/apps/a3_lc_home_Playground/logs/labconstrictor.log)
 * `ui_napari_screens_align_centres` (ui/napari) AssertionError: align_centres_form.png does not exist; align_centres_after_run.png does not exist
 
-### LabConstrictorPlayground: NOT_RUN (13)
+### LabConstrictorPlayground: NOT_RUN (25)
 
+* `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
+* `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
+* `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
+* `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
+* `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
+* `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
 * `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
 * `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
 * `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
@@ -114,7 +135,7 @@
 * `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
 * `ui_qupath_form_feature_tour_channel` (ui/qupath) image.channel(no multi-channel fixture three_channels.tif)
 
-### LabConstrictorPlayground: HUMAN (79)
+### LabConstrictorPlayground: HUMAN (87)
 
 * `syn_pg_channels_cyx_note` (synthetic/cli) has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
 * `syn_pg_rgb_note` (synthetic/cli) has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
@@ -138,6 +159,14 @@
 * `ui_fiji_run_summarise_table` (ui/fiji) expectations of the case that Fiji cannot check: summary cells
 * `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
 * `ui_fiji_fj1b_missing_image` (ui/fiji) no tool of this app has a required image input: nothing to refuse
+* `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
+* `ui_fiji_fj1b_missing_image` (ui/fiji) no tool of this app has a required image input: nothing to refuse
+* `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
+* `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+* `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
+* `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
+* `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+* `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
 * `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
 * `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
 * `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
@@ -201,10 +230,11 @@
 | family | host | PASS | FAIL | NOT_RUN | HUMAN | NOTE | finished |
 |---|---|---|---|---|---|---|---|
 | alpha3 | napari | 12 | 0 | 0 | 0 | 0 | 2026-10-15T14:30:25Z |
-| ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
 | synthetic | napari | 79 | 3 | 0 | 1 | 10 | 2026-10-15T14:42:06 |
+| ui | fiji | 90 | 0 | 0 | 5 | 0 | 2026-10-15T14:52:57 |
 | ui | fiji | 70 | 21 | 0 | 4 | 0 | 2026-10-15T14:38:36 |
 | ui | fiji | 32 | 0 | 0 | 1 | 0 | NOT FINISHED |
+| ui | fiji | 68 | 0 | 0 | 2 | 0 | 2026-10-15T14:46:06 |
 | ui | napari | 21 | 0 | 0 | 3 | 0 | 2026-10-15T14:33:36Z |
 
 ### VLab4Mic: FAIL (24)
@@ -234,14 +264,21 @@
 * `ui_fiji_form_simulate_sample_opens` (ui/fiji) the dialog is 1066x3024 on a 1600x1000 screen (oversized); form_ok is at (1149,2587) 77x23: not on the screen, it cannot be pressed; form_cancel is at (1234,2587) 77x23: not on the screen, it cannot be pressed; at the form: the window 'Simulate imaging of a virtual sample' is 1066x3024 on a 1600x1000 screen
 * `ui_fiji_form_simulate_sample_controls` (ui/fiji) 19 of 62 control(s) failed: set_checkbox 'set minimal distance between particles': the control is at (930,1223), outside the 1600.0x1000.0 screen: a real click cannot reach it; flag_checkbox 'random positions': the control is at (930,1293), outside the 1600.0x1000.0 screen: a real click cannot reach it; set_checkbox 'set axial offset': the control is at (930,1326), outside the 1600.0x1000.0 screen: a real click cannot reach it; flag_checkbox 'random orientations': the control is at (930,1396)...
 
-### VLab4Mic: HUMAN (9)
+### VLab4Mic: HUMAN (16)
 
 * `syn_host_napari_vm_cal_anisotropic_note` (synthetic/napari) has no machine oracle for this run (HUMAN): judged by a person
+* `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+* `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
+* `ui_fiji_run_compare_images` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
+* `ui_fiji_run_simulate_sample` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
+* `ui_fiji_fj1b_cancel_form` (ui/fiji) no tool of this app has a required file/folder/table input on a form of several parameters: nothing to cancel with an empty required path
 * `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
 * `ui_fiji_run_compare_images` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
 * `ui_fiji_run_simulate_sample` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
 * `ui_fiji_fj1b_cancel_form` (ui/fiji) no tool of this app has a required file/folder/table input on a form of several parameters: nothing to cancel with an empty required path
 * `ui_fiji_parts` (ui/fiji) only ['tools'] ran (LC_UI_PARTS)
+* `ui_fiji_parts` (ui/fiji) only ['tools'] ran (LC_UI_PARTS)
+* `ui_fiji_run_simulate_sample` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
 * `ui_napari_prerequisite_simulate_sample_case12` (ui/napari) case 12 of simulate_sample cannot be typed into the form (value 1.5 is outside of the allowed range: (0.0, 1.0)); its expected outcome {'status': 'FAILED', 'code': 'invalid_parameter', 'message_contains': 'Labelling efficiency'} is covered by the CLI
 * `ui_napari_prerequisite_simulate_sample_case13` (ui/napari) case 13 of simulate_sample cannot be typed into the form (value 0 is outside of the allowed range: (1, 20)); its expected outcome {'status': 'FAILED', 'code': 'invalid_parameter', 'message_contains': 'Number of particles'} is covered by the CLI
 * `ui_napari_panel_cancel_running` (ui/napari) no case of cases.json sets cancel_after_s: a person presses Cancel during a long run

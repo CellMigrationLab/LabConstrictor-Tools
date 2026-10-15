@@ -3,8 +3,8 @@
  "app": "VLab4Mic",
  "family": "ui",
  "host_version": "v0.1.0-alpha.3",
- "started": "2026-10-15T14:33:38",
- "finished": "2026-10-15T14:38:36",
+ "started": "2026-10-15T14:46:21",
+ "finished": "2026-10-15T14:52:57",
  "expected": 20,
  "parts": [
   "panel",
@@ -20,9 +20,9 @@
    "control": null,
    "status": "PASS",
    "detail": "Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record",
-   "seconds": 20.73,
+   "seconds": 20.44,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:17"
+   "ts": "2026-10-15T14:46:59"
   },
   {
    "id": "ui_fiji_panel_copy_empty",
@@ -31,11 +31,11 @@
    "app": "VLab4Mic",
    "tool": null,
    "control": null,
-   "status": "PASS",
-   "detail": "with no earlier run the entry says 'nothing to copy yet' and copies nothing",
-   "seconds": 18.03,
+   "status": "HUMAN",
+   "detail": "LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here",
+   "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:35"
+   "ts": "2026-10-15T14:47:19"
   },
   {
    "id": "ui_fiji_panel_menu",
@@ -46,9 +46,9 @@
    "control": null,
    "status": "PASS",
    "detail": "Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)",
-   "seconds": 18.03,
+   "seconds": 19.83,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:35"
+   "ts": "2026-10-15T14:47:19"
   },
   {
    "id": "ui_fiji_panel_chooser_tool",
@@ -59,9 +59,9 @@
    "control": "chooser_tool",
    "status": "PASS",
    "detail": "2 item(s) selected and read back; lists [Compare an image with a reference, Simulate imaging of a virtual sample]",
-   "seconds": 0.33,
+   "seconds": 0.32,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:49"
+   "ts": "2026-10-15T14:47:34"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -72,9 +72,9 @@
    "control": "image_choice 'reference'",
    "status": "PASS",
    "detail": "1 item(s) selected and read back",
-   "seconds": 0.15,
+   "seconds": 0.16,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:51"
+   "ts": "2026-10-15T14:47:37"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -87,7 +87,7 @@
    "detail": "typed text read back",
    "seconds": 0.62,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:52"
+   "ts": "2026-10-15T14:47:37"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -98,9 +98,9 @@
    "control": "file_browse 'reference (or file)'",
    "status": "PASS",
    "detail": "opened FileDialog 'Open' and closed it; the form is still open",
-   "seconds": 0.1,
+   "seconds": 0.11,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:52"
+   "ts": "2026-10-15T14:47:37"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -111,9 +111,9 @@
    "control": "image_choice 'simulated'",
    "status": "PASS",
    "detail": "1 item(s) selected and read back",
-   "seconds": 0.16,
+   "seconds": 0.17,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:52"
+   "ts": "2026-10-15T14:47:37"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -126,7 +126,7 @@
    "detail": "typed text read back",
    "seconds": 0.61,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:53"
+   "ts": "2026-10-15T14:47:38"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -139,7 +139,7 @@
    "detail": "opened FileDialog 'Open' and closed it; the form is still open",
    "seconds": 0.09,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:53"
+   "ts": "2026-10-15T14:47:38"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -150,9 +150,9 @@
    "control": "number_spinner 'reference pixel size um (um/px)'",
    "status": "PASS",
    "detail": "stepped 0.0 -> 1.0E-4",
-   "seconds": 0.62,
+   "seconds": 0.63,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:53"
+   "ts": "2026-10-15T14:47:39"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -165,7 +165,7 @@
    "detail": "stepped 0.0 -> 1.0E-4",
    "seconds": 0.61,
    "screenshot": null,
-   "ts": "2026-10-15T14:34:54"
+   "ts": "2026-10-15T14:47:40"
   },
   {
    "id": "ui_fiji_panel_chooser_app",
@@ -178,7 +178,7 @@
    "detail": "not applicable: only one app is listed, so Fiji shows no app chooser",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:00"
+   "ts": "2026-10-15T14:47:46"
   },
   {
    "id": "ui_fiji_panel_chooser_tool",
@@ -189,9 +189,9 @@
    "control": null,
    "status": "PASS",
    "detail": "lists ['Compare an image with a reference', 'Simulate imaging of a virtual sample']; the combo box, OK and Cancel are all it holds; each item selected and read back",
-   "seconds": 24.65,
+   "seconds": 26.47,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:00"
+   "ts": "2026-10-15T14:47:46"
   },
   {
    "id": "ui_fiji_panel_chooser_ok",
@@ -204,7 +204,7 @@
    "detail": "OK on the tool chooser opened 'Compare an image with a reference'",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:00"
+   "ts": "2026-10-15T14:47:46"
   },
   {
    "id": "ui_fiji_form_compare_images_opens",
@@ -215,9 +215,9 @@
    "control": null,
    "status": "PASS",
    "detail": "4 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog",
-   "seconds": 24.65,
+   "seconds": 26.47,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:00"
+   "ts": "2026-10-15T14:47:46"
   },
   {
    "id": "ui_fiji_form_compare_images_controls",
@@ -228,9 +228,9 @@
    "control": null,
    "status": "PASS",
    "detail": "8 control(s) activated and read back: file_browse, image_choice, number_spinner, text_field",
-   "seconds": 24.65,
+   "seconds": 26.47,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:00"
+   "ts": "2026-10-15T14:47:46"
   },
   {
    "id": "ui_fiji_panel_form_cancel",
@@ -241,9 +241,9 @@
    "control": null,
    "status": "PASS",
    "detail": "Cancel on the form ended the plugin: cancelled, no run, no worker, no run record",
-   "seconds": 24.65,
+   "seconds": 26.47,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:00"
+   "ts": "2026-10-15T14:47:46"
   },
   {
    "id": "ui_fiji_run_compare_images",
@@ -254,9 +254,9 @@
    "control": null,
    "status": "PASS",
    "detail": "status COMPLETE; every declared result shown (values:values); inputs from case {\"reference\": \"fixtures/reference_20nm.tif\", \"simulated\": \"fixtures/reference_20nm.tif\", \"reference_pixel_size_um\": 0.02",
-   "seconds": 28.25,
+   "seconds": 29.74,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:28"
+   "ts": "2026-10-15T14:48:15"
   },
   {
    "id": "ui_fiji_run_compare_images",
@@ -269,7 +269,7 @@
    "detail": "expectations of the case that Fiji cannot check: max_seconds",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:28"
+   "ts": "2026-10-15T14:48:15"
   },
   {
    "id": "ui_fiji_panel_log",
@@ -282,7 +282,7 @@
    "detail": "the Log window holds the run's command line and Python snippet, equal to the saved last command",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:28"
+   "ts": "2026-10-15T14:48:15"
   },
   {
    "id": "ui_fiji_panel_form_ok",
@@ -293,9 +293,9 @@
    "control": null,
    "status": "PASS",
    "detail": "a real click on OK closed the form and the plugin ran the tool (status COMPLETE)",
-   "seconds": 28.25,
+   "seconds": 29.74,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:28"
+   "ts": "2026-10-15T14:48:15"
   },
   {
    "id": "ui_fiji_screens_compare_images",
@@ -306,9 +306,9 @@
    "control": null,
    "status": "PASS",
    "detail": "the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)",
-   "seconds": 28.25,
+   "seconds": 29.74,
    "screenshot": "/home/user/results/alpha3/VLab4Mic/ui_fiji/fiji/VLab4Mic/compare_images_after_run.png",
-   "ts": "2026-10-15T14:35:28"
+   "ts": "2026-10-15T14:48:15"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -321,7 +321,7 @@
    "detail": "4 item(s) selected and read back",
    "seconds": 0.62,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:46"
+   "ts": "2026-10-15T14:48:33"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -332,9 +332,9 @@
    "control": "text_field 'structure file'",
    "status": "PASS",
    "detail": "typed text read back",
-   "seconds": 0.65,
+   "seconds": 0.63,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:46"
+   "ts": "2026-10-15T14:48:34"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -345,9 +345,9 @@
    "control": "file_browse 'structure file'",
    "status": "PASS",
    "detail": "opened FileDialog 'Open' and closed it; the form is still open",
-   "seconds": 0.18,
+   "seconds": 0.1,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:47"
+   "ts": "2026-10-15T14:48:34"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -358,9 +358,9 @@
    "control": "slider 'number of particles'",
    "status": "PASS",
    "detail": "moved 0 -> 19, the number box followed every position",
-   "seconds": 0.98,
+   "seconds": 1.01,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:48"
+   "ts": "2026-10-15T14:48:35"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -373,7 +373,7 @@
    "detail": "stepped 1 -> 2",
    "seconds": 0.62,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:48"
+   "ts": "2026-10-15T14:48:36"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -384,9 +384,9 @@
    "control": "choice_combo 'probe'",
    "status": "PASS",
    "detail": "12 item(s) selected and read back",
-   "seconds": 1.83,
+   "seconds": 1.85,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:50"
+   "ts": "2026-10-15T14:48:37"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -397,9 +397,9 @@
    "control": "set_checkbox 'set target sequence'",
    "status": "PASS",
    "detail": "ticked and unticked",
-   "seconds": 5.93,
+   "seconds": 6.37,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:56"
+   "ts": "2026-10-15T14:48:44"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -412,7 +412,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:57"
+   "ts": "2026-10-15T14:48:45"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -425,7 +425,7 @@
    "detail": "2 item(s) selected and read back",
    "seconds": 0.31,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:57"
+   "ts": "2026-10-15T14:48:45"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -436,9 +436,9 @@
    "control": "slider 'labelling efficiency'",
    "status": "PASS",
    "detail": "moved 10000 -> 0, the number box followed every position",
-   "seconds": 0.94,
+   "seconds": 0.93,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:58"
+   "ts": "2026-10-15T14:48:46"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -451,7 +451,7 @@
    "detail": "stepped 1.0 -> 0.9999",
    "seconds": 0.61,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:58"
+   "ts": "2026-10-15T14:48:46"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -464,7 +464,7 @@
    "detail": "5 item(s) selected and read back",
    "seconds": 0.77,
    "screenshot": null,
-   "ts": "2026-10-15T14:35:59"
+   "ts": "2026-10-15T14:48:47"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -477,7 +477,7 @@
    "detail": "typed text read back",
    "seconds": 0.62,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:00"
+   "ts": "2026-10-15T14:48:48"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -488,9 +488,9 @@
    "control": "flag_checkbox 'noise'",
    "status": "PASS",
    "detail": "ticked and unticked",
-   "seconds": 4.78,
+   "seconds": 7.11,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:04"
+   "ts": "2026-10-15T14:48:55"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -501,9 +501,9 @@
    "control": "set_checkbox 'set distance from epitope'",
    "status": "PASS",
    "detail": "ticked and unticked",
-   "seconds": 7.54,
+   "seconds": 5.56,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:12"
+   "ts": "2026-10-15T14:49:00"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -514,9 +514,9 @@
    "control": "text_field 'distance from epitope (angstrom)'",
    "status": "PASS",
    "detail": "typed text read back",
-   "seconds": 0.61,
+   "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:13"
+   "ts": "2026-10-15T14:49:01"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -529,7 +529,7 @@
    "detail": "moved 0 -> 450000, the number box followed every position",
    "seconds": 0.91,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:14"
+   "ts": "2026-10-15T14:49:02"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -542,7 +542,7 @@
    "detail": "stepped 0.0 -> 1.0E-4",
    "seconds": 0.61,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:14"
+   "ts": "2026-10-15T14:49:03"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -553,9 +553,9 @@
    "control": "set_checkbox 'set degree of labelling'",
    "status": "PASS",
    "detail": "ticked and unticked",
-   "seconds": 6.26,
+   "seconds": 6.07,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:20"
+   "ts": "2026-10-15T14:49:09"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -568,7 +568,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:21"
+   "ts": "2026-10-15T14:49:09"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -579,9 +579,9 @@
    "control": "slider 'structural integrity'",
    "status": "PASS",
    "detail": "moved 10000 -> 0, the number box followed every position",
-   "seconds": 0.92,
+   "seconds": 0.91,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:22"
+   "ts": "2026-10-15T14:49:10"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -594,7 +594,7 @@
    "detail": "stepped 1.0 -> 0.9999",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:22"
+   "ts": "2026-10-15T14:49:11"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -607,7 +607,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:23"
+   "ts": "2026-10-15T14:49:11"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -620,7 +620,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:24"
+   "ts": "2026-10-15T14:49:12"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -631,9 +631,9 @@
    "control": "text_field 'sample size xy (nm)'",
    "status": "PASS",
    "detail": "typed text read back",
-   "seconds": 0.61,
+   "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:25"
+   "ts": "2026-10-15T14:49:12"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -644,9 +644,9 @@
    "control": "text_field 'sample size z (nm)'",
    "status": "PASS",
    "detail": "typed text read back",
-   "seconds": 0.61,
+   "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:25"
+   "ts": "2026-10-15T14:49:13"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -655,11 +655,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set minimal distance between particles'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1223), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 5.88,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:25"
+   "ts": "2026-10-15T14:49:19"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -672,7 +672,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:26"
+   "ts": "2026-10-15T14:49:19"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -681,11 +681,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "flag_checkbox 'random positions'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1293), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 6.54,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:27"
+   "ts": "2026-10-15T14:49:26"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -694,11 +694,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set axial offset'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1326), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.45,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 4.9,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:27"
+   "ts": "2026-10-15T14:49:31"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -711,7 +711,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:28"
+   "ts": "2026-10-15T14:49:32"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -720,11 +720,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "flag_checkbox 'random orientations'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1396), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 4.41,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:28"
+   "ts": "2026-10-15T14:49:36"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -733,11 +733,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "flag_checkbox 'random rotations'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1429), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.45,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 6.31,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:28"
+   "ts": "2026-10-15T14:49:42"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -746,11 +746,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set global orientation (x, y, z)'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1462), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.45,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 5.53,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:29"
+   "ts": "2026-10-15T14:49:48"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -763,7 +763,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:30"
+   "ts": "2026-10-15T14:49:49"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -772,11 +772,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set xy angles'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1532), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 4.39,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:30"
+   "ts": "2026-10-15T14:49:53"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -789,7 +789,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:31"
+   "ts": "2026-10-15T14:49:53"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -798,11 +798,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set xz angles'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1602), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 3.62,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:31"
+   "ts": "2026-10-15T14:49:57"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -815,7 +815,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:32"
+   "ts": "2026-10-15T14:49:58"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -824,11 +824,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set yz angles'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1672), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 3.28,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:32"
+   "ts": "2026-10-15T14:50:01"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -841,7 +841,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:33"
+   "ts": "2026-10-15T14:50:01"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -850,11 +850,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set rotation angles'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1742), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 4.44,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:33"
+   "ts": "2026-10-15T14:50:06"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -867,7 +867,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:34"
+   "ts": "2026-10-15T14:50:07"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -880,7 +880,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:34"
+   "ts": "2026-10-15T14:50:07"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -889,11 +889,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set pixel size'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1884), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 4.87,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:35"
+   "ts": "2026-10-15T14:50:12"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -906,7 +906,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:35"
+   "ts": "2026-10-15T14:50:13"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -915,11 +915,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set psf sigma in xy'",
-   "status": "FAIL",
-   "detail": "the control is at (930,1954), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 7.05,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:36"
+   "ts": "2026-10-15T14:50:20"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -930,9 +930,9 @@
    "control": "text_field 'psf sigma in xy (nm)'",
    "status": "PASS",
    "detail": "typed text read back",
-   "seconds": 0.6,
+   "seconds": 0.61,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:37"
+   "ts": "2026-10-15T14:50:20"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -941,11 +941,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set psf sigma in z'",
-   "status": "FAIL",
-   "detail": "the control is at (930,2024), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 3.16,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:37"
+   "ts": "2026-10-15T14:50:23"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -956,9 +956,9 @@
    "control": "text_field 'psf sigma in z (nm)'",
    "status": "PASS",
    "detail": "typed text read back",
-   "seconds": 0.6,
+   "seconds": 0.61,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:38"
+   "ts": "2026-10-15T14:50:24"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -967,11 +967,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set depth of field'",
-   "status": "FAIL",
-   "detail": "the control is at (930,2094), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 7.64,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:38"
+   "ts": "2026-10-15T14:50:32"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -984,7 +984,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:39"
+   "ts": "2026-10-15T14:50:32"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -993,11 +993,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set psf sampling rate'",
-   "status": "FAIL",
-   "detail": "the control is at (930,2164), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 3.57,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:39"
+   "ts": "2026-10-15T14:50:36"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1010,7 +1010,7 @@
    "detail": "typed text read back",
    "seconds": 0.61,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:40"
+   "ts": "2026-10-15T14:50:36"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1019,11 +1019,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set lateral precision'",
-   "status": "FAIL",
-   "detail": "the control is at (930,2269), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 5.38,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:40"
+   "ts": "2026-10-15T14:50:42"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1036,7 +1036,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:41"
+   "ts": "2026-10-15T14:50:42"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1045,11 +1045,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set axial precision'",
-   "status": "FAIL",
-   "detail": "the control is at (930,2339), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 5.68,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:41"
+   "ts": "2026-10-15T14:50:48"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1062,7 +1062,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:42"
+   "ts": "2026-10-15T14:50:49"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1071,11 +1071,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set localisations per emitter'",
-   "status": "FAIL",
-   "detail": "the control is at (930,2409), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 4.98,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:42"
+   "ts": "2026-10-15T14:50:54"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1088,7 +1088,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:43"
+   "ts": "2026-10-15T14:50:54"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1097,11 +1097,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": "set_checkbox 'set random seed'",
-   "status": "FAIL",
-   "detail": "the control is at (930,2514), outside the 1600.0x1000.0 screen: a real click cannot reach it",
-   "seconds": 0.46,
+   "status": "PASS",
+   "detail": "ticked and unticked",
+   "seconds": 6.95,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:43"
+   "ts": "2026-10-15T14:51:01"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1114,7 +1114,7 @@
    "detail": "typed text read back",
    "seconds": 0.6,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:44"
+   "ts": "2026-10-15T14:51:02"
   },
   {
    "id": "ui_fiji_form_simulate_sample_opens",
@@ -1123,11 +1123,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": null,
-   "status": "FAIL",
-   "detail": "the dialog is 1066x3024 on a 1600x1000 screen (oversized); form_ok is at (1149,2587) 77x23: not on the screen, it cannot be pressed; form_cancel is at (1234,2587) 77x23: not on the screen, it cannot be pressed; at the form: the window 'Simulate imaging of a virtual sample' is 1066x3024 on a 1600x1000 screen",
-   "seconds": 81.54,
+   "status": "PASS",
+   "detail": "38 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog",
+   "seconds": 172.62,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:50"
+   "ts": "2026-10-15T14:51:08"
   },
   {
    "id": "ui_fiji_form_simulate_sample_controls",
@@ -1136,11 +1136,11 @@
    "app": "VLab4Mic",
    "tool": "simulate_sample",
    "control": null,
-   "status": "FAIL",
-   "detail": "19 of 62 control(s) failed: set_checkbox 'set minimal distance between particles': the control is at (930,1223), outside the 1600.0x1000.0 screen: a real click cannot reach it; flag_checkbox 'random positions': the control is at (930,1293), outside the 1600.0x1000.0 screen: a real click cannot reach it; set_checkbox 'set axial offset': the control is at (930,1326), outside the 1600.0x1000.0 screen: a real click cannot reach it; flag_checkbox 'random orientations': the control is at (930,1396)...",
-   "seconds": 81.54,
+   "status": "PASS",
+   "detail": "62 control(s) activated and read back: choice_combo, file_browse, flag_checkbox, number_spinner, set_checkbox, slider, text_field",
+   "seconds": 172.62,
    "screenshot": null,
-   "ts": "2026-10-15T14:36:50"
+   "ts": "2026-10-15T14:51:08"
   },
   {
    "id": "ui_fiji_run_simulate_sample",
@@ -1151,9 +1151,9 @@
    "control": null,
    "status": "PASS",
    "detail": "status COMPLETE; every declared result shown (simulated:image, noiseless:image, values:values); inputs from case {\"random_seed\": 1}",
-   "seconds": 45.08,
+   "seconds": 49.88,
    "screenshot": null,
-   "ts": "2026-10-15T14:37:35"
+   "ts": "2026-10-15T14:51:58"
   },
   {
    "id": "ui_fiji_run_simulate_sample",
@@ -1166,7 +1166,7 @@
    "detail": "expectations of the case that Fiji cannot check: max_seconds",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T14:37:35"
+   "ts": "2026-10-15T14:51:58"
   },
   {
    "id": "ui_fiji_screens_simulate_sample",
@@ -1177,9 +1177,9 @@
    "control": null,
    "status": "PASS",
    "detail": "the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)",
-   "seconds": 45.08,
+   "seconds": 49.88,
    "screenshot": "/home/user/results/alpha3/VLab4Mic/ui_fiji/fiji/VLab4Mic/simulate_sample_after_run.png",
-   "ts": "2026-10-15T14:37:35"
+   "ts": "2026-10-15T14:51:58"
   },
   {
    "id": "ui_fiji_panel_copy_terminal",
@@ -1190,9 +1190,9 @@
    "control": null,
    "status": "PASS",
    "detail": "the clipboard holds the terminal line of the last run (VLab4Mic: simulate_sample), equal to the saved command",
-   "seconds": 19.23,
+   "seconds": 18.34,
    "screenshot": null,
-   "ts": "2026-10-15T14:37:54"
+   "ts": "2026-10-15T14:52:16"
   },
   {
    "id": "ui_fiji_panel_copy_python",
@@ -1203,9 +1203,9 @@
    "control": null,
    "status": "PASS",
    "detail": "the clipboard holds the Python snippet of the last run (VLab4Mic: simulate_sample), equal to the saved command",
-   "seconds": 18.93,
+   "seconds": 18.63,
    "screenshot": null,
-   "ts": "2026-10-15T14:38:13"
+   "ts": "2026-10-15T14:52:35"
   },
   {
    "id": "ui_fiji_fj1b_cancel_form",
@@ -1218,7 +1218,7 @@
    "detail": "no tool of this app has a required file/folder/table input on a form of several parameters: nothing to cancel with an empty required path",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T14:38:13"
+   "ts": "2026-10-15T14:52:35"
   },
   {
    "id": "ui_fiji_fj1b_missing_image_compare_images",
@@ -1229,9 +1229,9 @@
    "control": null,
    "status": "PASS",
    "detail": "no image open, OK on the untouched form: refused: error \"[missing_parameter] 'Reference' is required: open an image or choose a file\", code None, status None, status line 'Command canceled: Compare an image with a reference'",
-   "seconds": 22.85,
+   "seconds": 22.54,
    "screenshot": null,
-   "ts": "2026-10-15T14:38:36"
+   "ts": "2026-10-15T14:52:57"
   },
   {
    "id": "ui_fiji_controls_all_known",
@@ -1244,7 +1244,7 @@
    "detail": "224 control(s) in 5 form(s) and 6 chooser(s), every one in the control table (20 kinds)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T14:38:36"
+   "ts": "2026-10-15T14:52:57"
   }
  ]
 }
