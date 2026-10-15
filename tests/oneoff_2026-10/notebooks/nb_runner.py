@@ -10,6 +10,7 @@ of the notebook survives. The matrix is results/<app>/matrix_nb_notebook_<app>.j
 import argparse
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -111,6 +112,7 @@ def run_one(args: argparse.Namespace, matrix: Matrix, notebook: Notebook) -> Non
     app, results = args.app, Path(args.results)
     prefix = Path(args.prefix)
     home = results / app / ("home_" + sanitise(notebook.name))
+    shutil.rmtree(home, ignore_errors=True)  # a rerun starts from an empty scratch home: files kept from the last run (reports, results) must not count in the oracle
     home.mkdir(parents=True, exist_ok=True)
     rows = results / app / "nb_work" / (sanitise(notebook.name) + ".rows.jsonl")
     rows.parent.mkdir(parents=True, exist_ok=True)
