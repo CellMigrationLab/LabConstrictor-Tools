@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 5.45,
+  "run_record": "/home/user/apps/a4_lc_home_VLab4Mic/runs/20261015T180730417378_VLab4Mic_simulate_sample/run.json",
+  "error": "[ValueError] Empty file.",
+  "code": "ValueError",
+  "log": "/home/user/apps/a4_lc_home_VLab4Mic/logs/labconstrictor.log"
+}

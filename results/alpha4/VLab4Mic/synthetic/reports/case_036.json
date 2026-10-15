@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.2,
+  "run_record": "/home/user/apps/a4_lc_home_VLab4Mic/runs/20261015T180731112856_VLab4Mic_simulate_sample/run.json",
+  "error": "[structure_file_not_found] The structure file 'fixtures/no_such.cif' was not found: check the path.",
+  "code": "structure_file_not_found",
+  "log": "/home/user/apps/a4_lc_home_VLab4Mic/logs/labconstrictor.log"
+}

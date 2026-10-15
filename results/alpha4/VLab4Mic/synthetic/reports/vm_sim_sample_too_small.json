@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.18,
+  "run_record": "/home/user/apps/a4_lc_home_VLab4Mic/runs/20261015T180713853871_VLab4Mic_simulate_sample/run.json",
+  "error": "[invalid_parameter] 'Sample size XY' must be >= 100",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a4_lc_home_VLab4Mic/logs/labconstrictor.log"
+}

@@ -1,0 +1,32 @@
+{
+  "status": "COMPLETE",
+  "seconds": 6.55,
+  "run_record": "/home/user/apps/a4_lc_home_VLab4Mic/runs/20261015T180636668690_VLab4Mic_simulate_sample/run.json",
+  "results": [
+    {
+      "type": "image",
+      "name": "simulated",
+      "path": "/home/user/a4/syn_scratch_vm/_jobs/022/simulated.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "image",
+      "name": "noiseless",
+      "path": "/home/user/a4/syn_scratch_vm/_jobs/022/noiseless.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "modality": "Confocal",
+        "pixel_size_nm": 70.0,
+        "pixel_size_um": 0.07,
+        "image_size_px": "14 x 14",
+        "particles_requested": 1,
+        "particles_placed": 1
+      }
+    }
+  ],
+  "job_dir": "/home/user/a4/syn_scratch_vm/_jobs/022"
+}

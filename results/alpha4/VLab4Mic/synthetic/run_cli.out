@@ -19,3 +19,20 @@ CASE 017 FAILED   compare_images               OK [vm_pixel_negative] pixel size
 CASE 018 COMPLETE compare_images               OK [vm_different_fields] two unrelated images of different size
 CASE 019 COMPLETE compare_images               OK [vm_stress_identical] stress: the same 2500x2500 uint16 imag
 CASE 020 COMPLETE simulate_sample              OK [vm_sim_sted] STED, structure file mini_ring.cif, sample 100
+CASE 021 COMPLETE simulate_sample              OK [vm_sim_widefield] Widefield, structure file mini_ring.cif, 
+CASE 022 COMPLETE simulate_sample              OK [vm_sim_confocal] Confocal, structure file mini_ring.cif, sa
+CASE 023 COMPLETE simulate_sample              OK [vm_sim_airyscan] AiryScan, structure file mini_ring.cif, sa
+CASE 024 COMPLETE simulate_sample              OK [vm_sim_smlm] SMLM, structure file mini_ring.cif, sample 100
+CASE 025 COMPLETE simulate_sample              OK [vm_sim_centred] one ring placed at a fixed position (random
+CASE 026 FAILED   simulate_sample              OK [vm_sim_sample_too_small] simulate_sample with sample_size_x
+CASE 027 FAILED   simulate_sample              OK [vm_sim_pixel_too_big] simulate_sample with pixel_size_nm=20
+CASE 028 FAILED   simulate_sample              OK [vm_sim_seed_negative] simulate_sample with random_seed=-1
+CASE 029 FAILED   simulate_sample              OK [vm_sim_exposure_too_long] simulate_sample with exposure_tim
+CASE 030 FAILED   simulate_sample              OK [vm_sim_wobble_too_big] simulate_sample with wobble_cone_deg
+CASE 031 FAILED   simulate_sample              OK [vm_sim_efficiency_negative] simulate_sample with labelling_
+CASE 032 FAILED   simulate_sample              OK [vm_sim_too_many_particles] simulate_sample with number_of_p
+CASE 033 FAILED   simulate_sample              OK [vm_sim_pixel_not_multiple] simulate_sample with modality=Wi
+CASE 034 FAILED   simulate_sample              OK [vm_structure_garbage] structure_file = a text file that is 
+CASE 035 FAILED   simulate_sample              OK [vm_structure_empty] structure_file = an empty structure fil
+CASE 036 FAILED   simulate_sample              OK [vm_structure_missing] structure_file = a structure file tha
+SUMMARY 37 cases, 0 differ from their own expectation
