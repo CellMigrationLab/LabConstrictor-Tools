@@ -1,0 +1,11 @@
+CASE 000 COMPLETE relocalize                   OK [ns_normal] 1600x1600 field of 450 nuclei (0.65 um/px) and a
+CASE 001 COMPLETE relocalize                   OK [ns_pure_shift] a 420x420 crop of the field at the same pixe
+CASE 002 COMPLETE relocalize                   OK [ns_rotation_only] a 420x420 query rotated by +35 degrees at
+CASE 003 FAILED   relocalize                   OK [ns_no_overlap] a query from a different field of nuclei (no
+CASE 004 FAILED   relocalize                   OK [ns_flat_zero_reference] an all-zero reference image
+CASE 005 COMPLETE relocalize                   OK [ns_stress_3000] stress: a 3000x3000 uint16 field (18 MB, me
+CASE 006 COMPLETE relocalize                   OK [ns_small_um] a 1200x1200 field of 250 nuclei and a rotated 
+CASE 007 COMPLETE relocalize                   OK [ns_small_nm] a 1200x1200 field of 250 nuclei and a rotated 
+CASE 008 COMPLETE relocalize                   OK [ns_small_micro] a 1200x1200 field of 250 nuclei and a rotat
+CASE 009 COMPLETE relocalize                   OK [ns_small_micron] a 1200x1200 field of 250 nuclei and a rota
+CASE 010 COMPLETE relocalize                   OK [ns_small_u8] a 1200x1200 field of 250 nuclei and a rotated 

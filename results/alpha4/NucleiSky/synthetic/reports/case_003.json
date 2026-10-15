@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 24.52,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T193635921794_NucleiSky_relocalize/run.json",
+  "error": "[no_match] No match found: none of the matchers could place the query in the reference. Check the pixel sizes and that the query overlaps the reference.",
+  "code": "no_match",
+  "log": "/home/user/apps/a4_lc_home_NS/logs/labconstrictor.log"
+}

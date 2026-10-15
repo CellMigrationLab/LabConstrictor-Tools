@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 3.42,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T193639581251_NucleiSky_relocalize/run.json",
+  "error": "[no_nuclei] No nuclei found in the reference (try other segmentation settings).",
+  "code": "no_nuclei",
+  "log": "/home/user/apps/a4_lc_home_NS/logs/labconstrictor.log"
+}
