@@ -1,0 +1,21 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.16,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  file=pg_file_exact_limit.txt, bytes=1000000, kind=text, lines=10000",
+  "run_record": "/home/user/apps/a2_lc_home_Playground_synnap/runs/20261015T103242116892_LabConstrictorPlayground_look_inside_file",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "file": "pg_file_exact_limit.txt",
+        "bytes": 1000000,
+        "kind": "text",
+        "lines": 10000
+      }
+    }
+  ],
+  "host_observed": {}
+}

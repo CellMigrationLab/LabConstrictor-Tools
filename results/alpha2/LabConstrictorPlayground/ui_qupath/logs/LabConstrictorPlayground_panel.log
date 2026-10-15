@@ -1,0 +1,51 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=37287 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+WARNING: Unknown module: javafx.graphics specified to --add-opens
+WARNING: Unknown module: javafx.base specified to --add-opens
+WARNING: Unknown module: javafx.web specified to --enable-native-access
+WARNING: Unknown module: javafx.graphics specified to --enable-native-access
+WARNING: Unknown module: javafx.media specified to --enable-native-access
+10:38:13.885 [main] [INFO ] qupath.QuPath - Setting system property lc.noshow=true
+10:38:13.887 [main] [INFO ] qupath.QuPath - Setting system property lc.qupath.test.script=/tmp/lc_gui_test.groovy
+10:38:13.887 [main] [INFO ] qupath.QuPath - Setting system property lc.test.out=/home/user/results/alpha2/LabConstrictorPlayground/ui_qupath/logs/shots/LabConstrictorPlayground_panel
+10:38:13.887 [main] [INFO ] qupath.QuPath - Setting system property lc.test.fixtures=/home/user/wt_ui_qupath/tests/fixtures
+Oct 15, 2026 10:38:13 AM com.sun.javafx.application.PlatformImpl startup
+WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @3d34d211'
+10:38:14.295 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting default Locale to en_US
+10:38:14.296 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for FORMAT to en_US
+10:38:14.296 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for DISPLAY to en_US
+10:38:14.320 [JavaFX Application Thread] [INFO ] qupath.lib.common.ThreadTools - Setting parallelism to 3
+10:38:14.358 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - Initializing: 1792060694358
+10:38:14.699 [JavaFX Application Thread] [INFO ] q.l.g.i.s.ImageRegionStoreFactory - Setting tile cache size to 1710.00 MB (25.0% max memory)
+10:38:15.069 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - QuPath build: Version: 0.7.0
+Build time: 2026-02-25 16:06
+Latest commit tag: "04ccfa4"
+10:38:17.586 [JavaFX Application Thread] [INFO ] qupath.lib.scripting.QP - Initializing type adapters
+10:38:18.213 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension LabConstrictor tools version 0.1.0-alpha.2 (0 ms)
+10:38:18.227 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - Bio-Formats version 8.4.0
+10:38:18.234 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - If Bio-Formats is slow to load images, setting the Bio-Formats memoization time in QuPath's preferences may help (this will create temp files)
+10:38:18.235 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Bio-Formats extension (Bio-Formats 8.4.0) version 0.7.0 (20 ms)
+10:38:18.236 [JavaFX Application Thread] [INFO ] qupath.ext.djl.DjlExtension - Registering DjlDnnModel
+10:38:18.247 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Deep Java Library extension version 0.4.2 (10 ms)
+10:38:18.365 [JavaFX Application Thread] [INFO ] q.ext.openslide.OpenSlideExtension - OpenSlide loaded successfully: 4.0.0
+10:38:18.365 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension OpenSlide extension version 0.7.0 (117 ms)
+10:38:18.415 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension ImageJ extension version 0.7.0 (21 ms)
+10:38:18.451 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Processing & classification extension version 0.7.0 (35 ms)
+10:38:18.716 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Rich script editor extension version 0.7.0 (245 ms)
+10:38:18.720 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension SVG export extension version 0.7.0 (2 ms)
+10:38:18.725 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension QuPath training extension version 0.1.0 (3 ms)
+10:38:18.746 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathApp - Starting QuPath with parameters: [--quiet=true]
+
+(QuPath:17959): Gdk-WARNING **: 10:38:18.784: XSetErrorHandler() called with a GDK error trap pushed. Don't do that.
+CHECK ui_qupath_panel_app_chooser PASS offers [LabConstrictorPlayground] (the registry files list the same); 'LabConstrictorPlayground' shows its 17 CLI tool(s)
+10:38:33.853 [JavaFX Application Thread] [INFO ] labconstrictor - LabConstrictor: no channel chooser for 'image' (the image has 0 channel(s))
+CHECK ui_qupath_panel_tool_chooser PASS each of 17 tool(s) builds its form and shows the description of the schema
+CHECK ui_qupath_panel_rescan_apps PASS clicked; status 'Found 1 app(s)', app kept
+CHECK ui_qupath_panel_cancel PASS disabled; a click left the status at 'Found 1 app(s)' and started nothing
+10:38:40.475 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsServerOptions - Setting max Bio-Formats readers to 4
+10:38:41.076 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - Project set to Project: lc_ui_audit_project4008975815715534991-project
+10:38:41.358 [JavaFX Application Thread] [INFO ] qupath.lib.gui.viewer.QuPathViewer - Image data set to ImageData: Not set, square_a.tif
+10:38:41.358 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - Image type estimated to be Fluorescence
+CHECK ui_qupath_panel_copy_as_command PASS a click opened the menu: entries [Terminal command, Python snippet]
+CHECK ui_qupath_panel_copy_terminal_command PASS the clipboard text (222 characters) parses back to the interpreter of the registry entry, 'LabConstrictorPlayground', 'align_centres' and 2 predicted value(s)
+CHECK ui_qupath_panel_copy_python_snippet PASS the clipboard text (329 characters) parses back to the interpreter of the registry entry, 'LabConstrictorPlayground', 'align_centres' and 2 predicted value(s)
+UI_AUDIT_LAUNCH_END phase=panel exit=0

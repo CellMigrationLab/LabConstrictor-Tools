@@ -1,0 +1,25 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.3,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  table 'summary' (4 rows)  rows=8, columns=5, numeric_columns=4",
+  "run_record": "/home/user/apps/a2_lc_home_Playground_synnap/runs/20261015T103220978910_LabConstrictorPlayground_summarise_table",
+  "results": [
+    {
+      "type": "table",
+      "name": "summary",
+      "path": "/tmp/lcin_iyky003g/out/summary.csv"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "rows": 8,
+        "columns": 5,
+        "numeric_columns": 4
+      }
+    }
+  ],
+  "host_observed": {}
+}

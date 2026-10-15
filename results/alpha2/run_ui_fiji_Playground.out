@@ -43,3 +43,38 @@ CHECK ui_fiji_form_run_on_device_opens PASS 3 parameter(s): every declared widge
 CHECK ui_fiji_form_run_on_device_controls PASS 3 control(s) activated and read back: choice_combo, text_field
 CHECK ui_fiji_run_run_on_device PASS status COMPLETE; every declared result shown (result:message, values:values); inputs from case {"device": "cpu", "size": 128, "repeats": 2}
 CHECK ui_fiji_screens_run_on_device PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_stress_big_image_opens PASS 1 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_stress_big_image_controls PASS 1 control(s) activated and read back: text_field
+NOTE ui_fiji_screens_stress_big_image not run: no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
+NOTE ui_fiji_run_stress_big_image not run: no run: a stress tool: it is never run through the form
+CHECK ui_fiji_form_stress_crash_opens PASS 0 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_stress_crash_controls FAIL no control of the form could be activated (0 found)
+NOTE ui_fiji_screens_stress_crash not run: no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
+NOTE ui_fiji_run_stress_crash not run: no run: a stress tool: it is never run through the form
+CHECK ui_fiji_form_stress_hang_opens PASS 1 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_stress_hang_controls PASS 1 control(s) activated and read back: text_field
+NOTE ui_fiji_screens_stress_hang not run: no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
+NOTE ui_fiji_run_stress_hang not run: no run: no grace-period kill in the case runner; covered by the host test suites and the sandbox extras
+CHECK ui_fiji_form_stress_many_points_opens PASS 1 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_stress_many_points_controls PASS 1 control(s) activated and read back: text_field
+NOTE ui_fiji_screens_stress_many_points not run: no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
+NOTE ui_fiji_run_stress_many_points not run: no run: a stress tool: it is never run through the form
+CHECK ui_fiji_form_stress_out_of_memory_opens PASS 0 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_stress_out_of_memory_controls FAIL no control of the form could be activated (0 found)
+NOTE ui_fiji_screens_stress_out_of_memory not run: no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
+NOTE ui_fiji_run_stress_out_of_memory not run: no run: a stress tool: it is never run through the form
+CHECK ui_fiji_form_stress_real_memory_opens PASS 2 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_stress_real_memory_controls PASS 2 control(s) activated and read back: text_field
+NOTE ui_fiji_screens_stress_real_memory not run: no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
+NOTE ui_fiji_run_stress_real_memory not run: no run: opt-in, uses real memory; covered by the sandbox extras
+CHECK ui_fiji_form_stress_slow_opens PASS 1 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_stress_slow_controls PASS 1 control(s) activated and read back: text_field
+NOTE ui_fiji_screens_stress_slow not run: no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
+NOTE ui_fiji_run_stress_slow not run: no run: a stress tool: it is never run through the form
+CHECK ui_fiji_form_summarise_table_opens PASS 1 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_summarise_table_controls PASS 2 control(s) activated and read back: file_browse, text_field
+CHECK ui_fiji_run_summarise_table PASS status COMPLETE; every declared result shown (summary:table, values:values); inputs from case {"table": "fixtures/data/measurements.csv"}
+CHECK ui_fiji_screens_summarise_table PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_panel_copy_terminal PASS the clipboard holds the terminal line of the last run (LabConstrictorPlayground: summarise_table), equal to the saved command
+CHECK ui_fiji_panel_copy_python PASS the clipboard holds the Python snippet of the last run (LabConstrictorPlayground: summarise_table), equal to the saved command
+CHECK ui_fiji_controls_all_known PASS 400 control(s) in 27 form(s) and 28 chooser(s), every one in the control table (20 kinds)
