@@ -5,7 +5,7 @@ are meant to show them (and in no other), run there, and fail in an understandab
 
 **Who.** Anyone who can install a program and use Napari, Fiji or QuPath. No programming is needed; a few steps type one command into a terminal.
 
-**Short version.** [TESTER_START_HERE.md](TESTER_START_HERE.md) is the one-page job description and [TEST_MATRIX.md](TEST_MATRIX.md) says who tests what on which system; read those first, this file is the detail.
+**Short version.** [TESTER_START_HERE.md](TESTER_START_HERE.md) gives the first steps and [TEST_MATRIX.md](TEST_MATRIX.md) has a volunteer checklist **grouped by OS**, with assignee, data and result columns. [TEST_DATA.md](TEST_DATA.md) identifies the exact example inputs. This protocol is optional detail.
 
 **How long.** The *Quick path* below is about 45 minutes per operating system. Everything is several hours: do the parts you were asked for.
 
@@ -417,9 +417,9 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 ---
 
 ## 10. Report back
-For assigned human test packets, follow the concise [matrix report template](TEST_MATRIX.md#4-copy-and-paste-report-template) and create one issue per packet, titled `Test report: <OS> <your name> <date> <Tools tag>`:
+For human testing, follow your [OS checklist](TEST_MATRIX.md#1-windows--volunteer--------windows-version---------) and create **one report per tester/OS**, titled `Test report: <OS> <your name> <date> <Tools tag>`:
 - [ ] the filled **record sheet (section 0.1 and 0.2)**: without it a result cannot be tied to versions;
-- [ ] one short report per assigned packet, listing test IDs, outcomes and D1 findings (no full protocol copy required);
+- [ ] one short report with the rows you attempted, listing test IDs, outcomes and D1 findings (no full protocol copy required);
 - [ ] screenshots: one per FAIL and optional illustrative PASS screenshots;
 - [ ] the support bundle zip (E4) if anything failed. **Open it first** and remove anything private;
 - [ ] the report of the Playground tool **Check everything** (`report.json` and the readout) if you installed the Playground;
