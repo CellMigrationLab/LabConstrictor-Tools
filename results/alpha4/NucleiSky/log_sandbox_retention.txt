@@ -1,0 +1,7 @@
+CHECK 6_runs_complete PASS 60 runs of relocalize
+CHECK 6a_markers_present PASS folders=20
+CHECK 6b_results_keep_newest_20 PASS kept=20
+CHECK 6d_prune_dry_run_json PASS results keep=20 kept=20 deleted=0 | runs keep=50 kept=50 deleted=0
+CHECK 6e_foreign_folders_left_alone PASS 
+CHECK 6f_run_records_keep_50 PASS run record folders=50 after 60 runs
+SECTION retention: 6 checks, 0 failed []

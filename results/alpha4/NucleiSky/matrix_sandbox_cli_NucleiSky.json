@@ -3,7 +3,7 @@
  "app": "NucleiSky",
  "family": "sandbox",
  "started": "2026-10-15T18:24:46",
- "finished": null,
+ "finished": "2026-10-15T18:46:56",
  "expected": 20,
  "rows": [
   {
@@ -577,6 +577,84 @@
    "seconds": 0.0,
    "screenshot": null,
    "ts": "2026-10-15T18:33:00"
+  },
+  {
+   "id": "6_runs_complete",
+   "family": "sandbox",
+   "host": "cli",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "60 runs of relocalize",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T18:46:56"
+  },
+  {
+   "id": "6a_markers_present",
+   "family": "sandbox",
+   "host": "cli",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "folders=20",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T18:46:56"
+  },
+  {
+   "id": "6b_results_keep_newest_20",
+   "family": "sandbox",
+   "host": "cli",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "kept=20",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T18:46:56"
+  },
+  {
+   "id": "6d_prune_dry_run_json",
+   "family": "sandbox",
+   "host": "cli",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "results keep=20 kept=20 deleted=0 | runs keep=50 kept=50 deleted=0",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T18:46:56"
+  },
+  {
+   "id": "6e_foreign_folders_left_alone",
+   "family": "sandbox",
+   "host": "cli",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T18:46:56"
+  },
+  {
+   "id": "6f_run_records_keep_50",
+   "family": "sandbox",
+   "host": "cli",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "run record folders=50 after 60 runs",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T18:46:56"
   }
  ]
 }
