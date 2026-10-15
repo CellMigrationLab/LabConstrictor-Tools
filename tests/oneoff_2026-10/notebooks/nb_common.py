@@ -25,7 +25,9 @@ def sanitise(text: str) -> str:
 def script_path(scripts_root: Path, app: str, notebook: str) -> Path:
     """The click script of a notebook. The folder is named by the registry name (`GuessTheCondition`) or by the repository name (`LabConstrictor-VLab4Mic`,
     `LabConstrictor-Playground`): both are accepted (VL-1 of the alpha.1 round); the first existing file wins, else the registry-name path is returned."""
-    for folder in (app, "LabConstrictor-" + app, app.removeprefix("LabConstrictor-")):
+    # the registry name `LabConstrictorPlayground` lives in the repository folder `LabConstrictor-Playground`
+    spaced = "LabConstrictor-" + app.removeprefix("LabConstrictor-").removeprefix("LabConstrictor")
+    for folder in (app, "LabConstrictor-" + app, app.removeprefix("LabConstrictor-"), spaced):
         candidate = scripts_root / folder / (notebook + ".py")
         if candidate.is_file():
             return candidate

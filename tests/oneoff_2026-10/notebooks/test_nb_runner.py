@@ -196,4 +196,7 @@ def test_script_path_accepts_registry_and_repository_folder(tmp_path: Path) -> N
     (tmp_path / "Plain" / "nb.py").write_text("x = 1\n")
     assert script_path(tmp_path, "VLab4Mic", "nb") == tmp_path / "LabConstrictor-VLab4Mic" / "nb.py"
     assert script_path(tmp_path, "Plain", "nb") == tmp_path / "Plain" / "nb.py"
+    (tmp_path / "LabConstrictor-Playground").mkdir()
+    (tmp_path / "LabConstrictor-Playground" / "nb.py").write_text("x = 1\n")
+    assert script_path(tmp_path, "LabConstrictorPlayground", "nb") == tmp_path / "LabConstrictor-Playground" / "nb.py"
     assert script_path(tmp_path, "Missing", "nb") == tmp_path / "Missing" / "nb.py"
