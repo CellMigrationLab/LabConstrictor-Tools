@@ -1,10 +1,10 @@
 {
   "status": "FAILED",
-  "seconds": 2.31,
+  "seconds": 2.34,
   "error": "[flat_image] The simulated image has the same value everywhere: similarity cannot be measured.",
   "code": "flat_image",
   "status_text": "\u2716 [flat_image] The simulated image has the same value everywhere: similarity cannot be measured.  - click Details\u2026 for the full report (log: /home/user/apps/a2_lc_home_VLab4Mic_synnap/logs/labconstrictor.log)",
-  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_synnap/runs/20261015T094012313921_VLab4Mic_compare_images",
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_synnap/runs/20261015T094257932437_VLab4Mic_compare_images",
   "host_observed": {
     "reference_pixel_size_um": 0.02,
     "simulated_pixel_size_um": 0.02

@@ -1,0 +1,117 @@
+NOTE vm_cal_anisotropic has no machine oracle for this run (HUMAN): judged by a person
+CHECK vm_identical_0_status                                                  PASS    status COMPLETE
+CHECK vm_identical_1_value:ssim                                              PASS    ssim = 1.0, expected 1.0 (tol 0.001, rtol 0)
+CHECK vm_identical_2_value:pearson                                           PASS    pearson = 1.0, expected 1.0 (tol 0.001, rtol 0)
+CHECK vm_identical_3_value:reference_pixel_size_nm                           PASS    reference_pixel_size_nm = 20.0, expected 20.0 (tol 1e-06, rtol 0)
+CHECK vm_identical_4_value:simulated_pixel_size_nm                           PASS    simulated_pixel_size_nm = 20.0, expected 20.0 (tol 1e-06, rtol 0)
+CHECK vm_identical_5_host_param                                              PASS    host showed reference_pixel_size_um = 0.02, expected 0.02
+CHECK vm_identical_6_host_param                                              PASS    host showed simulated_pixel_size_um = 0.02, expected 0.02
+CHECK vm_gain_offset_0_status                                                PASS    status COMPLETE
+CHECK vm_gain_offset_1_value:pearson                                         PASS    pearson = 1.0, expected 1.0 (tol 0.001, rtol 0)
+CHECK vm_inverted_0_status                                                   PASS    status COMPLETE
+CHECK vm_inverted_1_value:pearson                                            PASS    pearson = -1.0, expected -1.0 (tol 0.001, rtol 0)
+CHECK vm_half_res_right_units_0_status                                       PASS    status COMPLETE
+CHECK vm_half_res_right_units_1_value:pearson                                PASS    pearson = 0.996639, expected between 0.95 and inf
+CHECK vm_half_res_right_units_2_value:simulated_pixel_size_nm                PASS    simulated_pixel_size_nm = 40.0, expected 40.0 (tol 1e-06, rtol 0)
+CHECK vm_half_res_wrong_units_0_status                                       PASS    status COMPLETE
+CHECK vm_half_res_wrong_units_1_value:pearson                                PASS    pearson = 0.003286, expected between -inf and 0.5
+CHECK vm_cal_um_0_host_param                                                 PASS    host showed reference_pixel_size_um = 0.02, expected 0.02
+CHECK vm_cal_nm_0_host_param                                                 PASS    host showed reference_pixel_size_um = 0.02, expected 0.02
+CHECK vm_cal_micro_0_host_param                                              FAIL    host showed reference_pixel_size_um = None, expected 0.02
+CHECK vm_cal_none_0_status                                                   FAIL    status DRIVER_ERROR, expected FAILED (error: AssertionError: Run did not start a task; status: ⚠ 'reference_pixel_size_um' needs a value: 'reference' has no pixel size. Enter it in um. |  File "/home/user/wt_ui_napari/tests/ui_audit_runs.py", line 258, in execute
+    raise AssertionError("Run did not start a task; status: %s" % w.status.text())
+AssertionError: Run did not start a task; status: ⚠ 'reference_pixel_size_um' needs a value: 'reference' has no pixel size. Enter it in um.
+)
+CHECK vm_cal_none_1_host_param                                               PASS    host showed reference_pixel_size_um = None, expected None
+CHECK vm_nan_simulated_0_status                                              PASS    status FAILED
+CHECK vm_nan_reference_0_status                                              PASS    status FAILED
+CHECK vm_flat_simulated_0_status                                             PASS    status FAILED
+CHECK vm_zero_simulated_0_status                                             PASS    status FAILED
+CHECK vm_flat_reference_0_status                                             FAIL    status COMPLETE, expected FAILED (error: None)
+CHECK vm_zero_reference_0_status                                             FAIL    status COMPLETE, expected FAILED (error: None)
+CHECK vm_stack_cyx_0_status                                                  PASS    status FAILED
+CHECK vm_stack_zyx_0_status                                                  PASS    status FAILED
+CHECK vm_stack_tyx_0_status                                                  PASS    status FAILED
+CHECK vm_rgb_0_status                                                        PASS    status FAILED
+CHECK vm_pixel_zero_0_status                                                 FAIL    status COMPLETE, expected FAILED (error: None)
+CHECK vm_pixel_negative_0_status                                             FAIL    status DRIVER_ERROR, expected FAILED (error: AssertionError: Run did not start a task; status: ⚠ 'Reference pixel size um' must be >= 0 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt_ui_napari/tests/ui_audit_runs.py", line 258, in execute
+    raise AssertionError("Run did not start a task; status: %s" % w.status.text())
+AssertionError: Run did not start a task; status: ⚠ 'Reference pixel size um' must be >= 0
+)
+CHECK vm_different_fields_0_status                                           PASS    status COMPLETE
+CHECK vm_different_fields_1_value:pearson                                    PASS    pearson = -0.003105, expected 0.0 (tol 0.3, rtol 0)
+CHECK vm_different_fields_2_value:ssim                                       FAIL    ssim = 0.778662, expected 0.0 (tol 0.3, rtol 0)
+CHECK vm_stress_identical_0_status                                           PASS    status COMPLETE
+CHECK vm_stress_identical_1_value:ssim                                       PASS    ssim = 1.0, expected 1.0 (tol 0.001, rtol 0)
+CHECK vm_stress_identical_2_value:pearson                                    PASS    pearson = 1.0, expected 1.0 (tol 0.001, rtol 0)
+CHECK vm_sim_sted_0_status                                                   PASS    status COMPLETE
+CHECK vm_sim_sted_1_value:modality                                           PASS    modality = 'STED', expected 'STED' (tol 0, rtol 0)
+CHECK vm_sim_sted_2_value:pixel_size_nm                                      PASS    pixel_size_nm = 15.0, expected 15.0 (tol 0.01, rtol 0)
+CHECK vm_sim_sted_3_value:pixel_size_um                                      PASS    pixel_size_um = 0.015, expected 0.015 (tol 1e-06, rtol 0)
+CHECK vm_sim_sted_4_value:particles_placed                                   PASS    particles_placed = 1, expected 1 (tol 0, rtol 0)
+CHECK vm_sim_sted_5_image_stat                                               PASS    shape0 of simulated = 66, expected 66.66666666666667 (tol 0.99)
+CHECK vm_sim_sted_6_image_stat                                               PASS    shape1 of simulated = 66, expected 66.66666666666667 (tol 0.99)
+CHECK vm_sim_sted_7_image_stat                                               PASS    shape0 of noiseless = 66, expected 66.66666666666667 (tol 0.99)
+CHECK vm_sim_widefield_0_status                                              PASS    status COMPLETE
+CHECK vm_sim_widefield_1_value:modality                                      PASS    modality = 'Widefield', expected 'Widefield' (tol 0, rtol 0)
+CHECK vm_sim_widefield_2_value:pixel_size_nm                                 PASS    pixel_size_nm = 100.0, expected 100.0 (tol 0.01, rtol 0)
+CHECK vm_sim_widefield_3_value:pixel_size_um                                 PASS    pixel_size_um = 0.1, expected 0.1 (tol 1e-06, rtol 0)
+CHECK vm_sim_widefield_4_value:particles_placed                              PASS    particles_placed = 1, expected 1 (tol 0, rtol 0)
+CHECK vm_sim_widefield_5_image_stat                                          PASS    shape0 of simulated = 20, expected 20.0 (tol 0.99)
+CHECK vm_sim_widefield_6_image_stat                                          PASS    shape1 of simulated = 20, expected 20.0 (tol 0.99)
+CHECK vm_sim_widefield_7_image_stat                                          PASS    shape0 of noiseless = 20, expected 20.0 (tol 0.99)
+CHECK vm_sim_confocal_0_status                                               PASS    status COMPLETE
+CHECK vm_sim_confocal_1_value:modality                                       PASS    modality = 'Confocal', expected 'Confocal' (tol 0, rtol 0)
+CHECK vm_sim_confocal_2_value:pixel_size_nm                                  PASS    pixel_size_nm = 70.0, expected 70.0 (tol 0.01, rtol 0)
+CHECK vm_sim_confocal_3_value:pixel_size_um                                  PASS    pixel_size_um = 0.07, expected 0.07 (tol 1e-06, rtol 0)
+CHECK vm_sim_confocal_4_value:particles_placed                               PASS    particles_placed = 1, expected 1 (tol 0, rtol 0)
+CHECK vm_sim_confocal_5_image_stat                                           PASS    shape0 of simulated = 14, expected 14.285714285714286 (tol 0.99)
+CHECK vm_sim_confocal_6_image_stat                                           PASS    shape1 of simulated = 14, expected 14.285714285714286 (tol 0.99)
+CHECK vm_sim_confocal_7_image_stat                                           PASS    shape0 of noiseless = 14, expected 14.285714285714286 (tol 0.99)
+CHECK vm_sim_airyscan_0_status                                               PASS    status COMPLETE
+CHECK vm_sim_airyscan_1_value:modality                                       PASS    modality = 'AiryScan', expected 'AiryScan' (tol 0, rtol 0)
+CHECK vm_sim_airyscan_2_value:pixel_size_nm                                  PASS    pixel_size_nm = 40.0, expected 40.0 (tol 0.01, rtol 0)
+CHECK vm_sim_airyscan_3_value:pixel_size_um                                  PASS    pixel_size_um = 0.04, expected 0.04 (tol 1e-06, rtol 0)
+CHECK vm_sim_airyscan_4_value:particles_placed                               PASS    particles_placed = 1, expected 1 (tol 0, rtol 0)
+CHECK vm_sim_airyscan_5_image_stat                                           PASS    shape0 of simulated = 25, expected 25.0 (tol 0.99)
+CHECK vm_sim_airyscan_6_image_stat                                           PASS    shape1 of simulated = 25, expected 25.0 (tol 0.99)
+CHECK vm_sim_airyscan_7_image_stat                                           PASS    shape0 of noiseless = 25, expected 25.0 (tol 0.99)
+CHECK vm_sim_smlm_0_status                                                   PASS    status COMPLETE
+CHECK vm_sim_smlm_1_value:modality                                           PASS    modality = 'SMLM', expected 'SMLM' (tol 0, rtol 0)
+CHECK vm_sim_smlm_2_value:pixel_size_nm                                      PASS    pixel_size_nm = 2.0, expected 2.0 (tol 0.01, rtol 0)
+CHECK vm_sim_smlm_3_value:pixel_size_um                                      PASS    pixel_size_um = 0.002, expected 0.002 (tol 1e-06, rtol 0)
+CHECK vm_sim_smlm_4_value:particles_placed                                   PASS    particles_placed = 1, expected 1 (tol 0, rtol 0)
+CHECK vm_sim_smlm_5_image_stat                                               PASS    shape0 of simulated = 500, expected 500.0 (tol 0.99)
+CHECK vm_sim_smlm_6_image_stat                                               PASS    shape1 of simulated = 500, expected 500.0 (tol 0.99)
+CHECK vm_sim_smlm_7_image_stat                                               PASS    shape0 of noiseless = 500, expected 500.0 (tol 0.99)
+CHECK vm_sim_centred_0_status                                                PASS    status COMPLETE
+CHECK vm_sim_centred_1_centroid                                              PASS    centroid (9.60, 9.61), expected (9.75, 9.75), 0.21 px away (limit 3)
+CHECK vm_sim_sample_too_small_0_status                                       FAIL    status DRIVER_ERROR, expected FAILED (error: AssertionError: Run did not start a task; status: ⚠ 'Sample size XY' must be >= 100 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt_ui_napari/tests/ui_audit_runs.py", line 258, in execute
+    raise AssertionError("Run did not start a task; status: %s" % w.status.text())
+AssertionError: Run did not start a task; status: ⚠ 'Sample size XY' must be >= 100
+)
+CHECK vm_sim_pixel_too_big_0_status                                          FAIL    status DRIVER_ERROR, expected FAILED (error: AssertionError: Run did not start a task; status: ⚠ 'Pixel size' must be <= 1000 |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt_ui_napari/tests/ui_audit_runs.py", line 258, in execute
+    raise AssertionError("Run did not start a task; status: %s" % w.status.text())
+AssertionError: Run did not start a task; status: ⚠ 'Pixel size' must be <= 1000
+)
+CHECK vm_sim_seed_negative_0_status                                          FAIL    status DRIVER_ERROR, expected FAILED (error: AssertionError: Run did not start a task; status: ⚠ 'Random seed' must be >= 0 |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt_ui_napari/tests/ui_audit_runs.py", line 258, in execute
+    raise AssertionError("Run did not start a task; status: %s" % w.status.text())
+AssertionError: Run did not start a task; status: ⚠ 'Random seed' must be >= 0
+)
+CHECK vm_sim_exposure_too_long_0_status                                      FAIL    status DRIVER_ERROR, expected FAILED (error: AssertionError: Run did not start a task; status: ⚠ 'Exposure time' must be <= 10 |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt_ui_napari/tests/ui_audit_runs.py", line 258, in execute
+    raise AssertionError("Run did not start a task; status: %s" % w.status.text())
+AssertionError: Run did not start a task; status: ⚠ 'Exposure time' must be <= 10
+)
+CHECK vm_sim_wobble_too_big_0_status                                         NOT_RUN no report file for this dataset
+CHECK vm_sim_efficiency_negative_0_status                                    NOT_RUN no report file for this dataset
+CHECK vm_sim_too_many_particles_0_status                                     NOT_RUN no report file for this dataset
+CHECK vm_sim_pixel_not_multiple_0_status                                     PASS    status FAILED
+CHECK vm_structure_garbage_0_status                                          PASS    status FAILED
+CHECK vm_structure_empty_0_status                                            PASS    status FAILED
+CHECK vm_structure_missing_0_status                                          PASS    status FAILED
+SUMMARY {'PASS': 78, 'FAIL': 11, 'NOT_RUN': 3} (92 checks, 41 datasets)

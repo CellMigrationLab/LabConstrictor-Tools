@@ -1,0 +1,37 @@
+{
+  "host": "qupath",
+  "app": "VLab4Mic",
+  "family": "ui",
+  "host_version": "v0.1.0-alpha.2",
+  "started": "2026-10-15T09:45:17Z",
+  "finished": "2026-10-15T09:45:36Z",
+  "expected": 1,
+  "rows": [
+    {
+      "id": "ui_qupath_not_listed_vlab4mic",
+      "family": "ui",
+      "host": "qupath",
+      "app": "VLab4Mic",
+      "tool": "",
+      "control": "app_chooser",
+      "status": "PASS",
+      "detail": "'VLab4Mic' is absent from the app chooser (it offers [GuessTheCondition])",
+      "seconds": 0.0,
+      "screenshot": null,
+      "ts": "2026-10-15T09:45:35Z"
+    },
+    {
+      "id": "ui_qupath_forms_vlab4mic",
+      "family": "ui",
+      "host": "qupath",
+      "app": "VLab4Mic",
+      "tool": "",
+      "control": "",
+      "status": "NOTE",
+      "detail": "the app must not be listed in QuPath, so no form, run or screenshot check applies",
+      "seconds": 0.0,
+      "screenshot": null,
+      "ts": "2026-10-15T09:45:35Z"
+    }
+  ]
+}

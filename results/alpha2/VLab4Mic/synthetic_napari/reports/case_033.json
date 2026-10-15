@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 6.72,
+  "error": "[pixel_size_not_multiple] The pixel size (105 nm) must be a multiple of the PSF sampling rate (10 nm): change one of them under 'Modality'.",
+  "code": "pixel_size_not_multiple",
+  "status_text": "\u2716 [pixel_size_not_multiple] The pixel size (105 nm) must be a multiple of the PSF sampling rate (10 nm): change one of them under 'Modality'.  - click Details\u2026 for the full report (log: /home/user/apps/a2_lc_home_VLab4Mic_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_synnap/runs/20261015T094440647389_VLab4Mic_simulate_sample",
+  "host_observed": {}
+}

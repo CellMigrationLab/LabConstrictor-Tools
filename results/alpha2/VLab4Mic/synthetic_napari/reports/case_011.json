@@ -1,10 +1,10 @@
 {
   "status": "COMPLETE",
-  "seconds": 2.34,
+  "seconds": 2.33,
   "error": null,
   "code": null,
   "status_text": "\u2714 done in 0.1s  ssim=0.8641, pearson=(not a finite number), reference_pixel_size_nm=20.0, simulated_pixel_size_nm=20.0",
-  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_synnap/runs/20261015T094017214330_VLab4Mic_compare_images",
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_synnap/runs/20261015T094302776015_VLab4Mic_compare_images",
   "results": [
     {
       "type": "values",

@@ -1,0 +1,7 @@
+{
+  "status": "HOST_ONLY",
+  "host_observed": {
+    "reference_pixel_size_um": 0.02,
+    "simulated_pixel_size_um": null
+  }
+}

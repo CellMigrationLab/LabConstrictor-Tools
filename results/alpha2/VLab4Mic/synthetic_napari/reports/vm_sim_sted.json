@@ -1,21 +1,21 @@
 {
   "status": "COMPLETE",
-  "seconds": 10.74,
+  "seconds": 10.0,
   "error": null,
   "code": null,
-  "status_text": "\u2714 done in 7.7s  modality=STED, pixel_size_nm=15.0, pixel_size_um=0.015, image_size_px=66 x 66, particles_requested=1, particles_placed=1",
-  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_synnap/runs/20261015T094043045603_VLab4Mic_simulate_sample",
+  "status_text": "\u2714 done in 7.0s  modality=STED, pixel_size_nm=15.0, pixel_size_um=0.015, image_size_px=66 x 66, particles_requested=1, particles_placed=1",
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_synnap/runs/20261015T094328606992_VLab4Mic_simulate_sample",
   "results": [
     {
       "type": "image",
       "name": "simulated",
-      "path": "/tmp/lcin_d3llew79/out/simulated.tif",
+      "path": "/tmp/lcin_soad64ut/out/simulated.tif",
       "axes": "YX"
     },
     {
       "type": "image",
       "name": "noiseless",
-      "path": "/tmp/lcin_d3llew79/out/noiseless.tif",
+      "path": "/tmp/lcin_soad64ut/out/noiseless.tif",
       "axes": "YX"
     },
     {
