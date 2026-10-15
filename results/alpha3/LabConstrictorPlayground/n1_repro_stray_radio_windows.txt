@@ -1,0 +1,18 @@
+import os, sys, time
+import napari, numpy as np
+from qtpy.QtWidgets import QApplication, QRadioButton
+v = napari.Viewer(show=True)
+_, w = v.window.add_plugin_dock_widget("napari-labconstrictor", "LabConstrictor tools")
+def pump(s=0.3):
+    end=time.time()+s
+    while time.time()<end: QApplication.instance().processEvents(); time.sleep(0.02)
+def stray(): return [t for t in QApplication.topLevelWidgets() if t.isVisible() and isinstance(t, QRadioButton)]
+pump(1.5); w.app_box.value="LabConstrictorPlayground"; pump()
+def tool(prefix): w.tool_box.value=[l for l in w.tool_box.choices if l.startswith(prefix)][0]; pump(0.3)
+def cycle(n):
+    for k in range(n): v.add_image(np.zeros((16,16),np.uint8), name="p%d"%k); pump(0.2)
+    v.layers.clear(); pump(0.3)
+tool("Align"); print("A start", len(stray())); cycle(3); print("Align form: after cycle", len(stray()))
+tool("Count"); print("Count form, start", len(stray())); cycle(1); print("after cycle(1)", len(stray())); cycle(3); print("after cycle(3)", len(stray()), [(t.text(), t.geometry().getRect(), t.parent() is None) for t in stray()])
+tool("Feature"); print("Feature form start", len(stray())); cycle(1); print("after cycle(1)", len(stray()))
+os._exit(0)
