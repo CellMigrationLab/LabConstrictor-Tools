@@ -1,0 +1,102 @@
+{
+ "host": "napari",
+ "app": "VLab4Mic",
+ "family": "ui",
+ "host_version": "0.1.0a1",
+ "started": "2026-10-15T09:18:44Z",
+ "finished": null,
+ "expected": 22,
+ "rows": [
+  {
+   "id": "ui_napari_app_listed",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "",
+   "control": "app_chooser",
+   "status": "PASS",
+   "detail": "VLab4Mic is offered with all 2 tools of its schema file",
+   "seconds": 0.3,
+   "screenshot": null,
+   "ts": "2026-10-15T09:18:44Z"
+  },
+  {
+   "id": "ui_napari_form_simulate_sample_opens",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "simulate_sample",
+   "control": "form",
+   "status": "PASS",
+   "detail": "38 parameters: structure:choice, structure_file:file, number_of_particles:integer, probe:choice, target_sequence:string, fluorophore:choice, labelling_efficiency:float, distance_from_epitope_angstrom:float, wobble_cone_degrees:float, degree_of_labelling:integer, structural_integrity:float, small_cluster_distance_angstrom:float, large_cluster_distance_angstrom:float, sample_size_xy_nm:integer, sample_size_z_nm:integer, minimal_distance_nm:integer, random_positions:boolean, axial_offset_nm:float, ",
+   "seconds": 0.71,
+   "screenshot": null,
+   "ts": "2026-10-15T09:18:46Z"
+  },
+  {
+   "id": "ui_napari_form_simulate_sample_controls",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "simulate_sample",
+   "control": "form",
+   "status": "PASS",
+   "detail": "38 parameters activated (advanced box)",
+   "seconds": 8.02,
+   "screenshot": null,
+   "ts": "2026-10-15T09:18:54Z"
+  },
+  {
+   "id": "ui_napari_run_simulate_sample",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "simulate_sample",
+   "control": "run",
+   "status": "PASS",
+   "detail": "COMPLETE in 13.8s, 4 progress updates, outputs: simulated(image), noiseless(image), values(values)",
+   "seconds": 17.84,
+   "screenshot": "/home/user/results/alpha2/VLab4Mic/ui_napari/napari/VLab4Mic/simulate_sample_form.png",
+   "ts": "2026-10-15T09:19:12Z"
+  },
+  {
+   "id": "ui_napari_screens_simulate_sample",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "simulate_sample",
+   "control": "screens",
+   "status": "PASS",
+   "detail": "simulate_sample_form.png and simulate_sample_after_run.png written for a person to look at (132315 and 125042 bytes)",
+   "seconds": 0.0,
+   "screenshot": "/home/user/results/alpha2/VLab4Mic/ui_napari/napari/VLab4Mic/simulate_sample_after_run.png",
+   "ts": "2026-10-15T09:19:12Z"
+  },
+  {
+   "id": "ui_napari_form_compare_images_opens",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "form",
+   "status": "PASS",
+   "detail": "4 parameters: reference:image, simulated:image, reference_pixel_size_um:float, simulated_pixel_size_um:float",
+   "seconds": 0.75,
+   "screenshot": null,
+   "ts": "2026-10-15T09:19:13Z"
+  },
+  {
+   "id": "ui_napari_form_compare_images_controls",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "form",
+   "status": "PASS",
+   "detail": "4 parameters activated",
+   "seconds": 5.89,
+   "screenshot": null,
+   "ts": "2026-10-15T09:19:19Z"
+  }
+ ]
+}

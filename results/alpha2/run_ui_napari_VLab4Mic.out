@@ -1,0 +1,13 @@
+NOTE ui_napari_host_version 0.1.0a1
+WARNING: could not determine DPI
+CHECK ui_napari_app_listed PASS VLab4Mic is offered with all 2 tools of its schema file
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_simulate_sample_opens PASS 38 parameters: structure:choice, structure_file:file, number_of_particles:integer, probe:choice, target_sequence:string, fluorophore:choice, labelling_efficiency:float, distance_from_epitope_angstrom:float, wobble_cone_degrees:float, degree_of_labelling:integer, structural_integrity:float, small_cluster_distance_angstrom:float, large_cluster_distance_angstrom:float, sample_size_xy_nm:integer, sample_size_z_nm:integer, minimal_distance_nm:integer, random_positions:boolean, axial_offset_nm:float, 
+CHECK ui_napari_form_simulate_sample_controls PASS 38 parameters activated (advanced box)
+CHECK ui_napari_run_simulate_sample PASS COMPLETE in 13.8s, 4 progress updates, outputs: simulated(image), noiseless(image), values(values)
+CHECK ui_napari_screens_simulate_sample PASS simulate_sample_form.png and simulate_sample_after_run.png written for a person to look at (132315 and 125042 bytes)
+CHECK ui_napari_form_compare_images_opens PASS 4 parameters: reference:image, simulated:image, reference_pixel_size_um:float, simulated_pixel_size_um:float
+CHECK ui_napari_form_compare_images_controls PASS 4 parameters activated
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
