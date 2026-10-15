@@ -1,0 +1,17 @@
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Compare an image with a reference', 'Simulate imaging of a virtual sample']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'Compare an image with a reference'
+CHECK ui_fiji_form_compare_images_opens PASS 4 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_compare_images_controls PASS 8 control(s) activated and read back: file_browse, image_choice, number_spinner, text_field
+CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_run_compare_images PASS status COMPLETE; every declared result shown (values:values); inputs from case {"reference": "fixtures/reference_20nm.tif", "simulated": "fixtures/reference_20nm.tif", "reference_pixel_size_um": 0.02
+CHECK ui_fiji_panel_log PASS the Log window holds the run's command line and Python snippet, equal to the saved last command
+CHECK ui_fiji_panel_form_ok PASS a real click on OK closed the form and the plugin ran the tool (status COMPLETE)
+CHECK ui_fiji_screens_compare_images PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_simulate_sample_opens FAIL the dialog is 1066x3024 on a 1600x1000 screen (oversized); form_ok is at (1149,2587) 77x23: not on the screen, it cannot be pressed; form_cancel is at (1234,2587) 77x23: not on the screen, it cannot be pressed; at the form: the window 'Simulate imaging of a virtual sample' is 1066x3024 on a 1600x1000 screen
+CHECK ui_fiji_form_simulate_sample_controls FAIL 19 of 62 control(s) failed: set_checkbox 'set minimal distance between particles': the control is at (930,1223), outside the 1600.0x1000.0 screen: a real click cannot reach it; flag_checkbox 'random positions': the control is at (930,1293), outside the 1600.0x1000.0 screen: a real click cannot reach it; set_checkbox 'set axial offset': the control is at (930,1326), outside the 1600.0x1000.0 screen: a real click cannot reach it; flag_checkbox 'random orientations': the control is at (930,1396)...
+CHECK ui_fiji_run_simulate_sample PASS status COMPLETE; every declared result shown (simulated:image, noiseless:image, values:values); inputs from case {"random_seed": 1}
+CHECK ui_fiji_screens_simulate_sample PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
