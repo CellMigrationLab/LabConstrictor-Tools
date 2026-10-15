@@ -14,7 +14,7 @@
 
 **Results:** write **PASS / FAIL / BLOCKED / NOT TESTED / N/A**, followed by what happened or a link to a screenshot/issue. PASS means you actually observed the expected result, not just that the application opened. **BLOCKED** means you could not do the test (including missing sample data). Only use **N/A** when a feature does not apply to the software or hardware. For an app that must be *absent* from a host, correctly absent = **PASS** if the app was first confirmed registered.
 
-**Test set:** Playground 0.0.5; Guess the Condition 0.0.1; VLab4Mic 0.1.6; NucleiSky 0.1.4; CellTracksColab 1.1.2; Tools v0.3.0-alpha.1; host plugins v0.1.0-alpha.4; QuPath 0.7.0. Record the exact OS and versions actually used.
+**Test set:** Playground 0.0.5; Guess the Condition 0.0.1; VLab4Mic 0.1.7; NucleiSky 0.1.4; CellTracksColab 1.1.3; Tools v0.3.0-alpha.1; host plugins v0.1.0-alpha.4; QuPath 0.7.0. Record the exact OS and versions actually used.
 
 ## 1. Windows — volunteer: ________  Windows version: ________
 
@@ -84,7 +84,7 @@ These are **not** prerequisites for saying that the ordinary application launche
 | ___ | **Full Playground bridge feature tour**: channels, ROI, dependent settings, calibration, transforms, CSV, cancel, errors | **P1**, app guide [PG-3 to PG-12](human_tests/playground.md#pg-3-feature-tour-on-a-chosen-image-selection-look-for) | NOT TESTED |
 | ___ | **NucleiSky scientific reference** in Napari/Fiji/QuPath, match numerical transform and image placement | **N1**, generated reference/query, optional masks, ground truth; [NucleiSky guide](human_tests/nucleisky.md) | NOT TESTED |
 | ___ | **VLab4Mic image comparison**: identical vs unrelated, flat and stack rejection, image units | **V1**, generated TIFFs and optional mini-ring CIF; [VLab4Mic guide](human_tests/vlab4mic.md) | NOT TESTED |
-| ___ | **CellTracksColab bridge calculations** via CLI, independently verify track metrics | **C1** simple known-track CSV and [cases](https://github.com/CellMigrationLab/CellTracksColab/blob/1.1.2/lc_tests/cases.json); this is **not** a Napari/Fiji/QuPath tool | NOT TESTED |
+| ___ | **CellTracksColab bridge calculations** via CLI, independently verify track metrics | **C1** simple known-track CSV and [cases](https://github.com/CellMigrationLab/CellTracksColab/blob/1.1.3/lc_tests/cases.json); this is **not** a Napari/Fiji/QuPath tool | NOT TESTED |
 | ___ | **CellTracksColab full TrackMate notebook** including import, plots and output | **C2** validated dataset **not yet packaged**; provide sample and expected results or report BLOCKED | NOT TESTED |
 | ___ | **Real microscopy example** with meaningful calibration, channel and ROI choices | **R1**, keep private scientific data locally, report observations without uploading sensitive files | NOT TESTED |
 | ___ | **Maintainer-only destructive tests**: deliberately break app Python, dependencies, worker, upgrade or offline installation | Disposable machine/environment only; [protocol E1–E3, U3/4](HUMAN_TEST_PROTOCOL.md#8-when-something-is-wrong-these-tests-change-an-app-do-them-last-and-restore-afterwards) | NOT TESTED |
@@ -101,7 +101,7 @@ These are **not** prerequisites for saying that the ordinary application launche
 | **P1** | Tagged Playground synthetic test files | [Source ZIP](https://github.com/CellMigrationLab/LabConstrictor-Playground/archive/refs/tags/0.0.5.zip) → `lc_tests/fixtures/data` |
 | **N1** | NucleiSky synthetic nuclei/matching test | [Generator and OS commands](TEST_DATA.md#data-n1-nucleisky-matching-fixtures) |
 | **V1** | VLab4Mic known comparison images | [Generator](TEST_DATA.md#data-v1-vlab4mic-image-comparison) |
-| **C1** | Two-track bridge CSV | [Direct CSV](https://raw.githubusercontent.com/CellMigrationLab/CellTracksColab/1.1.2/lc_tests/fixtures/tracks.csv) |
+| **C1** | Two-track bridge CSV | [Direct CSV](https://raw.githubusercontent.com/CellMigrationLab/CellTracksColab/1.1.3/lc_tests/fixtures/tracks.csv) |
 | **C2** | Full TrackMate notebook test | **Not packaged/validated yet** — see [dataset gap](TEST_DATA.md#data-c1c2-celltrackscolab) |
 | **R1** | A volunteer's shareable real workflow | Keep files local; do not upload private images |
 

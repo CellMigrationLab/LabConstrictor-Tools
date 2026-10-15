@@ -1,7 +1,7 @@
 # Human tests: CellTracksColab (a notebook app; no host shows it)
 
 Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first. CellTracksColab analyses cell-tracking data in notebooks and is distributed as a desktop installer of its notebooks
-(release 1.1.2). **Discovery: hidden in Napari, Fiji and QuPath (notebook only).** It is **not** a
+(release 1.1.3). **Discovery: hidden in Napari, Fiji and QuPath (notebook only).** It is **not** a
 host UI test app: earlier versions of this protocol used it as a second app in Napari and Fiji, that expectation is gone.
 
 **What is shipped in release 1.1.2 (verified in the tagged source):** the `celltracks_lc_tools` module declares **Calculate Track Metrics** (`calculate_metrics`), the installer pins Tools `v0.3.0-alpha.1` and registers the module with `--app-manifest`, and `labconstrictor-app.yaml` declares `hosts: [notebook]`. It **must be registered but not offered in Napari, Fiji or QuPath**. A missing registration is a failure even when it makes the hosts appear to hide the app. The actual installer behaviour remains to be verified by a human.
@@ -14,7 +14,7 @@ host UI test app: earlier versions of this protocol used it as a second app in N
 
 ## CT-2. Registered bridge, deliberately excluded from image hosts
 **Do:** `<APP_PY> -m labconstrictor_tools list` with the Python of CellTracksColab (or any other app's Python).
-**Expect:** `list` contains **CellTracksColab 1.1.2**, a `Calculate Track Metrics` tool and the notebook-only host declaration; `menuinst_debug.log` confirms installation and registration of `celltracks_lc_tools` without `WARNING: tool registration failed`; `doctor` is clean. This step **must pass before CT-3 can establish that host exclusion works**.
+**Expect:** `list` contains **CellTracksColab 1.1.3**, a `Calculate Track Metrics` tool and the notebook-only host declaration; `menuinst_debug.log` confirms installation and registration of `celltracks_lc_tools` without `WARNING: tool registration failed`; `doctor` is clean. This step **must pass before CT-3 can establish that host exclusion works**.
 
 - [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
