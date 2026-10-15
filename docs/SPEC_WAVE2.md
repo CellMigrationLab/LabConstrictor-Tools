@@ -1,14 +1,15 @@
 # Spec (proposal): Wave 2 of the manifest roadmap
 
-Status: **for review, nothing is implemented.** Same rules as Wave 1 ([SPEC_WAVE1.md](SPEC_WAVE1.md)): the manifest stays small and organised in four families ([MANIFEST.md](MANIFEST.md)); everything is additive within `protocol: 1`; a host that does not know a hint shows a plain, working form. Out of scope: `TracksOut` (parked) and GEFF (maybe later; nothing here blocks it).
+Status (15 Oct 2026): **proposal, not implemented on `main`**: none of `TimeIntervalOf`, `ZStepOf`, `PerPlane`, `FigureOut`, `Format`, `Open`, `LinkOut` exists yet (the `_axes` request key is reserved in [PROTOCOL.md](PROTOCOL.md)). Work is planned item by item. Same rules as Wave 1 ([SPEC_WAVE1.md](SPEC_WAVE1.md)): the manifest stays small and organised in four families ([MANIFEST.md](MANIFEST.md)); everything is additive within `protocol: 1`; a host that does not know a hint shows a plain, working form. Out of scope: `TracksOut` (parked) and GEFF (maybe later; nothing here blocks it).
 
 | # | Item | Family | New names | Hosts |
 |---|---|---|---|---|
 | 1 | Time-lapse and 3D images | Types + Links + Behaviour | `Axes("TZYX")` (extended), `TimeIntervalOf`, `ZStepOf`, `PerPlane`, `t` / `z` columns and properties | Napari, Fiji, QuPath (+ CLI, notebook) |
 | 2 | Figures and reports | Types + Look | `FigureOut`, `Format` | all, plus CLI and notebook |
 | 3 | Host action "open" | Behaviour | `Open()`, `LinkOut` | all, plus CLI and notebook |
+| 4 | Feature matrix and parity checks | none (tooling and docs) | none | all, plus CLI and notebook |
 
-Order of work: 1 (largest, unlocks apps), then 2, then 3 (small, builds on 2 for HTML/PDF). Each item ships as a Tools PR (schema, validation, docs, example, `check` line, tests), then one PR per host, then the apps. A feature is "done" only when it meets the checklist at the end of MANIFEST.md.
+Order of work: 1 (largest, unlocks apps), then 2, then 3 (small, builds on 2 for HTML/PDF), then 4 (tooling; no host behaviour changes, and it can start as soon as the alpha test round is closed). Each item ships as a Tools PR (schema, validation, docs, example, `check` line, tests), then one PR per host, then the apps. A feature is "done" only when it meets the checklist at the end of MANIFEST.md.
 
 ---
 
@@ -338,3 +339,39 @@ Hosts for 5-7 can start as soon as 4 is merged and the example tools exist; 8 an
 18. **A reusable policy function for all hosts?** Recommended: yes, `openpolicy.check(path, job_dir, chosen)` in Tools, with the test vectors in 3.5; Java hosts port the same table and run the same vectors.
 19. **GEFF and `TracksOut` later?** Recommended: nothing in Wave 2 blocks them; `t` / `z` columns and `PerPlane` are the shared base, and a track table is just a table with `track_id`, `t`, `y`, `x`.
 20. **Where do the generated round-trip cases live?** Recommended: `tests/roundtrip_cases.py` in Tools writing a cases JSON the existing `testing` runner reads, and each host runs the same file against the example app.
+
+---
+
+## 4. Feature matrix and parity checks (tooling; planned, not started)
+Goal: one machine-readable reference of the LabConstrictor vocabulary and how each place that runs a tool (Napari, Fiji, QuPath, CLI, notebook)
+implements it, kept true by CI, from which the feature and parity pages are generated. Principle: each repository records facts about itself, where the evidence
+lives; Tools defines the vocabulary and the required behaviour; CI checks both; no hand-written tables.
+
+### 4.1 Rows (extracted, never typed)
+`featurematrix --vocab` lists every exported hint and type (`labconstrictor_tools/__init__.py`, `introspection.py`), every `FEATURES` id (`features.py`) and every
+`conformance.json` case id. Row ids are derived, so a new hint appears as a new row automatically.
+
+### 4.2 Required behaviour (Tools): `required_by_host.json`
+Per row and per place: `required`, `optional` or `n/a`, with a one-line reason; this is where design decisions are recorded ("Fiji: `Collapsed` is plain, by design").
+It extends what `conformance.json` already is; it does not become a third source next to it.
+
+### 4.3 What each host declares: `host_capabilities.json` (in each host repository, tagged with its release)
+One entry per row id: `status` (`yes`, `plain` = shown as an ordinary field, `partial`, `no`), `evidence` (test file and case name) and, for anything not `yes`,
+`kind`: `intentional` (with a decision link) or `gap`. Only `gap` rows are the to-do list.
+
+### 4.4 Checks
+* In each host's CI: the file covers every row of the pinned Tools package (a Tools bump with a new hint cannot ship until the host classifies it); every `yes` names a test or case that
+  exists; after the harness has run, every `yes` row's named case has PASSED (the per-case PASS lines already exist in each host's output).
+* In Tools CI: the same for the CLI and the notebook, whose code lives here; `required` rows that are `no` / `gap` fail; the generated pages are up to date (`--check`).
+* A scheduled Tools workflow fetches each host's file at its latest tag, regenerates `docs/HOST_FEATURES.md` and a parity summary, and opens a pull request with the difference.
+* A ratchet: the number of `gap` rows never goes up without a recorded decision.
+
+### 4.5 Maintainable by a person, an LLM or a test suite
+One command per repository (`featurematrix --check`, `--write`, `--vocab`); JSON Schema for every file, sorted keys, one object per row, no free text except the reason;
+error messages name the exact edit to make; one rule in `AGENTS.md` / `CLAUDE.md`: "when you add or change a hint, run `featurematrix --check` and fix every reported row".
+
+### 4.6 Order
+Phase 0 (one Tools pull request): extractor, schema, `required_by_host.json` seeded from `HOST_FEATURES.md`, the CLI and notebook checks, the generator that replaces the hand-written table.
+Phase 1 (one pull request per host): `host_capabilities.json` and the CI check, seeded from `HOST_PARITY.md`. Phase 2: the scheduled aggregation and the ratchet.
+Phase 3: migrate the parts of `HOST_PARITY.md` worth keeping into rows and delete the rest.
+Not planned: moving all of `HOST_PARITY.md` at once; accepting a test file name as proof without the PASS check; any hand-written matrix in the docs.

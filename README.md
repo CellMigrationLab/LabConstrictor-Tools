@@ -102,7 +102,7 @@ The bridge lists tools registered by installed applications. The following repos
 - [Operations](docs/OPERATIONS.md) — registration, shared installs, diagnostics, logs and security boundaries
 - [Protocol](docs/PROTOCOL.md) — schema, data formats and worker messages
 - [Repository map](docs/REPOSITORIES.md) — where the toolkit, hosts and example application fit
-- [Human testing](docs/HUMAN_TEST_PROTOCOL.md) — help test host integrations on real machines
+- [Human testing: start here](docs/TESTER_START_HERE.md) — one page to help test host integrations on real machines; [who tests what](docs/TEST_MATRIX.md); [the full protocol](docs/HUMAN_TEST_PROTOCOL.md)
 - [Python tests](tests/README.md) — test suites and development checks
 
 All front-ends write to the shared LabConstrictor log under `~/.labconstrictor/logs/` by default. `labconstrictor-tools logs` and `labconstrictor-tools support-bundle` help collect details when something fails.

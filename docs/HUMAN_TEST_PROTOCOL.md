@@ -5,9 +5,10 @@ are meant to show them (and in no other), run there, and fail in an understandab
 
 **Who.** Anyone who can install a program and use Napari, Fiji or QuPath. No programming is needed; a few steps type one command into a terminal.
 
+**Short version.** [TESTER_START_HERE.md](TESTER_START_HERE.md) gives the first steps and [TEST_MATRIX.md](TEST_MATRIX.md) has a volunteer checklist **grouped by OS**, with assignee, data and result columns. [TEST_DATA.md](TEST_DATA.md) identifies the exact example inputs. This protocol is optional detail.
+
 **How long.** The *Quick path* below is about 45 minutes per operating system. Everything is several hours: do the parts you were asked for.
 
-**What this replaces.** `docs/TESTING_PROMPT.md` is a prompt for an AI agent that tests from source; this file is the one for people.
 The automated counterpart is the release sandbox ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)): it tests a
 released app on fresh runners, but only Napari for most apps and Fiji/QuPath only for the Playground, and no human look at a screen.
 
@@ -27,17 +28,18 @@ released app on fresh runners, but only Napari for most apps and Fiji/QuPath onl
 ## How to use this document
 1. Copy this file and the case file of each app you test (or paste them into a GitHub issue: the boxes then become clickable). Print them if you prefer paper.
 2. Fill in the **Record sheet** (section 0). **Every result is tied to the versions in it**: a result without a filled record sheet cannot be used.
-3. Do the sections in order. Each test has **Do**, **Expect** and three boxes. Tick exactly one:
+3. Do the sections in order. Each test has **Do**, **Expect** and four boxes. Tick exactly one; a test you did not attempt stays unticked (**NOT TESTED**):
    * `PASS`: what you see matches **Expect**.
    * `FAIL`: it differs. Write what you saw in *Notes*, and take a screenshot.
-   * `N/A`: you could not do the step (say why; "no Windows machine" is a valid reason).
+   * `BLOCKED`: you could not do the step because something was missing (a dataset, an installed app, disk space, a host); say what.
+   * `N/A`: the step does not apply to your system or software (say why).
 4. Do not skip a failing test: note it and continue, unless the test says **STOP**.
 5. At the end, send the record sheet, the screenshots and a support bundle (test E4).
 
 **Statements marked "not verified"** are things the authors of this protocol could not check themselves. If you see something different, that is a finding: write it down, it is not a mistake of yours.
 
 **Quick path.** S1 to S4, D1 to D3, N0/F0/Q0 for the hosts you were asked to test, then in each app file the first three tests of each host
-(listing, one normal run, one error). Everything else is the full protocol.
+(listing, one normal run, one error), then NB1 to NB3 for the app. Everything else is the full protocol.
 
 **Severity** (use it when you write a FAIL):
 
@@ -56,30 +58,27 @@ QuPath. *Registry* = the folder where installed apps announce themselves. *Prefi
 
 ## 0. Record sheet: the test set (fill in before you start)
 
-### 0.1 The test set (the maintainer fills this in before the round; testers copy it)
-Testers install **only this set** and only the **latest** of each item: an older release or a branch is not a test of this round. If a
-row below still says `<fill in>`, the set is not ready: do not start. (Why exact versions: an installed app carries the Tools it was built
-with; hosts refuse an app whose Tools is too old; a result is meaningless without knowing which pieces met.)
+### 0.1 The test set (round `alpha.3`; the maintainer updates this table for each round)
+Testers install **only this set** and only the **versions specified here**: an older release or a branch is not a test of this round. (Why exact
+versions: an installed app carries the Tools it was built with; hosts refuse an app whose Tools is too old; a result is meaningless without
+knowing which pieces met.) The same table, with the install lines, is in [TESTER_START_HERE.md](TESTER_START_HERE.md).
 
-| Item | Value | Download link (exact) |
+| Item | Value | Download link |
 |---|---|---|
-| Tools tag | `v0.3.0-alpha.1` (Python version `0.3.0a1`); commit `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/tag/v0.3.0-alpha.1 (the tag is created by the maintainer: until it exists the apps cannot install) |
-| Template version of the apps | `<fill in>` (apps are on 0.1.17 today; 0.1.18 is a template pull request that is not merged: not verified which one the releases below carry; read `.template_sync/manifest.yaml` of the release tag) | n/a |
-| Napari plugin tag | `<fill in>` (the plugin had no tag when this was written) | `https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/<NAPARI_TAG>.zip` |
-| Fiji plugin tag | `<fill in>`; file `labconstrictor-fiji-<tag>.jar` (and `labconstrictor-fiji-script-<tag>.zip`, `SHA256SUMS`) | `https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases` (no release existed when this was written: not verified) |
-| QuPath plugin tag | `<fill in>`; file `labconstrictor-qupath-<tag>.jar` (and `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | `https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases` (no release existed when this was written: not verified) |
-| Napari / Fiji / QuPath themselves | Napari `<fill in>` (Python 3.11 or newer); Fiji `<fill in>` (Java build: ask); QuPath **0.7.0** (the plugin is built against it, other versions are not supported) | https://napari.org, https://fiji.sc, https://qupath.github.io |
-| NucleiSky | **0.1.4**, decided (pin pull request #38); `<fill in>` | https://github.com/CellMigrationLab/NucleiSky/releases |
-| Playground | **0.0.4**, decided (pin pull request #27); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases |
-| VLab4Mic | **0.1.6**, decided (pin pull request #17); `<fill in>` | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases |
-| Guess the Condition | **0.0.1**, decided (pin pull request #14; the app is at 0.0.0 today); `<fill in>` | https://github.com/CellMigrationLab/GuessTheCondition/releases |
-| CellTracksColab | latest release (1.1.1 when this was written; no new release is planned before the bridge decision); notebook app only | https://github.com/CellMigrationLab/CellTracksColab/releases |
-| Installer file names (per app, per OS) | `<fill in>` | |
+| Tools | `v0.3.0-alpha.1` (Python version `0.3.0a1`); installed by every app below, nothing to download | https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/tag/v0.3.0-alpha.1 |
+| Napari plugin | `v0.1.0-alpha.3` | `https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip` |
+| Fiji plugin | `v0.1.0-alpha.3`: `labconstrictor-fiji-v0.1.0-alpha.3.jar` (also `labconstrictor-fiji-script-v0.1.0-alpha.3.zip`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/tag/v0.1.0-alpha.3 |
+| QuPath plugin | `v0.1.0-alpha.3`: `labconstrictor-qupath-v0.1.0-alpha.3.jar` (also `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.3 |
+| Napari / Fiji / QuPath themselves | Napari 0.9 or newer (Python 3.11+, Qt6); the current "Fiji with Java"; QuPath **0.7.0** exactly (the plugin is built against it) | https://napari.org, https://fiji.sc, https://qupath.github.io |
+| NucleiSky | **0.1.4** | https://github.com/CellMigrationLab/NucleiSky/releases/tag/0.1.4 |
+| Playground | **0.0.5** | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/tag/0.0.5 |
+| VLab4Mic | **0.1.6** | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/tag/0.1.6 |
+| Guess the Condition | **0.0.1** | https://github.com/CellMigrationLab/GuessTheCondition/releases/tag/0.0.1 |
+| CellTracksColab | **1.1.2** (notebook app only) | https://github.com/CellMigrationLab/CellTracksColab/releases/tag/1.1.2 |
+| Installer file names | `<App>-<version>-Windows-x86_64.exe`, `<App>-<version>-MacOSX-arm64.pkg`, `<App>-<version>-Linux-x86_64.sh` (Playground: `LabConstrictorPlayground-...`) | on each release page |
 
-The release numbers of the four apps are decided by the maintainer (the next free numbers after each pin pull request); correct the table to what was
-really published if it differs. The pins in the apps are `v0.2.0-rc.1` today and become `v0.3.0-alpha.1` only after the pin pull requests are merged and the apps
-are released ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)); an app release that still pins `v0.2.0-rc.1` is **not** part of this
-test set (Fiji and QuPath leave it out of their lists with a sentence in the Log: that is correct behaviour; what Napari does with it is not verified, see D4).
+All five apps install Tools `v0.3.0-alpha.1` (their `post_install` hooks pin it). An app release that pins an older Tools is **not** part of this
+test set (Fiji and QuPath leave it out of their lists with a sentence in the Log: that is correct behaviour, see D4).
 
 ### 0.2 The tester and the computer
 | Field | Your entry |
@@ -130,17 +129,16 @@ Nothing in `<...>` is a variable your terminal understands: type the real folder
 2. **Updating.** macOS and Windows: uninstall the old version first, then install the new one (the installer does not install over an existing install).
    Linux: `bash <installer>.sh -u -p <PREFIX>` updates in place **only if the previous install finished**; after a failed or interrupted install delete
    `<PREFIX>/pkgs` (or uninstall and install again), otherwise the update breaks. (Source: OPERATIONS and TESTING pages of this repository, from the
-   sandbox findings of 13 Oct; the template's own install page for this is in an unmerged pull request, template #33.)
+   sandbox findings of 13 Oct.)
 3. **Tagged installs only.** Install exactly the tagged things in the record sheet. Never `main.zip`, never a branch archive, never
    `pip install` of Tools from `main`. The apps install Tools from a pinned tag (`LC_TOOLS_PIN` in their `post_install` hooks); the Napari line below pins the Tools tag
    and the plugin tag.
-4. **Only the latest.** Do not test an older release "to compare". If you already have an older app, uninstall it first (rule 2), or say so in the record sheet.
+4. **Round versions only.** Do not substitute an older or newer release for a listed release. If you already have an older app, uninstall it first (rule 2), or say so in the record sheet.
 
 ---
 
 ## 3. Which host shows which app (the discovery matrix)
-This is the **decided rule**; it is the binding rule in Tools (feature `app_hosts_v1`, Tools PR #133, merged); the three hosts honour it (merged: Napari #61, Fiji #47,
-QuPath #35; no host has a tag yet) and installers pass it from template 0.1.18 (template PR #33, not merged). Check the Tools tag, the host versions and the installer of your test set.
+This is the **decided rule**; it is the binding rule in Tools (feature `app_hosts_v1`), honoured by the three hosts at the tags of the test set and passed by the installers of the apps in it.
 An app installed by an older installer has no declaration and every host lists it, logging the 'declares no hosts' sentence ([REPOSITORIES.md](REPOSITORIES.md)); the tests D1 to D3 are written for the rule.
 discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)"
 
@@ -163,7 +161,7 @@ it may register no tool at all, which hides it trivially.
 ### S0. The path
 **Do:** choose, for each app, a prefix without a space (rule 1) and write it in the record sheet. Windows: do not use the default folder if your user name has a space.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### S1. Install an app
 **Do:** run the installer of the app you test (Linux batch example: `bash NucleiSky-<version>-Linux-x86_64.sh -b -p <PREFIX>`; use the file of
@@ -171,7 +169,7 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 
 **Expect:** the installer finishes without an error message. `<PREFIX>/menuinst_debug.log` exists and its last line is `Post-install completed successfully.`
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### S2. The tools were registered during installation
 **Do:** open `menuinst_debug.log`, search for `lc_tools`. (The installer downloads the small *labconstrictor-tools* package from GitHub, so it needs internet at that moment: the log shows
@@ -180,30 +178,66 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 * Windows: expect `Found <package>_lc_tools: registering ...` followed by a block of text containing `"schema_path"`. (The Windows script does not print "Tools registered".)
 * Neither: no line starting with `WARNING: tool registration failed`.
 
-**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab:** no such lines and no entry in `list` is expected (see its case file).
+**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab 1.1.2:** its bridge tool `Calculate Track Metrics` **must be registered** and visible in `list`, with notebook-only hosts; absence from the three host UIs is checked separately in CT-3/D3.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### S3. Diagnose
 **Do:** `<APP_PY> -m labconstrictor_tools doctor`.
 
 **Expect:** one line per registered app starting with a check mark, no line starting with a cross; the last lines name the registry folder and the log file.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### S4. Nothing unexpected was installed or written
 **Do:** look in your home folder.
 
 **Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer may also create menu entries (on Linux under `~/.local/share/applications` and `~/.local/share/desktop-directories`) and the folders of the tools it uses (`~/.conda`, `~/.mamba`, `~/.cache`, `~/.config`, `~/.local/share/mime`, dated backups of `~/.config/menus/applications.menu`; later `~/.imagej`, `~/.java` from Fiji): normal. No error dialogs. No administrator rights needed unless you chose a protected folder.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### C1. Run a tool without any window (optional)
 **Do:** `<APP_PY> -m labconstrictor_tools run <App> <tool id> name=value ...` for a tool of the app (the case file gives one, with its tool id).
 
 **Expect:** a JSON report with `"status": "COMPLETE"` and a last line `(results are in ...results/<time>_<id>_<App>_<tool> - ...; the newest 20 runs are kept)` (it goes to the error stream: with a pipe it can appear before the JSON; not a failure). A wrong input gives `"status": "FAILED"` with a `code` and a sentence an ordinary person can read.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
+
+---
+
+## 4b. Notebooks (every app has them; part of the test)
+Each app also ships notebooks (JupyterLab pages with widgets): that is the app's own window and the original way to use it. The three hosts
+show the same tools; the notebooks must keep working next to them. Which notebooks each app has is in [TEST_MATRIX.md](TEST_MATRIX.md#5-data-at-a-glance).
+
+### NB1. Open the app's notebook window
+**Do:** start the app from its menu entry or desktop shortcut (installed in S1) and open the notebook list.
+**Expect:** JupyterLab opens in your browser and lists the app's notebooks (`Welcome` and the ones named in the matrix). No error page, no blank browser tab.
+
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
+
+### NB2. The Welcome notebook runs top to bottom
+**Do:** open `Welcome` and run every cell in order (*Run > Run All Cells*), or press the buttons it shows.
+**Expect:** no red error output; whatever it says it will do (links, a version line, a check of the installation) is shown.
+
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
+
+### NB3. The main notebook with its own demo data
+**Do:** open the app's main notebook (matrix, "main notebook") and use it as its instructions say, on the demo or example data it offers (press **every** button and widget once: buttons that do nothing are a finding). If a notebook needs your own data and you have none: N/A, say so.
+**Expect:** the steps finish, results appear in the notebook (tables, plots, images) and nothing says `Error` or shows a traceback. A native file chooser that does not open is a **Major** FAIL.
+
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes (notebook name): ______________________________
+
+### NB4. Notebook and host agree (apps with tools in the hosts)
+**Do:** do one operation of the app both in the notebook and in a host (for example Guess the Condition *Create a demo experiment*, Playground *Summarise a table*, VLab4Mic *Compare images*) with the same input.
+**Expect:** the same result (same numbers, same files). A difference is a finding even if both look plausible; write both values.
+
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
+
+### NB5. Closing the notebook leaves nothing behind
+**Do:** close the browser tab, then stop JupyterLab (close its terminal window, or *File > Shut Down*). Look at the process list.
+**Expect:** no `jupyter` or `python` process of the app remains within 15 seconds.
+
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ---
 
@@ -214,23 +248,24 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 "execution of scripts is disabled" that is a setting of your computer: note it and use cmd.exe) and install **with a Qt6 backend**:
 ```
 python -m venv napari-env
-source napari-env/bin/activate
-pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/<NAPARI_TAG>.zip
+# Linux/macOS: source napari-env/bin/activate
+# Windows PowerShell: .\napari-env\Scripts\Activate.ps1
+python -m pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip
 napari
 ```
-Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **not** `napari[pyqt5]`: the plugin's README says PyQt5 is not tested and napari deprecated it in 0.8.0. The two long addresses are source archives of tags: no `git` program is needed; replace `<NAPARI_TAG>` by the tag in the record sheet.
+Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **not** `napari[pyqt5]`: the plugin's README says PyQt5 is not tested and napari deprecated it in 0.8.0. The two long addresses are source archives of tags: no `git` program is needed; replace `v0.1.0-alpha.3` by the tag in the record sheet.
 
 **Expect:** Napari opens. `Plugins` contains **LabConstrictor tools**. There is no backend notice (a PyQt5 notice would mean the wrong install). On a bare Linux system a Qt error `Could not load the Qt platform plugin "xcb"` means missing `libxcb-*` packages: a computer set-up problem, not a LabConstrictor one.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (Qt backend you have): ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes (Qt backend you have): ______________________________
 
 ### F0. Fiji
-**Do (jar, preferred):** download `labconstrictor-fiji-<tag>.jar` from the Fiji release of the record sheet, put it into `Fiji.app/plugins/` (not a subfolder; remove any older `labconstrictor-fiji-*.jar`), restart Fiji. Menu entry: **Plugins > LabConstrictor > LabConstrictor Tools...**. Check the file against `SHA256SUMS` of the release if you can.
-**Alternative (no jar):** download `labconstrictor-fiji-script-<tag>.zip` and unzip it so that **both** the script `LabConstrictor_Tools.groovy` **and its `lib` folder** sit in `Fiji.app/scripts/Plugins/LabConstrictor/` (the script alone stops with a message); the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots; Fiji also lists the `lib` helper files in the menu: harmless). **Macro calls need the jar.** Do not install both (the tool would be listed twice). Write down which one you used.
+**Do (jar, preferred):** download `labconstrictor-fiji-v0.1.0-alpha.3.jar` from the Fiji release of the record sheet, put it into `Fiji.app/plugins/` (not a subfolder; remove any older `labconstrictor-fiji-*.jar`), restart Fiji. Menu entry: **Plugins > LabConstrictor > LabConstrictor Tools...**. Check the file against `SHA256SUMS` of the release if you can.
+**Alternative (no jar):** download `labconstrictor-fiji-script-v0.1.0-alpha.3.zip` and unzip it so that **both** the script `LabConstrictor_Tools.groovy` **and its `lib` folder** sit in `Fiji.app/scripts/Plugins/LabConstrictor/` (the script alone stops with a message); the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots; Fiji also lists the `lib` helper files in the menu: harmless). **Macro calls need the jar.** Do not install both (the tool would be listed twice). Write down which one you used.
 
 **Expect:** after restart the menu entry exists (if you cannot find it, type `LabConstrictor` into Fiji's search bar, press *Run*, and note it as a FAIL of this test).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Menu path you used: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Menu path you used: ______________________________
 
 *What it should look like:* ![F0 the menu entry Plugins > LabConstrictor > LabConstrictor Tools](img/F0_fiji_menu.png)
 
@@ -242,12 +277,12 @@ Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **
 (Source: `LabConstrictor-Fiji` README, "Known limits of the pixel-size field", and [HOST_FEATURES.md](HOST_FEATURES.md).)
 
 ### Q0. QuPath
-**Do (jar, preferred):** install QuPath **0.7.0** (QuPath 0.7 is built with Java 25 and the jar needs it; older QuPath versions are not supported). Download `labconstrictor-qupath-<tag>.jar` from the QuPath release of the record sheet, drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences), restart QuPath.
+**Do (jar, preferred):** install QuPath **0.7.0** (QuPath 0.7 is built with Java 25 and the jar needs it; older QuPath versions are not supported). Download `labconstrictor-qupath-v0.1.0-alpha.3.jar` from the QuPath release of the record sheet, drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences), restart QuPath.
 **Alternative (Script Editor):** download the **single file** `LabConstrictorTools-all.groovy` from the same release, open it in QuPath's Script Editor (`Automate > Show script editor`) and run it. The repository's source script is split into several part files joined by the build; **the parts are not usable in the Script Editor**, only the all-in-one file from the release (the jar joins the parts itself). Write down which one you used.
 
 **Expect:** **Extensions > LabConstrictor tools...** exists. With no app registered the window says "No LabConstrictor app is registered on this machine" (install an app, press **Rescan apps**).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 *Not verified:* the drag-and-drop install of a released jar (the release smoke test puts the jar on the class path), and any QuPath step on Windows or macOS by a person.
 
@@ -271,25 +306,25 @@ QuPath `Extensions > LabConstrictor tools...` (app chooser).
 
 A mismatch is a **Major** FAIL (an app that must be hidden is shown, or one that must be listed is missing); write the host, app, and what the Log or status line says.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### D2. VLab4Mic is not offered in QuPath
 **Do:** install VLab4Mic. Open QuPath's app chooser. Press **Rescan apps**.
-**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. The hosts honour the rule; what is still future is the declaration: it exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so this is not verified until the apps are re-installed with an installer that passes the hosts. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
+**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. The tagged release source contains `labconstrictor-app.yaml` and `--app-manifest` hooks, so test the actual installed registration rather than assuming it. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### D3. CellTracksColab is offered nowhere
-**Do:** install CellTracksColab next to another app. Look at all three hosts (Rescan apps / restart Fiji).
-**Expect:** not in any list, no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule; the declaration exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so this is not verified until the apps are re-installed with an installer that passes the hosts; before that the app is listed in every host.
+**Do:** install CellTracksColab next to another app, and first confirm that `list` shows CellTracksColab's registered `Calculate Track Metrics` tool and notebook-only host declaration (CT-2). Then look at all three hosts (Rescan apps / restart Fiji).
+**Expect:** registered, but **not in any of the three host lists**; no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule; the declaration exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so verify the actual installed manifest/registration before considering an absent host entry a PASS.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### D4. An app with an old Tools is refused with a sentence (only if you have one)
 **Do:** if you have an app installed from an older release (Tools `0.2.0rc1`), open the three hosts. (This is the situation for every released installer before the pin pull requests; do not install one on purpose.)
 **Expect:** Fiji and QuPath leave it out of the list with a sentence in the Log such as `this app's labconstrictor-tools 0.2.0rc1 is older than the 0.3.0a1 this host needs: update it`; QuPath refuses a run with the same sentence; Napari: not verified (its plugin requires Tools 0.3.0a1 and checks it at load).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ---
 
@@ -311,58 +346,58 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 
 **Expect:** `doctor` shows a cross for the broken app with `not available on this machine (interpreter ... is missing)`; `list` says `<App>  -- skipped: ...`. The other app stays usable. Napari lists only the other app and its status line reads `⚠ skipped: <App> (...)`; Fiji's Log has `LabConstrictor: skipped <App>: not available on this machine (interpreter ... is missing)`; QuPath: not verified (write down what it says). **Restore the file name before you continue** (`mv <PREFIX>/bin/python.off <PREFIX>/bin/python`; `Rename-Item "<PREFIX>\python.off" python.exe`) and check that `doctor` is clean again.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 *What the Fiji line looks like (older screenshot: the skipped app was CellTracksColab then):* ![F11 Log line for a skipped app](img/F11_fiji_log_skipped_app.png)
 
 ### E2. A package is missing inside an app
-**Do:** `<APP_PY> -m pip show pandas` (write the `Version:`); `<APP_PY> -m pip uninstall -y pandas`; run a tool of that app that needs it (Playground "Summarise a table") in a host. Reinstall **exactly that version**: `<APP_PY> -m pip install pandas==<version>`.
+**Maintainer-only, disposable installation.** **Do:** `<APP_PY> -m pip show pandas` (write the `Version:`); `<APP_PY> -m pip uninstall -y pandas`; run a tool of that app that needs it (Playground "Summarise a table") in a host. Reinstall **exactly that version**: `<APP_PY> -m pip install pandas==<version>`.
 
 **Expect:** `✖ [ModuleNotFoundError] No module named 'pandas'  - click Details...` (Napari; Fiji: an error window naming the log; QuPath: the status line and **Details**). Details shows the traceback. After reinstalling, the tool works again.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### E3. A process killed from outside
 **Do:** start a long run (Playground "Stress: slow run with progress", 60 s). In the process list end the `python ... labconstrictor_tools serve` process of that app.
 **Expect:** the host says `worker exited unexpectedly (code ...)` with a likely cause, the run button is usable again, and the next run works.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### E4. Support bundle
 **Do:** `<APP_PY> -m labconstrictor_tools support-bundle --out <somewhere>/bundle.zip`, open the zip.
 **Expect:** it contains `logs/labconstrictor.log`, `apps/*.json`, the latest `runs/*/run.json`, `doctor.txt` and `environment.txt`: file names, folder names and parameter values of recent runs, **no image or table contents**. Logs and run records are **not scrubbed of secrets**: read the files before you share the zip, remove anything private (your user name appears in paths).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### E5. Closing leaves nothing behind
 **Do:** close each host you used; open the process list (Task Manager, Activity Monitor, or `ps aux | grep '[l]abconstrictor_tools.*serve'`).
 **Expect:** no `python ... labconstrictor_tools serve` process remains within 15 seconds (QuPath and Fiji: Fiji's worker may take up to 10 s to exit after its input is closed, then it is killed).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### U1. Two apps side by side
 **Do:** with two apps installed, switch between them in one host session and run a tool of each.
 **Expect:** each runs in its own Python (no conflict between their packages); both succeed in the same session.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### U2. Uninstall one app
 **Do:** close all hosts and check that no worker of that app runs. Uninstall it with its normal uninstaller (Windows: *Apps & features*; Linux/macOS: `bash <PREFIX>/uninstall.sh`). Run `list` with another app's Python, then reopen the hosts (Rescan apps / restart).
 **Expect:** the app is gone from `list` and from every host; the other app is still listed and runs; `~/.labconstrictor/apps` no longer holds its `.json`.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### U3. Update an app (the install rules in practice)
 **Do:** with an older installed version (if you have one) follow rule 2 of section 2: macOS/Windows uninstall then install; Linux `-u` on a **finished** install. Then, once, do the failure case on Linux: interrupt an install (Ctrl+C during the download), then run the `-u` update.
 **Expect:** the update keeps your data (`~/.labconstrictor/results`, your own files). The `-u` after an interrupted install fails or breaks; deleting `<PREFIX>/pkgs` (or uninstalling) and installing again repairs it. (If you have no older version: N/A.)
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### U4. Installation without internet for the tools package (optional, advanced)
 **Do:** before running an installer set an unreachable source: Linux/macOS `LC_TOOLS_SPEC=/nonexistent/x.whl bash installer.sh -b -p <new folder>`; Windows cmd.exe `set LC_TOOLS_SPEC=C:\nonexistent\x.whl` (PowerShell `$env:LC_TOOLS_SPEC='C:\nonexistent\x.whl'`), then start the installer from the same window. **Afterwards remove the setting** (`set LC_TOOLS_SPEC=` / `Remove-Item Env:LC_TOOLS_SPEC`), or every later installer from that window fails the same way.
 **Expect:** the installation still **finishes** and the app works; `menuinst_debug.log` has `WARNING: tool registration failed - ...`; `list` does not show the app. Remove that install afterwards.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ---
 
@@ -383,10 +418,10 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 ---
 
 ## 10. Report back
-Send, in one message or issue titled `Test report: <OS> <your name> <date> <Tools tag>`:
+For human testing, follow your [OS checklist](TEST_MATRIX.md#1-windows--volunteer---windows-version-) and create **one report per tester/OS**, titled `Test report: <OS> <your name> <date> <Tools tag>`:
 - [ ] the filled **record sheet (section 0.1 and 0.2)**: without it a result cannot be tied to versions;
-- [ ] this document and the case files you used with all boxes ticked, and the D1 table;
-- [ ] screenshots: the first form of each app in each host, each result, and one per FAIL;
+- [ ] one short report with the rows you attempted, listing test IDs, outcomes and D1 findings (no full protocol copy required);
+- [ ] screenshots: one per FAIL and optional illustrative PASS screenshots;
 - [ ] the support bundle zip (E4) if anything failed. **Open it first** and remove anything private;
 - [ ] the report of the Playground tool **Check everything** (`report.json` and the readout) if you installed the Playground;
 - [ ] a short free-text answer to: *Was anything confusing, slow, or surprising even though the test passed?*
@@ -395,9 +430,8 @@ Send, in one message or issue titled `Test report: <OS> <your name> <date> <Tool
 
 ---
 
-## Appendix. What the author of this protocol did and did not verify
-Written on 14 Oct 2026 from the repositories (Tools `main` 535450d, the host READMEs of Napari 7ddf41f, Fiji f9277af, QuPath 9e64c6d, the app
-repositories at their `main`) and from the case files (`lc_tests/cases.json`) of the apps. **Not run by a person from this file:** every step on
-Windows and macOS; any step with a released Fiji or QuPath jar (none was published when this was written); the discovery rule (in Tools and in the three hosts since 14 Oct; no installer passes the declaration yet); the release of the apps (the numbers are decided: NucleiSky 0.1.4, Playground 0.0.4, VLab4Mic 0.1.6, Guess the Condition 0.0.1; the releases do not exist yet); how the hosts show the "helper" tools of an app (for example "List the devices"). The older
-Linux checks (Ubuntu 24.04, Napari 0.9, Fiji with Java 21) were made with NucleiSky 0.1.1 and an earlier Tools; the numbers in the NucleiSky
-file are the ones of that run and of the app's own cases, and they are marked there. If a step in this document is wrong or unclear, please say so; that is a documentation bug.
+## Appendix. Provenance and remaining unverified behaviours
+
+Documentation updated for the tagged alpha.3 set published 14–15 October 2026. The release source for **CellTracksColab 1.1.2** includes `celltracks_lc_tools` (`Calculate Track Metrics`), Tools `v0.3.0-alpha.1`, and `labconstrictor-app.yaml` with `hosts: [notebook]`: `CT-2` must assert **successful registration**, and `D3` must separately assert **not listed in Napari, Fiji or QuPath**. The tagged sources of the other four apps also include host manifests and hooks that pass `--app-manifest`.
+
+Actual end-to-end human installation and GUI runs on Windows and macOS are **not established by this documentation** and must be reported through the [test packets](TEST_MATRIX.md#1-windows--volunteer---windows-version-). The historic Linux screenshots, numeric tolerances, exact Fiji/QuPath error wording and whether native installer drag-and-drop succeeds are not proof of behaviour on these platforms. Distinguish **expected**, **observed**, and **not yet tested**.

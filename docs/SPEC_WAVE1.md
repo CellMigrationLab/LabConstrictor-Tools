@@ -1,6 +1,6 @@
 # Spec (proposal): Wave 1 of the manifest roadmap
 
-Status: **for review, nothing is implemented.** Decisions already taken: outlines are GeoJSON, QuPath makes annotations from shapes, segmentation comes first. The manifest stays organised in four families ([MANIFEST.md](MANIFEST.md)); every item below says which family it joins.
+Status (15 Oct 2026): **implemented** on `main` and in the three hosts: `Widget("slider")`/`Widget("radio")`, copy as command, `ShapesOut`, `RegionOf`. Kept as the design record; the binding rules are in [PROTOCOL.md](PROTOCOL.md) and [conformance.json](CONFORMANCE.md). Decisions already taken: outlines are GeoJSON, QuPath makes annotations from shapes, segmentation comes first. The manifest stays organised in four families ([MANIFEST.md](MANIFEST.md)); every item below says which family it joins.
 
 | # | Item | Family | New name | Hosts |
 |---|---|---|---|---|

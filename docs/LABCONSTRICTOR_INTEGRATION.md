@@ -1,8 +1,7 @@
 # How the LabConstrictor template registers an app's tools (as built)
 
-**Status.** Implemented on the `bridge-test` branches of `LabConstrictor` (the template), `NucleiSky` and `CellTracksColab`.
-The Linux (`.sh`) hooks were run inside real installers built with `constructor`. The Windows (`.bat`) hooks have **never been run on Windows**
-(see HUMAN_TEST_PROTOCOL.md). An earlier draft of this page proposed a different design (`lc_tools.py`, `APP_NAME` variables): that is not what was built.
+**Status (15 Oct 2026).** Implemented: in the template (0.1.16 and later) and in the five apps of the current test set; every app pins Tools `v0.3.0-alpha.1` in its `post_install` hooks.
+The Linux (`.sh`) hooks run inside real installers built with `constructor`, and the Windows (`.bat`) hooks run in the release sandbox on a Windows runner ([TESTING.md](TESTING.md)); a person has not yet run them on Windows or macOS (that is what [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md) is for). An earlier draft of this page proposed a different design (`lc_tools.py`, `APP_NAME` variables): that is not what was built.
 
 ## What an app must contain
 * A Python package `<package>` listed in `construct.yaml` (`extra_files`, with its `setup.py`), as for any app with external code.
