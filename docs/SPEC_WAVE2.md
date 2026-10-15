@@ -1,6 +1,6 @@
 # Spec (proposal): Wave 2 of the manifest roadmap
 
-Status: **for review, nothing is implemented.** Same rules as Wave 1 ([SPEC_WAVE1.md](SPEC_WAVE1.md)): the manifest stays small and organised in four families ([MANIFEST.md](MANIFEST.md)); everything is additive within `protocol: 1`; a host that does not know a hint shows a plain, working form. Out of scope: `TracksOut` (parked) and GEFF (maybe later; nothing here blocks it).
+Status (15 Oct 2026): **proposal, not implemented on `main`**: none of `TimeIntervalOf`, `ZStepOf`, `PerPlane`, `FigureOut`, `Format`, `Open`, `LinkOut` exists yet (the `_axes` request key is reserved in [PROTOCOL.md](PROTOCOL.md)). Work is planned item by item. Same rules as Wave 1 ([SPEC_WAVE1.md](SPEC_WAVE1.md)): the manifest stays small and organised in four families ([MANIFEST.md](MANIFEST.md)); everything is additive within `protocol: 1`; a host that does not know a hint shows a plain, working form. Out of scope: `TracksOut` (parked) and GEFF (maybe later; nothing here blocks it).
 
 | # | Item | Family | New names | Hosts |
 |---|---|---|---|---|

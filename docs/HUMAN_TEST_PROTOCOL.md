@@ -9,7 +9,6 @@ are meant to show them (and in no other), run there, and fail in an understandab
 
 **How long.** The *Quick path* below is about 45 minutes per operating system. Everything is several hours: do the parts you were asked for.
 
-**What this replaces.** `docs/TESTING_PROMPT.md` is a prompt for an AI agent that tests from source; this file is the one for people.
 The automated counterpart is the release sandbox ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)): it tests a
 released app on fresh runners, but only Napari for most apps and Fiji/QuPath only for the Playground, and no human look at a screen.
 
