@@ -1,0 +1,5 @@
+{
+  "status": "DRIVER_ERROR",
+  "error": "AssertionError: Run did not start a task; status: \u26a0 'Images per repeat' must be <= 50 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/wt_ui_napari/tests/ui_audit_runs.py\", line 252, in execute\n    raise AssertionError(\"Run did not start a task; status: %s\" % w.status.text())\nAssertionError: Run did not start a task; status: \u26a0 'Images per repeat' must be <= 50\n",
+  "host_observed": {}
+}

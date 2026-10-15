@@ -1,0 +1,20 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.3,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  forgotten_guess=Drug2, guessed=0, next=Run 'Play a round' to see that image again",
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_synnap/runs/20261015T082451699745_GuessTheCondition_undo_last_guess",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "forgotten_guess": "Drug2",
+        "guessed": 0,
+        "next": "Run 'Play a round' to see that image again"
+      }
+    }
+  ],
+  "host_observed": {}
+}

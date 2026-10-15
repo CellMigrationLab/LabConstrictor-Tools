@@ -1,0 +1,25 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.44,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  images=10, to_guess=4, guessed=0, remaining=4, conditions=1: Control | 2: Mutant, game_folder=/tmp/lc_ui_audit_tests_tg50fb14/GuessTheCondition/fixtures/results/pct33, experiment=2 conditions, 10 images - Control: 5 repeat(s), 5 images (R1: 1, R2: 1, R3: 1, R4: 1, R5: 1) - Mutant: 5 repeat(s), 5 images (R1: 1, R2: 1, R3: 1, R4: 1, R5: 1), next=Run 'Play a round' to see the first image",
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_synnap/runs/20261015T082628898287_GuessTheCondition_prepare_game",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "images": 10,
+        "to_guess": 4,
+        "guessed": 0,
+        "remaining": 4,
+        "conditions": "1: Control | 2: Mutant",
+        "game_folder": "/tmp/lc_ui_audit_tests_tg50fb14/GuessTheCondition/fixtures/results/pct33",
+        "experiment": "2 conditions, 10 images - Control: 5 repeat(s), 5 images (R1: 1, R2: 1, R3: 1, R4: 1, R5: 1) - Mutant: 5 repeat(s), 5 images (R1: 1, R2: 1, R3: 1, R4: 1, R5: 1)",
+        "next": "Run 'Play a round' to see the first image"
+      }
+    }
+  ],
+  "host_observed": {}
+}

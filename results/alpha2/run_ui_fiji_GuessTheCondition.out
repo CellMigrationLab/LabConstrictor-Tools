@@ -1,3 +1,9 @@
 CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
 CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
 CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Analyse the results', 'Create a demo experiment', 'Show the conditions', 'Play a round', 'Prepare the game', 'Undo my last guess']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'Create a demo experiment'
+CHECK ui_fiji_form_create_demo_experiment_opens PASS 2 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_create_demo_experiment_controls PASS 3 control(s) activated and read back: file_browse, text_field
+CHECK ui_fiji_panel_form_cancel FAIL the summary does not say cancelled; a run started (status 'FAILED'); 1 run record(s) were created

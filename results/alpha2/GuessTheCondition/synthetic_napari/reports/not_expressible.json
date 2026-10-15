@@ -1,0 +1,14 @@
+[
+  {
+    "case": 73,
+    "dataset": "gtc_percentage_0",
+    "tool": "prepare_game",
+    "why": "value 0 is outside of the allowed range: (1, 100)"
+  },
+  {
+    "case": 74,
+    "dataset": "gtc_percentage_101",
+    "tool": "prepare_game",
+    "why": "value 101 is outside of the allowed range: (1, 100)"
+  }
+]

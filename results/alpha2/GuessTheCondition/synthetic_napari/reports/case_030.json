@@ -1,0 +1,27 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.83,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  image=2 of 18, conditions=1: Control | 2: Drug1 | 3: Drug2, how_to_answer=Run again with your guess: a condition name or its number, recorded=Drug2 (5.3 s)",
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_synnap/runs/20261015T082449171335_GuessTheCondition_play_round",
+  "results": [
+    {
+      "type": "image",
+      "name": "image",
+      "path": "/tmp/lcin_079l8bf5/out/image.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "image": "2 of 18",
+        "conditions": "1: Control | 2: Drug1 | 3: Drug2",
+        "how_to_answer": "Run again with your guess: a condition name or its number",
+        "recorded": "Drug2 (5.3 s)"
+      }
+    }
+  ],
+  "host_observed": {}
+}

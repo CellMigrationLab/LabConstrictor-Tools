@@ -1,0 +1,25 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.47,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  images=18, to_guess=18, guessed=0, remaining=18, conditions=1: Control | 2: Drug1 | 3: Drug2, game_folder=/tmp/lc_ui_audit_tests_tg50fb14/GuessTheCondition/fixtures/results/u_gtc_three_by_number, experiment=3 conditions, 18 images - Control: 3 repeat(s), 3 images (R1: 1, R2: 1, R3: 1) - Drug1: 3 repeat(s), 6 images (R1: 2, R2: 2, R3: 2) - Drug2: 3 repeat(s), 9 images (R1: 3, R2: 3, R3: 3), next=Run 'Play a round' to see the first image",
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_synnap/runs/20261015T082441009182_GuessTheCondition_prepare_game",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "images": 18,
+        "to_guess": 18,
+        "guessed": 0,
+        "remaining": 18,
+        "conditions": "1: Control | 2: Drug1 | 3: Drug2",
+        "game_folder": "/tmp/lc_ui_audit_tests_tg50fb14/GuessTheCondition/fixtures/results/u_gtc_three_by_number",
+        "experiment": "3 conditions, 18 images - Control: 3 repeat(s), 3 images (R1: 1, R2: 1, R3: 1) - Drug1: 3 repeat(s), 6 images (R1: 2, R2: 2, R3: 2) - Drug2: 3 repeat(s), 9 images (R1: 3, R2: 3, R3: 3)",
+        "next": "Run 'Play a round' to see the first image"
+      }
+    }
+  ],
+  "host_observed": {}
+}

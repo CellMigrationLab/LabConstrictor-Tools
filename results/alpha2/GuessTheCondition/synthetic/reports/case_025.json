@@ -1,4 +1,8 @@
 {
-  "status": "NOJSON",
-  "error": "app 'GuessTheCondition' is installed but cannot be used: ignored: schema file /home/user/apps/a2_lc_home_GuessTheCondition/apps/GuessTheCondition.schema.json is not in the same folder as the entry\n"
+  "status": "FAILED",
+  "seconds": 0.58,
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/runs/20261015T082059933138_GuessTheCondition_play_round/run.json",
+  "error": "[no_result] Your guess (Mutant, 0.7 s) is saved. That was the last image: all 9 images are guessed. Thank you! Run 'Analyse the results'.",
+  "code": "no_result",
+  "log": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
 }

@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.31,
+  "error": "[folder_not_found] 'Experiment folder': folder not found: /home/user/wt_ui_napari/fixtures/does_not_exist",
+  "code": "folder_not_found",
+  "status_text": "\u2716 [folder_not_found] 'Experiment folder': folder not found: /home/user/wt_ui_napari/fixtures/does_not_exist  - click Details\u2026 for the full report (log: /home/user/apps/a2_lc_home_GuessTheCondition_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_synnap/runs/20261015T082648958717_GuessTheCondition_prepare_game",
+  "host_observed": {}
+}

@@ -1,4 +1,8 @@
 {
-  "status": "NOJSON",
-  "error": "app 'GuessTheCondition' is installed but cannot be used: ignored: schema file /home/user/apps/a2_lc_home_GuessTheCondition/apps/GuessTheCondition.schema.json is not in the same folder as the entry\n"
+  "status": "FAILED",
+  "seconds": 0.58,
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/runs/20261015T082140446240_GuessTheCondition_prepare_game/run.json",
+  "error": "[bad_experiment] Conditions that differ only in upper/lower case cannot be told apart in a guess: Control, control. Rename one folder.",
+  "code": "bad_experiment",
+  "log": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
 }

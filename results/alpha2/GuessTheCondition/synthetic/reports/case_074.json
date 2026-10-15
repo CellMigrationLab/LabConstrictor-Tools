@@ -1,4 +1,8 @@
 {
-  "status": "NOJSON",
-  "error": "app 'GuessTheCondition' is installed but cannot be used: ignored: schema file /home/user/apps/a2_lc_home_GuessTheCondition/apps/GuessTheCondition.schema.json is not in the same folder as the entry\n"
+  "status": "FAILED",
+  "seconds": 0.18,
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/runs/20261015T082138356441_GuessTheCondition_prepare_game/run.json",
+  "error": "[invalid_parameter] 'Percentage to guess' must be <= 100",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
 }

@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.34,
+  "error": "[bad_user_name] The name is used as a folder name: it cannot be empty, '.' or '..' or contain / \\ : * ? \" < > |",
+  "code": "bad_user_name",
+  "status_text": "\u2716 [bad_user_name] The name is used as a folder name: it cannot be empty, '.' or '..' or contain / \\ : * ? \" < > |  - click Details\u2026 for the full report (log: /home/user/apps/a2_lc_home_GuessTheCondition_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_synnap/runs/20261015T082651383622_GuessTheCondition_prepare_game",
+  "host_observed": {}
+}

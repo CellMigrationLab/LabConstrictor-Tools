@@ -1,4 +1,8 @@
 {
-  "status": "NOJSON",
-  "error": "app 'GuessTheCondition' is installed but cannot be used: ignored: schema file /home/user/apps/a2_lc_home_GuessTheCondition/apps/GuessTheCondition.schema.json is not in the same folder as the entry\n"
+  "status": "FAILED",
+  "seconds": 0.65,
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/runs/20261015T082139715045_GuessTheCondition_prepare_game/run.json",
+  "error": "[bad_experiment] No TIFF image was found in /home/user/a2/syn_scratch_GuessTheCondition/fixtures/gtc_no_images/experiment.\nExpected one folder per condition, and inside it one folder per biological repeat holding the TIFF files:\n  Experiment/Control/R1/FOV1.tif, Experiment/Control/R2/FOV1.tif, Experiment/Mutant/R1/FOV1.tif, ...",
+  "code": "bad_experiment",
+  "log": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
 }

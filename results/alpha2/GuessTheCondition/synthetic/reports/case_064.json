@@ -1,4 +1,17 @@
 {
-  "status": "NOJSON",
-  "error": "app 'GuessTheCondition' is installed but cannot be used: ignored: schema file /home/user/apps/a2_lc_home_GuessTheCondition/apps/GuessTheCondition.schema.json is not in the same folder as the entry\n"
+  "status": "COMPLETE",
+  "seconds": 0.9,
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/runs/20261015T082132978788_GuessTheCondition_create_demo_experiment/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "experiment_folder": "/home/user/a2/syn_scratch_GuessTheCondition/fixtures/gtc_demo_out/GuessTheCondition_demo",
+        "images": 12,
+        "next": "Use this folder as the experiment folder of 'Prepare the game'"
+      }
+    }
+  ],
+  "job_dir": "/home/user/a2/syn_scratch_GuessTheCondition/_jobs/064"
 }

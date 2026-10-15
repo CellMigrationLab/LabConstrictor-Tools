@@ -1,0 +1,27 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.48,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  image=8 of 12, conditions=1: Control | 2: Mutant, how_to_answer=Run again with your guess: a condition name or its number, recorded=Control (2.6 s)",
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_synnap/runs/20261015T082349875224_GuessTheCondition_play_round",
+  "results": [
+    {
+      "type": "image",
+      "name": "image",
+      "path": "/tmp/lcin_ztq0_a_u/out/image.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "image": "8 of 12",
+        "conditions": "1: Control | 2: Mutant",
+        "how_to_answer": "Run again with your guess: a condition name or its number",
+        "recorded": "Control (2.6 s)"
+      }
+    }
+  ],
+  "host_observed": {}
+}

@@ -1,4 +1,22 @@
 {
-  "status": "NOJSON",
-  "error": "app 'GuessTheCondition' is installed but cannot be used: ignored: schema file /home/user/apps/a2_lc_home_GuessTheCondition/apps/GuessTheCondition.schema.json is not in the same folder as the entry\n"
+  "status": "COMPLETE",
+  "seconds": 0.64,
+  "run_record": "/home/user/apps/a2_lc_home_GuessTheCondition_syn/runs/20261015T082135151866_GuessTheCondition_prepare_game/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "images": 10,
+        "to_guess": 3,
+        "guessed": 0,
+        "remaining": 3,
+        "conditions": "1: Control | 2: Mutant",
+        "game_folder": "/home/user/a2/syn_scratch_GuessTheCondition/fixtures/results/pct25",
+        "experiment": "2 conditions, 10 images - Control: 5 repeat(s), 5 images (R1: 1, R2: 1, R3: 1, R4: 1, R5: 1) - Mutant: 5 repeat(s), 5 images (R1: 1, R2: 1, R3: 1, R4: 1, R5: 1)",
+        "next": "Run 'Play a round' to see the first image"
+      }
+    }
+  ],
+  "job_dir": "/home/user/a2/syn_scratch_GuessTheCondition/_jobs/068"
 }
