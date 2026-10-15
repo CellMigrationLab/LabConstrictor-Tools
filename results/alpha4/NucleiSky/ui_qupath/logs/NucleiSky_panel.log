@@ -1,0 +1,46 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=39411 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+WARNING: Unknown module: javafx.graphics specified to --add-opens
+WARNING: Unknown module: javafx.base specified to --add-opens
+WARNING: Unknown module: javafx.web specified to --enable-native-access
+WARNING: Unknown module: javafx.graphics specified to --enable-native-access
+WARNING: Unknown module: javafx.media specified to --enable-native-access
+19:54:36.311 [main] [INFO ] qupath.QuPath - Setting system property lc.noshow=true
+19:54:36.315 [main] [INFO ] qupath.QuPath - Setting system property lc.qupath.test.script=/tmp/lc_gui_test.groovy
+19:54:36.315 [main] [INFO ] qupath.QuPath - Setting system property lc.test.out=/home/user/results/alpha4/NucleiSky/ui_qupath/logs/shots/NucleiSky_panel
+19:54:36.315 [main] [INFO ] qupath.QuPath - Setting system property lc.test.fixtures=/home/user/wt3_qupath/tests/fixtures
+Oct 15, 2026 7:54:36 PM com.sun.javafx.application.PlatformImpl startup
+WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @3d34d211'
+19:54:36.667 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting default Locale to en_US
+19:54:36.668 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for FORMAT to en_US
+19:54:36.669 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for DISPLAY to en_US
+19:54:36.693 [JavaFX Application Thread] [INFO ] qupath.lib.common.ThreadTools - Setting parallelism to 3
+19:54:36.715 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - Initializing: 1792094076715
+19:54:37.031 [JavaFX Application Thread] [INFO ] q.l.g.i.s.ImageRegionStoreFactory - Setting tile cache size to 1710.00 MB (25.0% max memory)
+19:54:37.400 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - QuPath build: Version: 0.7.0
+Build time: 2026-02-25 16:06
+Latest commit tag: "04ccfa4"
+19:54:40.174 [JavaFX Application Thread] [INFO ] qupath.lib.scripting.QP - Initializing type adapters
+19:54:40.731 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension LabConstrictor tools version 0.1.0-alpha.4 (1 ms)
+19:54:40.743 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - Bio-Formats version 8.4.0
+19:54:40.750 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - If Bio-Formats is slow to load images, setting the Bio-Formats memoization time in QuPath's preferences may help (this will create temp files)
+19:54:40.750 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Bio-Formats extension (Bio-Formats 8.4.0) version 0.7.0 (18 ms)
+19:54:40.752 [JavaFX Application Thread] [INFO ] qupath.ext.djl.DjlExtension - Registering DjlDnnModel
+19:54:40.762 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Deep Java Library extension version 0.4.2 (10 ms)
+19:54:40.876 [JavaFX Application Thread] [INFO ] q.ext.openslide.OpenSlideExtension - OpenSlide loaded successfully: 4.0.0
+19:54:40.876 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension OpenSlide extension version 0.7.0 (112 ms)
+19:54:40.933 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension ImageJ extension version 0.7.0 (26 ms)
+19:54:40.960 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Processing & classification extension version 0.7.0 (26 ms)
+19:54:41.198 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Rich script editor extension version 0.7.0 (230 ms)
+19:54:41.203 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension SVG export extension version 0.7.0 (3 ms)
+19:54:41.208 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension QuPath training extension version 0.1.0 (3 ms)
+19:54:41.238 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathApp - Starting QuPath with parameters: [--quiet=true]
+
+(QuPath:22029): Gdk-WARNING **: 19:54:41.274: XSetErrorHandler() called with a GDK error trap pushed. Don't do that.
+CHECK ui_qupath_panel_app_chooser PASS offers [NucleiSky] (the registry files list the same); 'NucleiSky' shows its 2 CLI tool(s)
+CHECK ui_qupath_panel_tool_chooser PASS each of 2 tool(s) builds its form and shows the description of the schema
+CHECK ui_qupath_panel_rescan_apps PASS clicked; status 'Found 1 app(s)', app kept
+CHECK ui_qupath_panel_cancel PASS disabled; a click left the status at 'Found 1 app(s)' and started nothing
+CHECK ui_qupath_panel_copy_as_command PASS a click opened the menu: entries [Terminal command, Python snippet]
+CHECK ui_qupath_panel_copy_terminal_command PASS the clipboard text (87 characters) parses back to the interpreter of the registry entry, 'NucleiSky', 'list_devices' and 0 predicted value(s)
+CHECK ui_qupath_panel_copy_python_snippet PASS the clipboard text (174 characters) parses back to the interpreter of the registry entry, 'NucleiSky', 'list_devices' and 0 predicted value(s)
+UI_AUDIT_LAUNCH_END phase=panel exit=0

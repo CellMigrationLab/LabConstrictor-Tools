@@ -4,7 +4,7 @@
  "family": "ui",
  "host_version": "v0.1.0-alpha.4",
  "started": "2026-10-15T19:49:00",
- "finished": null,
+ "finished": "2026-10-15T19:54:34",
  "expected": 20,
  "parts": [
   "panel",
@@ -1037,6 +1037,32 @@
    "seconds": 0.0,
    "screenshot": null,
    "ts": "2026-10-15T19:54:11"
+  },
+  {
+   "id": "ui_fiji_fj1b_missing_image_relocalize",
+   "family": "ui",
+   "host": "fiji",
+   "app": "NucleiSky",
+   "tool": "relocalize",
+   "control": null,
+   "status": "PASS",
+   "detail": "no image open, OK on the untouched form: refused: error \"[missing_parameter] 'Reference' is required: open an image or choose a file\", code None, status None, status line 'Command canceled: Relocalize 2D'",
+   "seconds": 23.43,
+   "screenshot": null,
+   "ts": "2026-10-15T19:54:34"
+  },
+  {
+   "id": "ui_fiji_controls_all_known",
+   "family": "ui",
+   "host": "fiji",
+   "app": "NucleiSky",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "235 control(s) in 5 form(s) and 6 chooser(s), every one in the control table (20 kinds)",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T19:54:34"
   }
  ]
 }

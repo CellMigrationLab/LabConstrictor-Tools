@@ -1,0 +1,7 @@
+NOTE ui_napari_host_version 0.1.0a1
+WARNING: could not determine DPI
+CHECK ui_napari_app_listed PASS NucleiSky is offered with all 2 tools of its schema file
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_relocalize_opens PASS 32 parameters: reference:image, query:image, reference_pixel_size_um:float, query_pixel_size_um:float, segmentation:choice, device:string, matcher:choice, reference_mask:labels, query_mask:labels, threshold_method:choice, blur_sigma:float, min_area_px:integer, watershed_split:boolean, instanseg_model:choice, instanseg_target:choice, instanseg_cleanup_fragments:boolean, instanseg_mode:choice, instanseg_pixel_size_um:float, cellpose_diameter_px:float, cellpose_flow_threshold:float, cellpose_cellpr
+CHECK ui_napari_form_relocalize_controls FAIL AssertionError: instanseg_pixel_size_um (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_diameter_px (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_tile_size_px (integer): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_tile_overlap (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False)

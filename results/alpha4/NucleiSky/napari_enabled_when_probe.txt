@@ -1,0 +1,2 @@
+segmentation threshold -> field enabled after set box off/on/off: [(False, False), (True, False), (False, False)]
+segmentation cellpose -> field enabled after set box off/on/off: [(False, False), (True, True), (False, False)]

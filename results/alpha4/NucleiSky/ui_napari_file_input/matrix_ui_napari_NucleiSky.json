@@ -1,0 +1,50 @@
+{
+ "host": "napari",
+ "app": "NucleiSky",
+ "family": "ui",
+ "host_version": "0.1.0a1",
+ "started": "2026-10-15T19:59:06Z",
+ "finished": null,
+ "expected": 22,
+ "rows": [
+  {
+   "id": "ui_napari_app_listed",
+   "family": "ui",
+   "host": "napari",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "app_chooser",
+   "status": "PASS",
+   "detail": "NucleiSky is offered with all 2 tools of its schema file",
+   "seconds": 0.31,
+   "screenshot": null,
+   "ts": "2026-10-15T19:59:06Z"
+  },
+  {
+   "id": "ui_napari_form_relocalize_opens",
+   "family": "ui",
+   "host": "napari",
+   "app": "NucleiSky",
+   "tool": "relocalize",
+   "control": "form",
+   "status": "PASS",
+   "detail": "32 parameters: reference:image, query:image, reference_pixel_size_um:float, query_pixel_size_um:float, segmentation:choice, device:string, matcher:choice, reference_mask:labels, query_mask:labels, threshold_method:choice, blur_sigma:float, min_area_px:integer, watershed_split:boolean, instanseg_model:choice, instanseg_target:choice, instanseg_cleanup_fragments:boolean, instanseg_mode:choice, instanseg_pixel_size_um:float, cellpose_diameter_px:float, cellpose_flow_threshold:float, cellpose_cellpr",
+   "seconds": 0.71,
+   "screenshot": null,
+   "ts": "2026-10-15T19:59:08Z"
+  },
+  {
+   "id": "ui_napari_form_relocalize_controls",
+   "family": "ui",
+   "host": "napari",
+   "app": "NucleiSky",
+   "tool": "relocalize",
+   "control": "form",
+   "status": "FAIL",
+   "detail": "AssertionError: instanseg_pixel_size_um (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_diameter_px (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_tile_size_px (integer): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_tile_overlap (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False)",
+   "seconds": 15.02,
+   "screenshot": null,
+   "ts": "2026-10-15T19:59:23Z"
+  }
+ ]
+}

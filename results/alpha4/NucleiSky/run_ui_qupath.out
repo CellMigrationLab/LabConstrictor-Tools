@@ -1,0 +1,33 @@
+labconstrictor-qupath-v0.1.0-alpha.4.jar: OK
+LabConstrictorTools-all.groovy: OK
+plan NucleiSky: 2 tool(s), 20 expected id(s); tools: list_devices relocalize
+=== launch NucleiSky_panel (phase panel)
+CHECK ui_qupath_panel_app_chooser PASS offers [NucleiSky] (the registry files list the same); 'NucleiSky' shows its 2 CLI tool(s)
+CHECK ui_qupath_panel_tool_chooser PASS each of 2 tool(s) builds its form and shows the description of the schema
+CHECK ui_qupath_panel_rescan_apps PASS clicked; status 'Found 1 app(s)', app kept
+CHECK ui_qupath_panel_cancel PASS disabled; a click left the status at 'Found 1 app(s)' and started nothing
+CHECK ui_qupath_panel_copy_as_command PASS a click opened the menu: entries [Terminal command, Python snippet]
+CHECK ui_qupath_panel_copy_terminal_command PASS the clipboard text (87 characters) parses back to the interpreter of the registry entry, 'NucleiSky', 'list_devices' and 0 predicted value(s)
+CHECK ui_qupath_panel_copy_python_snippet PASS the clipboard text (174 characters) parses back to the interpreter of the registry entry, 'NucleiSky', 'list_devices' and 0 predicted value(s)
+=== launch NucleiSky_panel_run (phase panel_run)
+CHECK ui_qupath_panel_run_refusal PASS an empty 'Reference' of 'relocalize' is refused with ''Reference' is required: choose an image, or give a file'
+CHECK ui_qupath_panel_run PASS a real click started a run (Run off, Cancel on, then back); an empty 'Reference' of 'relocalize' is refused with ''Reference' is required: choose an image, or give a file'
+CHECK ui_qupath_panel_details PASS window shows the report and the worker output (717 characters)
+CHECK ui_qupath_panel_restart_worker PASS a click ended the kept worker; status 'worker stopped'
+CHECK ui_qupath_panel_keep_worker PASS unticked: no worker after a run; ticked: a worker is kept
+=== launch NucleiSky_tool_list_devices (phase tool, tool list_devices)
+CHECK ui_qupath_form_list_devices_opens PASS 0 parameter(s), one widget of the declared kind each:
+CHECK ui_qupath_form_list_devices_controls PASS 0 control(s) activated and read back:
+CHECK ui_qupath_run_list_devices PASS COMPLETE in 1.9 s, 1 result(s) shown and checked against their files, record 20261015T195555827374_NucleiSky_list_devices
+CHECK ui_qupath_screens_list_devices PASS list_devices_form.png and list_devices_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch NucleiSky_tool_relocalize (phase tool, tool relocalize)
+CHECK ui_qupath_form_relocalize_opens PASS 32 parameter(s), one widget of the declared kind each: reference:image, query:image, reference_pixel_size_um:float, query_pixel_size_um:float, segmentation:choice, device:string, matcher:choice, reference_mask:labels, query_mask:labels, threshold_method:choice, blur_sigma:float, min_area_px:integer, watershed_split:boolean, instanseg_model:choice, instanseg_target:choice, instanseg_cleanup_fragments:boolean, instanseg_mode:choice, instanseg_pixel_size_um:float, cellpose_diameter_px:float, cel...
+CHECK ui_qupath_form_relocalize_controls FAIL AssertionError: watershed_split: AssertionError: 'watershed_split' did not toggle; cellpose_diameter_px: AssertionError: ticking 'set' did not enable 'cellpose_diameter_px'; cellpose_tile_size_px: AssertionError: ticking 'set' did not enable 'cellpose_tile_size_px'; cellpose_tile_overlap: AssertionError: ticking 'set' did not enable 'cellpose_tile_overlap'; cellpose_normalize: AssertionError: 'cellpose_normalize' did not toggle; cellpose_invert: AssertionError: 'cellpose_invert' did not toggle
+NOTE ui_qupath_form_relocalize_browse not run: the native file chooser of [reference, query, reference_mask, query_mask, reference_region, query_region] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+NOTE ui_qupath_run_relocalize_unverified not run: expectation(s) the GUI cannot check: expect.progress_events_min [HUMAN]
+CHECK ui_qupath_run_relocalize PASS COMPLETE in 15.8 s, 7 result(s) shown and checked against their files, record 20261015T195643566473_NucleiSky_relocalize
+CHECK ui_qupath_screens_relocalize PASS relocalize_form.png and relocalize_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+CHECK ui_qupath_controls_all_known PASS every control found is expected and every expected control was found, in every window of every launch
+SUMMARY qupath NucleiSky pass=20 fail=1 not_run=0 human=2 (matrix: /home/user/results/alpha4/NucleiSky/ui_qupath/matrix_ui_qupath_NucleiSky.json)
+matrix: /home/user/results/alpha4/NucleiSky/ui_qupath/matrix_ui_qupath_NucleiSky.json
+exit status 1

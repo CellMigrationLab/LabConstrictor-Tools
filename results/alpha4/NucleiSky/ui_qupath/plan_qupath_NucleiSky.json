@@ -1,0 +1,1204 @@
+{
+  "app": "NucleiSky",
+  "python": "/home/user/apps/NucleiSky/bin/python",
+  "tools": [
+    {
+      "id": "list_devices",
+      "label": "List the devices",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "The options of the `device` dropdown of the segmentation: the devices PyTorch can use on this machine."
+    },
+    {
+      "id": "relocalize",
+      "label": "Relocalize 2D",
+      "inputs": [
+        {
+          "name": "reference",
+          "label": "Reference",
+          "required": true,
+          "type": "image",
+          "axes": "YX",
+          "description": "Large / full-field image",
+          "group": "Images"
+        },
+        {
+          "name": "query",
+          "label": "Query",
+          "required": true,
+          "type": "image",
+          "axes": "YX",
+          "description": "Crop to locate inside the reference",
+          "group": "Images"
+        },
+        {
+          "name": "reference_pixel_size_um",
+          "label": "Reference pixel size um",
+          "required": false,
+          "type": "float",
+          "minimum": 0,
+          "unit": "um/px",
+          "pixel_size_of": "reference",
+          "description": "Required. Filled from the reference image's calibration (length unit needed); type it when the image has none",
+          "group": "Images",
+          "nullable": true
+        },
+        {
+          "name": "query_pixel_size_um",
+          "label": "Query pixel size um",
+          "required": false,
+          "type": "float",
+          "minimum": 0,
+          "unit": "um/px",
+          "pixel_size_of": "query",
+          "description": "Required. Filled from the query image's calibration (length unit needed); type it when the image has none",
+          "group": "Images",
+          "nullable": true
+        },
+        {
+          "name": "segmentation",
+          "label": "Segmentation",
+          "required": false,
+          "default": "threshold",
+          "type": "choice",
+          "choices": [
+            "threshold",
+            "cellpose",
+            "instanseg"
+          ],
+          "description": "Used for every image that has no mask. cellpose / instanseg need the deep-learning packages and download model weights on first use",
+          "group": "Segmentation"
+        },
+        {
+          "name": "device",
+          "label": "Device",
+          "required": false,
+          "default": "auto",
+          "type": "string",
+          "description": "Where cellpose / instanseg run: auto = the GPU when there is one, cpu = never the GPU (use it when the GPU runs out of memory), cuda or mps = that device",
+          "group": "Segmentation",
+          "choices_from": {
+            "tool": "list_devices",
+            "depends": [],
+            "field": "choices"
+          },
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose",
+              "instanseg"
+            ]
+          }
+        },
+        {
+          "name": "matcher",
+          "label": "Matcher",
+          "required": false,
+          "default": "auto",
+          "type": "choice",
+          "choices": [
+            "auto",
+            "quad",
+            "triangles",
+            "graph",
+            "hashing"
+          ],
+          "description": "auto = try the matchers in the order NucleiSky recommends for the number of nuclei until one succeeds; or force one",
+          "group": "Matching"
+        },
+        {
+          "name": "reference_mask",
+          "label": "Reference mask",
+          "required": false,
+          "type": "labels",
+          "axes": "YX",
+          "description": "Existing label image of the reference (same size): skips segmentation of the reference",
+          "group": "Images",
+          "nullable": true
+        },
+        {
+          "name": "query_mask",
+          "label": "Query mask",
+          "required": false,
+          "type": "labels",
+          "axes": "YX",
+          "description": "Existing label image of the query (same size): skips segmentation of the query",
+          "group": "Images",
+          "nullable": true
+        },
+        {
+          "name": "threshold_method",
+          "label": "Threshold method",
+          "required": false,
+          "default": "otsu",
+          "type": "choice",
+          "choices": [
+            "otsu",
+            "li",
+            "yen",
+            "triangle",
+            "isodata"
+          ],
+          "group": "Segmentation",
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "threshold"
+            ]
+          }
+        },
+        {
+          "name": "blur_sigma",
+          "label": "Blur sigma",
+          "required": false,
+          "default": 1.0,
+          "type": "float",
+          "minimum": 0,
+          "maximum": 5,
+          "unit": "px",
+          "description": "Gaussian blur before thresholding",
+          "group": "Segmentation",
+          "widget": "slider",
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "threshold"
+            ]
+          }
+        },
+        {
+          "name": "min_area_px",
+          "label": "Min area",
+          "required": false,
+          "default": 5,
+          "type": "integer",
+          "minimum": 0,
+          "unit": "px",
+          "description": "Objects smaller than this are removed",
+          "group": "Segmentation",
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "threshold"
+            ]
+          }
+        },
+        {
+          "name": "watershed_split",
+          "label": "Watershed split",
+          "required": false,
+          "default": true,
+          "type": "boolean",
+          "description": "Split touching nuclei with a watershed",
+          "group": "Segmentation",
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "threshold"
+            ]
+          }
+        },
+        {
+          "name": "instanseg_model",
+          "label": "InstanSeg model",
+          "required": false,
+          "default": "brightfield_nuclei",
+          "type": "choice",
+          "choices": [
+            "brightfield_nuclei",
+            "fluorescence_nuclei_and_cells"
+          ],
+          "group": "Segmentation",
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "instanseg"
+            ]
+          }
+        },
+        {
+          "name": "instanseg_target",
+          "label": "InstanSeg target",
+          "required": false,
+          "default": "nuclei",
+          "type": "choice",
+          "choices": [
+            "nuclei",
+            "cells"
+          ],
+          "group": "Segmentation",
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "instanseg"
+            ]
+          }
+        },
+        {
+          "name": "instanseg_cleanup_fragments",
+          "label": "InstanSeg: clean up fragments",
+          "required": false,
+          "default": true,
+          "type": "boolean",
+          "group": "Segmentation",
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "instanseg"
+            ]
+          }
+        },
+        {
+          "name": "instanseg_mode",
+          "label": "InstanSeg mode",
+          "required": false,
+          "default": "auto",
+          "type": "choice",
+          "choices": [
+            "auto",
+            "small",
+            "medium"
+          ],
+          "description": "auto = small images in one piece and big ones tiled; or force one (small image / medium = tiled)",
+          "group": "Segmentation",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "instanseg"
+            ]
+          }
+        },
+        {
+          "name": "instanseg_pixel_size_um",
+          "label": "InstanSeg pixel size",
+          "required": false,
+          "type": "float",
+          "minimum": 0,
+          "unit": "um/px",
+          "description": "Override the pixel size InstanSeg works at; unset = the (rescaled) pixel size of the image",
+          "group": "Segmentation",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "instanseg"
+            ]
+          },
+          "nullable": true
+        },
+        {
+          "name": "cellpose_diameter_px",
+          "label": "Cellpose diameter",
+          "required": false,
+          "type": "float",
+          "minimum": 0,
+          "unit": "px",
+          "description": "Expected nucleus diameter; unset = Cellpose estimates it",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          },
+          "nullable": true
+        },
+        {
+          "name": "cellpose_flow_threshold",
+          "label": "Cellpose flow threshold",
+          "required": false,
+          "default": 0.4,
+          "type": "float",
+          "minimum": 0,
+          "maximum": 3,
+          "description": "Maximum error of the flows of a nucleus: raise it to keep more (less regular) nuclei",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          }
+        },
+        {
+          "name": "cellpose_cellprob_threshold",
+          "label": "Cellpose cell probability threshold",
+          "required": false,
+          "default": 0.0,
+          "type": "float",
+          "minimum": -6,
+          "maximum": 6,
+          "description": "Lower it to find more nuclei, raise it to find fewer",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          }
+        },
+        {
+          "name": "cellpose_min_size_px",
+          "label": "Cellpose minimum size",
+          "required": false,
+          "default": 15,
+          "type": "integer",
+          "minimum": 0,
+          "unit": "px",
+          "description": "Nuclei smaller than this are removed",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          }
+        },
+        {
+          "name": "cellpose_batch_size",
+          "label": "Cellpose batch size",
+          "required": false,
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64,
+          "description": "Tiles processed together: raise it for speed, lower it when the GPU runs out of memory",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          }
+        },
+        {
+          "name": "cellpose_tile_size_px",
+          "label": "Cellpose tile size",
+          "required": false,
+          "type": "integer",
+          "minimum": 64,
+          "unit": "px",
+          "description": "Size of the tiles big images are cut into; unset = Cellpose's default",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          },
+          "nullable": true
+        },
+        {
+          "name": "cellpose_tile_overlap",
+          "label": "Cellpose tile overlap",
+          "required": false,
+          "type": "float",
+          "minimum": 0,
+          "maximum": 0.9,
+          "description": "Fraction of overlap between tiles; unset = Cellpose's default",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          },
+          "nullable": true
+        },
+        {
+          "name": "cellpose_normalize",
+          "label": "Cellpose: normalise intensities",
+          "required": false,
+          "default": true,
+          "type": "boolean",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          }
+        },
+        {
+          "name": "cellpose_invert",
+          "label": "Cellpose: invert the image",
+          "required": false,
+          "default": false,
+          "type": "boolean",
+          "description": "For dark nuclei on a bright background",
+          "group": "Cellpose",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "cellpose"
+            ]
+          }
+        },
+        {
+          "name": "reference_region",
+          "label": "Reference region",
+          "required": false,
+          "type": "labels",
+          "axes": "YX",
+          "description": "Only use the reference nuclei inside this region (the host fills it from the selection); unset = the whole reference",
+          "group": "Images",
+          "region_of": "reference",
+          "nullable": true
+        },
+        {
+          "name": "query_region",
+          "label": "Query region",
+          "required": false,
+          "type": "labels",
+          "axes": "YX",
+          "description": "Only use the query nuclei inside this region (the host fills it from the selection); unset = the whole query",
+          "group": "Images",
+          "region_of": "query",
+          "nullable": true
+        },
+        {
+          "name": "peak_distance_px",
+          "label": "Peak distance",
+          "required": false,
+          "default": 5,
+          "type": "integer",
+          "minimum": 1,
+          "unit": "px",
+          "description": "Minimum distance between watershed seeds (threshold segmentation)",
+          "group": "Fine-tuning",
+          "advanced": true,
+          "enabled_when": {
+            "param": "segmentation",
+            "equals": [
+              "threshold"
+            ]
+          }
+        },
+        {
+          "name": "fixed_seed",
+          "label": "Fixed seed",
+          "required": false,
+          "type": "integer",
+          "description": "Random seed for reproducible matching; unset = default seed 0",
+          "group": "Fine-tuning",
+          "advanced": true,
+          "nullable": true
+        },
+        {
+          "name": "max_seconds",
+          "label": "Time limit",
+          "required": false,
+          "type": "float",
+          "minimum": 1,
+          "unit": "s",
+          "description": "Time limit for the whole matching; unset = no limit",
+          "group": "Fine-tuning",
+          "advanced": true,
+          "nullable": true
+        }
+      ],
+      "outputs": [
+        {
+          "name": "alignment",
+          "type": "affine",
+          "replace": true,
+          "display": {
+            "apply_to": "query",
+            "relative_to": "reference"
+          }
+        },
+        {
+          "name": "query_aligned",
+          "type": "image",
+          "replace": true
+        },
+        {
+          "name": "values",
+          "type": "values"
+        },
+        {
+          "name": "reference_nuclei",
+          "type": "points",
+          "replace": true,
+          "display": {
+            "apply_to": "reference"
+          }
+        },
+        {
+          "name": "query_nuclei",
+          "type": "points",
+          "replace": true,
+          "display": {
+            "apply_to": "query"
+          }
+        },
+        {
+          "name": "reference_outlines",
+          "type": "shapes",
+          "replace": true,
+          "display": {
+            "apply_to": "reference"
+          }
+        },
+        {
+          "name": "query_outlines",
+          "type": "shapes",
+          "replace": true,
+          "display": {
+            "apply_to": "query"
+          }
+        }
+      ],
+      "description": "Find where a rotated / rescaled query image lies in a reference image."
+    }
+  ],
+  "cases": [
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325
+      },
+      "expect": {
+        "max_seconds": 240,
+        "progress_events_min": 2,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "matcher": "auto"
+      },
+      "expect": {
+        "max_seconds": 240,
+        "progress_events_min": 2,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "matcher": "quad"
+      },
+      "expect": {
+        "max_seconds": 240,
+        "progress_events_min": 2,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "matcher": "triangles"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "no_match",
+        "message_contains": "No match found with the 'triangles' matcher"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "matcher": "hashing"
+      },
+      "expect": {
+        "max_seconds": 240,
+        "progress_events_min": 2,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "matcher": "graph"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "no_match",
+        "message_contains": "No match found with the 'graph' matcher"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "threshold_method": "li",
+        "min_area_px": 80
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "reference_mask": "fixtures/reference_mask.tif",
+        "query_mask": "fixtures/query_mask.tif"
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "reference_mask": "fixtures/reference_mask.tif"
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "fixed_seed": 3,
+        "max_seconds": 60
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "blur_sigma": 0.0,
+        "watershed_split": false,
+        "peak_distance_px": 9
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "reference_mask": "fixtures/query_mask.tif"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "mask_shape_mismatch",
+        "message_contains": "same size"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": -1.0,
+        "query_pixel_size_um": 0.325
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "invalid_parameter",
+        "message_contains": "must be >="
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "reference_mask": "fixtures/reference_mask_binary.tif",
+        "query_mask": "fixtures/query_mask_binary.tif"
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            },
+            "n_nuclei_reference": {
+              "approx": 300.0,
+              "tol": 200.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "query_mask": "fixtures/query_mask_fractions.tif"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "bad_mask",
+        "message_contains": "whole-number labels"
+      }
+    },
+    {
+      "tool": "list_devices",
+      "inputs": {},
+      "expect": {
+        "results": {
+          "values": {}
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "reference_region": "fixtures/reference_region.tif"
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "n_nuclei_reference": 266
+          },
+          "reference_nuclei": {
+            "rows": 266
+          },
+          "reference_outlines": {
+            "features": 266
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "n_nuclei_reference": 429,
+            "n_nuclei_query": 9
+          },
+          "reference_outlines": {
+            "features": 429
+          },
+          "query_outlines": {
+            "features": 9
+          }
+        }
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "reference_region": "fixtures/empty_region.tif"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "empty_region",
+        "message_contains": "empty"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.325,
+        "reference_region": "fixtures/wrong_size_region.tif"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "bad_input",
+        "message_contains": "size of the image"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "query_pixel_size_um": 0.325
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "missing_parameter",
+        "message_contains": "reference image has no calibration"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "missing_parameter",
+        "message_contains": "query image has no calibration"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "missing_parameter",
+        "message_contains": "reference image and the query image have no calibration"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.0,
+        "query_pixel_size_um": 0.325
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "invalid_parameter",
+        "message_contains": "reference pixel size must be a number above 0"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": 0.0
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "invalid_parameter",
+        "message_contains": "query pixel size must be a number above 0"
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 0.65,
+        "query_pixel_size_um": -0.325
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "invalid_parameter",
+        "message_contains": "must be >="
+      }
+    },
+    {
+      "tool": "relocalize",
+      "inputs": {
+        "reference": "fixtures/reference.tif",
+        "query": "fixtures/query.tif",
+        "reference_pixel_size_um": 1.3,
+        "query_pixel_size_um": 0.65,
+        "reference_mask": "fixtures/reference_mask.tif",
+        "query_mask": "fixtures/query_mask.tif"
+      },
+      "expect": {
+        "max_seconds": 240,
+        "results": {
+          "values": {
+            "rotation_deg": {
+              "approx": 12.0,
+              "tol": 1.0
+            },
+            "scale": {
+              "approx": 1.0,
+              "tol": 0.05
+            },
+            "offset_y_px": {
+              "approx": 700.06,
+              "tol": 4.0
+            },
+            "offset_x_px": {
+              "approx": 606.1,
+              "tol": 4.0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "no_case": {},
+  "chosen": {
+    "list_devices": 15,
+    "relocalize": 0
+  },
+  "replay": {
+    "list_devices": [],
+    "relocalize": []
+  },
+  "ordered": false
+}
