@@ -1,0 +1,1 @@
+{"Widefield": {"shape": [1, 10, 10]}, "Confocal": {"shape": [1, 14, 14]}, "AiryScan": {"shape": [1, 25, 25]}, "STED": {"shape": [1, 66, 66]}, "SMLM": {"shape": [1, 500, 500]}}

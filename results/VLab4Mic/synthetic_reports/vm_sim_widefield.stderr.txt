@@ -1,0 +1,5 @@
+[  3%] loading VLab4Mic
+[  8%] building the virtual sample (the first run with a structure downloads it)
+[ 50%] simulating the Widefield image
+[ 95%] collecting the image
+(results are in /home/user/apps/lc_home_VLab4Mic_syn/results/20261015T074922_2fe0b7_VLab4Mic_simulate_sample - use --out DIR to choose where they go; the newest 20 runs are kept)

@@ -1,0 +1,42 @@
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/labconstrictor_tools/worker.py", line 261, in _run_task
+    final = self._execute(tool_id, inputs, job_dir, cancel)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/labconstrictor_tools/worker.py", line 321, in _execute
+    returned = self.tools[tool_id].fn(**kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic_lc_tools/__init__.py", line 254, in simulate_sample
+    _, _, experiment = experiments.image_vsample(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/experiments.py", line 1873, in image_vsample
+    vsample, sample_experiment = generate_virtual_sample(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/experiments.py", line 1563, in generate_virtual_sample
+    myexperiment.select_structure(
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/experiments.py", line 210, in select_structure
+    self.build(modules=["structure"])
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/experiments.py", line 756, in build
+    self._build_structure()
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/experiments.py", line 487, in _build_structure
+    struct, struct_param = load_structure(
+                           ^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/workflows.py", line 49, in load_structure
+    structure = build_structure_cif(
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/generate/molecular_structure.py", line 1106, in build_structure_cif
+    Molecularstructure = MolecularReplicates(structure_dictionary)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/generate/molecular_structure.py", line 1004, in __init__
+    self.initialise_parsers(pdbxinfo)
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/vlab4mic/generate/molecular_structure.py", line 92, in initialise_parsers
+    self.struct = parser.get_structure(self.identifier, self.source_file)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/Bio/PDB/MMCIFParser.py", line 82, in get_structure
+    self._mmcif_dict = MMCIF2Dict(filename)
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/Bio/PDB/MMCIF2Dict.py", line 30, in __init__
+    token = next(tokens)
+            ^^^^^^^^^^^^
+  File "/home/user/apps/VLab4Mic/lib/python3.12/site-packages/Bio/PDB/MMCIF2Dict.py", line 131, in _tokenize
+    raise ValueError("Empty file.")
+ValueError: Empty file.
+

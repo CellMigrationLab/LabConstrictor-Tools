@@ -1,0 +1,28 @@
+{
+ "compare_status": "\u2714 done in 1.5s  ssim=0.5604, pearson=1.0, reference_pixel_size_nm=20.0, simulated_pixel_size_nm=20.0",
+ "simulate_status": "\u2714 done in 10.5s  modality=Widefield, pixel_size_nm=100.0, pixel_size_um=0.1, image_size_px=20 x 20, particles_requested=1, particles_placed=1",
+ "layers": [
+  [
+   "VLab4Mic:simulated",
+   [
+    20,
+    20
+   ],
+   [
+    1.0,
+    1.0
+   ]
+  ],
+  [
+   "VLab4Mic:noiseless",
+   [
+    20,
+    20
+   ],
+   [
+    1.0,
+    1.0
+   ]
+  ]
+ ]
+}

@@ -1,0 +1,18 @@
+{
+  "status": "COMPLETE",
+  "seconds": 1.19,
+  "run_record": "/home/user/apps/lc_home_VLab4Mic_syn/runs/20261015T074855101846_VLab4Mic_compare_images/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "ssim": 0.826563,
+        "pearson": 0.003286,
+        "reference_pixel_size_nm": 20.0,
+        "simulated_pixel_size_nm": 20.0
+      }
+    }
+  ],
+  "job_dir": "/home/user/apps/lc_home_VLab4Mic_syn/results/20261015T074854_32171b_VLab4Mic_compare_images"
+}

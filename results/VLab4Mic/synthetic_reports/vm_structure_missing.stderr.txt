@@ -1,0 +1,2 @@
+[  3%] loading VLab4Mic
+[  8%] building the virtual sample (the first run with a structure downloads it)

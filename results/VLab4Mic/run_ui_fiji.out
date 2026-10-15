@@ -1,0 +1,20 @@
+CHECK ui_fiji_panel_chooser_cancel FAIL the plugin did not end within 6000 ms of the click on Cancel; dialogs showing now: [Compare an image with a reference]
+CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Compare an image with a reference', 'Simulate imaging of a virtual sample']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'Compare an image with a reference'
+CHECK ui_fiji_form_compare_images_opens PASS 4 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_compare_images_controls PASS 8 control(s) activated and read back: file_browse, image_choice, number_spinner, text_field
+CHECK ui_fiji_panel_form_cancel FAIL the summary does not say cancelled
+CHECK ui_fiji_run_compare_images PASS status COMPLETE; every declared result shown (values:values); inputs from case {"reference": "fixtures/reference_20nm.tif", "simulated": "fixtures/reference_20nm.tif", "reference_pixel_size_um": 0.02
+CHECK ui_fiji_panel_log PASS the Log window holds the run's command line and Python snippet, equal to the saved last command
+CHECK ui_fiji_panel_form_ok PASS a real click on OK closed the form and the plugin ran the tool (status COMPLETE)
+CHECK ui_fiji_screens_compare_images PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_simulate_sample_opens PASS 38 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_simulate_sample_controls FAIL 24 of 62 control(s) failed: slider 'number of particles': the slider is at 19 but the number box beside it shows 20; slider 'labelling efficiency': the slider is at 5000 but the number box beside it shows 0.5; slider 'wobble cone (deg)': the slider is at 450000 but the number box beside it shows 45.0; set_checkbox 'set degree of labelling': the control has no visible part: a real click cannot reach it; slider 'structural integrity': the slider is at 5000 but the number box beside it shows 0.5...
+CHECK ui_fiji_run_simulate_sample PASS status COMPLETE; every declared result shown (simulated:image, noiseless:image, values:values); inputs from case {"random_seed": 1}
+CHECK ui_fiji_screens_simulate_sample PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_panel_copy_terminal PASS the clipboard holds the terminal line of the last run (VLab4Mic: simulate_sample), equal to the saved command
+CHECK ui_fiji_panel_copy_python PASS the clipboard holds the Python snippet of the last run (VLab4Mic: simulate_sample), equal to the saved command
+CHECK ui_fiji_controls_all_known PASS 207 control(s) in 4 form(s) and 5 chooser(s), every one in the control table (20 kinds)

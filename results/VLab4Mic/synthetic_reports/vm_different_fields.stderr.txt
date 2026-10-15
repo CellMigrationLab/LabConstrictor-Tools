@@ -1,0 +1,4 @@
+[  5%] loading VLab4Mic
+[ 30%] matching the pixel sizes
+[ 60%] measuring similarity
+(results are in /home/user/apps/lc_home_VLab4Mic_syn/results/20261015T074907_cb6964_VLab4Mic_compare_images - use --out DIR to choose where they go; the newest 20 runs are kept)

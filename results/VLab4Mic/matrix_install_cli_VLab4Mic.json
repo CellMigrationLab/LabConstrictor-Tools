@@ -1,0 +1,36 @@
+{
+ "host": "cli",
+ "app": "VLab4Mic",
+ "family": "install",
+ "started": "2026-10-15T08:08:11",
+ "finished": "2026-10-15T08:08:11",
+ "expected": 0,
+ "rows": [
+  {
+   "id": "install_linux_sh",
+   "family": "install",
+   "host": "cli",
+   "app": "VLab4Mic",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "VLab4Mic-0.1.6-Linux-x86_64.sh (215 MB) installed in 1m46s, 1.5 GB on disk, exit 0, log /home/user/apps/install_VLab4Mic.log",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:08:11"
+  },
+  {
+   "id": "uninstall_linux",
+   "family": "install",
+   "host": "cli",
+   "app": "VLab4Mic",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "shipped uninstall.sh: exit 0, prefix removed, registry entry removed from LC_HOME (apps/ empty), log results/VLab4Mic/uninstall.log",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:08:11"
+  }
+ ]
+}

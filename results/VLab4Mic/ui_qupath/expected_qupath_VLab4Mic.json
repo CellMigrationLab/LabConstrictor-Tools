@@ -1,0 +1,11 @@
+{
+  "host": "qupath",
+  "app": "VLab4Mic",
+  "family": "ui",
+  "expected": [
+    "ui_qupath_not_listed_vlab4mic"
+  ],
+  "phases": {
+    "ui_qupath_not_listed_vlab4mic": "not_listed"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.29,
+  "run_record": "/home/user/apps/lc_home_VLab4Mic_syn/runs/20261015T075022970719_VLab4Mic_simulate_sample/run.json",
+  "error": "[invalid_parameter] 'Exposure time' must be <= 10",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

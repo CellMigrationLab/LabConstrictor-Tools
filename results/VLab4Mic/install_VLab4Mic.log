@@ -1,0 +1,11 @@
+PREFIX=/home/user/apps/VLab4Mic
+PREFIX=/home/user/apps/VLab4Mic
+Unpacking bootstrapper...
+Unpacking payload...
+
+Installing base environment...
+
+Preparing transaction: ...working... done
+Executing transaction: ...working... done
+Thank you! You have successfully installed VLab4Mic 0.1.6.
+exit=0

@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.28,
+  "run_record": "/home/user/apps/lc_home_VLab4Mic_syn/runs/20261015T075024081656_VLab4Mic_simulate_sample/run.json",
+  "error": "[invalid_parameter] 'Number of particles' must be <= 20",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

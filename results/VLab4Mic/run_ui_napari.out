@@ -1,0 +1,33 @@
+NOTE ui_napari_host_version 0.1.0a1
+WARNING: could not determine DPI
+CHECK ui_napari_app_listed PASS VLab4Mic is offered with all 2 tools of its schema file
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_simulate_sample_opens PASS 38 parameters: structure:choice, structure_file:file, number_of_particles:integer, probe:choice, target_sequence:string, fluorophore:choice, labelling_efficiency:float, distance_from_epitope_angstrom:float, wobble_cone_degrees:float, degree_of_labelling:integer, structural_integrity:float, small_cluster_distance_angstrom:float, large_cluster_distance_angstrom:float, sample_size_xy_nm:integer, sample_size_z_nm:integer, minimal_distance_nm:integer, random_positions:boolean, axial_offset_nm:float, 
+CHECK ui_napari_form_simulate_sample_controls FAIL AssertionError: xy_orientation_angles (string): AssertionError: xy_orientation_angles is not enabled when random_orientations=True; xz_orientation_angles (string): AssertionError: xz_orientation_angles is not enabled when random_orientations=True; yz_orientation_angles (string): AssertionError: yz_orientation_angles is not enabled when random_orientations=True; rotation_angles (string): AssertionError: rotation_angles is not enabled when random_rotations=True
+CHECK ui_napari_run_simulate_sample FAIL AssertionError: status FAILED, expected COMPLETE ([AttributeError] 'MolecularReplicates' object has no attribute 'struct')
+CHECK ui_napari_screens_simulate_sample PASS simulate_sample_form.png and simulate_sample_after_run.png written for a person to look at (137258 and 150018 bytes)
+CHECK ui_napari_form_compare_images_opens PASS 4 parameters: reference:image, simulated:image, reference_pixel_size_um:float, simulated_pixel_size_um:float
+CHECK ui_napari_form_compare_images_controls FAIL AssertionError: simulated_pixel_size_um (float): AssertionError: after 'use the image's calibration' (no image) the box shows '0.5'
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_run_compare_images FAIL ValueError: value 1.5 is outside of the allowed range: (0.0, 1.0) (at _ranged_widget.py:125)
+CHECK ui_napari_screens_compare_images FAIL AssertionError: compare_images_form.png does not exist; compare_images_after_run.png does not exist
+CHECK ui_napari_controls_all_known PASS 11 controls found = the 11 table rows: run, cancel, rescan_apps, restart_worker, keep_the_worker_running, details, copy_as_command, copy_terminal_command, copy_python_snippet, app_chooser, tool_chooser
+CHECK ui_napari_panel_run FAIL AssertionError: Run stayed enabled while the tool ran (a second click is silently ignored) (tool simulate_sample)
+CHECK ui_napari_panel_cancel PASS greyed out and a no-op when idle (status unchanged)
+CHECK ui_napari_panel_details PASS dialog 'LabConstrictor - last run' opened and closed; the run record and the log it names exist on disk
+CHECK ui_napari_panel_copy_as_command PASS menu entries ['Terminal command', 'Python snippet']
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_copy_terminal_command PASS terminal line: run VLab4Mic simulate_sample with the 1 values of the case: /home/user/apps/VLab4Mic/bin/python -m labconstrictor_tools run VLab4Mic simulate_sample structure=1XI5 number_of_partic
+CHECK ui_napari_panel_copy_python_snippet PASS Python snippet parses and holds the app, the tool and the case's text values (24 lines)
+CHECK ui_napari_panel_rescan_apps PASS registry read again; apps ['VLab4Mic'] of the files ['VLab4Mic'], choice kept
+CHECK ui_napari_panel_restart_worker PASS worker process 3073 ended after Restart worker
+CHECK ui_napari_panel_keep_the_worker_running PASS ticked (default): worker 4318 stayed alive; unticked: worker 4373 ended
+CHECK ui_napari_panel_app_chooser PASS apps and their tool counts: VLab4Mic(2)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_tool_chooser PASS 2 tools chosen, each gave its form and the description of the schema
+NOTE ui_napari_panel_cancel_running not run: [human] no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+NAPARI UI AUDIT SUMMARY failed=6

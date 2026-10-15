@@ -1,0 +1,101 @@
+{
+ "host": "napari",
+ "app": "VLab4Mic",
+ "family": "synthetic",
+ "started": "2026-10-15T08:06:33",
+ "finished": "2026-10-15T08:06:33",
+ "expected": 0,
+ "rows": [
+  {
+   "id": "syn_host_napari_vm_identical",
+   "family": "synthetic",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "",
+   "status": "PASS",
+   "detail": "file vm_ref_20nm.tif: pixel size box shows '0.02', expected 0.02",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:06:33"
+  },
+  {
+   "id": "syn_host_napari_vm_cal_um",
+   "family": "synthetic",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "",
+   "status": "PASS",
+   "detail": "file vm_cal_um.tif: pixel size box shows '0.02', expected 0.02",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:06:33"
+  },
+  {
+   "id": "syn_host_napari_vm_cal_nm",
+   "family": "synthetic",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "",
+   "status": "PASS",
+   "detail": "file vm_cal_nm.tif: pixel size box shows '0.02', expected 0.02",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:06:33"
+  },
+  {
+   "id": "syn_host_napari_vm_cal_micro",
+   "family": "synthetic",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "",
+   "status": "FAIL",
+   "detail": "file vm_cal_micro.tif: pixel size box shows '', expected 0.02",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:06:33"
+  },
+  {
+   "id": "syn_host_napari_vm_cal_none",
+   "family": "synthetic",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "",
+   "status": "PASS",
+   "detail": "file vm_cal_none.tif: pixel size box shows '', expected None",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:06:33"
+  },
+  {
+   "id": "syn_host_napari_vm_cal_anisotropic",
+   "family": "synthetic",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "",
+   "status": "HUMAN",
+   "detail": "file vm_cal_anisotropic.tif: pixel size box shows '', expected 'HUMAN'",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:06:33"
+  },
+  {
+   "id": "syn_host_napari_vm_identical_ome",
+   "family": "synthetic",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "compare_images",
+   "control": "",
+   "status": "PASS",
+   "detail": "file ome/vm_ref_20nm.ome.tif: pixel size box shows '0.02', expected 0.02",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T08:06:33"
+  }
+ ]
+}

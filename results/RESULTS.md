@@ -75,6 +75,70 @@
 * `ui_qupath_form_prepare_game_browse` (ui/qupath) the native file chooser of [experiment_folder, results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
 * `ui_qupath_form_undo_last_guess_browse` (ui/qupath) the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
 
+## VLab4Mic
+
+| family | host | PASS | FAIL | NOT_RUN | HUMAN | NOTE | finished |
+|---|---|---|---|---|---|---|---|
+| install | cli | 2 | 0 | 0 | 0 | 0 | 2026-10-15T08:08:11 |
+| nb | notebook | 43 | 0 | 0 | 2 | 14 | 2026-10-15T07:55:04 |
+| sandbox | cli | 52 | 0 | 0 | 0 | 0 | 2026-10-15T07:49:10 |
+| synthetic | cli | 83 | 3 | 0 | 1 | 0 | 2026-10-15T08:06:33 |
+| synthetic | napari | 5 | 1 | 0 | 1 | 0 | 2026-10-15T08:06:33 |
+| ui | fiji | 63 | 27 | 0 | 3 | 0 | 2026-10-15T07:52:53 |
+| ui | napari | 15 | 6 | 0 | 1 | 0 | 2026-10-15T07:44:50Z |
+| ui | qupath | 1 | 0 | 0 | 0 | 1 | 2026-10-15T07:50:11Z |
+
+### VLab4Mic: FAIL (37)
+
+* `syn_vm_flat_reference_0_status` (synthetic/cli) status COMPLETE, expected FAILED (error: None)
+* `syn_vm_zero_reference_0_status` (synthetic/cli) status COMPLETE, expected FAILED (error: None)
+* `syn_vm_different_fields_2_value:ssim` (synthetic/cli) ssim = 0.778662, expected 0.0 (tol 0.3, rtol 0)
+* `syn_host_napari_vm_cal_micro` (synthetic/napari) file vm_cal_micro.tif: pixel size box shows '', expected 0.02
+* `ui_fiji_panel_chooser_cancel` (ui/fiji) the plugin did not end within 6000 ms of the click on Cancel; dialogs showing now: [Compare an image with a reference]
+* `ui_fiji_panel_form_cancel` (ui/fiji) the summary does not say cancelled
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the slider is at 19 but the number box beside it shows 20
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the slider is at 5000 but the number box beside it shows 0.5
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the slider is at 450000 but the number box beside it shows 45.0
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the slider is at 5000 but the number box beside it shows 0.5
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control has no visible part: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) 24 of 62 control(s) failed: slider 'number of particles': the slider is at 19 but the number box beside it shows 20; slider 'labelling efficiency': the slider is at 5000 but the number box beside it shows 0.5; slider 'wobble cone (deg)': the slider is at 450000 but the number box beside it shows 45.0; set_checkbox 'set degree of labelling': the control has no visible part: a real click cannot reach it; slider 'structural integrity': the slider is at 5000 but the number box beside it shows 0.5...
+* `ui_napari_form_simulate_sample_controls` (ui/napari) AssertionError: xy_orientation_angles (string): AssertionError: xy_orientation_angles is not enabled when random_orientations=True; xz_orientation_angles (string): AssertionError: xz_orientation_angles is not enabled when random_orientations=True; yz_orientation_angles (string): AssertionError: yz_orientation_angles is not enabled when random_orientations=True; rotation_angles (string): AssertionError: rotation_angles is not enabled when random_rotations=True
+* `ui_napari_run_simulate_sample` (ui/napari) AssertionError: status FAILED, expected COMPLETE ([AttributeError] 'MolecularReplicates' object has no attribute 'struct')
+* `ui_napari_form_compare_images_controls` (ui/napari) AssertionError: simulated_pixel_size_um (float): AssertionError: after 'use the image's calibration' (no image) the box shows '0.5'
+* `ui_napari_run_compare_images` (ui/napari) ValueError: value 1.5 is outside of the allowed range: (0.0, 1.0) (at _ranged_widget.py:125)
+* `ui_napari_screens_compare_images` (ui/napari) AssertionError: compare_images_form.png does not exist; compare_images_after_run.png does not exist
+* `ui_napari_panel_run` (ui/napari) AssertionError: Run stayed enabled while the tool ran (a second click is silently ignored) (tool simulate_sample)
+
+### VLab4Mic: HUMAN (8)
+
+* `nb_VLab4Mic_VLab4Mic_main_click_load_structure_from_file` (nb/notebook) the 'Load structure from file' route needs a PDB/CIF file chosen in a file chooser: not driven
+* `nb_VLab4Mic_VLab4Mic_parameter_sweeps_click_structure_from_file` (nb/notebook) 'Load structure from file', 'Upload image reference' and the saving-directory chooser need files chosen in a file chooser: not driven
+* `syn_vm_cal_anisotropic` (synthetic/cli) no machine oracle for the anisotropic-calibration dataset (judged by a person); on the host see synthetic napari rows
+* `syn_host_napari_vm_cal_anisotropic` (synthetic/napari) file vm_cal_anisotropic.tif: pixel size box shows '', expected 'HUMAN'
+* `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
+* `ui_fiji_run_compare_images` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
+* `ui_fiji_run_simulate_sample` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
+* `ui_napari_panel_cancel_running` (ui/napari) no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+
 ## all
 
 | family | host | PASS | FAIL | NOT_RUN | HUMAN | NOTE | finished |

@@ -1,0 +1,26 @@
+{
+ "host": "fiji",
+ "app": "VLab4Mic",
+ "ids": [
+  "ui_fiji_controls_all_known",
+  "ui_fiji_panel_chooser_app",
+  "ui_fiji_panel_chooser_tool",
+  "ui_fiji_panel_chooser_ok",
+  "ui_fiji_panel_chooser_cancel",
+  "ui_fiji_panel_form_ok",
+  "ui_fiji_panel_form_cancel",
+  "ui_fiji_panel_menu",
+  "ui_fiji_panel_copy_empty",
+  "ui_fiji_panel_copy_terminal",
+  "ui_fiji_panel_copy_python",
+  "ui_fiji_panel_log",
+  "ui_fiji_form_compare_images_opens",
+  "ui_fiji_form_compare_images_controls",
+  "ui_fiji_run_compare_images",
+  "ui_fiji_screens_compare_images",
+  "ui_fiji_form_simulate_sample_opens",
+  "ui_fiji_form_simulate_sample_controls",
+  "ui_fiji_run_simulate_sample",
+  "ui_fiji_screens_simulate_sample"
+ ]
+}

@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.19,
+  "run_record": "/home/user/apps/lc_home_VLab4Mic_syn/runs/20261015T074856926692_VLab4Mic_compare_images/run.json",
+  "error": "[bad_input] Simulated contains NaN or infinite values",
+  "code": "bad_input",
+  "log": "/home/user/apps/lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

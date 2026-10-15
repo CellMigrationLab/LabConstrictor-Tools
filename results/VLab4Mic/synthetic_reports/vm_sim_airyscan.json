@@ -1,0 +1,32 @@
+{
+  "status": "COMPLETE",
+  "seconds": 6.71,
+  "run_record": "/home/user/apps/lc_home_VLab4Mic_syn/runs/20261015T074943419343_VLab4Mic_simulate_sample/run.json",
+  "results": [
+    {
+      "type": "image",
+      "name": "simulated",
+      "path": "/home/user/apps/lc_home_VLab4Mic_syn/results/20261015T074937_63c74d_VLab4Mic_simulate_sample/simulated.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "image",
+      "name": "noiseless",
+      "path": "/home/user/apps/lc_home_VLab4Mic_syn/results/20261015T074937_63c74d_VLab4Mic_simulate_sample/noiseless.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "modality": "AiryScan",
+        "pixel_size_nm": 40.0,
+        "pixel_size_um": 0.04,
+        "image_size_px": "25 x 25",
+        "particles_requested": 1,
+        "particles_placed": 1
+      }
+    }
+  ],
+  "job_dir": "/home/user/apps/lc_home_VLab4Mic_syn/results/20261015T074937_63c74d_VLab4Mic_simulate_sample"
+}

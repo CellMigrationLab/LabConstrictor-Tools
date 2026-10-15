@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 5.1,
+  "run_record": "/home/user/apps/lc_home_VLab4Mic_syn/runs/20261015T075045938870_VLab4Mic_simulate_sample/run.json",
+  "error": "[structure_unavailable] Could not get the structure 1XI5 (FileNotFoundError: [Errno 2] No such file or directory: 'fixtures/no_such.cif'). The first use of a structure downloads it from RCSB: check the internet connection and try again.",
+  "code": "structure_unavailable",
+  "log": "/home/user/apps/lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

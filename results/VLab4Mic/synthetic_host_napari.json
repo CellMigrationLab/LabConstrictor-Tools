@@ -1,0 +1,51 @@
+[
+ {
+  "id": "vm_identical",
+  "file": "vm_ref_20nm.tif",
+  "box_text": "0.02",
+  "expected": 0.02,
+  "status": "PASS"
+ },
+ {
+  "id": "vm_cal_um",
+  "file": "vm_cal_um.tif",
+  "box_text": "0.02",
+  "expected": 0.02,
+  "status": "PASS"
+ },
+ {
+  "id": "vm_cal_nm",
+  "file": "vm_cal_nm.tif",
+  "box_text": "0.02",
+  "expected": 0.02,
+  "status": "PASS"
+ },
+ {
+  "id": "vm_cal_micro",
+  "file": "vm_cal_micro.tif",
+  "box_text": "",
+  "expected": 0.02,
+  "status": "FAIL"
+ },
+ {
+  "id": "vm_cal_none",
+  "file": "vm_cal_none.tif",
+  "box_text": "",
+  "expected": null,
+  "status": "PASS"
+ },
+ {
+  "id": "vm_cal_anisotropic",
+  "file": "vm_cal_anisotropic.tif",
+  "box_text": "",
+  "expected": "HUMAN",
+  "status": "HUMAN"
+ },
+ {
+  "id": "vm_identical_ome",
+  "file": "ome/vm_ref_20nm.ome.tif",
+  "box_text": "0.02",
+  "expected": 0.02,
+  "status": "PASS"
+ }
+]

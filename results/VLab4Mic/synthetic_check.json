@@ -1,0 +1,525 @@
+{
+  "summary": {
+    "PASS": 83,
+    "FAIL": 3,
+    "NOT_RUN": 0
+  },
+  "rows": [
+    {
+      "dataset": "vm_identical",
+      "check": "vm_identical_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_identical",
+      "check": "vm_identical_1_value:ssim",
+      "status": "PASS",
+      "detail": "ssim = 1.0, expected 1.0 (tol 0.001, rtol 0)"
+    },
+    {
+      "dataset": "vm_identical",
+      "check": "vm_identical_2_value:pearson",
+      "status": "PASS",
+      "detail": "pearson = 1.0, expected 1.0 (tol 0.001, rtol 0)"
+    },
+    {
+      "dataset": "vm_identical",
+      "check": "vm_identical_3_value:reference_pixel_size_nm",
+      "status": "PASS",
+      "detail": "reference_pixel_size_nm = 20.0, expected 20.0 (tol 1e-06, rtol 0)"
+    },
+    {
+      "dataset": "vm_identical",
+      "check": "vm_identical_4_value:simulated_pixel_size_nm",
+      "status": "PASS",
+      "detail": "simulated_pixel_size_nm = 20.0, expected 20.0 (tol 1e-06, rtol 0)"
+    },
+    {
+      "dataset": "vm_gain_offset",
+      "check": "vm_gain_offset_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_gain_offset",
+      "check": "vm_gain_offset_1_value:pearson",
+      "status": "PASS",
+      "detail": "pearson = 1.0, expected 1.0 (tol 0.001, rtol 0)"
+    },
+    {
+      "dataset": "vm_inverted",
+      "check": "vm_inverted_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_inverted",
+      "check": "vm_inverted_1_value:pearson",
+      "status": "PASS",
+      "detail": "pearson = -1.0, expected -1.0 (tol 0.001, rtol 0)"
+    },
+    {
+      "dataset": "vm_half_res_right_units",
+      "check": "vm_half_res_right_units_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_half_res_right_units",
+      "check": "vm_half_res_right_units_1_value:pearson",
+      "status": "PASS",
+      "detail": "pearson = 0.996639, expected between 0.95 and inf"
+    },
+    {
+      "dataset": "vm_half_res_right_units",
+      "check": "vm_half_res_right_units_2_value:simulated_pixel_size_nm",
+      "status": "PASS",
+      "detail": "simulated_pixel_size_nm = 40.0, expected 40.0 (tol 1e-06, rtol 0)"
+    },
+    {
+      "dataset": "vm_half_res_wrong_units",
+      "check": "vm_half_res_wrong_units_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_half_res_wrong_units",
+      "check": "vm_half_res_wrong_units_1_value:pearson",
+      "status": "PASS",
+      "detail": "pearson = 0.003286, expected between -inf and 0.5"
+    },
+    {
+      "dataset": "vm_cal_none",
+      "check": "vm_cal_none_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_nan_simulated",
+      "check": "vm_nan_simulated_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_nan_reference",
+      "check": "vm_nan_reference_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_flat_simulated",
+      "check": "vm_flat_simulated_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_zero_simulated",
+      "check": "vm_zero_simulated_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_flat_reference",
+      "check": "vm_flat_reference_0_status",
+      "status": "FAIL",
+      "detail": "status COMPLETE, expected FAILED (error: None)"
+    },
+    {
+      "dataset": "vm_zero_reference",
+      "check": "vm_zero_reference_0_status",
+      "status": "FAIL",
+      "detail": "status COMPLETE, expected FAILED (error: None)"
+    },
+    {
+      "dataset": "vm_stack_cyx",
+      "check": "vm_stack_cyx_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_stack_zyx",
+      "check": "vm_stack_zyx_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_stack_tyx",
+      "check": "vm_stack_tyx_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_rgb",
+      "check": "vm_rgb_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_pixel_zero",
+      "check": "vm_pixel_zero_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_pixel_negative",
+      "check": "vm_pixel_negative_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_different_fields",
+      "check": "vm_different_fields_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_different_fields",
+      "check": "vm_different_fields_1_value:pearson",
+      "status": "PASS",
+      "detail": "pearson = -0.003105, expected 0.0 (tol 0.3, rtol 0)"
+    },
+    {
+      "dataset": "vm_different_fields",
+      "check": "vm_different_fields_2_value:ssim",
+      "status": "FAIL",
+      "detail": "ssim = 0.778662, expected 0.0 (tol 0.3, rtol 0)"
+    },
+    {
+      "dataset": "vm_stress_identical",
+      "check": "vm_stress_identical_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_stress_identical",
+      "check": "vm_stress_identical_1_value:ssim",
+      "status": "PASS",
+      "detail": "ssim = 1.0, expected 1.0 (tol 0.001, rtol 0)"
+    },
+    {
+      "dataset": "vm_stress_identical",
+      "check": "vm_stress_identical_2_value:pearson",
+      "status": "PASS",
+      "detail": "pearson = 1.0, expected 1.0 (tol 0.001, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_sted",
+      "check": "vm_sim_sted_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_sim_sted",
+      "check": "vm_sim_sted_1_value:modality",
+      "status": "PASS",
+      "detail": "modality = 'STED', expected 'STED' (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_sted",
+      "check": "vm_sim_sted_2_value:pixel_size_nm",
+      "status": "PASS",
+      "detail": "pixel_size_nm = 15.0, expected 15.0 (tol 0.01, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_sted",
+      "check": "vm_sim_sted_3_value:pixel_size_um",
+      "status": "PASS",
+      "detail": "pixel_size_um = 0.015, expected 0.015 (tol 1e-06, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_sted",
+      "check": "vm_sim_sted_4_value:particles_placed",
+      "status": "PASS",
+      "detail": "particles_placed = 1, expected 1 (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_sted",
+      "check": "vm_sim_sted_5_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of simulated = 66, expected 66.66666666666667 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_sted",
+      "check": "vm_sim_sted_6_image_stat",
+      "status": "PASS",
+      "detail": "shape1 of simulated = 66, expected 66.66666666666667 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_sted",
+      "check": "vm_sim_sted_7_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of noiseless = 66, expected 66.66666666666667 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_widefield",
+      "check": "vm_sim_widefield_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_sim_widefield",
+      "check": "vm_sim_widefield_1_value:modality",
+      "status": "PASS",
+      "detail": "modality = 'Widefield', expected 'Widefield' (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_widefield",
+      "check": "vm_sim_widefield_2_value:pixel_size_nm",
+      "status": "PASS",
+      "detail": "pixel_size_nm = 100.0, expected 100.0 (tol 0.01, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_widefield",
+      "check": "vm_sim_widefield_3_value:pixel_size_um",
+      "status": "PASS",
+      "detail": "pixel_size_um = 0.1, expected 0.1 (tol 1e-06, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_widefield",
+      "check": "vm_sim_widefield_4_value:particles_placed",
+      "status": "PASS",
+      "detail": "particles_placed = 1, expected 1 (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_widefield",
+      "check": "vm_sim_widefield_5_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of simulated = 20, expected 20.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_widefield",
+      "check": "vm_sim_widefield_6_image_stat",
+      "status": "PASS",
+      "detail": "shape1 of simulated = 20, expected 20.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_widefield",
+      "check": "vm_sim_widefield_7_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of noiseless = 20, expected 20.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_confocal",
+      "check": "vm_sim_confocal_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_sim_confocal",
+      "check": "vm_sim_confocal_1_value:modality",
+      "status": "PASS",
+      "detail": "modality = 'Confocal', expected 'Confocal' (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_confocal",
+      "check": "vm_sim_confocal_2_value:pixel_size_nm",
+      "status": "PASS",
+      "detail": "pixel_size_nm = 70.0, expected 70.0 (tol 0.01, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_confocal",
+      "check": "vm_sim_confocal_3_value:pixel_size_um",
+      "status": "PASS",
+      "detail": "pixel_size_um = 0.07, expected 0.07 (tol 1e-06, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_confocal",
+      "check": "vm_sim_confocal_4_value:particles_placed",
+      "status": "PASS",
+      "detail": "particles_placed = 1, expected 1 (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_confocal",
+      "check": "vm_sim_confocal_5_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of simulated = 14, expected 14.285714285714286 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_confocal",
+      "check": "vm_sim_confocal_6_image_stat",
+      "status": "PASS",
+      "detail": "shape1 of simulated = 14, expected 14.285714285714286 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_confocal",
+      "check": "vm_sim_confocal_7_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of noiseless = 14, expected 14.285714285714286 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_airyscan",
+      "check": "vm_sim_airyscan_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_sim_airyscan",
+      "check": "vm_sim_airyscan_1_value:modality",
+      "status": "PASS",
+      "detail": "modality = 'AiryScan', expected 'AiryScan' (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_airyscan",
+      "check": "vm_sim_airyscan_2_value:pixel_size_nm",
+      "status": "PASS",
+      "detail": "pixel_size_nm = 40.0, expected 40.0 (tol 0.01, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_airyscan",
+      "check": "vm_sim_airyscan_3_value:pixel_size_um",
+      "status": "PASS",
+      "detail": "pixel_size_um = 0.04, expected 0.04 (tol 1e-06, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_airyscan",
+      "check": "vm_sim_airyscan_4_value:particles_placed",
+      "status": "PASS",
+      "detail": "particles_placed = 1, expected 1 (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_airyscan",
+      "check": "vm_sim_airyscan_5_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of simulated = 25, expected 25.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_airyscan",
+      "check": "vm_sim_airyscan_6_image_stat",
+      "status": "PASS",
+      "detail": "shape1 of simulated = 25, expected 25.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_airyscan",
+      "check": "vm_sim_airyscan_7_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of noiseless = 25, expected 25.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_smlm",
+      "check": "vm_sim_smlm_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_sim_smlm",
+      "check": "vm_sim_smlm_1_value:modality",
+      "status": "PASS",
+      "detail": "modality = 'SMLM', expected 'SMLM' (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_smlm",
+      "check": "vm_sim_smlm_2_value:pixel_size_nm",
+      "status": "PASS",
+      "detail": "pixel_size_nm = 2.0, expected 2.0 (tol 0.01, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_smlm",
+      "check": "vm_sim_smlm_3_value:pixel_size_um",
+      "status": "PASS",
+      "detail": "pixel_size_um = 0.002, expected 0.002 (tol 1e-06, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_smlm",
+      "check": "vm_sim_smlm_4_value:particles_placed",
+      "status": "PASS",
+      "detail": "particles_placed = 1, expected 1 (tol 0, rtol 0)"
+    },
+    {
+      "dataset": "vm_sim_smlm",
+      "check": "vm_sim_smlm_5_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of simulated = 500, expected 500.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_smlm",
+      "check": "vm_sim_smlm_6_image_stat",
+      "status": "PASS",
+      "detail": "shape1 of simulated = 500, expected 500.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_smlm",
+      "check": "vm_sim_smlm_7_image_stat",
+      "status": "PASS",
+      "detail": "shape0 of noiseless = 500, expected 500.0 (tol 0.99)"
+    },
+    {
+      "dataset": "vm_sim_centred",
+      "check": "vm_sim_centred_0_status",
+      "status": "PASS",
+      "detail": "status COMPLETE"
+    },
+    {
+      "dataset": "vm_sim_centred",
+      "check": "vm_sim_centred_1_centroid",
+      "status": "PASS",
+      "detail": "centroid (9.60, 9.61), expected (9.75, 9.75), 0.21 px away (limit 3)"
+    },
+    {
+      "dataset": "vm_sim_sample_too_small",
+      "check": "vm_sim_sample_too_small_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_sim_pixel_too_big",
+      "check": "vm_sim_pixel_too_big_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_sim_seed_negative",
+      "check": "vm_sim_seed_negative_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_sim_exposure_too_long",
+      "check": "vm_sim_exposure_too_long_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_sim_wobble_too_big",
+      "check": "vm_sim_wobble_too_big_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_sim_efficiency_negative",
+      "check": "vm_sim_efficiency_negative_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_sim_too_many_particles",
+      "check": "vm_sim_too_many_particles_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_sim_pixel_not_multiple",
+      "check": "vm_sim_pixel_not_multiple_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_structure_garbage",
+      "check": "vm_structure_garbage_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_structure_empty",
+      "check": "vm_structure_empty_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    },
+    {
+      "dataset": "vm_structure_missing",
+      "check": "vm_structure_missing_0_status",
+      "status": "PASS",
+      "detail": "status FAILED"
+    }
+  ]
+}

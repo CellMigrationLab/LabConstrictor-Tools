@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.37,
+  "run_record": "/home/user/apps/lc_home_VLab4Mic_syn/runs/20261015T074855672366_VLab4Mic_compare_images/run.json",
+  "error": "[missing_parameter] 'Reference pixel size um' is required",
+  "code": "missing_parameter",
+  "log": "/home/user/apps/lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}
