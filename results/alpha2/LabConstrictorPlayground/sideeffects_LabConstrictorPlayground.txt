@@ -1,0 +1,1 @@
+app folder /home/user/apps/Playground/LabConstrictorPlayground: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: no lookups; HTTP none | subprocesses: 0 (none) | scratch home received 1 files (.ipython/profile_default/startup/README)

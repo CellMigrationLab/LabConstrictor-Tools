@@ -1,0 +1,341 @@
+NOTE ui_napari_host_version 0.1.0a1
+WARNING: could not determine DPI
+CHECK ui_napari_app_listed PASS LabConstrictorPlayground is offered with all 17 tools of its schema file
+Traceback (most recent call last):
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FunctionGui' object has no attribute 'region'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py", line 69, in _on_value_change
+    self.changed.emit(value)
+  File "src/psygnal/_signal.py", line 1233, in emit
+  File "src/psygnal/_signal.py", line 1328, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psygnal._exceptions.EmitLoopError: 
+
+While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback:
+
+  AttributeError: 'FunctionGui' object has no attribute 'region'
+  --------------------------------------------------------------
+
+  SIGNAL EMISSION: 
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data
+      self._event_filter.valueChanged.emit(self._mgui_get_value())
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py:69 in _on_value_change
+      self.changed.emit(value)  # <-- SIGNAL WAS EMITTED HERE
+
+  CALLBACK CHAIN:
+    src/psygnal/_signal.py:1311 in _run_emit_loop
+    ... 5 more frames ...
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py:117 in __getattr__
+      return object.__getattribute__(self, name)  # type: ignore  # <-- ERROR OCCURRED HERE 
+
+      Local variables:
+                name = 'region'
+                 wdg = None
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_list_devices_opens PASS 0 parameters: 
+CHECK ui_napari_form_list_devices_controls PASS 0 parameters activated
+CHECK ui_napari_run_list_devices PASS COMPLETE in 0.1s, 0 progress updates, outputs: values(values)
+CHECK ui_napari_screens_list_devices PASS list_devices_form.png and list_devices_after_run.png written for a person to look at (113718 and 118516 bytes)
+CHECK ui_napari_form_check_everything_opens PASS 2 parameters: run_benchmark:boolean, check_internet:boolean
+CHECK ui_napari_form_check_everything_controls PASS 2 parameters activated
+CHECK ui_napari_run_check_everything PASS COMPLETE in 0.7s, 2 progress updates, outputs: readout(message), details(table), report(file)
+CHECK ui_napari_screens_check_everything PASS check_everything_form.png and check_everything_after_run.png written for a person to look at (124024 and 197144 bytes)
+CHECK ui_napari_form_run_on_device_opens PASS 3 parameters: device:string, size:integer, repeats:integer
+CHECK ui_napari_form_run_on_device_controls PASS 3 parameters activated (advanced box)
+CHECK ui_napari_run_run_on_device PASS COMPLETE in 0.1s, 2 progress updates, outputs: result(message), values(values)
+CHECK ui_napari_screens_run_on_device PASS run_on_device_form.png and run_on_device_after_run.png written for a person to look at (200119 and 168211 bytes)
+CHECK ui_napari_form_make_test_data_opens PASS 3 parameters: folder:folder, kind:choice, size:integer
+CHECK ui_napari_form_make_test_data_controls PASS 3 parameters activated
+CHECK ui_napari_run_make_test_data PASS COMPLETE in 0.2s, 0 progress updates, outputs: files(message), values(values) (prerequisites replayed: run_on_device(FAILED))
+CHECK ui_napari_screens_make_test_data PASS make_test_data_form.png and make_test_data_after_run.png written for a person to look at (181916 and 211844 bytes)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_feature_tour_opens PASS 6 parameters: image:image, region:labels, look_for:choice, threshold:float, min_size_px:integer, side_note:string
+CHECK ui_napari_form_feature_tour_controls PASS 6 parameters activated (group 'Extras')
+CHECK ui_napari_run_feature_tour FAIL AssertionError: shapes 'outlines': no layer, table or file in the status
+CHECK ui_napari_screens_feature_tour PASS feature_tour_form.png and feature_tour_after_run.png written for a person to look at (204566 and 199901 bytes)
+CHECK ui_napari_form_look_inside_file_opens PASS 1 parameters: file:file
+CHECK ui_napari_form_look_inside_file_controls PASS 1 parameters activated
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_run_look_inside_file FAIL AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
+CHECK ui_napari_screens_look_inside_file PASS look_inside_file_form.png and look_inside_file_after_run.png written for a person to look at (190012 and 187352 bytes)
+CHECK ui_napari_form_summarise_table_opens PASS 1 parameters: table:table
+CHECK ui_napari_form_summarise_table_controls FAIL AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
+CHECK ui_napari_run_summarise_table PASS COMPLETE in 0.1s, 0 progress updates, outputs: summary(table), values(values) (prerequisites replayed: look_inside_file, look_inside_file(FAILED))
+CHECK ui_napari_screens_summarise_table PASS summarise_table_form.png and summarise_table_after_run.png written for a person to look at (183785 and 178087 bytes)
+CHECK ui_napari_form_count_above_level_opens PASS 4 parameters: image:image, mode:choice, level:float, percentile:float
+CHECK ui_napari_form_count_above_level_controls PASS 4 parameters activated
+CHECK ui_napari_run_count_above_level PASS COMPLETE in 0.1s, 0 progress updates, outputs: values(values)
+CHECK ui_napari_screens_count_above_level PASS count_above_level_form.png and count_above_level_after_run.png written for a person to look at (153601 and 152306 bytes)
+Traceback (most recent call last):
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FunctionGui' object has no attribute 'pixel_size'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py", line 69, in _on_value_change
+    self.changed.emit(value)
+  File "src/psygnal/_signal.py", line 1233, in emit
+  File "src/psygnal/_signal.py", line 1328, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psygnal._exceptions.EmitLoopError: 
+
+While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback:
+
+  AttributeError: 'FunctionGui' object has no attribute 'pixel_size'
+  ------------------------------------------------------------------
+
+  SIGNAL EMISSION: 
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data
+      self._event_filter.valueChanged.emit(self._mgui_get_value())
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py:69 in _on_value_change
+      self.changed.emit(value)  # <-- SIGNAL WAS EMITTED HERE
+
+  CALLBACK CHAIN:
+    src/psygnal/_signal.py:1311 in _run_emit_loop
+    ... 5 more frames ...
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py:117 in __getattr__
+      return object.__getattribute__(self, name)  # type: ignore  # <-- ERROR OCCURRED HERE 
+
+      Local variables:
+                name = 'pixel_size'
+                 wdg = None
+CHECK ui_napari_form_bright_area_opens FAIL a slot raised or a dialog interrupted: EmitLoopError:  |  | While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback: |  |   AttributeError: 'FunctionGui' object has no attribute 'pixel_size' |   ------------------------------------------------------------------ |  |   SIGNAL EMISSION:  |     /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data |       self._event_filter.valueChanged.emit(self._mgui_get_value()
+CHECK ui_napari_form_bright_area_controls PASS 3 parameters activated
+Traceback (most recent call last):
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FunctionGui' object has no attribute 'pixel_size'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py", line 69, in _on_value_change
+    self.changed.emit(value)
+  File "src/psygnal/_signal.py", line 1233, in emit
+  File "src/psygnal/_signal.py", line 1328, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psygnal._exceptions.EmitLoopError: 
+
+While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback:
+
+  AttributeError: 'FunctionGui' object has no attribute 'pixel_size'
+  ------------------------------------------------------------------
+
+  SIGNAL EMISSION: 
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data
+      self._event_filter.valueChanged.emit(self._mgui_get_value())
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py:69 in _on_value_change
+      self.changed.emit(value)  # <-- SIGNAL WAS EMITTED HERE
+
+  CALLBACK CHAIN:
+    src/psygnal/_signal.py:1311 in _run_emit_loop
+    ... 5 more frames ...
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py:117 in __getattr__
+      return object.__getattribute__(self, name)  # type: ignore  # <-- ERROR OCCURRED HERE 
+
+      Local variables:
+                name = 'pixel_size'
+                 wdg = None
+CHECK ui_napari_run_bright_area FAIL a slot raised or a dialog interrupted: EmitLoopError:  |  | While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback: |  |   AttributeError: 'FunctionGui' object has no attribute 'pixel_size' |   ------------------------------------------------------------------ |  |   SIGNAL EMISSION:  |     /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data |       self._event_filter.valueChanged.emit(self._mgui_get_value()
+CHECK ui_napari_screens_bright_area PASS bright_area_form.png and bright_area_after_run.png written for a person to look at (153821 and 154659 bytes)
+CHECK ui_napari_form_align_centres_opens PASS 2 parameters: image:image, reference:image
+CHECK ui_napari_form_align_centres_controls PASS 2 parameters activated
+CHECK ui_napari_run_align_centres FAIL AssertionError: prerequisite case 27 (bright_area) ended FAILED pixel_size_unknown, its expect says FAILED invalid_pixel_size | ✖ [pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.  - click Details… for the full report (log: /home/user/apps/a2_lc_home_Playground/logs/labconstrictor.log)
+CHECK ui_napari_screens_align_centres FAIL AssertionError: align_centres_form.png does not exist; align_centres_after_run.png does not exist
+CHECK ui_napari_form_stress_big_image_opens PASS 1 parameters: megabytes:integer
+CHECK ui_napari_form_stress_big_image_controls PASS 1 parameters activated
+NOTE ui_napari_run_stress_big_image not run: [human] stress_big_image is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_big_image not run: [human] stress_big_image is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_big_image_form.png was taken
+CHECK ui_napari_form_stress_crash_opens PASS 0 parameters: 
+CHECK ui_napari_form_stress_crash_controls PASS 0 parameters activated
+NOTE ui_napari_run_stress_crash not run: [human] stress_crash is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_crash not run: [human] stress_crash is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_crash_form.png was taken
+CHECK ui_napari_form_stress_hang_opens PASS 1 parameters: seconds:float
+CHECK ui_napari_form_stress_hang_controls PASS 1 parameters activated
+NOTE ui_napari_run_stress_hang not run: [human] stress_hang is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_hang not run: [human] stress_hang is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_hang_form.png was taken
+CHECK ui_napari_form_stress_many_points_opens PASS 1 parameters: count:integer
+CHECK ui_napari_form_stress_many_points_controls PASS 1 parameters activated
+NOTE ui_napari_run_stress_many_points not run: [human] stress_many_points is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_many_points not run: [human] stress_many_points is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_many_points_form.png was taken
+CHECK ui_napari_form_stress_out_of_memory_opens PASS 0 parameters: 
+CHECK ui_napari_form_stress_out_of_memory_controls PASS 0 parameters activated
+NOTE ui_napari_run_stress_out_of_memory not run: [human] stress_out_of_memory is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_out_of_memory not run: [human] stress_out_of_memory is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_out_of_memory_form.png was taken
+CHECK ui_napari_form_stress_real_memory_opens PASS 2 parameters: target_mb:integer, limit_mb:integer
+CHECK ui_napari_form_stress_real_memory_controls PASS 2 parameters activated (advanced box)
+NOTE ui_napari_run_stress_real_memory not run: [human] stress_real_memory is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_real_memory not run: [human] stress_real_memory is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_real_memory_form.png was taken
+CHECK ui_napari_form_stress_slow_opens PASS 1 parameters: seconds:float
+CHECK ui_napari_form_stress_slow_controls PASS 1 parameters activated
+NOTE ui_napari_run_stress_slow not run: [human] stress_slow is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_slow not run: [human] stress_slow is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_slow_form.png was taken
+CHECK ui_napari_controls_all_known PASS 11 controls found = the 11 table rows: run, cancel, rescan_apps, restart_worker, keep_the_worker_running, details, copy_as_command, copy_terminal_command, copy_python_snippet, app_chooser, tool_chooser
+CHECK ui_napari_panel_run PASS clicked for list_devices: started, disabled while running, enabled after (COMPLETE)
+CHECK ui_napari_panel_cancel PASS greyed out and a no-op when idle (status unchanged)
+CHECK ui_napari_panel_details PASS dialog 'LabConstrictor - last run' opened and closed; the run record and the log it names exist on disk
+CHECK ui_napari_panel_copy_as_command PASS menu entries ['Terminal command', 'Python snippet']
+CHECK ui_napari_panel_copy_terminal_command PASS terminal line: run LabConstrictorPlayground list_devices with the 0 values of the case: /home/user/apps/Playground/bin/python -m labconstrictor_tools run LabConstrictorPlayground list_devices
+CHECK ui_napari_panel_copy_python_snippet PASS Python snippet parses and holds the app, the tool and the case's text values (4 lines)
+CHECK ui_napari_panel_rescan_apps PASS registry read again; apps ['LabConstrictorPlayground'] of the files ['LabConstrictorPlayground'], choice kept
+CHECK ui_napari_panel_restart_worker PASS worker process 11112 ended after Restart worker
+CHECK ui_napari_panel_keep_the_worker_running PASS ticked (default): worker 11230 stayed alive; unticked: worker 11241 ended
+CHECK ui_napari_panel_app_chooser PASS apps and their tool counts: LabConstrictorPlayground(17)
+Traceback (most recent call last):
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FunctionGui' object has no attribute 'region'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py", line 69, in _on_value_change
+    self.changed.emit(value)
+  File "src/psygnal/_signal.py", line 1233, in emit
+  File "src/psygnal/_signal.py", line 1328, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psygnal._exceptions.EmitLoopError: 
+
+While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback:
+
+  AttributeError: 'FunctionGui' object has no attribute 'region'
+  --------------------------------------------------------------
+
+  SIGNAL EMISSION: 
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data
+      self._event_filter.valueChanged.emit(self._mgui_get_value())
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py:69 in _on_value_change
+      self.changed.emit(value)  # <-- SIGNAL WAS EMITTED HERE
+
+  CALLBACK CHAIN:
+    src/psygnal/_signal.py:1311 in _run_emit_loop
+    ... 5 more frames ...
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py:117 in __getattr__
+      return object.__getattribute__(self, name)  # type: ignore  # <-- ERROR OCCURRED HERE 
+
+      Local variables:
+                name = 'region'
+                 wdg = None
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_tool_chooser FAIL a slot raised or a dialog interrupted: EmitLoopError:  |  | While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback: |  |   AttributeError: 'FunctionGui' object has no attribute 'region' |   -------------------------------------------------------------- |  |   SIGNAL EMISSION:  |     /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data |       self._event_filter.valueChanged.emit(self._mgui_get_value()) |     
+CHECK ui_napari_panel_cancel_running PASS Cancel (real click) ended stress_slow as CANCELED; the 11 controls were the same while it ran
+NAPARI UI AUDIT SUMMARY failed=8

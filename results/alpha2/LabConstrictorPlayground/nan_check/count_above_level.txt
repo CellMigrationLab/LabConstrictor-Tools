@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.25,
+  "run_record": "/home/user/a2/pgnan_home/runs/20261015T101645038072_LabConstrictorPlayground_count_above_level/run.json",
+  "error": "[non_finite_pixels] The image has 1 pixel(s) that are NaN or infinite, so the result would be wrong without saying so. Clean the image first (replace or crop out those pixels).",
+  "code": "non_finite_pixels",
+  "log": "/home/user/a2/pgnan_home/logs/labconstrictor.log"
+}

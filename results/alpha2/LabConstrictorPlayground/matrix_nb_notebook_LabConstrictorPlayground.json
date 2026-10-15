@@ -1,0 +1,88 @@
+{
+ "host": "notebook",
+ "app": "LabConstrictorPlayground",
+ "family": "nb",
+ "started": "2026-10-15T10:21:18",
+ "finished": null,
+ "expected": 20,
+ "rows": [
+  {
+   "id": "nb_LabConstrictorPlayground_notebooks_srctag",
+   "family": "nb",
+   "host": "notebook",
+   "app": "LabConstrictorPlayground",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "the source checkout is at the release tag 0.0.5",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T10:21:18"
+  },
+  {
+   "id": "nb_LabConstrictorPlayground_notebooks_inventory",
+   "family": "nb",
+   "host": "notebook",
+   "app": "LabConstrictorPlayground",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "2 notebooks installed, the same as construct.yaml lists: LabConstrictorPlayground, Welcome",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T10:21:18"
+  },
+  {
+   "id": "nb_LabConstrictorPlayground_Welcome_packaged",
+   "family": "nb",
+   "host": "notebook",
+   "app": "LabConstrictorPlayground",
+   "tool": "Welcome",
+   "control": "",
+   "status": "PASS",
+   "detail": "2 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T10:21:20"
+  },
+  {
+   "id": "nb_LabConstrictorPlayground_Welcome_valid",
+   "family": "nb",
+   "host": "notebook",
+   "app": "LabConstrictorPlayground",
+   "tool": "Welcome",
+   "control": "",
+   "status": "PASS",
+   "detail": "nbformat 4.5 valid; kernelspec 'python3' resolves to /home/user/apps/Playground/bin/python (spec dir /home/user/apps/Playground/share/jupyter/kernels/python3); app interpreter /home/user/apps/Playground/bin/python",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T10:21:20"
+  },
+  {
+   "id": "nb_LabConstrictorPlayground_Welcome_imports",
+   "family": "nb",
+   "host": "notebook",
+   "app": "LabConstrictorPlayground",
+   "tool": "Welcome",
+   "control": "",
+   "status": "PASS",
+   "detail": "12 imports resolved in /home/user/apps/Playground/bin/python",
+   "seconds": 0.26,
+   "screenshot": null,
+   "ts": "2026-10-15T10:21:20"
+  },
+  {
+   "id": "nb_LabConstrictorPlayground_Welcome_kernel",
+   "family": "nb",
+   "host": "notebook",
+   "app": "LabConstrictorPlayground",
+   "tool": "Welcome",
+   "control": "",
+   "status": "PASS",
+   "detail": "live kernel 'python3' runs /home/user/apps/Playground/bin/python (the app's interpreter)",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T10:21:21"
+  }
+ ]
+}
