@@ -1,5 +1,6 @@
 """The human-test pages stay consistent: row ids of the matrix are unique, differ from the protocol's check ids, match the results CSV, the result words are one
-vocabulary, every test id the matrix cites exists in the protocol or the app files, and every internal link and anchor resolves."""
+vocabulary, every test id the matrix cites exists in the protocol or the app files, and every internal link and anchor resolves.
+"""
 
 import csv
 import re
@@ -20,7 +21,10 @@ def defined_test_ids() -> set[str]:
     files = [DOCS / "HUMAN_TEST_PROTOCOL.md", *sorted((DOCS / "human_tests").glob("*.md"))]
     for path in files:
         text = path.read_text(encoding="utf-8")
-        found.update(m.group(1) for m in re.finditer(r"^#{2,4} ([A-Z]{1,3}[0-9]*(?:-[A-Z]?[0-9A-Z]+)?)[.:]", text, re.M))
+        found.update(
+            m.group(1)
+            for m in re.finditer(r"^#{2,4} ([A-Z]{1,3}[0-9]*(?:-[A-Z]?[0-9A-Z]+)?)[.:]", text, re.M)
+        )
         found.update(m.group(1) for m in re.finditer(r"\*\*([A-Z]{1,3}-?[A-Z]?[0-9]+)[ .:]", text))
         found.update(m.group(1) for m in re.finditer(r"^- \[ \] \*\*([WML][0-9]+)", text, re.M))
     return found
@@ -36,7 +40,9 @@ def test_matrix_row_ids_are_unique_and_not_the_protocols() -> None:
 def test_results_csv_has_exactly_the_matrix_rows() -> None:
     with (DOCS / "TEST_RESULTS_TEMPLATE.csv").open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert [r["row_id"] for r in rows] == ROW.findall(MATRIX), "regenerate docs/TEST_RESULTS_TEMPLATE.csv from the matrix rows"
+    assert [r["row_id"] for r in rows] == ROW.findall(
+        MATRIX
+    ), "regenerate docs/TEST_RESULTS_TEMPLATE.csv from the matrix rows"
     assert {r["result"] for r in rows} == {"NOT TESTED"}
 
 
@@ -62,10 +68,17 @@ def test_every_test_id_the_matrix_cites_exists() -> None:
 
 def test_internal_links_and_anchors_resolve() -> None:
     pages = sorted(DOCS.glob("*.md")) + sorted((DOCS / "human_tests").glob("*.md"))
-    heads = {p.resolve(): {slug(m.group(2)) for m in re.finditer(r"^(#{1,6}) (.+)$", p.read_text(encoding="utf-8"), re.M)} for p in pages}
+    heads = {
+        p.resolve(): {
+            slug(m.group(2)) for m in re.finditer(r"^(#{1,6}) (.+)$", p.read_text(encoding="utf-8"), re.M)
+        }
+        for p in pages
+    }
     problems = []
     for page in pages:
-        for target, anchor in re.findall(r"\]\(([^)#\s]*)(?:#([^)\s]+))?\)", page.read_text(encoding="utf-8")):
+        for target, anchor in re.findall(
+            r"\]\(([^)#\s]*)(?:#([^)\s]+))?\)", page.read_text(encoding="utf-8")
+        ):
             if target.startswith(("http", "mailto")):
                 continue
             path = (page.parent / target).resolve() if target else page.resolve()
