@@ -1,0 +1,8 @@
+{
+  "status": "DRIVER_ERROR",
+  "error": "AssertionError: Run did not start a task; status: \u26a0 'Reference pixel size um' must be >= 0 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/wt_ui_napari/tests/ui_audit_runs.py\", line 258, in execute\n    raise AssertionError(\"Run did not start a task; status: %s\" % w.status.text())\nAssertionError: Run did not start a task; status: \u26a0 'Reference pixel size um' must be >= 0\n",
+  "host_observed": {
+    "reference_pixel_size_um": -0.02,
+    "simulated_pixel_size_um": 0.02
+  }
+}

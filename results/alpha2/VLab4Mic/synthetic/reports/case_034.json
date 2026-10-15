@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 5.08,
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_syn/runs/20261015T093640127939_VLab4Mic_simulate_sample/run.json",
+  "error": "[ValueError] The input mmCIF file must begin with a 'data_' directive.",
+  "code": "ValueError",
+  "log": "/home/user/apps/a2_lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

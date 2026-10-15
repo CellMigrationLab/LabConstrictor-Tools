@@ -1,0 +1,27 @@
+WARNING: could not determine DPI
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 000 COMPLETE   compare_images               OK
+CASE 001 COMPLETE   compare_images               OK
+CASE 002 COMPLETE   compare_images               OK
+CASE 003 COMPLETE   compare_images               OK
+CASE 004 COMPLETE   compare_images               OK
+CASE 005 DRIVER_ERROR compare_images               MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'reference_pixel_size_um' needs a value: 'reference' has no pixel si
+CASE 006 FAILED     compare_images               OK
+CASE 007 FAILED     compare_images               OK
+CASE 008 FAILED     compare_images               OK
+CASE 009 FAILED     compare_images               OK
+CASE 010 COMPLETE   compare_images               MISMATCH status COMPLETE, expected FAILED: 
+CASE 011 COMPLETE   compare_images               MISMATCH status COMPLETE, expected FAILED: 
+CASE 012 FAILED     compare_images               OK
+CASE 013 FAILED     compare_images               OK
+CASE 014 FAILED     compare_images               OK
+CASE 015 FAILED     compare_images               OK
+CASE 016 COMPLETE   compare_images               MISMATCH status COMPLETE, expected FAILED: 
+CASE 017 DRIVER_ERROR compare_images               MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Reference pixel size um' must be >= 0 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 018 COMPLETE   compare_images               OK
+CASE 019 COMPLETE   compare_images               OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 020 COMPLETE   simulate_sample              OK
+CASE 021 COMPLETE   simulate_sample              OK

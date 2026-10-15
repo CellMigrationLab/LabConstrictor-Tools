@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.16,
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_syn/runs/20261015T093629105200_VLab4Mic_simulate_sample/run.json",
+  "error": "[invalid_parameter] 'Random seed' must be >= 0",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a2_lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

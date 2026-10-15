@@ -1,0 +1,339 @@
+[
+  {
+    "case": 0,
+    "dataset": "vm_identical",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_identical] the same 160x160 spot image twice, 20 nm per pixel (written in nm)"
+  },
+  {
+    "case": 1,
+    "dataset": "vm_gain_offset",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_gain_offset] the image times 3 plus 100 (a brighter, offset copy)"
+  },
+  {
+    "case": 2,
+    "dataset": "vm_inverted",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_inverted] the inverted image (4000 minus the image)"
+  },
+  {
+    "case": 3,
+    "dataset": "vm_half_res_right_units",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_half_res_right_units] the same field with 2x2 blocks averaged: 80x80 pixels of 40 nm, "
+  },
+  {
+    "case": 4,
+    "dataset": "vm_half_res_wrong_units",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_half_res_wrong_units] the same two files with the pixel size of the half-resolution im"
+  },
+  {
+    "case": 5,
+    "dataset": "vm_cal_none",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "missing_parameter",
+    "problems": [],
+    "comment": "[vm_cal_none] no calibration in the file"
+  },
+  {
+    "case": 6,
+    "dataset": "vm_nan_simulated",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "bad_input",
+    "problems": [],
+    "comment": "[vm_nan_simulated] the simulated image holds a NaN"
+  },
+  {
+    "case": 7,
+    "dataset": "vm_nan_reference",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "bad_input",
+    "problems": [],
+    "comment": "[vm_nan_reference] the reference image holds a NaN"
+  },
+  {
+    "case": 8,
+    "dataset": "vm_flat_simulated",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "flat_image",
+    "problems": [],
+    "comment": "[vm_flat_simulated] the simulated image is flat (100 everywhere)"
+  },
+  {
+    "case": 9,
+    "dataset": "vm_zero_simulated",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "flat_image",
+    "problems": [],
+    "comment": "[vm_zero_simulated] the simulated image is all zero"
+  },
+  {
+    "case": 10,
+    "dataset": "vm_flat_reference",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [
+      "status COMPLETE, expected FAILED: "
+    ],
+    "comment": "[vm_flat_reference] the REFERENCE image is flat"
+  },
+  {
+    "case": 11,
+    "dataset": "vm_zero_reference",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [
+      "status COMPLETE, expected FAILED: "
+    ],
+    "comment": "[vm_zero_reference] the REFERENCE image is all zero"
+  },
+  {
+    "case": 12,
+    "dataset": "vm_stack_cyx",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[vm_stack_cyx] a CYX stack as the simulated image"
+  },
+  {
+    "case": 13,
+    "dataset": "vm_stack_zyx",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[vm_stack_zyx] a ZYX stack as the simulated image"
+  },
+  {
+    "case": 14,
+    "dataset": "vm_stack_tyx",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[vm_stack_tyx] a TYX stack as the simulated image"
+  },
+  {
+    "case": 15,
+    "dataset": "vm_rgb",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[vm_rgb] an RGB image as the simulated image"
+  },
+  {
+    "case": 16,
+    "dataset": "vm_pixel_zero",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "invalid_pixel_size",
+    "problems": [],
+    "comment": "[vm_pixel_zero] pixel size 0"
+  },
+  {
+    "case": 17,
+    "dataset": "vm_pixel_negative",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[vm_pixel_negative] pixel size -0.02 (declared minimum 0)"
+  },
+  {
+    "case": 18,
+    "dataset": "vm_different_fields",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_different_fields] two unrelated images of different sizes (160x160 and 100x100), same "
+  },
+  {
+    "case": 19,
+    "dataset": "vm_stress_identical",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_stress_identical] stress: the same 2500x2500 uint16 image twice (12.5 MB, memory-mappe"
+  },
+  {
+    "case": 20,
+    "dataset": "vm_sim_sted",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_sim_sted] STED, structure file mini_ring.cif, sample 1000 nm: image size = sample / pi"
+  },
+  {
+    "case": 21,
+    "dataset": "vm_sim_widefield",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_sim_widefield] Widefield, structure file mini_ring.cif, sample 2000 nm: image size = s"
+  },
+  {
+    "case": 22,
+    "dataset": "vm_sim_confocal",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_sim_confocal] Confocal, structure file mini_ring.cif, sample 1000 nm: image size = sam"
+  },
+  {
+    "case": 23,
+    "dataset": "vm_sim_airyscan",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_sim_airyscan] AiryScan, structure file mini_ring.cif, sample 1000 nm: image size = sam"
+  },
+  {
+    "case": 24,
+    "dataset": "vm_sim_smlm",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_sim_smlm] SMLM, structure file mini_ring.cif, sample 1000 nm: image size = sample / pi"
+  },
+  {
+    "case": 25,
+    "dataset": "vm_sim_centred",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[vm_sim_centred] one ring placed at a fixed position (random positions off): the noiseless"
+  },
+  {
+    "case": 26,
+    "dataset": "vm_sim_sample_too_small",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[vm_sim_sample_too_small] simulate_sample with sample_size_xy_nm=50"
+  },
+  {
+    "case": 27,
+    "dataset": "vm_sim_pixel_too_big",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[vm_sim_pixel_too_big] simulate_sample with pixel_size_nm=2000"
+  },
+  {
+    "case": 28,
+    "dataset": "vm_sim_seed_negative",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[vm_sim_seed_negative] simulate_sample with random_seed=-1"
+  },
+  {
+    "case": 29,
+    "dataset": "vm_sim_exposure_too_long",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[vm_sim_exposure_too_long] simulate_sample with exposure_time_s=11.0"
+  },
+  {
+    "case": 30,
+    "dataset": "vm_sim_wobble_too_big",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[vm_sim_wobble_too_big] simulate_sample with wobble_cone_degrees=60.0"
+  },
+  {
+    "case": 31,
+    "dataset": "vm_sim_efficiency_negative",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[vm_sim_efficiency_negative] simulate_sample with labelling_efficiency=-0.1"
+  },
+  {
+    "case": 32,
+    "dataset": "vm_sim_too_many_particles",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[vm_sim_too_many_particles] simulate_sample with number_of_particles=21"
+  },
+  {
+    "case": 33,
+    "dataset": "vm_sim_pixel_not_multiple",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "pixel_size_not_multiple",
+    "problems": [],
+    "comment": "[vm_sim_pixel_not_multiple] simulate_sample with modality=Widefield, pixel_size_nm=105"
+  },
+  {
+    "case": 34,
+    "dataset": "vm_structure_garbage",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "ValueError",
+    "problems": [],
+    "comment": "[vm_structure_garbage] structure_file = a text file that is not a structure"
+  },
+  {
+    "case": 35,
+    "dataset": "vm_structure_empty",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "ValueError",
+    "problems": [],
+    "comment": "[vm_structure_empty] structure_file = an empty structure file"
+  },
+  {
+    "case": 36,
+    "dataset": "vm_structure_missing",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "structure_unavailable",
+    "problems": [],
+    "comment": "[vm_structure_missing] structure_file = a structure file that does not exist"
+  }
+]

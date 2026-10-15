@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.15,
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_syn/runs/20261015T093629625283_VLab4Mic_simulate_sample/run.json",
+  "error": "[invalid_parameter] 'Wobble cone' must be <= 45",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a2_lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

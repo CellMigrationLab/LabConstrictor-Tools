@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.18,
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_syn/runs/20261015T093628853288_VLab4Mic_simulate_sample/run.json",
+  "error": "[invalid_parameter] 'Pixel size' must be <= 1000",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a2_lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

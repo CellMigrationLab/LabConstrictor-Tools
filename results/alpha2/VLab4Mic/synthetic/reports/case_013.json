@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.22,
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_syn/runs/20261015T093522739250_VLab4Mic_compare_images/run.json",
+  "error": "[wrong_dimensions] 'Simulated' must be a 2D image (YX) but got 3D with shape (4, 160, 160)",
+  "code": "wrong_dimensions",
+  "log": "/home/user/apps/a2_lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

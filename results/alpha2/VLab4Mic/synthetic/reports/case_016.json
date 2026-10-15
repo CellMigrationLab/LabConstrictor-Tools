@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.04,
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_syn/runs/20261015T093524386003_VLab4Mic_compare_images/run.json",
+  "error": "[invalid_pixel_size] Both pixel sizes must be greater than 0 (they are in micrometres per pixel).",
+  "code": "invalid_pixel_size",
+  "log": "/home/user/apps/a2_lc_home_VLab4Mic_syn/logs/labconstrictor.log"
+}

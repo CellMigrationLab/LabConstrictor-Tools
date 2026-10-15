@@ -1,0 +1,12 @@
+{
+  "status": "FAILED",
+  "seconds": 2.32,
+  "error": "[wrong_dimensions] 'Simulated' must be a 2D image (YX) but got 3D with shape (3, 160, 160)",
+  "code": "wrong_dimensions",
+  "status_text": "\u2716 [wrong_dimensions] 'Simulated' must be a 2D image (YX) but got 3D with shape (3, 160, 160)  - click Details\u2026 for the full report (log: /home/user/apps/a2_lc_home_VLab4Mic_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a2_lc_home_VLab4Mic_synnap/runs/20261015T094019651106_VLab4Mic_compare_images",
+  "host_observed": {
+    "reference_pixel_size_um": 0.02,
+    "simulated_pixel_size_um": 0.02
+  }
+}
