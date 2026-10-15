@@ -1,0 +1,134 @@
+NOTE ns_small_aniso has no machine oracle for this run (HUMAN): judged by a person
+CHECK ns_normal_0_status                                                     PASS    status COMPLETE
+CHECK ns_normal_1_value:rotation_deg                                         PASS    rotation_deg = -19.717326030486596, expected -20.0 (tol 1, rtol 0)
+CHECK ns_normal_2_value:scale                                                PASS    scale = 1.0056046747350795, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_normal_3_value:offset_y_px                                          PASS    offset_y_px = 623.5282218968644, expected 623.6977688565229 (tol 4, rtol 0)
+CHECK ns_normal_4_value:offset_x_px                                          PASS    offset_x_px = 761.5915536312076, expected 762.4519960495339 (tol 4, rtol 0)
+CHECK ns_normal_5_matrix                                                     PASS    linear part off by 0.003476 (limit 0.01), translation off by 0.8604 px (limit 4), last row off by 0
+CHECK ns_normal_6_points_map                                                 PASS    94% of 16 query nuclei land within 4 px of a reference nucleus (median distance 0.44 px, need 80%)
+CHECK ns_normal_7_host_param                                                 PASS    host showed reference_pixel_size_um = 0.65, expected 0.65
+CHECK ns_normal_8_host_param                                                 PASS    host showed query_pixel_size_um = 0.325, expected 0.325
+CHECK ns_pure_shift_0_status                                                 PASS    status COMPLETE
+CHECK ns_pure_shift_1_value:rotation_deg                                     PASS    rotation_deg = 0.012194855307767663, expected 0.0 (tol 1, rtol 0)
+CHECK ns_pure_shift_2_value:scale                                            PASS    scale = 1.0017205351361176, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_pure_shift_3_value:offset_y_px                                      PASS    offset_y_px = 332.62799569396014, expected 333.0 (tol 2, rtol 0)
+CHECK ns_pure_shift_4_value:offset_x_px                                      PASS    offset_x_px = 516.4357168236472, expected 517.0 (tol 2, rtol 0)
+CHECK ns_pure_shift_5_matrix                                                 PASS    linear part off by 0.001721 (limit 0.02), translation off by 0.5643 px (limit 2), last row off by 0
+CHECK ns_pure_shift_6_points_map                                             PASS    93% of 43 query nuclei land within 2.5 px of a reference nucleus (median distance 0.11 px, need 80%)
+CHECK ns_rotation_only_0_status                                              PASS    status COMPLETE
+CHECK ns_rotation_only_1_value:rotation_deg                                  PASS    rotation_deg = 34.982427977294016, expected 35.0 (tol 1, rtol 0)
+CHECK ns_rotation_only_2_value:scale                                         PASS    scale = 1.0003603650984059, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_rotation_only_3_value:offset_y_px                                   PASS    offset_y_px = 748.4058625314733, expected 748.5519101370004 (tol 3, rtol 0)
+CHECK ns_rotation_only_4_value:offset_x_px                                   PASS    offset_x_px = 508.1854766966461, expected 508.2233833059121 (tol 3, rtol 0)
+CHECK ns_rotation_only_5_matrix                                              PASS    linear part off by 0.0004711 (limit 0.02), translation off by 0.146 px (limit 3), last row off by 0
+CHECK ns_rotation_only_6_points_map                                          PASS    89% of 37 query nuclei land within 4 px of a reference nucleus (median distance 0.11 px, need 80%)
+CHECK ns_no_overlap_0_status                                                 PASS    status FAILED
+CHECK ns_flat_zero_reference_0_status                                        PASS    status FAILED
+CHECK ns_stress_3000_0_status                                                PASS    status COMPLETE
+CHECK ns_stress_3000_1_value:rotation_deg                                    PASS    rotation_deg = 8.076073183030312, expected 8.0 (tol 1, rtol 0)
+CHECK ns_stress_3000_2_value:scale                                           PASS    scale = 1.001969956401753, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_stress_3000_3_value:offset_y_px                                     PASS    offset_y_px = 1372.6146563444481, expected 1372.5485285747197 (tol 4, rtol 0)
+CHECK ns_stress_3000_4_value:offset_x_px                                     PASS    offset_x_px = 1280.6855112337128, expected 1280.86618483718 (tol 4, rtol 0)
+CHECK ns_stress_3000_5_matrix                                                PASS    linear part off by 0.0008824 (limit 0.01), translation off by 0.1807 px (limit 4), last row off by 0
+CHECK ns_stress_3000_6_points_map                                            PASS    88% of 16 query nuclei land within 4 px of a reference nucleus (median distance 0.41 px, need 80%)
+CHECK ns_small_um_0_status                                                   PASS    status COMPLETE
+CHECK ns_small_um_1_value:rotation_deg                                       PASS    rotation_deg = 25.049802116282667, expected 25.0 (tol 1, rtol 0)
+CHECK ns_small_um_2_value:scale                                              PASS    scale = 1.0010378130224675, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_small_um_3_value:offset_y_px                                        PASS    offset_y_px = 542.3641047689671, expected 542.07817934581 (tol 4, rtol 0)
+CHECK ns_small_um_4_value:offset_x_px                                        PASS    offset_x_px = 480.82790656529744, expected 480.8611056589124 (tol 4, rtol 0)
+CHECK ns_small_um_5_matrix                                                   PASS    linear part off by 0.0006135 (limit 0.01), translation off by 0.2859 px (limit 4), last row off by 0
+CHECK ns_small_um_6_points_map                                               PASS    83% of 12 query nuclei land within 4 px of a reference nucleus (median distance 0.38 px, need 80%)
+CHECK ns_small_um_7_host_param                                               PASS    host showed reference_pixel_size_um = 0.65, expected 0.65
+CHECK ns_small_um_8_host_param                                               PASS    host showed query_pixel_size_um = 0.325, expected 0.325
+CHECK ns_small_nm_0_status                                                   PASS    status COMPLETE
+CHECK ns_small_nm_1_value:rotation_deg                                       PASS    rotation_deg = 25.038804763818327, expected 25.0 (tol 1, rtol 0)
+CHECK ns_small_nm_2_value:scale                                              PASS    scale = 1.0011007870936253, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_small_nm_3_value:offset_y_px                                        PASS    offset_y_px = 542.2915687239516, expected 542.07817934581 (tol 4, rtol 0)
+CHECK ns_small_nm_4_value:offset_x_px                                        PASS    offset_x_px = 480.86267955265, expected 480.8611056589124 (tol 4, rtol 0)
+CHECK ns_small_nm_5_matrix                                                   PASS    linear part off by 0.0005398 (limit 0.01), translation off by 0.2134 px (limit 4), last row off by 0
+CHECK ns_small_nm_6_points_map                                               PASS    83% of 12 query nuclei land within 4 px of a reference nucleus (median distance 0.39 px, need 80%)
+CHECK ns_small_nm_7_host_param                                               PASS    host showed reference_pixel_size_um = 0.65, expected 0.65
+CHECK ns_small_nm_8_host_param                                               PASS    host showed query_pixel_size_um = 0.325, expected 0.325
+CHECK ns_small_micro_0_status                                                PASS    status COMPLETE
+CHECK ns_small_micro_1_value:rotation_deg                                    PASS    rotation_deg = 25.051844517586396, expected 25.0 (tol 1, rtol 0)
+CHECK ns_small_micro_2_value:scale                                           PASS    scale = 1.0010295445963937, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_small_micro_3_value:offset_y_px                                     PASS    offset_y_px = 542.35388001733, expected 542.07817934581 (tol 4, rtol 0)
+CHECK ns_small_micro_4_value:offset_x_px                                     PASS    offset_x_px = 480.8504515674612, expected 480.8611056589124 (tol 4, rtol 0)
+CHECK ns_small_micro_5_matrix                                                PASS    linear part off by 0.0006279 (limit 0.01), translation off by 0.2757 px (limit 4), last row off by 0
+CHECK ns_small_micro_6_points_map                                            PASS    83% of 12 query nuclei land within 4 px of a reference nucleus (median distance 0.41 px, need 80%)
+CHECK ns_small_micro_7_host_param                                            PASS    host showed reference_pixel_size_um = 0.65, expected 0.65
+CHECK ns_small_micro_8_host_param                                            PASS    host showed query_pixel_size_um = 0.325, expected 0.325
+CHECK ns_small_micron_0_status                                               PASS    status COMPLETE
+CHECK ns_small_micron_1_value:rotation_deg                                   PASS    rotation_deg = 25.07468145526015, expected 25.0 (tol 1, rtol 0)
+CHECK ns_small_micron_2_value:scale                                          PASS    scale = 1.0013452767813635, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_small_micron_3_value:offset_y_px                                    PASS    offset_y_px = 542.3964744706211, expected 542.07817934581 (tol 4, rtol 0)
+CHECK ns_small_micron_4_value:offset_x_px                                    PASS    offset_x_px = 480.7656381589188, expected 480.8611056589124 (tol 4, rtol 0)
+CHECK ns_small_micron_5_matrix                                               PASS    linear part off by 0.0008755 (limit 0.01), translation off by 0.3183 px (limit 4), last row off by 0
+CHECK ns_small_micron_6_points_map                                           PASS    83% of 12 query nuclei land within 4 px of a reference nucleus (median distance 0.38 px, need 80%)
+CHECK ns_small_micron_7_host_param                                           PASS    host showed reference_pixel_size_um = 0.65, expected 0.65
+CHECK ns_small_micron_8_host_param                                           PASS    host showed query_pixel_size_um = 0.325, expected 0.325
+CHECK ns_small_u8_0_status                                                   PASS    status COMPLETE
+CHECK ns_small_u8_1_value:rotation_deg                                       PASS    rotation_deg = 25.056101898725746, expected 25.0 (tol 1, rtol 0)
+CHECK ns_small_u8_2_value:scale                                              PASS    scale = 1.0010924434026962, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_small_u8_3_value:offset_y_px                                        PASS    offset_y_px = 542.3762781674666, expected 542.07817934581 (tol 4, rtol 0)
+CHECK ns_small_u8_4_value:offset_x_px                                        PASS    offset_x_px = 480.81531116217843, expected 480.8611056589124 (tol 4, rtol 0)
+CHECK ns_small_u8_5_matrix                                                   PASS    linear part off by 0.0006749 (limit 0.01), translation off by 0.2981 px (limit 4), last row off by 0
+CHECK ns_small_u8_6_points_map                                               PASS    83% of 12 query nuclei land within 4 px of a reference nucleus (median distance 0.37 px, need 80%)
+CHECK ns_small_u8_7_host_param                                               PASS    host showed reference_pixel_size_um = 0.65, expected 0.65
+CHECK ns_small_u8_8_host_param                                               PASS    host showed query_pixel_size_um = 0.325, expected 0.325
+CHECK ns_small_f32_0_status                                                  PASS    status COMPLETE
+CHECK ns_small_f32_1_value:rotation_deg                                      PASS    rotation_deg = 25.053823361991327, expected 25.0 (tol 1, rtol 0)
+CHECK ns_small_f32_2_value:scale                                             PASS    scale = 1.000986867426405, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_small_f32_3_value:offset_y_px                                       PASS    offset_y_px = 542.3651743846623, expected 542.07817934581 (tol 4, rtol 0)
+CHECK ns_small_f32_4_value:offset_x_px                                       PASS    offset_x_px = 480.8684235341813, expected 480.8611056589124 (tol 4, rtol 0)
+CHECK ns_small_f32_5_matrix                                                  PASS    linear part off by 0.0006346 (limit 0.01), translation off by 0.287 px (limit 4), last row off by 0
+CHECK ns_small_f32_6_points_map                                              PASS    83% of 12 query nuclei land within 4 px of a reference nucleus (median distance 0.41 px, need 80%)
+CHECK ns_small_f32_7_host_param                                              PASS    host showed reference_pixel_size_um = 0.65, expected 0.65
+CHECK ns_small_f32_8_host_param                                              PASS    host showed query_pixel_size_um = 0.325, expected 0.325
+CHECK ns_small_nocal_0_status                                                PASS    status FAILED
+CHECK ns_small_nocal_1_host_param                                            PASS    host showed reference_pixel_size_um = None, expected None
+CHECK ns_small_nocal_2_host_param                                            PASS    host showed query_pixel_size_um = None, expected None
+CHECK ns_small_pixelunit_0_status                                            PASS    status FAILED
+CHECK ns_small_pixelunit_1_host_param                                        PASS    host showed reference_pixel_size_um = None, expected None
+CHECK ns_small_pixelunit_2_host_param                                        PASS    host showed query_pixel_size_um = None, expected None
+CHECK ns_axes_cyx_0_status                                                   PASS    status FAILED
+CHECK ns_axes_tyx_0_status                                                   PASS    status FAILED
+CHECK ns_axes_zyx_0_status                                                   PASS    status FAILED
+CHECK ns_axes_tzcyx_0_status                                                 PASS    status FAILED
+CHECK ns_axes_rgb_0_status                                                   PASS    status FAILED
+CHECK ns_nan_reference_0_status                                              FAIL    status COMPLETE, expected FAILED (error: None)
+CHECK ns_masks_exact_0_status                                                PASS    status COMPLETE
+CHECK ns_masks_exact_1_value:rotation_deg                                    PASS    rotation_deg = 25.046830321534557, expected 25.0 (tol 1, rtol 0)
+CHECK ns_masks_exact_2_value:scale                                           PASS    scale = 1.0010632817889824, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_masks_exact_3_value:offset_y_px                                     PASS    offset_y_px = 542.1873398787931, expected 542.07817934581 (tol 2, rtol 0)
+CHECK ns_masks_exact_4_value:offset_x_px                                     PASS    offset_x_px = 480.52017897325356, expected 480.8611056589124 (tol 2, rtol 0)
+CHECK ns_masks_exact_5_matrix                                                PASS    linear part off by 0.0005954 (limit 0.01), translation off by 0.3409 px (limit 2), last row off by 0
+CHECK ns_masks_exact_6_points_map                                            FAIL    83% of 12 query nuclei land within 2 px of a reference nucleus (median distance 0.06 px, need 90%)
+CHECK ns_masks_exact_7_value:n_nuclei_reference                              PASS    n_nuclei_reference = 250, expected 250 (tol 0, rtol 0)
+CHECK ns_masks_exact_8_value:n_nuclei_query                                  PASS    n_nuclei_query = 12, expected 12 (tol 0, rtol 0)
+CHECK ns_masks_binary_0_status                                               PASS    status COMPLETE
+CHECK ns_masks_binary_1_value:rotation_deg                                   PASS    rotation_deg = 25.046830321534557, expected 25.0 (tol 1, rtol 0)
+CHECK ns_masks_binary_2_value:scale                                          PASS    scale = 1.0010632817889824, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_masks_binary_3_value:offset_y_px                                    PASS    offset_y_px = 542.1873398787931, expected 542.07817934581 (tol 2, rtol 0)
+CHECK ns_masks_binary_4_value:offset_x_px                                    PASS    offset_x_px = 480.52017897325356, expected 480.8611056589124 (tol 2, rtol 0)
+CHECK ns_masks_binary_5_matrix                                               PASS    linear part off by 0.0005954 (limit 0.01), translation off by 0.3409 px (limit 2), last row off by 0
+CHECK ns_masks_binary_6_points_map                                           FAIL    83% of 12 query nuclei land within 2 px of a reference nucleus (median distance 0.06 px, need 90%)
+CHECK ns_masks_binary_7_value:n_nuclei_reference                             PASS    n_nuclei_reference = 250, expected 250 (tol 0, rtol 0)
+CHECK ns_masks_binary_8_value:n_nuclei_query                                 PASS    n_nuclei_query = 12, expected 12 (tol 0, rtol 0)
+CHECK ns_region_nonzero_origin_0_status                                      PASS    status COMPLETE
+CHECK ns_region_nonzero_origin_1_value:rotation_deg                          PASS    rotation_deg = 24.99298442034025, expected 25.0 (tol 1, rtol 0)
+CHECK ns_region_nonzero_origin_2_value:scale                                 PASS    scale = 1.0003654975797829, expected 1.0 (tol 0.05, rtol 0)
+CHECK ns_region_nonzero_origin_3_value:offset_y_px                           PASS    offset_y_px = 542.0362635444419, expected 542.07817934581 (tol 3, rtol 0)
+CHECK ns_region_nonzero_origin_4_value:offset_x_px                           PASS    offset_x_px = 480.77939636408996, expected 480.8611056589124 (tol 3, rtol 0)
+CHECK ns_region_nonzero_origin_5_matrix                                      PASS    linear part off by 0.0001915 (limit 0.01), translation off by 0.08171 px (limit 3), last row off by 0
+CHECK ns_region_nonzero_origin_6_points_map                                  PASS    100% of 5 query nuclei land within 2.5 px of a reference nucleus (median distance 0.05 px, need 90%)
+CHECK ns_region_nonzero_origin_7_value:n_nuclei_reference                    PASS    n_nuclei_reference = 148, expected 148 (tol 0, rtol 0)
+CHECK ns_region_nonzero_origin_8_value:n_nuclei_query                        PASS    n_nuclei_query = 5, expected 5 (tol 0, rtol 0)
+CHECK ns_region_empty_0_status                                               PASS    status FAILED
+CHECK ns_region_wrong_size_0_status                                          PASS    status FAILED
+CHECK ns_mask_wrong_size_0_status                                            PASS    status FAILED
+CHECK ns_mask_fractions_0_status                                             FAIL    status COMPLETE, expected FAILED (error: None)
+CHECK ns_mask_negative_0_status                                              PASS    status FAILED
+CHECK ns_mask_nan_0_status                                                   FAIL    message '[bad_mask] The query mask has negative labels.' lacks 'NaN'
+CHECK ns_list_devices_0_status                                               PASS    status COMPLETE
+SUMMARY {'PASS': 127, 'FAIL': 5, 'NOT_RUN': 0} (132 checks, 31 datasets)

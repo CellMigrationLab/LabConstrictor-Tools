@@ -1,0 +1,20 @@
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['List the devices', 'Relocalize 2D']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'List the devices'
+CHECK ui_fiji_form_list_devices_opens PASS 0 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_list_devices_controls PASS the tool declares no parameter: the form holds only OK and Cancel (checked by _opens), so there is nothing to activate
+CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_run_list_devices PASS status COMPLETE; every declared result shown (values:values); inputs from case {}
+CHECK ui_fiji_panel_log PASS the Log window holds the run's command line and Python snippet, equal to the saved last command
+CHECK ui_fiji_panel_form_ok PASS a real click on OK closed the form and the plugin ran the tool (status COMPLETE)
+CHECK ui_fiji_screens_list_devices PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_relocalize_opens PASS 32 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_relocalize_controls PASS 57 control(s) activated and read back: choice_combo, file_browse, flag_checkbox, image_choice, number_spinner, set_checkbox, slider, text_field, use_image_checkbox, use_selection_checkbox
+CHECK ui_fiji_run_relocalize FAIL the shapes 'reference_outlines' is also on 'query.tif'; the shapes 'query_outlines' is also on 'reference.tif'
+CHECK ui_fiji_screens_relocalize PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_panel_copy_terminal PASS the clipboard holds the terminal line of the last run (NucleiSky: relocalize), equal to the saved command
+CHECK ui_fiji_panel_copy_python PASS the clipboard holds the Python snippet of the last run (NucleiSky: relocalize), equal to the saved command
+NOTE ui_fiji_fj1b_cancel_form not run: no tool of this app has a required file/folder/table input on a form of several parameters: nothing to cancel with an empty required path
