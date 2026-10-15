@@ -11,3 +11,25 @@ CHECK ui_napari_form_compare_images_opens PASS 4 parameters: reference:image, si
 CHECK ui_napari_form_compare_images_controls PASS 4 parameters activated
 /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
   super(cls, self).__init__(**kwargs)  # type: ignore
+NOTE ui_napari_prerequisite_simulate_sample_case12 not run: [human] case 12 of simulate_sample cannot be typed into the form (value 1.5 is outside of the allowed range: (0.0, 1.0)); its expected outcome {'status': 'FAILED', 'code': 'invalid_parameter', 'message_contains': 'Labelling efficiency'} is covered by the CLI
+NOTE ui_napari_prerequisite_simulate_sample_case13 not run: [human] case 13 of simulate_sample cannot be typed into the form (value 0 is outside of the allowed range: (1, 20)); its expected outcome {'status': 'FAILED', 'code': 'invalid_parameter', 'message_contains': 'Number of particles'} is covered by the CLI
+CHECK ui_napari_run_compare_images PASS COMPLETE in 0.1s, 3 progress updates, outputs: values(values) (prerequisites replayed: simulate_sample, simulate_sample, simulate_sample, simulate_sample, simulate_sample, simulate_sample, simulate_sample, simulate_sample, simulate_sample(FAILED), simulate_sample(FAILED), simulate_sample(FAILED), simulate_sample(FAILED))
+CHECK ui_napari_screens_compare_images PASS compare_images_form.png and compare_images_after_run.png written for a person to look at (152245 and 133677 bytes)
+CHECK ui_napari_controls_all_known PASS 11 controls found = the 11 table rows: run, cancel, rescan_apps, restart_worker, keep_the_worker_running, details, copy_as_command, copy_terminal_command, copy_python_snippet, app_chooser, tool_chooser
+CHECK ui_napari_panel_run PASS clicked for simulate_sample: started, disabled while running, enabled after (COMPLETE)
+CHECK ui_napari_panel_cancel PASS greyed out and a no-op when idle (status unchanged)
+CHECK ui_napari_panel_details PASS dialog 'LabConstrictor - last run' opened and closed; the run record and the log it names exist on disk
+CHECK ui_napari_panel_copy_as_command PASS menu entries ['Terminal command', 'Python snippet']
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_copy_terminal_command PASS terminal line: run VLab4Mic simulate_sample with the 1 values of the case: /home/user/apps/VLab4Mic/bin/python -m labconstrictor_tools run VLab4Mic simulate_sample structure=1XI5 number_of_partic
+CHECK ui_napari_panel_copy_python_snippet PASS Python snippet parses and holds the app, the tool and the case's text values (24 lines)
+CHECK ui_napari_panel_rescan_apps PASS registry read again; apps ['VLab4Mic'] of the files ['VLab4Mic'], choice kept
+CHECK ui_napari_panel_restart_worker PASS worker process 30108 ended after Restart worker
+CHECK ui_napari_panel_keep_the_worker_running PASS ticked (default): worker 31444 stayed alive; unticked: worker 31495 ended
+CHECK ui_napari_panel_app_chooser PASS apps and their tool counts: VLab4Mic(2)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_tool_chooser PASS 2 tools chosen, each gave its form and the description of the schema
+NOTE ui_napari_panel_cancel_running not run: [human] no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+NAPARI UI AUDIT SUMMARY failed=0
