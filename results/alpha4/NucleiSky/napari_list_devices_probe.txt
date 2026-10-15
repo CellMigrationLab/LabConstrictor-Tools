@@ -1,0 +1,5 @@
+tools ['List the devices', 'Relocalize 2D']
+fresh list_devices: started True | status: starting worker…
+task status COMPLETE
+relocalize with -1: status: ⚠ [missing_parameter] 'Reference' is required: open an image or choose a file
+list_devices after bad relocalize: started True | status: ✔ done in 0.0s  choices=['auto', 'cpu']

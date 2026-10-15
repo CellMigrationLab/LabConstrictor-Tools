@@ -1,0 +1,6 @@
+tools ['List the devices', 'Relocalize 2D']
+fresh list_devices: started True | status: starting worker…
+task status COMPLETE
+relocalize with -0.65: started True | status: ⚠ 'Reference pixel size um' must be >= 0
+status right after switching to list_devices: ⚠ 'Reference pixel size um' must be >= 0
+list_devices: started True | status: ✔ done in 0.0s  choices=['auto', 'cpu']

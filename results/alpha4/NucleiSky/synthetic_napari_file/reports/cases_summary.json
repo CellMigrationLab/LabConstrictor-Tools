@@ -1,0 +1,244 @@
+[
+  {
+    "case": 0,
+    "dataset": "ns_normal",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 1,
+    "dataset": "ns_pure_shift",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 2,
+    "dataset": "ns_rotation_only",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 3,
+    "dataset": "ns_no_overlap",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "no_match",
+    "problems": []
+  },
+  {
+    "case": 4,
+    "dataset": "ns_flat_zero_reference",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "no_nuclei",
+    "problems": []
+  },
+  {
+    "case": 5,
+    "dataset": "ns_stress_3000",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 6,
+    "dataset": "ns_small_um",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 7,
+    "dataset": "ns_small_nm",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 8,
+    "dataset": "ns_small_micro",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 9,
+    "dataset": "ns_small_micron",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 10,
+    "dataset": "ns_small_u8",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 11,
+    "dataset": "ns_small_f32",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 12,
+    "dataset": "ns_small_nocal",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "missing_parameter",
+    "problems": []
+  },
+  {
+    "case": 13,
+    "dataset": "ns_small_pixelunit",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "missing_parameter",
+    "problems": []
+  },
+  {
+    "case": 14,
+    "dataset": "ns_axes_cyx",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 15,
+    "dataset": "ns_axes_tyx",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 16,
+    "dataset": "ns_axes_zyx",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 17,
+    "dataset": "ns_axes_tzcyx",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 18,
+    "dataset": "ns_axes_rgb",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 19,
+    "dataset": "ns_nan_reference",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [
+      "status COMPLETE, expected FAILED: "
+    ]
+  },
+  {
+    "case": 20,
+    "dataset": "ns_masks_exact",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 21,
+    "dataset": "ns_masks_binary",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 22,
+    "dataset": "ns_region_nonzero_origin",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 23,
+    "dataset": "ns_region_empty",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "empty_region",
+    "problems": []
+  },
+  {
+    "case": 24,
+    "dataset": "ns_region_wrong_size",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "bad_input",
+    "problems": []
+  },
+  {
+    "case": 25,
+    "dataset": "ns_mask_wrong_size",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "mask_shape_mismatch",
+    "problems": []
+  },
+  {
+    "case": 26,
+    "dataset": "ns_mask_fractions",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "bad_mask",
+    "problems": []
+  },
+  {
+    "case": 27,
+    "dataset": "ns_mask_negative",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "bad_mask",
+    "problems": []
+  },
+  {
+    "case": 28,
+    "dataset": "ns_mask_nan",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "bad_mask",
+    "problems": []
+  },
+  {
+    "case": 29,
+    "dataset": "ns_list_devices",
+    "tool": "list_devices",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  }
+]

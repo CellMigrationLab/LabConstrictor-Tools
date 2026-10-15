@@ -19,3 +19,16 @@ CASE 014 FAILED     relocalize                   OK
 CASE 015 FAILED     relocalize                   OK
 CASE 016 FAILED     relocalize                   OK
 CASE 017 FAILED     relocalize                   OK
+CASE 018 FAILED     relocalize                   OK
+CASE 019 COMPLETE   relocalize                   MISMATCH status COMPLETE, expected FAILED: 
+CASE 020 COMPLETE   relocalize                   OK
+CASE 021 COMPLETE   relocalize                   OK
+CASE 022 COMPLETE   relocalize                   OK
+CASE 023 FAILED     relocalize                   OK
+CASE 024 FAILED     relocalize                   OK
+CASE 025 FAILED     relocalize                   OK
+CASE 026 FAILED     relocalize                   OK
+CASE 027 FAILED     relocalize                   OK
+CASE 028 FAILED     relocalize                   OK
+CASE 029 COMPLETE   list_devices                 OK
+SUMMARY 30 cases, 1 differ from their own expectation, 0 not expressible in the form
