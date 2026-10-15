@@ -13,6 +13,8 @@ def load(directory: Path, rerun: "bool | str" = False) -> list[dict[str, Any]]:
     documents: list[dict[str, Any]] = []
     for path in sorted(directory.rglob("matrix_*.json")):
         parts = path.relative_to(directory).parts
+        if "audit_scratch" in parts:  # the Napari synthetic driver's own recorder (no rows of its own)
+            continue
         folder = next((p for p in parts if p.startswith("alpha") and p[5:].isdigit()), "")
         if folder != (rerun or ""):
             continue
