@@ -1,0 +1,10 @@
+Count only: start 0
+ cycle(1) -> 0
+ cycle(3) -> 4
+ cycle(3) -> 8
+ cycle(3) -> 12
+ cycle(6) -> 22
+after gc.collect() 22
+Feature form after cycle(3): 26
+Align form (no radios in it) after cycle(3): 26
+(visible top-level QRadioButton windows with no parent after each cycle of N layers inserted and cleared while the 'Count the pixels above a level' form (a 'mode' radio fixed/percentile) is shown; napari-labconstrictor v0.1.0-alpha.3, magicgui 0.10.2, run under xvfb)
