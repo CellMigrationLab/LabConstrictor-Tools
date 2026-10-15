@@ -1,0 +1,12 @@
+{
+  "status": "FAILED",
+  "seconds": 15.14,
+  "error": "[no_match] No match found: none of the matchers could place the query in the reference. Check the pixel sizes and that the query overlaps the reference.",
+  "code": "no_match",
+  "status_text": "\u26a0 No match found: none of the matchers could place the query in the reference. Check the pixel sizes and that the query overlaps the reference.",
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T200230901441_NucleiSky_relocalize",
+  "host_observed": {
+    "reference_pixel_size_um": 0.65,
+    "query_pixel_size_um": 0.325
+  }
+}

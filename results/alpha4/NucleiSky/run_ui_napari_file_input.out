@@ -5,3 +5,29 @@ CHECK ui_napari_app_listed PASS NucleiSky is offered with all 2 tools of its sch
   super(cls, self).__init__(**kwargs)  # type: ignore
 CHECK ui_napari_form_relocalize_opens PASS 32 parameters: reference:image, query:image, reference_pixel_size_um:float, query_pixel_size_um:float, segmentation:choice, device:string, matcher:choice, reference_mask:labels, query_mask:labels, threshold_method:choice, blur_sigma:float, min_area_px:integer, watershed_split:boolean, instanseg_model:choice, instanseg_target:choice, instanseg_cleanup_fragments:boolean, instanseg_mode:choice, instanseg_pixel_size_um:float, cellpose_diameter_px:float, cellpose_flow_threshold:float, cellpose_cellpr
 CHECK ui_napari_form_relocalize_controls FAIL AssertionError: instanseg_pixel_size_um (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_diameter_px (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_tile_size_px (integer): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False); cellpose_tile_overlap (float): AssertionError: the 'set' box does not enable/disable the field (on=False, off=False)
+CHECK ui_napari_run_relocalize FAIL AssertionError: query_outlines: outline vertices outside the 520x520 fixture
+CHECK ui_napari_screens_relocalize PASS relocalize_form.png and relocalize_after_run.png written for a person to look at (137868 and 270102 bytes)
+CHECK ui_napari_form_list_devices_opens PASS 0 parameters: 
+CHECK ui_napari_form_list_devices_controls PASS 0 parameters activated
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_run_list_devices FAIL AssertionError: Run did not start a task; status: ⚠ 'Reference pixel size um' must be >= 0
+CHECK ui_napari_screens_list_devices FAIL AssertionError: list_devices_form.png does not exist; list_devices_after_run.png does not exist
+CHECK ui_napari_controls_all_known PASS 11 controls found = the 11 table rows: run, cancel, rescan_apps, restart_worker, keep_the_worker_running, details, copy_as_command, copy_terminal_command, copy_python_snippet, app_chooser, tool_chooser
+CHECK ui_napari_panel_run PASS clicked for relocalize: started, disabled while running, enabled after (COMPLETE)
+CHECK ui_napari_panel_cancel PASS greyed out and a no-op when idle (status unchanged)
+CHECK ui_napari_panel_details PASS dialog 'LabConstrictor - last run' opened and closed; the run record and the log it names exist on disk
+CHECK ui_napari_panel_copy_as_command PASS menu entries ['Terminal command', 'Python snippet']
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_copy_terminal_command PASS terminal line: run NucleiSky relocalize with the 4 values of the case: /home/user/apps/NucleiSky/bin/python -m labconstrictor_tools run NucleiSky relocalize reference=/tmp/lc_ui_audit_tests_a
+CHECK ui_napari_panel_copy_python_snippet PASS Python snippet parses and holds the app, the tool and the case's text values (27 lines)
+CHECK ui_napari_panel_rescan_apps PASS registry read again; apps ['NucleiSky'] of the files ['NucleiSky'], choice kept
+CHECK ui_napari_panel_restart_worker PASS worker process 23099 ended after Restart worker
+CHECK ui_napari_panel_keep_the_worker_running PASS ticked (default): worker 25852 stayed alive; unticked: worker 25868 ended
+CHECK ui_napari_panel_app_chooser PASS apps and their tool counts: NucleiSky(2)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_tool_chooser PASS 2 tools chosen, each gave its form and the description of the schema
+NOTE ui_napari_panel_cancel_running not run: [human] no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+NAPARI UI AUDIT SUMMARY failed=4

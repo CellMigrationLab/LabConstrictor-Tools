@@ -1,0 +1,21 @@
+WARNING: could not determine DPI
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 000 COMPLETE   relocalize                   OK
+CASE 001 COMPLETE   relocalize                   OK
+CASE 002 COMPLETE   relocalize                   OK
+CASE 003 FAILED     relocalize                   OK
+CASE 004 FAILED     relocalize                   OK
+CASE 005 COMPLETE   relocalize                   OK
+CASE 006 COMPLETE   relocalize                   OK
+CASE 007 COMPLETE   relocalize                   OK
+CASE 008 COMPLETE   relocalize                   OK
+CASE 009 COMPLETE   relocalize                   OK
+CASE 010 COMPLETE   relocalize                   OK
+CASE 011 COMPLETE   relocalize                   OK
+CASE 012 FAILED     relocalize                   OK
+CASE 013 FAILED     relocalize                   OK
+CASE 014 FAILED     relocalize                   OK
+CASE 015 FAILED     relocalize                   OK
+CASE 016 FAILED     relocalize                   OK
+CASE 017 FAILED     relocalize                   OK
