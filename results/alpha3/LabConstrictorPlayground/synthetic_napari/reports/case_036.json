@@ -1,0 +1,22 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.63,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  bright_pixels=0, pixel_size_um=0.5, area_um2=0.0",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T141850543403_LabConstrictorPlayground_bright_area",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "bright_pixels": 0,
+        "pixel_size_um": 0.5,
+        "area_um2": 0.0
+      }
+    }
+  ],
+  "host_observed": {
+    "pixel_size": 0.5
+  }
+}

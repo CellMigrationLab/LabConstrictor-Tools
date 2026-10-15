@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.19,
+  "error": "[not_text] 'pg_file_binary.bin' is not a UTF-8 text file.",
+  "code": "not_text",
+  "status_text": "\u2716 [not_text] 'pg_file_binary.bin' is not a UTF-8 text file.  - click Details\u2026 for the full report (log: /home/user/apps/a3_lc_home_Playground_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T142013290332_LabConstrictorPlayground_look_inside_file",
+  "host_observed": {}
+}

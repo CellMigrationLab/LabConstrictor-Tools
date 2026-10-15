@@ -1,28 +1,28 @@
 {
   "status": "COMPLETE",
-  "seconds": 4.65,
+  "seconds": 4.66,
   "error": null,
   "code": null,
   "status_text": "\u2714 done in 0.9s  outlines 'outlines' (14)  points 'centres' (14)  table 'measurements' (14 rows)",
-  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T141332036716_LabConstrictorPlayground_feature_tour",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T141710739333_LabConstrictorPlayground_feature_tour",
   "results": [
     {
       "type": "labels",
       "name": "blobs",
-      "path": "/tmp/lcin_xs0_afix/out/blobs.tif",
+      "path": "/tmp/lcin_tgk601ps/out/blobs.tif",
       "axes": "YX"
     },
     {
       "type": "shapes",
       "name": "outlines",
-      "path": "/tmp/lcin_xs0_afix/out/outlines.geojson",
+      "path": "/tmp/lcin_tgk601ps/out/outlines.geojson",
       "n": 14,
       "apply_to": "image"
     },
     {
       "type": "points",
       "name": "centres",
-      "path": "/tmp/lcin_xs0_afix/out/centres.csv",
+      "path": "/tmp/lcin_tgk601ps/out/centres.csv",
       "n": 14,
       "columns": [
         "y",
@@ -35,7 +35,7 @@
     {
       "type": "table",
       "name": "measurements",
-      "path": "/tmp/lcin_xs0_afix/out/measurements.csv"
+      "path": "/tmp/lcin_tgk601ps/out/measurements.csv"
     },
     {
       "type": "message",

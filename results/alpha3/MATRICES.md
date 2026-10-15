@@ -63,6 +63,7 @@
 | alpha3 | napari | 15 | 0 | 0 | 0 | 0 | 2026-10-15T13:28:33Z |
 | synthetic | cli | 163 | 2 | 0 | 2 | 0 | 2026-10-15T13:29:55 |
 | ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
+| synthetic | napari | 169 | 3 | 0 | 0 | 5 | 2026-10-15T14:20:51 |
 | ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
 | synthetic | napari | 163 | 10 | 0 | 0 | 4 | 2026-10-15T14:09:51 |
 | ui | fiji | 120 | 0 | 0 | 18 | 0 | 2026-10-15T13:46:34 |
@@ -73,10 +74,13 @@
 | ui | napari | 64 | 4 | 0 | 14 | 0 | 2026-10-15T13:31:43Z |
 | ui | qupath | 67 | 0 | 1 | 22 | 0 | 2026-10-15T13:56:33Z |
 
-### LabConstrictorPlayground: FAIL (18)
+### LabConstrictorPlayground: FAIL (21)
 
 * `syn_pg_ramp_f32_p90_2_value:level_used` (synthetic/cli) level_used = 89.099853515625, expected 89.09999999999991 (tol 0.0001, rtol 0)
 * `syn_pg_make_three_channels_1_tiff_slice_means` (synthetic/cli) three_channels.tif: means [42.713, 20.0, 30.0], expected [10, 20, 30]
+* `syn_host_napari_pg_ramp_f32_p90_2_value:level_used` (synthetic/napari) level_used = 89.099853515625, expected 89.09999999999991 (tol 0.0001, rtol 0)
+* `syn_host_napari_pg_pixel_zero_0_status` (synthetic/napari) code 'pixel_size_unknown', expected 'invalid_pixel_size'; message "[pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image." lacks 'above 0'
+* `syn_host_napari_pg_make_three_channels_1_tiff_slice_means` (synthetic/napari) three_channels.tif: means [42.713, 20.0, 30.0], expected [10, 20, 30]
 * `syn_host_napari_pg_channels_cyx_0_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_0' (host_observed: [])
 * `syn_host_napari_pg_channels_cyx_1_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_1' (host_observed: [])
 * `syn_host_napari_pg_channels_cyx_2_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_2' (host_observed: [])

@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.93,
+  "error": "[empty_region] The selected region is empty: select an object, or untick 'use the selection'.",
+  "code": "empty_region",
+  "status_text": "\u2716 [empty_region] The selected region is empty: select an object, or untick 'use the selection'.  - click Details\u2026 for the full report (log: /home/user/apps/a3_lc_home_Playground_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T141728012810_LabConstrictorPlayground_feature_tour",
+  "host_observed": {}
+}

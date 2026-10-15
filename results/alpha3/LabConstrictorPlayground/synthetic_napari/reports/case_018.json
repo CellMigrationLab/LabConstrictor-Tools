@@ -1,0 +1,20 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.65,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  level_used=6.0, pixels=1920, fraction=0.48",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T141803248566_LabConstrictorPlayground_count_above_level",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "level_used": 6.0,
+        "pixels": 1920,
+        "fraction": 0.48
+      }
+    }
+  ],
+  "host_observed": {}
+}

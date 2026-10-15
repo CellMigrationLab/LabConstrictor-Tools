@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.56,
+  "error": "[no_result] The image is flat (every pixel has the value 0): there is nothing to find.",
+  "code": "no_result",
+  "status_text": "\u26a0 The image is flat (every pixel has the value 0): there is nothing to find.",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T141735415137_LabConstrictorPlayground_feature_tour",
+  "host_observed": {}
+}

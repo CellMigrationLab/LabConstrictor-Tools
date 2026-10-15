@@ -1,0 +1,25 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.21,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  file=pg_file_json.json, bytes=120, kind=json, keys=channels, name, nested, normalise, tags, threshold, value_name=synthetic \u00b5\u2192\u2713, value_threshold=0.25, value_channels=4, value_normalise=False",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T141959431404_LabConstrictorPlayground_look_inside_file",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "file": "pg_file_json.json",
+        "bytes": 120,
+        "kind": "json",
+        "keys": "channels, name, nested, normalise, tags, threshold",
+        "value_name": "synthetic \u00b5\u2192\u2713",
+        "value_threshold": 0.25,
+        "value_channels": 4,
+        "value_normalise": false
+      }
+    }
+  ],
+  "host_observed": {}
+}

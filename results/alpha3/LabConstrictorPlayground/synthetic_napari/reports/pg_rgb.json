@@ -1,0 +1,16 @@
+{
+  "status": "HOST_ONLY",
+  "host_observed": {
+    "blobs_channel_0": 1,
+    "blobs_channel_1": 2,
+    "blobs_channel_2": 3
+  },
+  "channel_chooser": {
+    "choices": [
+      "Red",
+      "Green",
+      "Blue"
+    ],
+    "visible": true
+  }
+}
