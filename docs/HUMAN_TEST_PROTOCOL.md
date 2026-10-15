@@ -177,7 +177,7 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 * Windows: expect `Found <package>_lc_tools: registering ...` followed by a block of text containing `"schema_path"`. (The Windows script does not print "Tools registered".)
 * Neither: no line starting with `WARNING: tool registration failed`.
 
-**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab:** no such lines and no entry in `list` is expected (see its case file).
+**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab 1.1.2:** its bridge tool `Calculate Track Metrics` **must be registered** and visible in `list`, with notebook-only hosts; absence from the three host UIs is checked separately in CT-3/D3.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -247,8 +247,9 @@ show the same tools; the notebooks must keep working next to them. Which noteboo
 "execution of scripts is disabled" that is a setting of your computer: note it and use cmd.exe) and install **with a Qt6 backend**:
 ```
 python -m venv napari-env
-source napari-env/bin/activate
-pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip
+# Linux/macOS: source napari-env/bin/activate
+# Windows PowerShell: .\napari-env\Scripts\Activate.ps1
+python -m pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip
 napari
 ```
 Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **not** `napari[pyqt5]`: the plugin's README says PyQt5 is not tested and napari deprecated it in 0.8.0. The two long addresses are source archives of tags: no `git` program is needed; replace `v0.1.0-alpha.3` by the tag in the record sheet.
@@ -313,7 +314,7 @@ A mismatch is a **Major** FAIL (an app that must be hidden is shown, or one that
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### D3. CellTracksColab is offered nowhere
-**Do:** first confirm that `list` shows CellTracksColab's registered `Calculate Track Metrics` tool and notebook-only host declaration (CT-2). Then install it next to another app and look at all three hosts (Rescan apps / restart Fiji).
+**Do:** install CellTracksColab next to another app, and first confirm that `list` shows CellTracksColab's registered `Calculate Track Metrics` tool and notebook-only host declaration (CT-2). Then look at all three hosts (Rescan apps / restart Fiji).
 **Expect:** registered, but **not in any of the three host lists**; no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule; the declaration exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so verify the actual installed manifest/registration before considering an absent host entry a PASS.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
@@ -416,7 +417,7 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 ---
 
 ## 10. Report back
-Send, in one message or issue titled `Test report: <OS> <your name> <date> <Tools tag>`:
+For assigned human test packets, follow the concise [matrix report template](TEST_MATRIX.md#4-copy-and-paste-report-template) and create one issue per packet, titled `Test report: <OS> <your name> <date> <Tools tag>`:
 - [ ] the filled **record sheet (section 0.1 and 0.2)**: without it a result cannot be tied to versions;
 - [ ] one short report per assigned packet, listing test IDs, outcomes and D1 findings (no full protocol copy required);
 - [ ] screenshots: one per FAIL and optional illustrative PASS screenshots;
