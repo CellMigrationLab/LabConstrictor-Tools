@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 4.21,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T194038357502_NucleiSky_relocalize/run.json",
+  "error": "[bad_mask] The query mask has negative labels.",
+  "code": "bad_mask",
+  "log": "/home/user/apps/a4_lc_home_NS/logs/labconstrictor.log"
+}

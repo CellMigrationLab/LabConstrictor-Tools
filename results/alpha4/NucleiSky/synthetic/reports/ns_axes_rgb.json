@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.21,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T193908447435_NucleiSky_relocalize/run.json",
+  "error": "[wrong_dimensions] 'Reference' must be a 2D image (YX) but got 3D with shape (64, 64, 3)",
+  "code": "wrong_dimensions",
+  "log": "/home/user/apps/a4_lc_home_NS/logs/labconstrictor.log"
+}

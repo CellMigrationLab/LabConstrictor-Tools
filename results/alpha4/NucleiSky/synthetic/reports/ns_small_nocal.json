@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.19,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T193906683302_NucleiSky_relocalize/run.json",
+  "error": "[missing_parameter] Pixel size missing: the reference image and the query image have no calibration (no pixel size from the host and none entered), and NucleiSky does not guess it. Enter it in micrometres per pixel in 'Reference pixel size' (parameter reference_pixel_size_um) and 'Query pixel size' (parameter query_pixel_size_um) of the Images group: napari and Fiji fill it from the image's calibration when the image has a pixel size with a length unit (napari: the layer's scale and units; Fiji: Image > Properties, pixel width and unit), otherwise type it. In a notebook or on the command line pass reference_pixel_size_um=<um per pixel> and query_pixel_size_um=<um per pixel>.",
+  "code": "missing_parameter",
+  "log": "/home/user/apps/a4_lc_home_NS/logs/labconstrictor.log"
+}

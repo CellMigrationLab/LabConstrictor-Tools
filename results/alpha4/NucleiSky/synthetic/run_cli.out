@@ -9,3 +9,23 @@ CASE 007 COMPLETE relocalize                   OK [ns_small_nm] a 1200x1200 fiel
 CASE 008 COMPLETE relocalize                   OK [ns_small_micro] a 1200x1200 field of 250 nuclei and a rotat
 CASE 009 COMPLETE relocalize                   OK [ns_small_micron] a 1200x1200 field of 250 nuclei and a rota
 CASE 010 COMPLETE relocalize                   OK [ns_small_u8] a 1200x1200 field of 250 nuclei and a rotated 
+CASE 011 COMPLETE relocalize                   OK [ns_small_f32] a 1200x1200 field of 250 nuclei and a rotated
+CASE 012 FAILED   relocalize                   OK [ns_small_nocal] the same images with no calibration and no 
+CASE 013 FAILED   relocalize                   OK [ns_small_pixelunit] calibration with the unit 'pixel' (a sc
+CASE 014 FAILED   relocalize                   OK [ns_axes_cyx] a CYX image (3x64x64) as the reference
+CASE 015 FAILED   relocalize                   OK [ns_axes_tyx] a TYX image (4x64x64) as the reference
+CASE 016 FAILED   relocalize                   OK [ns_axes_zyx] a ZYX image (5x64x64) as the reference
+CASE 017 FAILED   relocalize                   OK [ns_axes_tzcyx] a TZCYX image (2x3x2x64x64) as the reference
+CASE 018 FAILED   relocalize                   OK [ns_axes_rgb] a YXS image (64x64x3) as the reference
+CASE 019 COMPLETE relocalize                   MISMATCH status COMPLETE, expected FAILED:  [ns_nan_reference] a float reference with a 40x40 block of N
+CASE 020 COMPLETE relocalize                   OK [ns_masks_exact] the same pair with exact label masks (no se
+CASE 021 COMPLETE relocalize                   OK [ns_masks_binary] binary masks (0/1): the tool must label th
+CASE 022 COMPLETE relocalize                   OK [ns_region_nonzero_origin] selection regions that do not sta
+CASE 023 FAILED   relocalize                   OK [ns_region_empty] reference_region = an empty selection
+CASE 024 FAILED   relocalize                   OK [ns_region_wrong_size] reference_region = a selection of the
+CASE 025 FAILED   relocalize                   OK [ns_mask_wrong_size] the REFERENCE mask given as the query m
+CASE 026 FAILED   relocalize                   OK [ns_mask_fractions] a query mask with fractional labels (lab
+CASE 027 FAILED   relocalize                   OK [ns_mask_negative] a query mask with a negative label
+CASE 028 FAILED   relocalize                   OK [ns_mask_nan] a float query mask with a NaN
+CASE 029 COMPLETE list_devices                 OK [ns_list_devices] the device list that feeds the dropdown of
+SUMMARY 30 cases, 1 differ from their own expectation

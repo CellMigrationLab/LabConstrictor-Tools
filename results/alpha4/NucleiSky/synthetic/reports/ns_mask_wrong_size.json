@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.21,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T194030444835_NucleiSky_relocalize/run.json",
+  "error": "[mask_shape_mismatch] Query mask must have the same size as its image: mask (1200, 1200), image (480, 480)",
+  "code": "mask_shape_mismatch",
+  "log": "/home/user/apps/a4_lc_home_NS/logs/labconstrictor.log"
+}

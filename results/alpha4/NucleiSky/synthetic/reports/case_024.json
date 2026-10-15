@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 4.17,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T194029483247_NucleiSky_relocalize/run.json",
+  "error": "[bad_input] the region (100 x 100) does not have the size of the image (1200 x 1200)",
+  "code": "bad_input",
+  "log": "/home/user/apps/a4_lc_home_NS/logs/labconstrictor.log"
+}

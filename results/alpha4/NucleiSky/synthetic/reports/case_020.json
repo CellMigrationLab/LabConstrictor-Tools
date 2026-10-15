@@ -1,0 +1,96 @@
+{
+  "status": "COMPLETE",
+  "seconds": 19.72,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T193947749076_NucleiSky_relocalize/run.json",
+  "results": [
+    {
+      "type": "affine",
+      "name": "alignment",
+      "matrix_yx": [
+        [
+          0.45346267655038547,
+          -0.21190451744191877,
+          542.1873398787931
+        ],
+        [
+          0.21190451744191877,
+          0.45346267655038547,
+          480.52017897325356
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "apply_to": "query",
+      "relative_to": "reference"
+    },
+    {
+      "type": "image",
+      "name": "query_aligned",
+      "path": "/home/user/a4/syn_scratch_ns/_jobs/020/query_aligned.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "rotation_deg": 25.046830321534557,
+        "scale": 1.0010632817889824,
+        "offset_y_px": 542.1873398787931,
+        "offset_x_px": 480.52017897325356,
+        "bbox_y0y1x0x1": [
+          432,
+          768,
+          472,
+          808
+        ],
+        "n_nuclei_reference": 250,
+        "n_nuclei_query": 12,
+        "matcher": "quad"
+      }
+    },
+    {
+      "type": "points",
+      "name": "reference_nuclei",
+      "path": "/home/user/a4/syn_scratch_ns/_jobs/020/reference_nuclei.csv",
+      "n": 250,
+      "columns": [
+        "y",
+        "x",
+        "label",
+        "area"
+      ],
+      "apply_to": "reference"
+    },
+    {
+      "type": "points",
+      "name": "query_nuclei",
+      "path": "/home/user/a4/syn_scratch_ns/_jobs/020/query_nuclei.csv",
+      "n": 12,
+      "columns": [
+        "y",
+        "x",
+        "label",
+        "area"
+      ],
+      "apply_to": "query"
+    },
+    {
+      "type": "shapes",
+      "name": "reference_outlines",
+      "path": "/home/user/a4/syn_scratch_ns/_jobs/020/reference_outlines.geojson",
+      "n": 250,
+      "apply_to": "reference"
+    },
+    {
+      "type": "shapes",
+      "name": "query_outlines",
+      "path": "/home/user/a4/syn_scratch_ns/_jobs/020/query_outlines.geojson",
+      "n": 12,
+      "apply_to": "query"
+    }
+  ],
+  "job_dir": "/home/user/a4/syn_scratch_ns/_jobs/020"
+}

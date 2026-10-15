@@ -1,0 +1,18 @@
+{
+  "status": "COMPLETE",
+  "seconds": 1.64,
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T194044447092_NucleiSky_list_devices/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "choices": [
+          "auto",
+          "cpu"
+        ]
+      }
+    }
+  ],
+  "job_dir": "/home/user/a4/syn_scratch_ns/_jobs/029"
+}

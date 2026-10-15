@@ -1,0 +1,274 @@
+[
+  {
+    "case": 0,
+    "dataset": "ns_normal",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_normal] 1600x1600 field of 450 nuclei (0.65 um/px) and a 520x520 query rotated -20 deg"
+  },
+  {
+    "case": 1,
+    "dataset": "ns_pure_shift",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_pure_shift] a 420x420 crop of the field at the same pixel size, shifted by exactly (33"
+  },
+  {
+    "case": 2,
+    "dataset": "ns_rotation_only",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_rotation_only] a 420x420 query rotated by +35 degrees at the same pixel size (a sign o"
+  },
+  {
+    "case": 3,
+    "dataset": "ns_no_overlap",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "no_match",
+    "problems": [],
+    "comment": "[ns_no_overlap] a query from a different field of nuclei (nothing in common with the refer"
+  },
+  {
+    "case": 4,
+    "dataset": "ns_flat_zero_reference",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "no_nuclei",
+    "problems": [],
+    "comment": "[ns_flat_zero_reference] an all-zero reference image"
+  },
+  {
+    "case": 5,
+    "dataset": "ns_stress_3000",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_stress_3000] stress: a 3000x3000 uint16 field (18 MB, memory-mapped) of 1600 nuclei an"
+  },
+  {
+    "case": 6,
+    "dataset": "ns_small_um",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_small_um] a 1200x1200 field of 250 nuclei and a rotated (25 degrees) 2x query: calibra"
+  },
+  {
+    "case": 7,
+    "dataset": "ns_small_nm",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_small_nm] a 1200x1200 field of 250 nuclei and a rotated (25 degrees) 2x query: calibra"
+  },
+  {
+    "case": 8,
+    "dataset": "ns_small_micro",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_small_micro] a 1200x1200 field of 250 nuclei and a rotated (25 degrees) 2x query: cali"
+  },
+  {
+    "case": 9,
+    "dataset": "ns_small_micron",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_small_micron] a 1200x1200 field of 250 nuclei and a rotated (25 degrees) 2x query: cal"
+  },
+  {
+    "case": 10,
+    "dataset": "ns_small_u8",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_small_u8] a 1200x1200 field of 250 nuclei and a rotated (25 degrees) 2x query: 8-bit i"
+  },
+  {
+    "case": 11,
+    "dataset": "ns_small_f32",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_small_f32] a 1200x1200 field of 250 nuclei and a rotated (25 degrees) 2x query: 32-bit"
+  },
+  {
+    "case": 12,
+    "dataset": "ns_small_nocal",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "missing_parameter",
+    "problems": [],
+    "comment": "[ns_small_nocal] the same images with no calibration and no pixel size given"
+  },
+  {
+    "case": 13,
+    "dataset": "ns_small_pixelunit",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "missing_parameter",
+    "problems": [],
+    "comment": "[ns_small_pixelunit] calibration with the unit 'pixel' (a scale in pixels, not a length), "
+  },
+  {
+    "case": 14,
+    "dataset": "ns_axes_cyx",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[ns_axes_cyx] a CYX image (3x64x64) as the reference"
+  },
+  {
+    "case": 15,
+    "dataset": "ns_axes_tyx",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[ns_axes_tyx] a TYX image (4x64x64) as the reference"
+  },
+  {
+    "case": 16,
+    "dataset": "ns_axes_zyx",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[ns_axes_zyx] a ZYX image (5x64x64) as the reference"
+  },
+  {
+    "case": 17,
+    "dataset": "ns_axes_tzcyx",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[ns_axes_tzcyx] a TZCYX image (2x3x2x64x64) as the reference"
+  },
+  {
+    "case": 18,
+    "dataset": "ns_axes_rgb",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[ns_axes_rgb] a YXS image (64x64x3) as the reference"
+  },
+  {
+    "case": 19,
+    "dataset": "ns_nan_reference",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [
+      "status COMPLETE, expected FAILED: "
+    ],
+    "comment": "[ns_nan_reference] a float reference with a 40x40 block of NaN"
+  },
+  {
+    "case": 20,
+    "dataset": "ns_masks_exact",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_masks_exact] the same pair with exact label masks (no segmentation): 250 reference and"
+  },
+  {
+    "case": 21,
+    "dataset": "ns_masks_binary",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_masks_binary] binary masks (0/1): the tool must label the connected objects itself, no"
+  },
+  {
+    "case": 22,
+    "dataset": "ns_region_nonzero_origin",
+    "tool": "relocalize",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_region_nonzero_origin] selection regions that do not start at the origin: reference ro"
+  },
+  {
+    "case": 23,
+    "dataset": "ns_region_empty",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "empty_region",
+    "problems": [],
+    "comment": "[ns_region_empty] reference_region = an empty selection"
+  },
+  {
+    "case": 24,
+    "dataset": "ns_region_wrong_size",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "bad_input",
+    "problems": [],
+    "comment": "[ns_region_wrong_size] reference_region = a selection of the wrong size (100x100)"
+  },
+  {
+    "case": 25,
+    "dataset": "ns_mask_wrong_size",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "mask_shape_mismatch",
+    "problems": [],
+    "comment": "[ns_mask_wrong_size] the REFERENCE mask given as the query mask (sizes differ)"
+  },
+  {
+    "case": 26,
+    "dataset": "ns_mask_fractions",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "bad_mask",
+    "problems": [],
+    "comment": "[ns_mask_fractions] a query mask with fractional labels (label + 0.5)"
+  },
+  {
+    "case": 27,
+    "dataset": "ns_mask_negative",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "bad_mask",
+    "problems": [],
+    "comment": "[ns_mask_negative] a query mask with a negative label"
+  },
+  {
+    "case": 28,
+    "dataset": "ns_mask_nan",
+    "tool": "relocalize",
+    "status": "FAILED",
+    "code": "bad_mask",
+    "problems": [],
+    "comment": "[ns_mask_nan] a float query mask with a NaN"
+  },
+  {
+    "case": 29,
+    "dataset": "ns_list_devices",
+    "tool": "list_devices",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ns_list_devices] the device list that feeds the dropdown of the deep-learning segmentatio"
+  }
+]
