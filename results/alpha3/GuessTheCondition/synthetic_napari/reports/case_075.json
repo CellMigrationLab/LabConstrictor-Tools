@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.32,
+  "error": "[bad_experiment] Only one condition was found (OnlyCondition): the game needs at least two.\nExpected one folder per condition, and inside it one folder per biological repeat holding the TIFF files:\n  Experiment/Control/R1/FOV1.tif, Experiment/Control/R2/FOV1.tif, Experiment/Mutant/R1/FOV1.tif, ...",
+  "code": "bad_experiment",
+  "status_text": "\u2716 [bad_experiment] Only one condition was found (OnlyCondition): the game needs at least two.  - click Details\u2026 for the full report (log: /home/user/apps/a3_lc_home_GuessTheCondition_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_synnap/runs/20261015T124816938436_GuessTheCondition_prepare_game",
+  "host_observed": {}
+}

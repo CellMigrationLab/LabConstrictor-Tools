@@ -1,0 +1,23 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.3,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  choices=['Control', 'Drug1', 'Drug2'], conditions=1: Control | 2: Drug1 | 3: Drug2",
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_synnap/runs/20261015T124621461564_GuessTheCondition_list_conditions",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "choices": [
+          "Control",
+          "Drug1",
+          "Drug2"
+        ],
+        "conditions": "1: Control | 2: Drug1 | 3: Drug2"
+      }
+    }
+  ],
+  "host_observed": {}
+}

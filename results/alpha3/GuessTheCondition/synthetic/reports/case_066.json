@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.18,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124421521484_GuessTheCondition_create_demo_experiment/run.json",
+  "error": "[invalid_parameter] 'Images per repeat' must be <= 50",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
+}

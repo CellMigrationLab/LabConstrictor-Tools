@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.4,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124427985395_GuessTheCondition_prepare_game/run.json",
+  "error": "[bad_user_name] The name is used as a folder name: it cannot be empty, '.' or '..' or contain / \\ : * ? \" < > |",
+  "code": "bad_user_name",
+  "log": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
+}

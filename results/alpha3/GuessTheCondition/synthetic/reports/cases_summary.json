@@ -1,0 +1,983 @@
+[
+  {
+    "case": 0,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] prepare: 12 images, all to guess"
+  },
+  {
+    "case": 1,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] the first image"
+  },
+  {
+    "case": 2,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 1 of 12: Control"
+  },
+  {
+    "case": 3,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 2 of 12: Control"
+  },
+  {
+    "case": 4,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 3 of 12: Control"
+  },
+  {
+    "case": 5,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 4 of 12: Control"
+  },
+  {
+    "case": 6,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 5 of 12: Control"
+  },
+  {
+    "case": 7,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 6 of 12: Control"
+  },
+  {
+    "case": 8,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 7 of 12: Control"
+  },
+  {
+    "case": 9,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 8 of 12: Control"
+  },
+  {
+    "case": 10,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 9 of 12: Control"
+  },
+  {
+    "case": 11,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 10 of 12: Control"
+  },
+  {
+    "case": 12,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 11 of 12: Control"
+  },
+  {
+    "case": 13,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[gtc_balanced_const] guess 12 of 12: Control"
+  },
+  {
+    "case": 14,
+    "dataset": "gtc_balanced_const",
+    "tool": "analyze_results",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_balanced_const] 2 conditions x 3 repeats x 2 images (12), the player always says Cont"
+  },
+  {
+    "case": 15,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] prepare: 9 images, all to guess"
+  },
+  {
+    "case": 16,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] the first image"
+  },
+  {
+    "case": 17,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 1 of 9: Mutant"
+  },
+  {
+    "case": 18,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 2 of 9: Mutant"
+  },
+  {
+    "case": 19,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 3 of 9: Mutant"
+  },
+  {
+    "case": 20,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 4 of 9: Mutant"
+  },
+  {
+    "case": 21,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 5 of 9: Mutant"
+  },
+  {
+    "case": 22,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 6 of 9: Mutant"
+  },
+  {
+    "case": 23,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 7 of 9: Mutant"
+  },
+  {
+    "case": 24,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 8 of 9: Mutant"
+  },
+  {
+    "case": 25,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] guess 9 of 9: Mutant"
+  },
+  {
+    "case": 26,
+    "dataset": "gtc_unbalanced_const",
+    "tool": "analyze_results",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_unbalanced_const] Control 2 and Mutant 1 images per repeat (9), the player always say"
+  },
+  {
+    "case": 27,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] prepare: 18 images, all to guess"
+  },
+  {
+    "case": 28,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] the first image"
+  },
+  {
+    "case": 29,
+    "dataset": null,
+    "tool": "list_conditions",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] the options of the guess list: the conditions in alphabetical order"
+  },
+  {
+    "case": 30,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 1 of 18: 3"
+  },
+  {
+    "case": 31,
+    "dataset": null,
+    "tool": "undo_last_guess",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] undo the first guess: it is forgotten"
+  },
+  {
+    "case": 32,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] the undone image is guessed again"
+  },
+  {
+    "case": 33,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 2 of 18: dRuG2"
+  },
+  {
+    "case": 34,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 3 of 18: 3"
+  },
+  {
+    "case": 35,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 4 of 18: dRuG2"
+  },
+  {
+    "case": 36,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 5 of 18: 3"
+  },
+  {
+    "case": 37,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 6 of 18: dRuG2"
+  },
+  {
+    "case": 38,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 7 of 18: 3"
+  },
+  {
+    "case": 39,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 8 of 18: dRuG2"
+  },
+  {
+    "case": 40,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 9 of 18: 3"
+  },
+  {
+    "case": 41,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 10 of 18: dRuG2"
+  },
+  {
+    "case": 42,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 11 of 18: 3"
+  },
+  {
+    "case": 43,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 12 of 18: dRuG2"
+  },
+  {
+    "case": 44,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 13 of 18: 3"
+  },
+  {
+    "case": 45,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 14 of 18: dRuG2"
+  },
+  {
+    "case": 46,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 15 of 18: 3"
+  },
+  {
+    "case": 47,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 16 of 18: dRuG2"
+  },
+  {
+    "case": 48,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 17 of 18: 3"
+  },
+  {
+    "case": 49,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[gtc_three_by_number] guess 18 of 18: dRuG2"
+  },
+  {
+    "case": 50,
+    "dataset": "gtc_three_by_number",
+    "tool": "analyze_results",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_three_by_number] 3 conditions (1, 2, 3 images per repeat), guesses '3' and 'dRuG2' al"
+  },
+  {
+    "case": 51,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] prepare: 10 images, all to guess"
+  },
+  {
+    "case": 52,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] the first image"
+  },
+  {
+    "case": 53,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 1 of 10: Control"
+  },
+  {
+    "case": 54,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 2 of 10: Control"
+  },
+  {
+    "case": 55,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 3 of 10: Control"
+  },
+  {
+    "case": 56,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 4 of 10: Control"
+  },
+  {
+    "case": 57,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 5 of 10: Control"
+  },
+  {
+    "case": 58,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 6 of 10: Control"
+  },
+  {
+    "case": 59,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 7 of 10: Control"
+  },
+  {
+    "case": 60,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 8 of 10: Control"
+  },
+  {
+    "case": 61,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 9 of 10: Control"
+  },
+  {
+    "case": 62,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] guess 10 of 10: Control"
+  },
+  {
+    "case": 63,
+    "dataset": "gtc_one_condition_repeat",
+    "tool": "analyze_results",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_one_condition_repeat] repeat R3 holds Control images only (10 images), the player alw"
+  },
+  {
+    "case": 64,
+    "dataset": "gtc_demo_experiment",
+    "tool": "create_demo_experiment",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_demo_experiment] 'Create a demo experiment' with 2 images per repeat"
+  },
+  {
+    "case": 65,
+    "dataset": "gtc_demo_zero",
+    "tool": "create_demo_experiment",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[gtc_demo_zero] 'Create a demo experiment' with images_per_repeat = 0 (declared range 1..5"
+  },
+  {
+    "case": 66,
+    "dataset": "gtc_demo_too_many",
+    "tool": "create_demo_experiment",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[gtc_demo_too_many] 'Create a demo experiment' with images_per_repeat = 51 (declared range"
+  },
+  {
+    "case": 67,
+    "dataset": "gtc_percentage_1",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_percentage_1] 10 images, 1 % to guess"
+  },
+  {
+    "case": 68,
+    "dataset": "gtc_percentage_25",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_percentage_25] 10 images, 25 % to guess"
+  },
+  {
+    "case": 69,
+    "dataset": "gtc_percentage_33",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_percentage_33] 10 images, 33 % to guess"
+  },
+  {
+    "case": 70,
+    "dataset": "gtc_percentage_50",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_percentage_50] 10 images, 50 % to guess"
+  },
+  {
+    "case": 71,
+    "dataset": "gtc_percentage_51",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_percentage_51] 10 images, 51 % to guess"
+  },
+  {
+    "case": 72,
+    "dataset": "gtc_percentage_100",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_percentage_100] 10 images, 100 % to guess"
+  },
+  {
+    "case": 73,
+    "dataset": "gtc_percentage_0",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[gtc_percentage_0] percentage 0 (declared range 1..100)"
+  },
+  {
+    "case": 74,
+    "dataset": "gtc_percentage_101",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[gtc_percentage_101] percentage 101 (declared range 1..100)"
+  },
+  {
+    "case": 75,
+    "dataset": "gtc_single_condition",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "bad_experiment",
+    "problems": [],
+    "comment": "[gtc_single_condition] an experiment with one condition"
+  },
+  {
+    "case": 76,
+    "dataset": "gtc_no_images",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "bad_experiment",
+    "problems": [],
+    "comment": "[gtc_no_images] conditions and repeats but no TIFF image"
+  },
+  {
+    "case": 77,
+    "dataset": "gtc_case_clash",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "bad_experiment",
+    "problems": [],
+    "comment": "[gtc_case_clash] conditions 'Control' and 'control' (differ only in letter case)"
+  },
+  {
+    "case": 78,
+    "dataset": "gtc_no_experiment",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "folder_not_found",
+    "problems": [],
+    "comment": "[gtc_no_experiment] an experiment folder that does not exist"
+  },
+  {
+    "case": 79,
+    "dataset": "gtc_bad_user_name",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "bad_user_name",
+    "problems": [],
+    "comment": "[gtc_bad_user_name] a user name that is not a folder name ('a/b')"
+  },
+  {
+    "case": 80,
+    "dataset": "gtc_scan_rules",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_scan_rules] hidden files, non-TIFF files, a folder starting with _ and upper-case/.ti"
+  },
+  {
+    "case": 81,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_corrupt] prepare: 4 files, 2 of them broken"
+  },
+  {
+    "case": 82,
+    "dataset": "gtc_corrupt",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_corrupt] two conditions, each with a good and an undecodable .tif: the broken ones ar"
+  },
+  {
+    "case": 83,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_yx_u8] prepare"
+  },
+  {
+    "case": 84,
+    "dataset": "gtc_view_yx_u8",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_yx_u8] the first image shown for an 8-bit 2D image"
+  },
+  {
+    "case": 85,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_yx_u16] prepare"
+  },
+  {
+    "case": 86,
+    "dataset": "gtc_view_yx_u16",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_yx_u16] the first image shown for a 16-bit 2D image"
+  },
+  {
+    "case": 87,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_yx_f32] prepare"
+  },
+  {
+    "case": 88,
+    "dataset": "gtc_view_yx_f32",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_yx_f32] the first image shown for a 32-bit float 2D image"
+  },
+  {
+    "case": 89,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_cyx3] prepare"
+  },
+  {
+    "case": 90,
+    "dataset": "gtc_view_cyx3",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_cyx3] the first image shown for 3 channels (shown side by side, 1 px gap)"
+  },
+  {
+    "case": 91,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_tyx] prepare"
+  },
+  {
+    "case": 92,
+    "dataset": "gtc_view_tyx",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_tyx] the first image shown for a time series (maximum projection)"
+  },
+  {
+    "case": 93,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_zyx] prepare"
+  },
+  {
+    "case": 94,
+    "dataset": "gtc_view_zyx",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_zyx] the first image shown for a z-stack (maximum projection)"
+  },
+  {
+    "case": 95,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_tzcyx] prepare"
+  },
+  {
+    "case": 96,
+    "dataset": "gtc_view_tzcyx",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_tzcyx] the first image shown for T x Z x 2 channels (T and Z projected, channels"
+  },
+  {
+    "case": 97,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_rgb] prepare"
+  },
+  {
+    "case": 98,
+    "dataset": "gtc_view_rgb",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_rgb] the first image shown for an RGB image: the colour axis S is not C, so it i"
+  },
+  {
+    "case": 99,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_unlabelled_3planes] prepare"
+  },
+  {
+    "case": 100,
+    "dataset": "gtc_view_unlabelled_3planes",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_unlabelled_3planes] the first image shown for 3 planes, no axis metadata: a shor"
+  },
+  {
+    "case": 101,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_unlabelled_8planes] prepare"
+  },
+  {
+    "case": 102,
+    "dataset": "gtc_view_unlabelled_8planes",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_unlabelled_8planes] the first image shown for 8 planes, no axis metadata: read a"
+  },
+  {
+    "case": 103,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_flat] prepare"
+  },
+  {
+    "case": 104,
+    "dataset": "gtc_view_flat",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_flat] a flat (all-equal) image"
+  },
+  {
+    "case": 105,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_nan] prepare"
+  },
+  {
+    "case": 106,
+    "dataset": "gtc_view_nan",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_view_nan] a float image with a block of NaN"
+  },
+  {
+    "case": 107,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_stress_big] prepare: two 3000x3000 16-bit images"
+  },
+  {
+    "case": 108,
+    "dataset": "gtc_stress_big",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[gtc_stress_big] stress: two 3000x3000 uint16 images (18 MB each)"
+  }
+]

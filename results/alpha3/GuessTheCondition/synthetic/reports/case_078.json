@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.17,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124427523299_GuessTheCondition_prepare_game/run.json",
+  "error": "[folder_not_found] 'Experiment folder': folder not found: fixtures/does_not_exist",
+  "code": "folder_not_found",
+  "log": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
+}

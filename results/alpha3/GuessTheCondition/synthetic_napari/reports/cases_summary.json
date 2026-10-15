@@ -1,0 +1,876 @@
+[
+  {
+    "case": 0,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 1,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 2,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 3,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 4,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 5,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 6,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 7,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 8,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 9,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 10,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 11,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 12,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 13,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": []
+  },
+  {
+    "case": 14,
+    "dataset": "gtc_balanced_const",
+    "tool": "analyze_results",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 15,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 16,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 17,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 18,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 19,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 20,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 21,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 22,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 23,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 24,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 25,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": []
+  },
+  {
+    "case": 26,
+    "dataset": "gtc_unbalanced_const",
+    "tool": "analyze_results",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 27,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 28,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 29,
+    "dataset": null,
+    "tool": "list_conditions",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 30,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 31,
+    "dataset": null,
+    "tool": "undo_last_guess",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 32,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 33,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 34,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 35,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 36,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 37,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 38,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 39,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 40,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 41,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 42,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 43,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 44,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 45,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 46,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 47,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 48,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 49,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": []
+  },
+  {
+    "case": 50,
+    "dataset": "gtc_three_by_number",
+    "tool": "analyze_results",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 51,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 52,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 53,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 54,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 55,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 56,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 57,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 58,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 59,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 60,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 61,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 62,
+    "dataset": null,
+    "tool": "play_round",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": []
+  },
+  {
+    "case": 63,
+    "dataset": "gtc_one_condition_repeat",
+    "tool": "analyze_results",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 64,
+    "dataset": "gtc_demo_experiment",
+    "tool": "create_demo_experiment",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 65,
+    "dataset": "gtc_demo_zero",
+    "tool": "create_demo_experiment",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Images per repeat' must be >= 1 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 66,
+    "dataset": "gtc_demo_too_many",
+    "tool": "create_demo_experiment",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Images per repeat' must be <= 50 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 67,
+    "dataset": "gtc_percentage_1",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 68,
+    "dataset": "gtc_percentage_25",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 69,
+    "dataset": "gtc_percentage_33",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 70,
+    "dataset": "gtc_percentage_50",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 71,
+    "dataset": "gtc_percentage_51",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 72,
+    "dataset": "gtc_percentage_100",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 73,
+    "dataset": "gtc_percentage_0",
+    "tool": "prepare_game",
+    "status": "NOT_EXPRESSIBLE",
+    "why": "value 0 is outside of the allowed range: (1, 100)"
+  },
+  {
+    "case": 74,
+    "dataset": "gtc_percentage_101",
+    "tool": "prepare_game",
+    "status": "NOT_EXPRESSIBLE",
+    "why": "value 101 is outside of the allowed range: (1, 100)"
+  },
+  {
+    "case": 75,
+    "dataset": "gtc_single_condition",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "bad_experiment",
+    "problems": []
+  },
+  {
+    "case": 76,
+    "dataset": "gtc_no_images",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "bad_experiment",
+    "problems": []
+  },
+  {
+    "case": 77,
+    "dataset": "gtc_case_clash",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "bad_experiment",
+    "problems": []
+  },
+  {
+    "case": 78,
+    "dataset": "gtc_no_experiment",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "folder_not_found",
+    "problems": []
+  },
+  {
+    "case": 79,
+    "dataset": "gtc_bad_user_name",
+    "tool": "prepare_game",
+    "status": "FAILED",
+    "code": "bad_user_name",
+    "problems": []
+  },
+  {
+    "case": 80,
+    "dataset": "gtc_scan_rules",
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 81,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 82,
+    "dataset": "gtc_corrupt",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 83,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 84,
+    "dataset": "gtc_view_yx_u8",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 85,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 86,
+    "dataset": "gtc_view_yx_u16",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 87,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 88,
+    "dataset": "gtc_view_yx_f32",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 89,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 90,
+    "dataset": "gtc_view_cyx3",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 91,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 92,
+    "dataset": "gtc_view_tyx",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 93,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 94,
+    "dataset": "gtc_view_zyx",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 95,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 96,
+    "dataset": "gtc_view_tzcyx",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 97,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 98,
+    "dataset": "gtc_view_rgb",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 99,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 100,
+    "dataset": "gtc_view_unlabelled_3planes",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 101,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 102,
+    "dataset": "gtc_view_unlabelled_8planes",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 103,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 104,
+    "dataset": "gtc_view_flat",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 105,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 106,
+    "dataset": "gtc_view_nan",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 107,
+    "dataset": null,
+    "tool": "prepare_game",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 108,
+    "dataset": "gtc_stress_big",
+    "tool": "play_round",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  }
+]

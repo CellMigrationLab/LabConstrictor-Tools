@@ -1,0 +1,22 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.42,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124428504426_GuessTheCondition_prepare_game/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "images": 6,
+        "to_guess": 2,
+        "guessed": 0,
+        "remaining": 2,
+        "conditions": "1: Control | 2: Mutant",
+        "game_folder": "/home/user/a3/syn_scratch_GuessTheCondition/fixtures/results/scan",
+        "experiment": "2 conditions, 6 images - Control: 1 repeat(s), 3 images (R1: 3) - Mutant: 2 repeat(s), 3 images (R1: 2, R2: 1)",
+        "next": "Run 'Play a round' to see the first image"
+      }
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/080"
+}

@@ -1,0 +1,20 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.43,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124352293974_GuessTheCondition_list_conditions/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "choices": [
+          "Control",
+          "Drug1",
+          "Drug2"
+        ],
+        "conditions": "1: Control | 2: Drug1 | 3: Drug2"
+      }
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/029"
+}

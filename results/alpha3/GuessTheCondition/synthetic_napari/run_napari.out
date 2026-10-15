@@ -1,0 +1,169 @@
+WARNING: could not determine DPI
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 000 COMPLETE   prepare_game                 OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 001 COMPLETE   play_round                   OK
+CASE 002 COMPLETE   play_round                   OK
+CASE 003 COMPLETE   play_round                   OK
+CASE 004 COMPLETE   play_round                   OK
+CASE 005 COMPLETE   play_round                   OK
+CASE 006 COMPLETE   play_round                   OK
+CASE 007 COMPLETE   play_round                   OK
+CASE 008 COMPLETE   play_round                   OK
+CASE 009 COMPLETE   play_round                   OK
+CASE 010 COMPLETE   play_round                   OK
+CASE 011 COMPLETE   play_round                   OK
+CASE 012 COMPLETE   play_round                   OK
+CASE 013 FAILED     play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 014 COMPLETE   analyze_results              OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 015 COMPLETE   prepare_game                 OK
+CASE 016 COMPLETE   play_round                   OK
+CASE 017 COMPLETE   play_round                   OK
+CASE 018 COMPLETE   play_round                   OK
+CASE 019 COMPLETE   play_round                   OK
+CASE 020 COMPLETE   play_round                   OK
+CASE 021 COMPLETE   play_round                   OK
+CASE 022 COMPLETE   play_round                   OK
+CASE 023 COMPLETE   play_round                   OK
+CASE 024 COMPLETE   play_round                   OK
+CASE 025 FAILED     play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 026 COMPLETE   analyze_results              OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 027 COMPLETE   prepare_game                 OK
+CASE 028 COMPLETE   play_round                   OK
+CASE 029 COMPLETE   list_conditions              OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 030 COMPLETE   play_round                   OK
+CASE 031 COMPLETE   undo_last_guess              OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 032 COMPLETE   play_round                   OK
+CASE 033 COMPLETE   play_round                   OK
+CASE 034 COMPLETE   play_round                   OK
+CASE 035 COMPLETE   play_round                   OK
+CASE 036 COMPLETE   play_round                   OK
+CASE 037 COMPLETE   play_round                   OK
+CASE 038 COMPLETE   play_round                   OK
+CASE 039 COMPLETE   play_round                   OK
+CASE 040 COMPLETE   play_round                   OK
+CASE 041 COMPLETE   play_round                   OK
+CASE 042 COMPLETE   play_round                   OK
+CASE 043 COMPLETE   play_round                   OK
+CASE 044 COMPLETE   play_round                   OK
+CASE 045 COMPLETE   play_round                   OK
+CASE 046 COMPLETE   play_round                   OK
+CASE 047 COMPLETE   play_round                   OK
+CASE 048 COMPLETE   play_round                   OK
+CASE 049 FAILED     play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 050 COMPLETE   analyze_results              OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 051 COMPLETE   prepare_game                 OK
+CASE 052 COMPLETE   play_round                   OK
+CASE 053 COMPLETE   play_round                   OK
+CASE 054 COMPLETE   play_round                   OK
+CASE 055 COMPLETE   play_round                   OK
+CASE 056 COMPLETE   play_round                   OK
+CASE 057 COMPLETE   play_round                   OK
+CASE 058 COMPLETE   play_round                   OK
+CASE 059 COMPLETE   play_round                   OK
+CASE 060 COMPLETE   play_round                   OK
+CASE 061 COMPLETE   play_round                   OK
+CASE 062 FAILED     play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 063 COMPLETE   analyze_results              OK
+CASE 064 COMPLETE   create_demo_experiment       OK
+CASE 065 DRIVER_ERROR create_demo_experiment       MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Images per repeat' must be >= 1 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 066 DRIVER_ERROR create_demo_experiment       MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Images per repeat' must be <= 50 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 067 COMPLETE   prepare_game                 OK
+CASE 068 COMPLETE   prepare_game                 OK
+CASE 069 COMPLETE   prepare_game                 OK
+CASE 070 COMPLETE   prepare_game                 OK
+CASE 071 COMPLETE   prepare_game                 OK
+CASE 072 COMPLETE   prepare_game                 OK
+CASE 073 NOT_EXPRESSIBLE prepare_game value 0 is outside of the allowed range: (1, 100)
+CASE 074 NOT_EXPRESSIBLE prepare_game value 101 is outside of the allowed range: (1, 100)
+CASE 075 FAILED     prepare_game                 OK
+CASE 076 FAILED     prepare_game                 OK
+CASE 077 FAILED     prepare_game                 OK
+CASE 078 FAILED     prepare_game                 OK
+CASE 079 FAILED     prepare_game                 OK
+CASE 080 COMPLETE   prepare_game                 OK
+CASE 081 COMPLETE   prepare_game                 OK
+CASE 082 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 083 COMPLETE   prepare_game                 OK
+CASE 084 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 085 COMPLETE   prepare_game                 OK
+CASE 086 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 087 COMPLETE   prepare_game                 OK
+CASE 088 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 089 COMPLETE   prepare_game                 OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 090 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 091 COMPLETE   prepare_game                 OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 092 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 093 COMPLETE   prepare_game                 OK
+CASE 094 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 095 COMPLETE   prepare_game                 OK
+CASE 096 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 097 COMPLETE   prepare_game                 OK
+CASE 098 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 099 COMPLETE   prepare_game                 OK
+CASE 100 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 101 COMPLETE   prepare_game                 OK
+CASE 102 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 103 COMPLETE   prepare_game                 OK
+CASE 104 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 105 COMPLETE   prepare_game                 OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 106 COMPLETE   play_round                   OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 107 COMPLETE   prepare_game                 OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 108 COMPLETE   play_round                   OK
+SUMMARY 109 cases, 2 differ from their own expectation, 2 not expressible in the form

@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.4,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124427225924_GuessTheCondition_prepare_game/run.json",
+  "error": "[bad_experiment] Conditions that differ only in upper/lower case cannot be told apart in a guess: Control, control. Rename one folder.",
+  "code": "bad_experiment",
+  "log": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
+}

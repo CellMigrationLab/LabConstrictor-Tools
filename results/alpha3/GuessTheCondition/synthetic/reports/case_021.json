@@ -1,0 +1,24 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.53,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124344434612_GuessTheCondition_play_round/run.json",
+  "results": [
+    {
+      "type": "image",
+      "name": "image",
+      "path": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/021/image.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "image": "6 of 9",
+        "conditions": "1: Control | 2: Mutant",
+        "how_to_answer": "Run again with your guess: a condition name or its number",
+        "recorded": "Mutant (0.6 s)"
+      }
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/021"
+}

@@ -1,0 +1,26 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.75,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  image=1 of 9, conditions=1: Control | 2: Mutant, how_to_answer=Run again with your guess: a condition name or its number",
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_synnap/runs/20261015T124547054634_GuessTheCondition_play_round",
+  "results": [
+    {
+      "type": "image",
+      "name": "image",
+      "path": "/tmp/lcin_fv42j2v7/out/image.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "image": "1 of 9",
+        "conditions": "1: Control | 2: Mutant",
+        "how_to_answer": "Run again with your guess: a condition name or its number"
+      }
+    }
+  ],
+  "host_observed": {}
+}

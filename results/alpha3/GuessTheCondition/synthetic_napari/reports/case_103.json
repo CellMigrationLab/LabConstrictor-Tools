@@ -1,0 +1,25 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.55,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  images=2, to_guess=2, guessed=0, remaining=2, conditions=1: Control | 2: Mutant, game_folder=/tmp/lc_ui_audit_tests_wst4oipq/GuessTheCondition/fixtures/results/view_flat, experiment=2 conditions, 2 images - Control: 1 repeat(s), 1 images (R1: 1) - Mutant: 1 repeat(s), 1 images (R1: 1), next=Run 'Play a round' to see the first image",
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_synnap/runs/20261015T124933628373_GuessTheCondition_prepare_game",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "images": 2,
+        "to_guess": 2,
+        "guessed": 0,
+        "remaining": 2,
+        "conditions": "1: Control | 2: Mutant",
+        "game_folder": "/tmp/lc_ui_audit_tests_wst4oipq/GuessTheCondition/fixtures/results/view_flat",
+        "experiment": "2 conditions, 2 images - Control: 1 repeat(s), 1 images (R1: 1) - Mutant: 1 repeat(s), 1 images (R1: 1)",
+        "next": "Run 'Play a round' to see the first image"
+      }
+    }
+  ],
+  "host_observed": {}
+}

@@ -1,0 +1,47 @@
+{
+  "status": "COMPLETE",
+  "seconds": 3.51,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 1.3s  answer=\u2796 Not above chance, reading=The guesses were not above chance across repeats: accuracy minus chance, mean -33 points (95% interval -33 to -33), n = 3 repeats, p = n/a. 0 of 3 repeats were above chance. A null result is a result; with 3 biological repeats a small difference could still be missed., images_guessed=9, accuracy=0.3333, chance=0.6667, biological_repeats=3, repeats_above_chance=0, report_folder=/tmp/lc_ui_audit_tests_wst4oipq/GuessTheCondition/fixtures/results/u_gtc_unbalanced_const/analysis, p_randomization_these_images_exploratory=1.0, notes=Repeat R1 has only 3 guessed image(s). Repeat R2 has only 3 guessed image(s). Repeat R3 has only 3 guessed image(s).  table 'by_repeat' (3 rows)  table 'by_condition' (2 rows)  file: /tmp/lc_ui_audit_tests_wst4oipq/GuessTheCondition/fixtures/results/u_gtc_unbalanced_const/analysis/analysis_results.pdf",
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_synnap/runs/20261015T124612227482_GuessTheCondition_analyze_results",
+  "results": [
+    {
+      "type": "message",
+      "name": "readout",
+      "text": "\u2796 **Not above chance**\n\nThe guesses were not above chance across repeats: accuracy minus chance, mean -33 points (95% interval -33 to -33), n = 3 repeats, p = n/a. 0 of 3 repeats were above chance. A null result is a result; with 3 biological repeats a small difference could still be missed.\n\nRepeat R1 has only 3 guessed image(s). Repeat R2 has only 3 guessed image(s). Repeat R3 has only 3 guessed image(s)."
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "answer": "\u2796 Not above chance",
+        "reading": "The guesses were not above chance across repeats: accuracy minus chance, mean -33 points (95% interval -33 to -33), n = 3 repeats, p = n/a. 0 of 3 repeats were above chance. A null result is a result; with 3 biological repeats a small difference could still be missed.",
+        "images_guessed": 9,
+        "accuracy": 0.3333,
+        "chance": 0.6667,
+        "biological_repeats": 3,
+        "repeats_above_chance": 0,
+        "report_folder": "/tmp/lc_ui_audit_tests_wst4oipq/GuessTheCondition/fixtures/results/u_gtc_unbalanced_const/analysis",
+        "p_randomization_these_images_exploratory": 1.0,
+        "notes": "Repeat R1 has only 3 guessed image(s). Repeat R2 has only 3 guessed image(s). Repeat R3 has only 3 guessed image(s)."
+      }
+    },
+    {
+      "type": "table",
+      "name": "by_repeat",
+      "path": "/tmp/lcin_xwi8adef/out/by_repeat.csv"
+    },
+    {
+      "type": "table",
+      "name": "by_condition",
+      "path": "/tmp/lcin_xwi8adef/out/by_condition.csv"
+    },
+    {
+      "type": "file",
+      "name": "report_pdf",
+      "path": "/tmp/lc_ui_audit_tests_wst4oipq/GuessTheCondition/fixtures/results/u_gtc_unbalanced_const/analysis/analysis_results.pdf"
+    }
+  ],
+  "host_observed": {}
+}

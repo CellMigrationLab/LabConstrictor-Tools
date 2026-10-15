@@ -1,0 +1,10 @@
+{
+ "host": "napari",
+ "app": "GuessTheCondition",
+ "family": "ui",
+ "host_version": "0.1.0a1",
+ "started": "2026-10-15T12:44:59Z",
+ "finished": null,
+ "expected": 0,
+ "rows": []
+}

@@ -1,0 +1,44 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.65,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124419973221_GuessTheCondition_analyze_results/run.json",
+  "results": [
+    {
+      "type": "message",
+      "name": "readout",
+      "text": "\u2796 **Not above chance in a pilot (n = 2)**\n\nThese guesses were not above chance on these images (a null result is a result; with so few images a modest ability could be missed). The repeat is the replicate and a test across repeats needs at least 3, so with 2 biological repeats this answers for the images you saw, not for the experiment: randomization test (the true conditions shuffled within each repeat, 10000 times), p = 1.000; accuracy 60% against 60% by chance (95% interval 26-88%). Whether the effect repeats needs more biological repeats.\n\nRepeat R3 holds images of one condition only, so it cannot be compared with chance and is left out of the test across repeats. Repeat R1 has only 4 guessed image(s). Repeat R2 has only 4 guessed image(s). Repeat R3 has only 2 guessed image(s)."
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "answer": "\u2796 Not above chance in a pilot (n = 2)",
+        "reading": "These guesses were not above chance on these images (a null result is a result; with so few images a modest ability could be missed). The repeat is the replicate and a test across repeats needs at least 3, so with 2 biological repeats this answers for the images you saw, not for the experiment: randomization test (the true conditions shuffled within each repeat, 10000 times), p = 1.000; accuracy 60% against 60% by chance (95% interval 26-88%). Whether the effect repeats needs more biological repeats.",
+        "images_guessed": 10,
+        "accuracy": 0.6,
+        "chance": 0.6,
+        "biological_repeats": 2,
+        "repeats_above_chance": 0,
+        "report_folder": "/home/user/a3/syn_scratch_GuessTheCondition/fixtures/results/u_gtc_one_condition_repeat/analysis",
+        "p_randomization_these_images_exploratory": 1.0,
+        "notes": "Repeat R3 holds images of one condition only, so it cannot be compared with chance and is left out of the test across repeats. Repeat R1 has only 4 guessed image(s). Repeat R2 has only 4 guessed image(s). Repeat R3 has only 2 guessed image(s)."
+      }
+    },
+    {
+      "type": "table",
+      "name": "by_repeat",
+      "path": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/063/by_repeat.csv"
+    },
+    {
+      "type": "table",
+      "name": "by_condition",
+      "path": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/063/by_condition.csv"
+    },
+    {
+      "type": "file",
+      "name": "report_pdf",
+      "path": "/home/user/a3/syn_scratch_GuessTheCondition/fixtures/results/u_gtc_one_condition_repeat/analysis/analysis_results.pdf"
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/063"
+}

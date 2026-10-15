@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.6,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124336564885_GuessTheCondition_play_round/run.json",
+  "error": "[no_result] Your guess (Control, 0.7 s) is saved. That was the last image: all 12 images are guessed. Thank you! Run 'Analyse the results'.",
+  "code": "no_result",
+  "log": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
+}

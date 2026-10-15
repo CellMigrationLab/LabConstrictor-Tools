@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.37,
+  "error": "[no_result] Your guess (Drug2, 2.5 s) is saved. That was the last image: all 18 images are guessed. Thank you! Run 'Analyse the results'.",
+  "code": "no_result",
+  "status_text": "\u26a0 Your guess (Drug2, 2.5 s) is saved. That was the last image: all 18 images are guessed. Thank you! Run 'Analyse the results'.",
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_synnap/runs/20261015T124712690638_GuessTheCondition_play_round",
+  "host_observed": {}
+}

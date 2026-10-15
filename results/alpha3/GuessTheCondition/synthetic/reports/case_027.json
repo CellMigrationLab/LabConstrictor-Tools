@@ -1,0 +1,22 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.52,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124351098894_GuessTheCondition_prepare_game/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "images": 18,
+        "to_guess": 18,
+        "guessed": 0,
+        "remaining": 18,
+        "conditions": "1: Control | 2: Drug1 | 3: Drug2",
+        "game_folder": "/home/user/a3/syn_scratch_GuessTheCondition/fixtures/results/u_gtc_three_by_number",
+        "experiment": "3 conditions, 18 images - Control: 3 repeat(s), 3 images (R1: 1, R2: 1, R3: 1) - Drug1: 3 repeat(s), 6 images (R1: 2, R2: 2, R3: 2) - Drug2: 3 repeat(s), 9 images (R1: 3, R2: 3, R3: 3)",
+        "next": "Run 'Play a round' to see the first image"
+      }
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/027"
+}

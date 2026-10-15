@@ -1,0 +1,43 @@
+{
+  "status": "COMPLETE",
+  "seconds": 3.38,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124408982735_GuessTheCondition_analyze_results/run.json",
+  "results": [
+    {
+      "type": "message",
+      "name": "readout",
+      "text": "\u2796 **Not above chance**\n\nThe guesses were not above chance across repeats: accuracy minus chance, mean 0 points (95% interval 0 to 0), n = 3 repeats, p = n/a. 0 of 3 repeats were above chance. A null result is a result; with 3 biological repeats a small difference could still be missed."
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "answer": "\u2796 Not above chance",
+        "reading": "The guesses were not above chance across repeats: accuracy minus chance, mean 0 points (95% interval 0 to 0), n = 3 repeats, p = n/a. 0 of 3 repeats were above chance. A null result is a result; with 3 biological repeats a small difference could still be missed.",
+        "images_guessed": 18,
+        "accuracy": 0.5,
+        "chance": 0.5,
+        "biological_repeats": 3,
+        "repeats_above_chance": 0,
+        "report_folder": "/home/user/a3/syn_scratch_GuessTheCondition/fixtures/results/u_gtc_three_by_number/analysis",
+        "p_randomization_these_images_exploratory": 1.0
+      }
+    },
+    {
+      "type": "table",
+      "name": "by_repeat",
+      "path": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/050/by_repeat.csv"
+    },
+    {
+      "type": "table",
+      "name": "by_condition",
+      "path": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/050/by_condition.csv"
+    },
+    {
+      "type": "file",
+      "name": "report_pdf",
+      "path": "/home/user/a3/syn_scratch_GuessTheCondition/fixtures/results/u_gtc_three_by_number/analysis/analysis_results.pdf"
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_GuessTheCondition/_jobs/050"
+}

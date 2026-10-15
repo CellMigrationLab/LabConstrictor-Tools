@@ -1,0 +1,20 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.2,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  experiment_folder=/tmp/lc_ui_audit_tests_wst4oipq/GuessTheCondition/fixtures/gtc_demo_out/GuessTheCondition_demo, images=12, next=Use this folder as the experiment folder of 'Prepare the game'",
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_synnap/runs/20261015T124753600942_GuessTheCondition_create_demo_experiment",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "experiment_folder": "/tmp/lc_ui_audit_tests_wst4oipq/GuessTheCondition/fixtures/gtc_demo_out/GuessTheCondition_demo",
+        "images": 12,
+        "next": "Use this folder as the experiment folder of 'Prepare the game'"
+      }
+    }
+  ],
+  "host_observed": {}
+}

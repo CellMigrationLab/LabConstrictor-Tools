@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.17,
+  "run_record": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/runs/20261015T124425315110_GuessTheCondition_prepare_game/run.json",
+  "error": "[invalid_parameter] 'Percentage to guess' must be >= 1",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a3_lc_home_GuessTheCondition_syn/logs/labconstrictor.log"
+}
