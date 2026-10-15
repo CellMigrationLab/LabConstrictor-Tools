@@ -25,9 +25,9 @@ Only these versions; older ones or `main` are not a test of this round.
 | Fiji itself | current "Fiji with Java" | https://fiji.sc |
 | Guess the Condition | 0.0.1 | [releases](https://github.com/CellMigrationLab/GuessTheCondition/releases/tag/0.0.1) |
 | Playground | 0.0.5 | [releases](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/tag/0.0.5) |
-| VLab4Mic | 0.1.6 | [releases](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/tag/0.1.6) |
+| VLab4Mic | 0.1.7 | [releases](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/tag/0.1.7) |
 | NucleiSky | 0.1.4 | [releases](https://github.com/CellMigrationLab/NucleiSky/releases/tag/0.1.4) |
-| CellTracksColab | 1.1.2 (bridge registered; `hosts: [notebook]`; host menus deliberately hide it) | [releases](https://github.com/CellMigrationLab/CellTracksColab/releases/tag/1.1.2) |
+| CellTracksColab | 1.1.3 (bridge registered; `hosts: [notebook]`; host menus deliberately hide it) | [releases](https://github.com/CellMigrationLab/CellTracksColab/releases/tag/1.1.3) |
 
 ### Direct downloads (click, no searching on the release page)
 Installers (take the one for your system; Intel Macs are not supported):
@@ -36,9 +36,9 @@ Installers (take the one for your system; Intel Macs are not supported):
 |---|---|---|---|
 | Guess the Condition 0.0.1 | [download](https://github.com/CellMigrationLab/GuessTheCondition/releases/download/0.0.1/GuessTheCondition-0.0.1-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/GuessTheCondition/releases/download/0.0.1/GuessTheCondition-0.0.1-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/GuessTheCondition/releases/download/0.0.1/GuessTheCondition-0.0.1-Linux-x86_64.sh) |
 | Playground 0.0.5 | [download](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/download/0.0.5/LabConstrictorPlayground-0.0.5-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/download/0.0.5/LabConstrictorPlayground-0.0.5-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/download/0.0.5/LabConstrictorPlayground-0.0.5-Linux-x86_64.sh) |
-| VLab4Mic 0.1.6 | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.6/VLab4Mic-0.1.6-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.6/VLab4Mic-0.1.6-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.6/VLab4Mic-0.1.6-Linux-x86_64.sh) |
+| VLab4Mic 0.1.7 | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.7/VLab4Mic-0.1.7-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.7/VLab4Mic-0.1.7-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.7/VLab4Mic-0.1.7-Linux-x86_64.sh) |
 | NucleiSky 0.1.4 (large) | [download](https://github.com/CellMigrationLab/NucleiSky/releases/download/0.1.4/NucleiSky-0.1.4-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/NucleiSky/releases/download/0.1.4/NucleiSky-0.1.4-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/NucleiSky/releases/download/0.1.4/NucleiSky-0.1.4-Linux-x86_64.sh) |
-| CellTracksColab 1.1.2 | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-Linux-x86_64.sh) |
+| CellTracksColab 1.1.3 | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.3/CellTracksColab-1.1.3-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.3/CellTracksColab-1.1.3-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.3/CellTracksColab-1.1.3-Linux-x86_64.sh) |
 
 Host plugins (the same files for every system):
 * Fiji: [labconstrictor-fiji-v0.1.0-alpha.4.jar](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/download/v0.1.0-alpha.4/labconstrictor-fiji-v0.1.0-alpha.4.jar) (checksums: [SHA256SUMS](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/download/v0.1.0-alpha.4/SHA256SUMS))
@@ -80,8 +80,7 @@ the disk is short (say which apps you reached): Guess the Condition, VLab4Mic, C
 **Linux without a GPU:** set `PIP_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cpu` before running the Playground installer; it then picks the CPU build of PyTorch and finishes in about 2 minutes using about 2 GB (checked on Linux with Playground 0.0.5).
 
 ## Known issues (do not report these again; add details only if yours differs)
-* **VLab4Mic 0.1.6:** `compare_images` accepts a flat or all-zero reference image and returns a number instead of refusing; `simulate_sample` with an unsupported `structure_file` (for example `.csv`) fails with `AttributeError`; the images it writes carry no pixel size; the parameter-sweeps notebook probably ignores the folder chosen for saving (from reading the code).
-* **CellTracksColab 1.1.2:** a track with an infinite coordinate completes with infinite speeds; two spots at the same time give Max Speed 1e10; the `Custom` notebook raises `NameError` on Submit when "Use test dataset" is unticked.
+* **VLab4Mic 0.1.7:** the images `simulate_sample` writes carry no pixel size (type it when you compare them); the parameter-sweeps notebook probably ignores the folder chosen for saving until the upstream widgets package is fixed.
 * **Fiji:** a pixel-size field follows the image's calibration and has no "use the image's calibration" button; typing the value the box already shows clears it and blocks the run; fields that do not apply are not greyed out ([HOST_FEATURES.md](HOST_FEATURES.md)).
 * **Napari:** typing 0 in a pixel-size box resets it to the image's calibration and says so in the status line; it cannot reach the tool's own "invalid pixel size" message.
 * **All hosts:** native file choosers cannot be tested by our automation: a chooser that does not open **is** worth reporting.

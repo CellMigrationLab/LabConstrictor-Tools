@@ -72,9 +72,9 @@ knowing which pieces met.) The same table, with the install lines, is in [TESTER
 | Napari / Fiji / QuPath themselves | Napari 0.9 or newer (Python 3.11+, Qt6); the current "Fiji with Java"; QuPath **0.7.0** exactly (the plugin is built against it) | https://napari.org, https://fiji.sc, https://qupath.github.io |
 | NucleiSky | **0.1.4** | https://github.com/CellMigrationLab/NucleiSky/releases/tag/0.1.4 |
 | Playground | **0.0.5** | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/tag/0.0.5 |
-| VLab4Mic | **0.1.6** | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/tag/0.1.6 |
+| VLab4Mic | **0.1.7** | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/tag/0.1.7 |
 | Guess the Condition | **0.0.1** | https://github.com/CellMigrationLab/GuessTheCondition/releases/tag/0.0.1 |
-| CellTracksColab | **1.1.2** (notebook app only) | https://github.com/CellMigrationLab/CellTracksColab/releases/tag/1.1.2 |
+| CellTracksColab | **1.1.3** (notebook app only) | https://github.com/CellMigrationLab/CellTracksColab/releases/tag/1.1.3 |
 | Installer file names | `<App>-<version>-Windows-x86_64.exe`, `<App>-<version>-MacOSX-arm64.pkg`, `<App>-<version>-Linux-x86_64.sh` (Playground: `LabConstrictorPlayground-...`) | on each release page |
 
 All five apps install Tools `v0.3.0-alpha.1` (their `post_install` hooks pin it). An app release that pins an older Tools is **not** part of this
@@ -178,7 +178,7 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 * Windows: expect `Found <package>_lc_tools: registering ...` followed by a block of text containing `"schema_path"`. (The Windows script does not print "Tools registered".)
 * Neither: no line starting with `WARNING: tool registration failed`.
 
-**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab 1.1.2:** its bridge tool `Calculate Track Metrics` **must be registered** and visible in `list`, with notebook-only hosts; absence from the three host UIs is checked separately in CT-3/D3.
+**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab 1.1.3:** its bridge tool `Calculate Track Metrics` **must be registered** and visible in `list`, with notebook-only hosts; absence from the three host UIs is checked separately in CT-3/D3.
 
 - [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 

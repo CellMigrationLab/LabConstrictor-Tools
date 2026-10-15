@@ -8,6 +8,7 @@ Status (15 Oct 2026): **proposal, not implemented on `main`**: none of `TimeInte
 | 2 | Figures and reports | Types + Look | `FigureOut`, `Format` | all, plus CLI and notebook |
 | 3 | Host action "open" | Behaviour | `Open()`, `LinkOut` | all, plus CLI and notebook |
 | 4 | Feature matrix and parity checks | none (tooling and docs) | none | all, plus CLI and notebook |
+| 5 | Calibration of image outputs | Types + Links | an output-side pixel-size declaration (name to be decided) | Napari, Fiji, QuPath (+ CLI, notebook) |
 
 Order of work: 1 (largest, unlocks apps), then 2, then 3 (small, builds on 2 for HTML/PDF), then 4 (tooling; no host behaviour changes, and it can start as soon as the alpha test round is closed). Each item ships as a Tools PR (schema, validation, docs, example, `check` line, tests), then one PR per host, then the apps. A feature is "done" only when it meets the checklist at the end of MANIFEST.md.
 
@@ -375,3 +376,9 @@ Phase 0 (one Tools pull request): extractor, schema, `required_by_host.json` see
 Phase 1 (one pull request per host): `host_capabilities.json` and the CI check, seeded from `HOST_PARITY.md`. Phase 2: the scheduled aggregation and the ratchet.
 Phase 3: migrate the parts of `HOST_PARITY.md` worth keeping into rows and delete the rest.
 Not planned: moving all of `HOST_PARITY.md` at once; accepting a test file name as proof without the PASS check; any hand-written matrix in the docs.
+
+---
+
+## 5. Calibration of image outputs (planned, not started)
+Found by the VLab4Mic audit (VL-12): `simulate_sample` reports `pixel_size_um` in its values, but the images it returns (`ImageOut`) are written as plain arrays, so a host shows them at scale 1.0 and a later tool that needs the pixel size (`compare_images`) has to be given it by hand. `PixelSizeOf` only links an *input* number to an input image.
+Open design: a hint that links an output image to a number the tool returns (or to an input's pixel size), the worker writing it into the file it exports (OME `PhysicalSizeX/Y` with unit µm, or ImageJ `unit=um` plus resolution), and the three hosts and the CLI reading it back (Napari already reads the calibration of a TIFF it displays). Decide whether the hint belongs with item 1 (`TimeIntervalOf`, `ZStepOf`) since both describe the physical size of an axis. Until then an app that returns calibrated images lists the limitation in its documentation.

@@ -1,6 +1,6 @@
 # Human tests: VLab4Mic (Napari and Fiji; not QuPath)
 
-Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install VLab4Mic (release 0.1.6) and the host(s) as it says.
+Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install VLab4Mic (release 0.1.7) and the host(s) as it says.
 VLab4Mic simulates fluorescence microscopy images of a virtual sample (a structure, a labelling probe, an imaging modality). **Discovery:** listed in **Napari and Fiji**, **not in QuPath**.
 Registered name `VLab4Mic`; tools: **Simulate imaging of a virtual sample** (id `simulate_sample`) and **Compare an image with a reference** (id `compare_images`). It needs internet on the first run with a structure (the structure is downloaded) and about 5 minutes for a full run of the app's own cases (not verified by the authors: only the declaration tests were run). Expected numbers come from the app's `lc_tests/cases.json`.
 
@@ -26,7 +26,7 @@ Registered name `VLab4Mic`; tools: **Simulate imaging of a virtual sample** (id 
 
 ### VL-N3. Compare an image with a reference
 **Do:** run **Compare an image with a reference** with the simulated layer as *simulated*, a reference image, and the pixel sizes (the app does not read them from a layer: type the one reported by the simulation, e.g. 0.015 um for STED).
-**Expect:** two numbers, `ssim` and `pearson`. The same image against itself gives 1.0 and 1.0; an unrelated image about 0; a constant image is refused (`flat_image`, "same value everywhere"); a stack is refused (`wrong_dimensions`, "2D"); a pixel size of 0 is refused (`invalid_pixel_size`, "greater than 0"). SSIM is high for sparse images even when they do not match: read it with Pearson.
+**Expect:** two numbers, `ssim` and `pearson`. The same image against itself gives 1.0 and 1.0; an unrelated image about 0; a constant image is refused whether it is the simulated or the reference one (`flat_image`, "same value everywhere"; an all-zero reference too, since 0.1.7); a stack is refused (`wrong_dimensions`, "2D"); a pixel size of 0 is refused (`invalid_pixel_size`, "greater than 0"). In **Simulate imaging** a structure file that is not `.cif` or `.pdb` (for example a `.csv`) is refused with a sentence naming the file (`structure_file_type`), not a raw error. SSIM is high for sparse images even when they do not match: read it with Pearson.
 
 - [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
