@@ -22,6 +22,16 @@ def sanitise(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_]", "_", text)
 
 
+def script_path(scripts_root: Path, app: str, notebook: str) -> Path:
+    """The click script of a notebook. The folder is named by the registry name (`GuessTheCondition`) or by the repository name (`LabConstrictor-VLab4Mic`,
+    `LabConstrictor-Playground`): both are accepted (VL-1 of the alpha.1 round); the first existing file wins, else the registry-name path is returned."""
+    for folder in (app, "LabConstrictor-" + app, app.removeprefix("LabConstrictor-")):
+        candidate = scripts_root / folder / (notebook + ".py")
+        if candidate.is_file():
+            return candidate
+    return scripts_root / app / (notebook + ".py")
+
+
 def check_id(app: str, notebook: str, check: str) -> str:
     return "nb_%s_%s_%s" % (sanitise(app), sanitise(notebook), sanitise(check))
 

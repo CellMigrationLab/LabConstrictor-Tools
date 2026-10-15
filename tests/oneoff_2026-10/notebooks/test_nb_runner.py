@@ -183,3 +183,17 @@ def test_negative_controls() -> None:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def test_script_path_accepts_registry_and_repository_folder(tmp_path: Path) -> None:
+    """VL-1: the VLab4Mic click scripts live in scripts/LabConstrictor-VLab4Mic/ while the registry name is VLab4Mic; both folder spellings must be found."""
+    sys.path.insert(0, str(HERE))
+    from nb_common import script_path
+
+    (tmp_path / "LabConstrictor-VLab4Mic").mkdir()
+    (tmp_path / "LabConstrictor-VLab4Mic" / "nb.py").write_text("x = 1\n")
+    (tmp_path / "Plain").mkdir()
+    (tmp_path / "Plain" / "nb.py").write_text("x = 1\n")
+    assert script_path(tmp_path, "VLab4Mic", "nb") == tmp_path / "LabConstrictor-VLab4Mic" / "nb.py"
+    assert script_path(tmp_path, "Plain", "nb") == tmp_path / "Plain" / "nb.py"
+    assert script_path(tmp_path, "Missing", "nb") == tmp_path / "Missing" / "nb.py"

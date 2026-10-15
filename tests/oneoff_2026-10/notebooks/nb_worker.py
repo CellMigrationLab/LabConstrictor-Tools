@@ -25,7 +25,7 @@ sys.path.insert(0, str(HERE / "scripts"))  # shared scripts such as _welcome.py
 import nb_checks  # noqa: E402
 import nb_imports  # noqa: E402
 import nb_kernel_run  # noqa: E402
-from nb_common import Notebook, check_id, discover, sanitise  # noqa: E402
+from nb_common import Notebook, check_id, discover, sanitise, script_path  # noqa: E402
 
 
 class Emitter:
@@ -42,7 +42,7 @@ class Emitter:
 
 def load_script(app: str, notebook: str) -> ModuleType | None:
     """The click script scripts/<app>/<notebook>.py, or None when there is none (the caller records that as a FAIL: a missing script is a gap)."""
-    path = Path(os.environ.get("LC_NB_SCRIPTS", str(HERE / "scripts"))) / app / (notebook + ".py")
+    path = script_path(Path(os.environ.get("LC_NB_SCRIPTS", str(HERE / "scripts"))), app, notebook)
     if not path.is_file():
         return None
     spec = importlib.util.spec_from_file_location("nbscript_%s_%s" % (sanitise(app), sanitise(notebook)), path)

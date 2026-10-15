@@ -16,7 +16,8 @@ AFTER_CELL = {8: "structure", 11: "probe", 14: "sample", 17: "modality", 20: "ac
 STAGES = {
     "structure": '''
 ns = get_ipython().user_ns
-lcnb.set_value(lcnb.find(kind="Dropdown", description="Select Structure"), lcnb.INPUTS["structure"])
+dd = lcnb.find(kind="Dropdown", description="Select Structure")
+lcnb.set_value(dd, next(o for o in dd.options if str(o).startswith(lcnb.INPUTS["structure"])))
 lcnb.click(lcnb.find(kind="Button", description="Select structure", exact=True))
 lcnb.check("click_structure_selected", ns["my_experiment"].structure_id == lcnb.INPUTS["structure"], "my_experiment.structure_id = %r" % ns["my_experiment"].structure_id)
 lcnb.check("click_structure_message", any("Structure loaded successfully" in str(w.value) for w in lcnb.all_widgets() if type(w).__name__ in ("Label", "HTML")), "the widget reports that the structure loaded")
@@ -41,8 +42,7 @@ lcnb.click(lcnb.find(kind="Button", description="Select modalities and update vi
 lcnb.check("click_modality_selected", "STED" in ns["my_experiment"].selected_mods, "my_experiment.selected_mods keys: %s" % list(ns["my_experiment"].selected_mods))
 ''',
     "acquisition": '''
-lcnb.click(lcnb.find(kind="Button", description="Set", exact=True))
-lcnb.note("click_acquisition_set", "pressed Set with the default acquisition parameters of STED")
+lcnb.note("click_acquisition_set", "PATCHED: the installed acquisition widget has no Set button (buttons: Preview PSF, Reset params); default parameters kept")
 ''',
     "run": '''
 ns = get_ipython().user_ns

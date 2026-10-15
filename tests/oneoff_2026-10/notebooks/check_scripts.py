@@ -17,12 +17,12 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE / "scripts"))
 
-from nb_common import discover, read_cells  # noqa: E402
+from nb_common import discover, read_cells, script_path  # noqa: E402
 from nb_kernel_run import Ctx  # noqa: E402
 
 
 def load(app: str, notebook: str) -> ModuleType | None:
-    path = HERE / "scripts" / app / (notebook + ".py")
+    path = script_path(HERE / "scripts", app, notebook)
     if not path.is_file():
         return None
     spec = importlib.util.spec_from_file_location("check_%s_%s" % (app.replace("-", "_"), notebook), path)
