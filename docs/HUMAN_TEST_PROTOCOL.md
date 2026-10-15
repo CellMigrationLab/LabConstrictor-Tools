@@ -58,7 +58,7 @@ QuPath. *Registry* = the folder where installed apps announce themselves. *Prefi
 ## 0. Record sheet: the test set (fill in before you start)
 
 ### 0.1 The test set (round `alpha.3`; the maintainer updates this table for each round)
-Testers install **only this set** and only the **latest** of each item: an older release or a branch is not a test of this round. (Why exact
+Testers install **only this set** and only the **versions specified here**: an older release or a branch is not a test of this round. (Why exact
 versions: an installed app carries the Tools it was built with; hosts refuse an app whose Tools is too old; a result is meaningless without
 knowing which pieces met.) The same table, with the install lines, is in [TESTER_START_HERE.md](TESTER_START_HERE.md).
 
@@ -132,7 +132,7 @@ Nothing in `<...>` is a variable your terminal understands: type the real folder
 3. **Tagged installs only.** Install exactly the tagged things in the record sheet. Never `main.zip`, never a branch archive, never
    `pip install` of Tools from `main`. The apps install Tools from a pinned tag (`LC_TOOLS_PIN` in their `post_install` hooks); the Napari line below pins the Tools tag
    and the plugin tag.
-4. **Only the latest.** Do not test an older release "to compare". If you already have an older app, uninstall it first (rule 2), or say so in the record sheet.
+4. **Round versions only.** Do not substitute an older or newer release for a listed release. If you already have an older app, uninstall it first (rule 2), or say so in the record sheet.
 
 ---
 
@@ -206,7 +206,7 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 
 ## 4b. Notebooks (every app has them; part of the test)
 Each app also ships notebooks (JupyterLab pages with widgets): that is the app's own window and the original way to use it. The three hosts
-show the same tools; the notebooks must keep working next to them. Which notebooks each app has is in [TEST_MATRIX.md](TEST_MATRIX.md#notebooks-per-app).
+show the same tools; the notebooks must keep working next to them. Which notebooks each app has is in [TEST_MATRIX.md](TEST_MATRIX.md#2-installer-and-notebook-coverage).
 
 ### NB1. Open the app's notebook window
 **Do:** start the app from its menu entry or desktop shortcut (installed in S1) and open the notebook list.
@@ -308,13 +308,13 @@ A mismatch is a **Major** FAIL (an app that must be hidden is shown, or one that
 
 ### D2. VLab4Mic is not offered in QuPath
 **Do:** install VLab4Mic. Open QuPath's app chooser. Press **Rescan apps**.
-**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. The hosts honour the rule; what is still future is the declaration: it exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so this is not verified until the apps are re-installed with an installer that passes the hosts. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
+**Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. The tagged release source contains `labconstrictor-app.yaml` and `--app-manifest` hooks, so test the actual installed registration rather than assuming it. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
 ### D3. CellTracksColab is offered nowhere
-**Do:** install CellTracksColab next to another app. Look at all three hosts (Rescan apps / restart Fiji).
-**Expect:** not in any list, no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule; the declaration exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so this is not verified until the apps are re-installed with an installer that passes the hosts; before that the app is listed in every host.
+**Do:** first confirm that `list` shows CellTracksColab's registered `Calculate Track Metrics` tool and notebook-only host declaration (CT-2). Then install it next to another app and look at all three hosts (Rescan apps / restart Fiji).
+**Expect:** registered, but **not in any of the three host lists**; no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule; the declaration exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so verify the actual installed manifest/registration before considering an absent host entry a PASS.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
@@ -349,7 +349,7 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 *What the Fiji line looks like (older screenshot: the skipped app was CellTracksColab then):* ![F11 Log line for a skipped app](img/F11_fiji_log_skipped_app.png)
 
 ### E2. A package is missing inside an app
-**Do:** `<APP_PY> -m pip show pandas` (write the `Version:`); `<APP_PY> -m pip uninstall -y pandas`; run a tool of that app that needs it (Playground "Summarise a table") in a host. Reinstall **exactly that version**: `<APP_PY> -m pip install pandas==<version>`.
+**Maintainer-only, disposable installation.** **Do:** `<APP_PY> -m pip show pandas` (write the `Version:`); `<APP_PY> -m pip uninstall -y pandas`; run a tool of that app that needs it (Playground "Summarise a table") in a host. Reinstall **exactly that version**: `<APP_PY> -m pip install pandas==<version>`.
 
 **Expect:** `✖ [ModuleNotFoundError] No module named 'pandas'  - click Details...` (Napari; Fiji: an error window naming the log; QuPath: the status line and **Details**). Details shows the traceback. After reinstalling, the tool works again.
 
@@ -418,8 +418,8 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 ## 10. Report back
 Send, in one message or issue titled `Test report: <OS> <your name> <date> <Tools tag>`:
 - [ ] the filled **record sheet (section 0.1 and 0.2)**: without it a result cannot be tied to versions;
-- [ ] this document and the case files you used with all boxes ticked, and the D1 table;
-- [ ] screenshots: the first form of each app in each host, each result, and one per FAIL;
+- [ ] one short report per assigned packet, listing test IDs, outcomes and D1 findings (no full protocol copy required);
+- [ ] screenshots: one per FAIL and optional illustrative PASS screenshots;
 - [ ] the support bundle zip (E4) if anything failed. **Open it first** and remove anything private;
 - [ ] the report of the Playground tool **Check everything** (`report.json` and the readout) if you installed the Playground;
 - [ ] a short free-text answer to: *Was anything confusing, slow, or surprising even though the test passed?*
@@ -428,9 +428,8 @@ Send, in one message or issue titled `Test report: <OS> <your name> <date> <Tool
 
 ---
 
-## Appendix. What the author of this protocol did and did not verify
-Written on 14 Oct 2026 from the repositories (Tools `main` 535450d, the host READMEs of Napari 7ddf41f, Fiji f9277af, QuPath 9e64c6d, the app
-repositories at their `main`) and from the case files (`lc_tests/cases.json`) of the apps. **Not run by a person from this file:** every step on
-Windows and macOS; any step with a released Fiji or QuPath jar (none was published when this was written); the discovery rule (in Tools and in the three hosts since 14 Oct; no installer passes the declaration yet); the release of the apps (the numbers are decided: NucleiSky 0.1.4, Playground 0.0.4, VLab4Mic 0.1.6, Guess the Condition 0.0.1; the releases do not exist yet); how the hosts show the "helper" tools of an app (for example "List the devices"). The older
-Linux checks (Ubuntu 24.04, Napari 0.9, Fiji with Java 21) were made with NucleiSky 0.1.1 and an earlier Tools; the numbers in the NucleiSky
-file are the ones of that run and of the app's own cases, and they are marked there. If a step in this document is wrong or unclear, please say so; that is a documentation bug.
+## Appendix. Provenance and remaining unverified behaviours
+
+Documentation updated for the tagged alpha.3 set published 14–15 October 2026. The release source for **CellTracksColab 1.1.2** includes `celltracks_lc_tools` (`Calculate Track Metrics`), Tools `v0.3.0-alpha.1`, and `labconstrictor-app.yaml` with `hosts: [notebook]`: `CT-2` must assert **successful registration**, and `D3` must separately assert **not listed in Napari, Fiji or QuPath**. The tagged sources of the other four apps also include host manifests and hooks that pass `--app-manifest`.
+
+Actual end-to-end human installation and GUI runs on Windows and macOS are **not established by this documentation** and must be reported through the [test packets](TEST_MATRIX.md#1-assignable-test-packets-coordinator-fills-this-table). The historic Linux screenshots, numeric tolerances, exact Fiji/QuPath error wording and whether native installer drag-and-drop succeeds are not proof of behaviour on these platforms. Distinguish **expected**, **observed**, and **not yet tested**.
