@@ -13,3 +13,10 @@ CHECK ui_fiji_panel_form_ok PASS a real click on OK closed the form and the plug
 CHECK ui_fiji_screens_list_devices PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
 CHECK ui_fiji_form_relocalize_opens PASS 32 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
 CHECK ui_fiji_form_relocalize_controls PASS 57 control(s) activated and read back: choice_combo, file_browse, flag_checkbox, image_choice, number_spinner, set_checkbox, slider, text_field, use_image_checkbox, use_selection_checkbox
+CHECK ui_fiji_run_relocalize FAIL the shapes 'reference_outlines' is also on 'query.tif'; the shapes 'query_outlines' is also on 'reference.tif'
+CHECK ui_fiji_screens_relocalize PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_panel_copy_terminal PASS the clipboard holds the terminal line of the last run (NucleiSky: relocalize), equal to the saved command
+CHECK ui_fiji_panel_copy_python PASS the clipboard holds the Python snippet of the last run (NucleiSky: relocalize), equal to the saved command
+NOTE ui_fiji_fj1b_cancel_form not run: no tool of this app has a required file/folder/table input on a form of several parameters: nothing to cancel with an empty required path
+CHECK ui_fiji_fj1b_missing_image_relocalize PASS no image open, OK on the untouched form: refused: error "[missing_parameter] 'Reference' is required: open an image or choose a file", code None, status None, status line 'Command canceled: Relocalize 2D'
+CHECK ui_fiji_controls_all_known PASS 235 control(s) in 5 form(s) and 6 chooser(s), every one in the control table (20 kinds)
