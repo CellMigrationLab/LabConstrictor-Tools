@@ -1,0 +1,29 @@
+{
+  "patch_size_px": 512,
+  "patches_per_size": 2,
+  "n_repeats": 1,
+  "random_state": 42,
+  "min_clean_nuclei_per_patch": 10,
+  "matchers": [
+    "quad"
+  ],
+  "missed_nuclei_pct": [
+    0,
+    20
+  ],
+  "extra_detections_pct": [
+    0,
+    50
+  ],
+  "perturbation_targets": [
+    "query",
+    "both"
+  ],
+  "ssim_success_thresh": 0.8,
+  "max_extra_reference_points": 100000,
+  "pixel_size_um": 0.6499999999999999,
+  "image_shape": [
+    1200,
+    1200
+  ]
+}
