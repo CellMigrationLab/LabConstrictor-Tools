@@ -9,7 +9,7 @@ and window problems on your system. Intel Macs are not supported (tell us instea
 
 | Level | Time | What |
 |---|---|---|
-| **A. Smoke** | 30 min | one app, one host: install, open the host, run one tool, uninstall |
+| **A. Smoke** | 30 min | one app, one host: install, open the host, run one tool, open the app's notebook, uninstall |
 | **B. Standard** | 2 h | level A for each app of your matrix row, in each host of your row |
 | **C. Full** | half a day | everything in the protocol (ask first) |
 
@@ -33,17 +33,41 @@ Only these versions; older ones or `main` are not a test of this round.
 | NucleiSky | 0.1.4 | [releases](https://github.com/CellMigrationLab/NucleiSky/releases/tag/0.1.4) |
 | CellTracksColab | 1.1.2 (notebook only; no host shows it, on purpose) | [releases](https://github.com/CellMigrationLab/CellTracksColab/releases/tag/1.1.2) |
 
-Installer for each app: Windows `<App>-<version>-Windows-x86_64.exe`, Apple-silicon Mac `<App>-<version>-MacOSX-arm64.pkg`, Linux `<App>-<version>-Linux-x86_64.sh`.
+### Direct downloads (click, no searching on the release page)
+Installers (take the one for your system; Intel Macs are not supported):
 
-Napari (in a new environment; Windows PowerShell activates with `.\napari-env\Scripts\Activate.ps1`):
+| App | Windows `.exe` | macOS Apple silicon `.pkg` | Linux `.sh` |
+|---|---|---|---|
+| Guess the Condition 0.0.1 | [download](https://github.com/CellMigrationLab/GuessTheCondition/releases/download/0.0.1/GuessTheCondition-0.0.1-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/GuessTheCondition/releases/download/0.0.1/GuessTheCondition-0.0.1-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/GuessTheCondition/releases/download/0.0.1/GuessTheCondition-0.0.1-Linux-x86_64.sh) |
+| Playground 0.0.5 | [download](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/download/0.0.5/LabConstrictorPlayground-0.0.5-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/download/0.0.5/LabConstrictorPlayground-0.0.5-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/download/0.0.5/LabConstrictorPlayground-0.0.5-Linux-x86_64.sh) |
+| VLab4Mic 0.1.6 | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.6/VLab4Mic-0.1.6-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.6/VLab4Mic-0.1.6-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/download/0.1.6/VLab4Mic-0.1.6-Linux-x86_64.sh) |
+| NucleiSky 0.1.4 (large) | [download](https://github.com/CellMigrationLab/NucleiSky/releases/download/0.1.4/NucleiSky-0.1.4-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/NucleiSky/releases/download/0.1.4/NucleiSky-0.1.4-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/NucleiSky/releases/download/0.1.4/NucleiSky-0.1.4-Linux-x86_64.sh) |
+| CellTracksColab 1.1.2 | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-Linux-x86_64.sh) |
+
+Host plugins (the same files for every system):
+* Fiji: [labconstrictor-fiji-v0.1.0-alpha.3.jar](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/download/v0.1.0-alpha.3/labconstrictor-fiji-v0.1.0-alpha.3.jar) (checksums: [SHA256SUMS](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/download/v0.1.0-alpha.3/SHA256SUMS))
+* QuPath: [labconstrictor-qupath-v0.1.0-alpha.3.jar](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/download/v0.1.0-alpha.3/labconstrictor-qupath-v0.1.0-alpha.3.jar) (checksums: [SHA256SUMS](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/download/v0.1.0-alpha.3/SHA256SUMS))
+* Napari: no file to download, it is installed with `pip` (below).
+
+### Where each file goes
+| What | Where | How you know it worked |
+|---|---|---|
+| **App installer** (`.exe` / `.pkg` / `.sh`) | run it; choose an install folder **without a space** | `<APP_PY> -m labconstrictor_tools list` shows the app |
+| **Napari plugin** (no JAR) | `pip install ...` into the Napari environment (the commands just below) | Napari: **Plugins > LabConstrictor tools** exists |
+| **Fiji JAR** | into the folder `Fiji.app/plugins/` itself (not a subfolder); delete any older `labconstrictor-fiji-*.jar`; restart Fiji | menu **Plugins > LabConstrictor > LabConstrictor Tools** (if it is missing, type `LabConstrictor` into Fiji's search bar and tell us) |
+| **QuPath JAR** | drag the file onto the open QuPath window, or copy it into the extensions folder shown in QuPath's Preferences; restart QuPath | menu **Extensions > LabConstrictor tools...** |
+
+Two hints marked *not verified by us on that system*: on **macOS** `Fiji.app` is a folder you reach with right-click > *Show Package Contents* if
+Finder treats it as an application; on **Windows** `Fiji.app` is the unzipped Fiji folder wherever you put it (do not run Fiji from inside the zip).
+
+Napari, in a new environment (Windows PowerShell activates with `.\napari-env\Scripts\Activate.ps1`):
 ```
 python -m venv napari-env
 source napari-env/bin/activate
 pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip
 napari
 ```
-Fiji: put the `.jar` into `Fiji.app/plugins/` (remove any older `labconstrictor-fiji-*.jar`), restart Fiji, menu **Plugins > LabConstrictor > LabConstrictor Tools**.
-QuPath: drag the `.jar` onto the QuPath window and restart; menu **Extensions > LabConstrictor tools...**.
+Then **Plugins > LabConstrictor tools** (press **Rescan apps** after installing an app).
 
 ## 3. Your computer, in three lines
 * **Windows:** the installer is not signed: "Windows protected your PC" > *More info* > *Run anyway*. Install into a folder **without a space**
@@ -58,8 +82,9 @@ QuPath: drag the `.jar` onto the QuPath window and restart; menu **Extensions > 
 2. **Open the host** and find the app in the list. Check it against the [matrix of who shows what](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix) (VLab4Mic is not in QuPath, CellTracksColab nowhere).   [D1]
 3. **Run one tool** from the app's file in [human_tests/](human_tests/) (the first test of the host section is the normal run) and compare with **Expect**.
 4. **Make one mistake on purpose** (the second test of the host section) and check that the message is understandable.
-5. **Close the host.** No `python ... labconstrictor_tools serve` should stay in the Task Manager / Activity Monitor / `ps`.   [E5]
-6. **Uninstall** the app (Windows: Apps & features; Linux/macOS: `bash <install folder>/uninstall.sh`).   [U2]
+5. **Open the app's notebook** (menu entry or desktop shortcut of the app): JupyterLab opens, `Welcome` runs without a red error, and the main notebook works on its demo data. [NB1 to NB3, which notebooks: [matrix](TEST_MATRIX.md#notebooks-per-app)]
+6. **Close the host and the notebook.** No `python ... labconstrictor_tools serve` (nor a `jupyter` process) should stay in the Task Manager / Activity Monitor / `ps`.   [E5, NB5]
+7. **Uninstall** the app (Windows: Apps & features; Linux/macOS: `bash <install folder>/uninstall.sh`).   [U2]
 
 For each step tick PASS, FAIL or N/A in the protocol's box. A FAIL needs: what you did, what you expected, what happened, a screenshot.
 **If something is unclear in these instructions, that is a documentation bug: tell us, it is not your mistake.**

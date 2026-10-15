@@ -39,7 +39,7 @@ released app on fresh runners, but only Napari for most apps and Fiji/QuPath onl
 **Statements marked "not verified"** are things the authors of this protocol could not check themselves. If you see something different, that is a finding: write it down, it is not a mistake of yours.
 
 **Quick path.** S1 to S4, D1 to D3, N0/F0/Q0 for the hosts you were asked to test, then in each app file the first three tests of each host
-(listing, one normal run, one error). Everything else is the full protocol.
+(listing, one normal run, one error), then NB1 to NB3 for the app. Everything else is the full protocol.
 
 **Severity** (use it when you write a FAIL):
 
@@ -200,6 +200,42 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 **Do:** `<APP_PY> -m labconstrictor_tools run <App> <tool id> name=value ...` for a tool of the app (the case file gives one, with its tool id).
 
 **Expect:** a JSON report with `"status": "COMPLETE"` and a last line `(results are in ...results/<time>_<id>_<App>_<tool> - ...; the newest 20 runs are kept)` (it goes to the error stream: with a pipe it can appear before the JSON; not a failure). A wrong input gives `"status": "FAILED"` with a `code` and a sentence an ordinary person can read.
+
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+---
+
+## 4b. Notebooks (every app has them; part of the test)
+Each app also ships notebooks (JupyterLab pages with widgets): that is the app's own window and the original way to use it. The three hosts
+show the same tools; the notebooks must keep working next to them. Which notebooks each app has is in [TEST_MATRIX.md](TEST_MATRIX.md#notebooks-per-app).
+
+### NB1. Open the app's notebook window
+**Do:** start the app from its menu entry or desktop shortcut (installed in S1) and open the notebook list.
+**Expect:** JupyterLab opens in your browser and lists the app's notebooks (`Welcome` and the ones named in the matrix). No error page, no blank browser tab.
+
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+### NB2. The Welcome notebook runs top to bottom
+**Do:** open `Welcome` and run every cell in order (*Run > Run All Cells*), or press the buttons it shows.
+**Expect:** no red error output; whatever it says it will do (links, a version line, a check of the installation) is shown.
+
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+### NB3. The main notebook with its own demo data
+**Do:** open the app's main notebook (matrix, "main notebook") and use it as its instructions say, on the demo or example data it offers (press **every** button and widget once: buttons that do nothing are a finding). If a notebook needs your own data and you have none: N/A, say so.
+**Expect:** the steps finish, results appear in the notebook (tables, plots, images) and nothing says `Error` or shows a traceback. A native file chooser that does not open is a **Major** FAIL.
+
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (notebook name): ______________________________
+
+### NB4. Notebook and host agree (apps with tools in the hosts)
+**Do:** do one operation of the app both in the notebook and in a host (for example Guess the Condition *Create a demo experiment*, Playground *Summarise a table*, VLab4Mic *Compare images*) with the same input.
+**Expect:** the same result (same numbers, same files). A difference is a finding even if both look plausible; write both values.
+
+- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+
+### NB5. Closing the notebook leaves nothing behind
+**Do:** close the browser tab, then stop JupyterLab (close its terminal window, or *File > Shut Down*). Look at the process list.
+**Expect:** no `jupyter` or `python` process of the app remains within 15 seconds.
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
