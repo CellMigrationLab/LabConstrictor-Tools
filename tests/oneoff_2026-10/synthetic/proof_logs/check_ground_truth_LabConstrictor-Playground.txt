@@ -1,0 +1,168 @@
+NOTE pg_channels_cyx has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
+NOTE pg_rgb has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
+CHECK pg_discs_0_status                                                      PASS    status COMPLETE
+CHECK pg_discs_1_table:label                                                 PASS    14 rows, columns ['y', 'x', 'area_px'] equal the truth
+CHECK pg_discs_2_message                                                     PASS    message 'Found **14** blob(s).' contains 'Found **14** blob(s)'
+CHECK pg_region_offset_0_status                                              PASS    status COMPLETE
+CHECK pg_region_offset_1_table                                               PASS    7 rows, columns ['y', 'x', 'area_px'] equal the truth
+CHECK pg_region_offset_2_message                                             PASS    message 'Found **7** blob(s) inside the region.' contains 'inside the region'
+CHECK pg_discs_min_size_0_status                                             PASS    status COMPLETE
+CHECK pg_discs_min_size_1_table                                              PASS    8 rows, columns ['y', 'x', 'area_px'] equal the truth
+CHECK pg_discs_min_size_2_message                                            PASS    message 'Found **8** blob(s).' contains 'Found **8** blob(s)'
+CHECK pg_discs_dark_0_status                                                 PASS    status COMPLETE
+CHECK pg_discs_dark_1_message                                                PASS    message 'Found **3** blob(s).' contains 'Found **3** blob(s)'
+CHECK pg_discs_none_found_0_status                                           PASS    status FAILED
+CHECK pg_region_empty_0_status                                               PASS    status FAILED
+CHECK pg_region_wrong_size_0_status                                          PASS    status FAILED
+CHECK pg_threshold_out_of_range_0_status                                     PASS    status FAILED
+CHECK pg_flat_zero_0_status                                                  PASS    status FAILED
+CHECK pg_nan_float_0_status                                                  PASS    status FAILED
+CHECK pg_channels_cyx_cli_0_status                                           PASS    status FAILED
+CHECK pg_ramp_u8_fixed_0_status                                              PASS    status COMPLETE
+CHECK pg_ramp_u8_fixed_1_value:pixels                                        PASS    pixels = 2000, expected 2000 (tol 0, rtol 0)
+CHECK pg_ramp_u8_fixed_2_value:level_used                                    PASS    level_used = 50.0, expected 50.0 (tol 0.0001, rtol 0)
+CHECK pg_ramp_u8_fixed_3_value:fraction                                      PASS    fraction = 0.5, expected 0.5 (tol 1e-09, rtol 0)
+CHECK pg_ramp_u8_p90_0_status                                                PASS    status COMPLETE
+CHECK pg_ramp_u8_p90_1_value:pixels                                          PASS    pixels = 400, expected 400 (tol 0, rtol 0)
+CHECK pg_ramp_u8_p90_2_value:level_used                                      PASS    level_used = 89.09999999999991, expected 89.09999999999991 (tol 0.0001, rtol 0)
+CHECK pg_ramp_u8_p90_3_value:fraction                                        PASS    fraction = 0.1, expected 0.1 (tol 1e-09, rtol 0)
+CHECK pg_ramp_u16_fixed_0_status                                             PASS    status COMPLETE
+CHECK pg_ramp_u16_fixed_1_value:pixels                                       PASS    pixels = 2000, expected 2000 (tol 0, rtol 0)
+CHECK pg_ramp_u16_fixed_2_value:level_used                                   PASS    level_used = 50.0, expected 50.0 (tol 0.0001, rtol 0)
+CHECK pg_ramp_u16_fixed_3_value:fraction                                     PASS    fraction = 0.5, expected 0.5 (tol 1e-09, rtol 0)
+CHECK pg_ramp_u16_p90_0_status                                               PASS    status COMPLETE
+CHECK pg_ramp_u16_p90_1_value:pixels                                         PASS    pixels = 400, expected 400 (tol 0, rtol 0)
+CHECK pg_ramp_u16_p90_2_value:level_used                                     PASS    level_used = 89.09999999999991, expected 89.09999999999991 (tol 0.0001, rtol 0)
+CHECK pg_ramp_u16_p90_3_value:fraction                                       PASS    fraction = 0.1, expected 0.1 (tol 1e-09, rtol 0)
+CHECK pg_ramp_f32_fixed_0_status                                             PASS    status COMPLETE
+CHECK pg_ramp_f32_fixed_1_value:pixels                                       PASS    pixels = 2000, expected 2000 (tol 0, rtol 0)
+CHECK pg_ramp_f32_fixed_2_value:level_used                                   PASS    level_used = 50.0, expected 50.0 (tol 0.0001, rtol 0)
+CHECK pg_ramp_f32_fixed_3_value:fraction                                     PASS    fraction = 0.5, expected 0.5 (tol 1e-09, rtol 0)
+CHECK pg_ramp_f32_p90_0_status                                               PASS    status COMPLETE
+CHECK pg_ramp_f32_p90_1_value:pixels                                         PASS    pixels = 400, expected 400 (tol 0, rtol 0)
+CHECK pg_ramp_f32_p90_2_value:level_used                                     PASS    level_used = 89.0999984741211, expected 89.09999999999991 (tol 0.0001, rtol 0)
+CHECK pg_ramp_f32_p90_3_value:fraction                                       PASS    fraction = 0.1, expected 0.1 (tol 1e-09, rtol 0)
+CHECK pg_ramp_i32_fixed_0_status                                             PASS    status COMPLETE
+CHECK pg_ramp_i32_fixed_1_value:pixels                                       PASS    pixels = 2000, expected 2000 (tol 0, rtol 0)
+CHECK pg_ramp_i32_fixed_2_value:level_used                                   PASS    level_used = 50.0, expected 50.0 (tol 0.0001, rtol 0)
+CHECK pg_ramp_i32_fixed_3_value:fraction                                     PASS    fraction = 0.5, expected 0.5 (tol 1e-09, rtol 0)
+CHECK pg_ramp_lowrange_0_status                                              PASS    status COMPLETE
+CHECK pg_ramp_lowrange_1_value:pixels                                        PASS    pixels = 1920, expected 1920 (tol 0, rtol 0)
+CHECK pg_ramp_lowrange_2_value:level_used                                    PASS    level_used = 6.0, expected 6.0 (tol 0.0001, rtol 0)
+CHECK pg_ramp_lowrange_3_value:fraction                                      PASS    fraction = 0.48, expected 0.48 (tol 1e-09, rtol 0)
+CHECK pg_axes_cyx_0_status                                                   PASS    status FAILED
+CHECK pg_axes_tyx_0_status                                                   PASS    status FAILED
+CHECK pg_axes_zyx_0_status                                                   PASS    status FAILED
+CHECK pg_axes_tzcyx_0_status                                                 PASS    status FAILED
+CHECK pg_axes_rgb_0_status                                                   PASS    status FAILED
+CHECK pg_nan_count_0_status                                                  FAIL    status COMPLETE, expected FAILED (error: None)
+CHECK pg_area_u8_0_status                                                    PASS    status COMPLETE
+CHECK pg_area_u8_1_value:bright_pixels                                       PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_area_u8_2_value:area_um2                                            PASS    area_um2 = 150.0, expected 150.0 (tol 1e-09, rtol 1e-12)
+CHECK pg_area_u8_3_value:pixel_size_um                                       PASS    pixel_size_um = 0.5, expected 0.5 (tol 1e-12, rtol 0)
+CHECK pg_area_u16_0_status                                                   PASS    status COMPLETE
+CHECK pg_area_u16_1_value:bright_pixels                                      PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_area_u16_2_value:area_um2                                           PASS    area_um2 = 150.0, expected 150.0 (tol 1e-09, rtol 1e-12)
+CHECK pg_area_u16_3_value:pixel_size_um                                      PASS    pixel_size_um = 0.5, expected 0.5 (tol 1e-12, rtol 0)
+CHECK pg_area_f32_0_status                                                   PASS    status COMPLETE
+CHECK pg_area_f32_1_value:bright_pixels                                      PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_area_f32_2_value:area_um2                                           PASS    area_um2 = 150.0, expected 150.0 (tol 1e-09, rtol 1e-12)
+CHECK pg_area_f32_3_value:pixel_size_um                                      PASS    pixel_size_um = 0.5, expected 0.5 (tol 1e-12, rtol 0)
+CHECK pg_area_u32_0_status                                                   PASS    status COMPLETE
+CHECK pg_area_u32_1_value:bright_pixels                                      PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_area_u32_2_value:area_um2                                           PASS    area_um2 = 150.0, expected 150.0 (tol 1e-09, rtol 1e-12)
+CHECK pg_area_u32_3_value:pixel_size_um                                      PASS    pixel_size_um = 0.5, expected 0.5 (tol 1e-12, rtol 0)
+CHECK pg_cal_nm_0_status                                                     PASS    status COMPLETE
+CHECK pg_cal_nm_1_value:bright_pixels                                        PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_cal_nm_2_value:area_um2                                             PASS    area_um2 = 150.0, expected 150.0 (tol 1e-09, rtol 1e-12)
+CHECK pg_cal_nm_3_value:pixel_size_um                                        PASS    pixel_size_um = 0.5, expected 0.5 (tol 1e-12, rtol 0)
+CHECK pg_cal_um_0_status                                                     PASS    status COMPLETE
+CHECK pg_cal_um_1_value:bright_pixels                                        PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_cal_um_2_value:area_um2                                             PASS    area_um2 = 150.0, expected 150.0 (tol 1e-09, rtol 1e-12)
+CHECK pg_cal_um_3_value:pixel_size_um                                        PASS    pixel_size_um = 0.5, expected 0.5 (tol 1e-12, rtol 0)
+CHECK pg_cal_micro_sign_0_status                                             PASS    status COMPLETE
+CHECK pg_cal_micro_sign_1_value:bright_pixels                                PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_cal_micro_sign_2_value:area_um2                                     PASS    area_um2 = 150.0, expected 150.0 (tol 1e-09, rtol 1e-12)
+CHECK pg_cal_micro_sign_3_value:pixel_size_um                                PASS    pixel_size_um = 0.5, expected 0.5 (tol 1e-12, rtol 0)
+CHECK pg_cal_micron_0_status                                                 PASS    status COMPLETE
+CHECK pg_cal_micron_1_value:bright_pixels                                    PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_cal_micron_2_value:area_um2                                         PASS    area_um2 = 150.0, expected 150.0 (tol 1e-09, rtol 1e-12)
+CHECK pg_cal_micron_3_value:pixel_size_um                                    PASS    pixel_size_um = 0.5, expected 0.5 (tol 1e-12, rtol 0)
+CHECK pg_cal_none_0_status                                                   PASS    status FAILED
+CHECK pg_cal_pixel_unit_0_status                                             PASS    status FAILED
+CHECK pg_cal_anisotropic_0_status                                            PASS    status COMPLETE
+CHECK pg_cal_anisotropic_1_value:bright_pixels                               PASS    bright_pixels = 600, expected 600 (tol 0, rtol 0)
+CHECK pg_area_all_zero_0_status                                              PASS    status COMPLETE
+CHECK pg_area_all_zero_1_value:bright_pixels                                 PASS    bright_pixels = 0, expected 0 (tol 0, rtol 0)
+CHECK pg_area_all_zero_2_value:area_um2                                      PASS    area_um2 = 0.0, expected 0.0 (tol 1e-12, rtol 0)
+CHECK pg_area_nan_0_status                                                   FAIL    status COMPLETE, expected FAILED (error: None)
+CHECK pg_pixel_zero_0_status                                                 PASS    status FAILED
+CHECK pg_pixel_negative_0_status                                             PASS    status FAILED
+CHECK pg_align_squares_0_status                                              PASS    status COMPLETE
+CHECK pg_align_squares_1_matrix                                              PASS    linear part off by 0 (limit 1e-09), translation off by 0 px (limit 1e-06), last row off by 0
+CHECK pg_align_swapped_0_status                                              PASS    status COMPLETE
+CHECK pg_align_swapped_1_matrix                                              PASS    linear part off by 0 (limit 1e-09), translation off by 0 px (limit 1e-06), last row off by 0
+CHECK pg_align_identity_0_status                                             PASS    status COMPLETE
+CHECK pg_align_identity_1_matrix                                             PASS    linear part off by 0 (limit 1e-09), translation off by 0 px (limit 1e-09), last row off by 0
+CHECK pg_align_subpixel_0_status                                             PASS    status COMPLETE
+CHECK pg_align_subpixel_1_matrix                                             PASS    linear part off by 0 (limit 1e-09), translation off by 1.615e-09 px (limit 0.001), last row off by 0
+CHECK pg_align_zero_0_status                                                 PASS    status FAILED
+CHECK pg_align_nan_0_status                                                  PASS    status FAILED
+CHECK pg_stress_discs_0_status                                               PASS    status COMPLETE
+CHECK pg_stress_discs_1_table:label                                          PASS    400 rows, columns ['y', 'x', 'area_px'] equal the truth
+CHECK pg_stress_discs_2_message                                              PASS    message 'Found **400** blob(s).' contains 'Found **400** blob(s)'
+CHECK pg_stress_halves_0_status                                              PASS    status COMPLETE
+CHECK pg_stress_halves_1_value:pixels                                        PASS    pixels = 4500000, expected 4500000 (tol 0, rtol 0)
+CHECK pg_stress_halves_2_value:level_used                                    PASS    level_used = 500.0, expected 500.0 (tol 0.0001, rtol 0)
+CHECK pg_stress_halves_3_value:fraction                                      PASS    fraction = 0.5, expected 0.5 (tol 1e-09, rtol 0)
+CHECK pg_stress_halves_area_0_status                                         PASS    status COMPLETE
+CHECK pg_stress_halves_area_1_value:bright_pixels                            PASS    bright_pixels = 4500000, expected 4500000 (tol 0, rtol 0)
+CHECK pg_stress_halves_area_2_value:area_um2                                 PASS    area_um2 = 45000.0, expected 45000.0 (tol 1e-06, rtol 1e-12)
+CHECK pg_table_basic_0_status                                                PASS    status COMPLETE
+CHECK pg_table_basic_1_table:column                                          PASS    4 rows, columns ['count', 'mean', 'min', 'max'] equal the truth
+CHECK pg_table_basic_2_value:rows                                            PASS    rows = 8, expected 8 (tol 0, rtol 0)
+CHECK pg_table_basic_3_value:columns                                         PASS    columns = 5, expected 5 (tol 0, rtol 0)
+CHECK pg_table_basic_4_value:numeric_columns                                 PASS    numeric_columns = 4, expected 4 (tol 0, rtol 0)
+CHECK pg_table_unicode_0_status                                              PASS    status COMPLETE
+CHECK pg_table_unicode_1_table:column                                        PASS    3 rows, columns ['count', 'mean', 'min', 'max'] equal the truth
+CHECK pg_table_unicode_2_value:rows                                          PASS    rows = 3, expected 3 (tol 0, rtol 0)
+CHECK pg_table_unicode_3_value:columns                                       PASS    columns = 3, expected 3 (tol 0, rtol 0)
+CHECK pg_table_unicode_4_value:numeric_columns                               PASS    numeric_columns = 3, expected 3 (tol 0, rtol 0)
+CHECK pg_table_big_0_status                                                  PASS    status COMPLETE
+CHECK pg_table_big_1_table:column                                            PASS    3 rows, columns ['count', 'mean', 'min', 'max'] equal the truth
+CHECK pg_table_big_2_value:rows                                              PASS    rows = 100000, expected 100000 (tol 0, rtol 0)
+CHECK pg_table_big_3_value:columns                                           PASS    columns = 3, expected 3 (tol 0, rtol 0)
+CHECK pg_table_big_4_value:numeric_columns                                   PASS    numeric_columns = 3, expected 3 (tol 0, rtol 0)
+CHECK pg_table_no_numbers_0_status                                           PASS    status FAILED
+CHECK pg_table_header_only_0_status                                          PASS    status FAILED
+CHECK pg_file_json_0_status                                                  PASS    status COMPLETE
+CHECK pg_file_json_1_value:kind                                              PASS    kind = 'json', expected 'json' (tol 0, rtol 0)
+CHECK pg_file_json_2_value:keys                                              PASS    keys = 'channels, name, nested, normalise, tags, threshold', expected 'channels, name, nested, normalise, tags, threshold' (tol 0, rtol 0)
+CHECK pg_file_json_3_value:value_name                                        PASS    value_name = 'synthetic µ→✓', expected 'synthetic µ→✓' (tol 0, rtol 0)
+CHECK pg_file_json_4_value:value_threshold                                   PASS    value_threshold = 0.25, expected 0.25 (tol 0, rtol 0)
+CHECK pg_file_json_5_value:value_channels                                    PASS    value_channels = 4, expected 4 (tol 0, rtol 0)
+CHECK pg_file_json_6_value:value_normalise                                   PASS    value_normalise = False, expected False (tol 0, rtol 0)
+CHECK pg_file_json_7_value:bytes                                             PASS    bytes = 120, expected 120 (tol 0, rtol 0)
+CHECK pg_file_json_list_0_status                                             PASS    status COMPLETE
+CHECK pg_file_json_list_1_value:kind                                         PASS    kind = 'json', expected 'json' (tol 0, rtol 0)
+CHECK pg_file_json_list_2_value:file                                         PASS    file = 'pg_file_json_list.txt', expected 'pg_file_json_list.txt' (tol 0, rtol 0)
+CHECK pg_file_text_crlf_0_status                                             PASS    status COMPLETE
+CHECK pg_file_text_crlf_1_value:kind                                         PASS    kind = 'text', expected 'text' (tol 0, rtol 0)
+CHECK pg_file_text_crlf_2_value:lines                                        PASS    lines = 3, expected 3 (tol 0, rtol 0)
+CHECK pg_file_text_crlf_3_value:bytes                                        PASS    bytes = 18, expected 18 (tol 0, rtol 0)
+CHECK pg_file_empty_0_status                                                 PASS    status COMPLETE
+CHECK pg_file_empty_1_value:kind                                             PASS    kind = 'text', expected 'text' (tol 0, rtol 0)
+CHECK pg_file_empty_2_value:lines                                            PASS    lines = 0, expected 0 (tol 0, rtol 0)
+CHECK pg_file_empty_3_value:bytes                                            PASS    bytes = 0, expected 0 (tol 0, rtol 0)
+CHECK pg_file_exact_limit_0_status                                           PASS    status COMPLETE
+CHECK pg_file_exact_limit_1_value:kind                                       PASS    kind = 'text', expected 'text' (tol 0, rtol 0)
+CHECK pg_file_exact_limit_2_value:lines                                      PASS    lines = 10000, expected 10000 (tol 0, rtol 0)
+CHECK pg_file_exact_limit_3_value:bytes                                      PASS    bytes = 1000000, expected 1000000 (tol 0, rtol 0)
+CHECK pg_file_over_limit_0_status                                            PASS    status FAILED
+CHECK pg_file_binary_0_status                                                PASS    status FAILED
+CHECK pg_make_three_channels_0_status                                        PASS    status COMPLETE
+CHECK pg_make_three_channels_1_tiff_slice_means                              FAIL    three_channels.tif: means [42.713, 20.0, 30.0], expected [10, 20, 30]
+CHECK pg_make_size_too_small_0_status                                        PASS    status FAILED
+CHECK pg_make_size_too_big_0_status                                          PASS    status FAILED
+CHECK pg_make_missing_folder_0_status                                        PASS    status FAILED
+SUMMARY {'PASS': 162, 'FAIL': 3, 'NOT_RUN': 0} (165 checks, 67 datasets)

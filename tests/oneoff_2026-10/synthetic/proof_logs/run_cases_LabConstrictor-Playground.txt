@@ -1,0 +1,66 @@
+CASE 000 COMPLETE feature_tour                 OK [pg_discs] 14 blobs (12 discs radius 5-10 and 2 rings with a
+CASE 001 COMPLETE feature_tour                 OK [pg_region_offset] the same blobs, region = box rows 90-249,
+CASE 002 COMPLETE feature_tour                 OK [pg_discs_min_size] min_size_px = 150 removes the small disc
+CASE 003 COMPLETE feature_tour                 OK [pg_discs_dark] look_for = dark: the background and the two 
+CASE 004 FAILED   feature_tour                 OK [pg_discs_none_found] threshold 1.0 and min size 500: nothin
+CASE 005 FAILED   feature_tour                 OK [pg_region_empty] a selection that is empty
+CASE 006 FAILED   feature_tour                 OK [pg_region_wrong_size] a selection that is of the wrong size
+CASE 007 FAILED   feature_tour                 OK [pg_threshold_out_of_range] threshold 1.5 (declared range 0.
+CASE 008 FAILED   feature_tour                 OK [pg_flat_zero] an all-zero image
+CASE 009 FAILED   feature_tour                 OK [pg_nan_float] a float image with a block of NaN
+CASE 010 FAILED   feature_tour                 OK [pg_channels_cyx_cli] the same 3-channel file given whole to
+CASE 011 COMPLETE count_above_level            OK [pg_ramp_u8_fixed] ramp 0..99 (u8), count pixels >= 50
+CASE 012 COMPLETE count_above_level            OK [pg_ramp_u8_p90] ramp 0..99 (u8), 90th percentile
+CASE 013 COMPLETE count_above_level            OK [pg_ramp_u16_fixed] ramp 0..99 (u16), count pixels >= 50
+CASE 014 COMPLETE count_above_level            OK [pg_ramp_u16_p90] ramp 0..99 (u16), 90th percentile
+CASE 015 COMPLETE count_above_level            OK [pg_ramp_f32_fixed] ramp 0..99 (f32), count pixels >= 50
+CASE 016 COMPLETE count_above_level            OK [pg_ramp_f32_p90] ramp 0..99 (f32), 90th percentile
+CASE 017 COMPLETE count_above_level            OK [pg_ramp_i32_fixed] ramp 0..99 as int32 (plain TIFF, no cali
+CASE 018 COMPLETE count_above_level            OK [pg_ramp_lowrange] 16-bit values 0..11 only (a low dynamic r
+CASE 019 FAILED   count_above_level            OK [pg_axes_cyx] a CYX image (3x40x100) given to a 2D tool
+CASE 020 FAILED   count_above_level            OK [pg_axes_tyx] a TYX image (5x40x100) given to a 2D tool
+CASE 021 FAILED   count_above_level            OK [pg_axes_zyx] a ZYX image (6x40x100) given to a 2D tool
+CASE 022 FAILED   count_above_level            OK [pg_axes_tzcyx] a TZCYX image (2x3x2x40x100) given to a 2D t
+CASE 023 FAILED   count_above_level            OK [pg_axes_rgb] an RGB image given to a 2D tool
+CASE 024 COMPLETE count_above_level            MISMATCH status COMPLETE, expected FAILED:  [pg_nan_count] a float image with one NaN pixel, percentile 
+CASE 025 COMPLETE bright_area                  OK [pg_area_u8] a 20x30 bright rectangle (u8), 0.5 um per pixel
+CASE 026 COMPLETE bright_area                  OK [pg_area_u16] a 20x30 bright rectangle (u16), 0.5 um per pix
+CASE 027 COMPLETE bright_area                  OK [pg_area_f32] a 20x30 bright rectangle (f32), 0.5 um per pix
+CASE 028 COMPLETE bright_area                  OK [pg_area_u32] the rectangle as uint32 with values near 4e9
+CASE 029 COMPLETE bright_area                  OK [pg_cal_nm] calibration written in nm (500 nm per pixel)
+CASE 030 COMPLETE bright_area                  OK [pg_cal_um] calibration written in um (0.5 um per pixel)
+CASE 031 COMPLETE bright_area                  OK [pg_cal_micro_sign] calibration written in µm (0.5 µm per pi
+CASE 032 COMPLETE bright_area                  OK [pg_cal_micron] calibration written in micron (0.5 micron pe
+CASE 033 FAILED   bright_area                  OK [pg_cal_none] no calibration in the file
+CASE 034 FAILED   bright_area                  OK [pg_cal_pixel_unit] an ImageJ file whose unit is 'pixel' (sc
+CASE 035 COMPLETE bright_area                  OK [pg_cal_anisotropic] anisotropic pixels: 0.25 um in Y, 0.5 u
+CASE 036 COMPLETE bright_area                  OK [pg_area_all_zero] an all-zero image
+CASE 037 COMPLETE bright_area                  MISMATCH status COMPLETE, expected FAILED:  [pg_area_nan] the rectangle with one NaN pixel
+CASE 038 FAILED   bright_area                  OK [pg_pixel_zero] pixel size 0
+CASE 039 FAILED   bright_area                  OK [pg_pixel_negative] pixel size -0.5
+CASE 040 COMPLETE align_centres                OK [pg_align_squares] a 6x6 square and an 8x8 square in images 
+CASE 041 COMPLETE align_centres                OK [pg_align_swapped] the same two images swapped
+CASE 042 COMPLETE align_centres                OK [pg_align_identity] an image against itself
+CASE 043 COMPLETE align_centres                OK [pg_align_subpixel] two Gaussian spots at sub-pixel position
+CASE 044 FAILED   align_centres                OK [pg_align_zero] an all-zero image has no centre
+CASE 045 FAILED   align_centres                OK [pg_align_nan] an image with one NaN
+CASE 046 COMPLETE feature_tour                 OK [pg_stress_discs] stress: 3000x3000 uint8 with a 20x20 grid 
+CASE 047 COMPLETE count_above_level            OK [pg_stress_halves] stress: 3000x3000 uint16 (18 MB, memory-m
+CASE 048 COMPLETE bright_area                  OK [pg_stress_halves_area] the same image: area of the bright r
+CASE 049 COMPLETE summarise_table              OK [pg_table_basic] 8 rows: a counter, a constant, a column wit
+CASE 050 COMPLETE summarise_table              OK [pg_table_unicode] column names with µ, ß and Cyrillic
+CASE 051 COMPLETE summarise_table              OK [pg_table_big] stress: 100 000 rows x 3 numeric columns
+CASE 052 FAILED   summarise_table              OK [pg_table_no_numbers] a table with only text columns
+CASE 053 FAILED   summarise_table              OK [pg_table_header_only] a header and no rows
+CASE 054 COMPLETE look_inside_file             OK [pg_file_json] a JSON object with text, numbers, a boolean, 
+CASE 055 COMPLETE look_inside_file             OK [pg_file_json_list] a JSON list
+CASE 056 COMPLETE look_inside_file             OK [pg_file_text_crlf] three lines with CRLF, LF and a trailing
+CASE 057 COMPLETE look_inside_file             OK [pg_file_empty] an empty file
+CASE 058 COMPLETE look_inside_file             OK [pg_file_exact_limit] a text file of exactly 1 000 000 bytes
+CASE 059 FAILED   look_inside_file             OK [pg_file_over_limit] a text file of 1 000 001 bytes
+CASE 060 FAILED   look_inside_file             OK [pg_file_binary] a binary file (bytes 128-255)
+CASE 061 COMPLETE make_test_data               OK [pg_make_three_channels] 'Make test data' kind three_channel
+CASE 062 FAILED   make_test_data               OK [pg_make_size_too_small] Make test data with size=16
+CASE 063 FAILED   make_test_data               OK [pg_make_size_too_big] Make test data with size=5000
+CASE 064 FAILED   make_test_data               OK [pg_make_missing_folder] Make test data with folder=fixtures
+SUMMARY 65 cases, 2 differ from their own expectation
