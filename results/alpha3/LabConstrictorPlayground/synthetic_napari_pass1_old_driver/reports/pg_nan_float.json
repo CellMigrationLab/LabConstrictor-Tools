@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.57,
+  "error": "[no_result] No blob found (threshold 0.50, at least 20 pixels): lower the threshold or the minimum size.",
+  "code": "no_result",
+  "status_text": "\u26a0 No blob found (threshold 0.50, at least 20 pixels): lower the threshold or the minimum size.",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T140659208963_LabConstrictorPlayground_feature_tour",
+  "host_observed": {}
+}

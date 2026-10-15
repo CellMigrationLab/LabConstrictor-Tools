@@ -1,0 +1,20 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.2,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  file=pg_file_json_list.txt, bytes=9, kind=json",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T140922492235_LabConstrictorPlayground_look_inside_file",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "file": "pg_file_json_list.txt",
+        "bytes": 9,
+        "kind": "json"
+      }
+    }
+  ],
+  "host_observed": {}
+}

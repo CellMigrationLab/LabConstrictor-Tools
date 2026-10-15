@@ -4,7 +4,7 @@
  "family": "ui",
  "host_version": "v0.1.0-alpha.3",
  "started": "2026-10-15T14:01:57",
- "finished": null,
+ "finished": "2026-10-15T14:04:06",
  "expected": 12,
  "parts": [
   "panel"
@@ -269,6 +269,58 @@
    "seconds": 0.0,
    "screenshot": null,
    "ts": "2026-10-15T14:03:19"
+  },
+  {
+   "id": "ui_fiji_fj1b_cancel_form_make_test_data",
+   "family": "ui",
+   "host": "fiji",
+   "app": "LabConstrictorPlayground",
+   "tool": "make_test_data",
+   "control": null,
+   "status": "PASS",
+   "detail": "plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'",
+   "seconds": 22.83,
+   "screenshot": null,
+   "ts": "2026-10-15T14:03:42"
+  },
+  {
+   "id": "ui_fiji_fj1b_missing_image_align_centres",
+   "family": "ui",
+   "host": "fiji",
+   "app": "LabConstrictorPlayground",
+   "tool": "align_centres",
+   "control": null,
+   "status": "PASS",
+   "detail": "no image open, OK on the untouched form: refused: error \"[missing_parameter] 'Image' is required: open an image or choose a file\", code None, status None, status line 'Command canceled: Align the centres of two images'",
+   "seconds": 24.64,
+   "screenshot": null,
+   "ts": "2026-10-15T14:04:06"
+  },
+  {
+   "id": "ui_fiji_controls_all_known",
+   "family": "ui",
+   "host": "fiji",
+   "app": "LabConstrictorPlayground",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "53 control(s) in 3 form(s) and 4 chooser(s), every one in the control table (20 kinds)",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T14:04:06"
+  },
+  {
+   "id": "ui_fiji_panel_form_ok",
+   "family": "ui",
+   "host": "fiji",
+   "app": "LabConstrictorPlayground",
+   "tool": null,
+   "control": null,
+   "status": "NOT_RUN",
+   "detail": "the audit ended without producing this check (a crash, a timeout, or a step that was never reached)",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T14:04:06"
   }
  ]
 }

@@ -1,0 +1,6 @@
+WARNING: could not determine DPI
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 000 COMPLETE   feature_tour                 OK

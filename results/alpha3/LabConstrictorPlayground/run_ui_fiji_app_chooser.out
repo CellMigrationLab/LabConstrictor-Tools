@@ -1,0 +1,17 @@
+NOTE ui_fiji_parts not run: only ['panel'] ran (LC_UI_PARTS)
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+CHECK ui_fiji_panel_chooser_app PASS lists ['LabConstrictorPlayground', 'PlaygroundTwin']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Align the centres of two images', 'Area of the bright region', 'Check everything', 'Count the pixels above a level', 'Feature tour', 'List the devices', 'Look inside a file', 'Make test data', 'Run a small test on a device', 'Stress: a big image', 'Stress: crash the worker', 'Stress: a tool that ignores Cancel', 'Stress: many points', 'Stress: out of memory (simulated)', 'Stress: real memory pressure (bounded, opt-in)', 'Stress: slow run with progress', 'Summarise a table']; the combo...
+CHECK ui_fiji_panel_chooser_ok PASS OK on the app chooser opened 'LabConstrictor: LabConstrictorPlayground'
+CHECK ui_fiji_form_make_test_data_opens PASS 3 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_make_test_data_controls PASS 4 control(s) activated and read back: choice_combo, file_browse, text_field
+CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_terminal FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_copy_python FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_log FAIL not run: no tool completed a run, so there is no Log of a run to read
+CHECK ui_fiji_fj1b_cancel_form_make_test_data PASS plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'
+NOTE ui_fiji_fj1b_missing_image not run: no tool of this app has a required image input: nothing to refuse
+CHECK ui_fiji_controls_all_known PASS 45 control(s) in 2 form(s) and 5 chooser(s), every one in the control table (20 kinds)
+CHECK ui_fiji_panel_form_ok FAIL not run: the audit ended without producing this check (a crash, a timeout, or a step that was never reached)

@@ -1,0 +1,21 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.21,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  file=pg_file_text_crlf.txt, bytes=18, kind=text, lines=3",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T140924797335_LabConstrictorPlayground_look_inside_file",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "file": "pg_file_text_crlf.txt",
+        "bytes": 18,
+        "kind": "text",
+        "lines": 3
+      }
+    }
+  ],
+  "host_observed": {}
+}

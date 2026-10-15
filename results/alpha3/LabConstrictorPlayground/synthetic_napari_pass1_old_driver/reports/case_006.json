@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.91,
+  "error": "[bad_input] the region (100 x 100) does not have the size of the image (256 x 256)",
+  "code": "bad_input",
+  "status_text": "\u2716 [bad_input] the region (100 x 100) does not have the size of the image (256 x 256)  - click Details\u2026 for the full report (log: /home/user/apps/a3_lc_home_Playground_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T140652402366_LabConstrictorPlayground_feature_tour",
+  "host_observed": {}
+}

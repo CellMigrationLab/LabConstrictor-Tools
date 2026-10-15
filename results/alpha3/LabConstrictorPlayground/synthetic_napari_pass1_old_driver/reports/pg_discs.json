@@ -1,0 +1,47 @@
+{
+  "status": "COMPLETE",
+  "seconds": 4.77,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.9s  outlines 'outlines' (14)  points 'centres' (14)  table 'measurements' (14 rows)",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T140631814254_LabConstrictorPlayground_feature_tour",
+  "results": [
+    {
+      "type": "labels",
+      "name": "blobs",
+      "path": "/tmp/lcin_p593r6wl/out/blobs.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "shapes",
+      "name": "outlines",
+      "path": "/tmp/lcin_p593r6wl/out/outlines.geojson",
+      "n": 14,
+      "apply_to": "image"
+    },
+    {
+      "type": "points",
+      "name": "centres",
+      "path": "/tmp/lcin_p593r6wl/out/centres.csv",
+      "n": 14,
+      "columns": [
+        "y",
+        "x",
+        "label",
+        "area_px"
+      ],
+      "apply_to": "image"
+    },
+    {
+      "type": "table",
+      "name": "measurements",
+      "path": "/tmp/lcin_p593r6wl/out/measurements.csv"
+    },
+    {
+      "type": "message",
+      "name": "summary",
+      "text": "Found **14** blob(s)."
+    }
+  ],
+  "host_observed": {}
+}

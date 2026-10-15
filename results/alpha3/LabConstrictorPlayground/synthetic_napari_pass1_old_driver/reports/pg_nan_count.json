@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.68,
+  "error": "[non_finite_pixels] The image has 1 pixel(s) that are NaN or infinite, so the result would be wrong without saying so. Clean the image first (replace or crop out those pixels).",
+  "code": "non_finite_pixels",
+  "status_text": "\u2716 [non_finite_pixels] The image has 1 pixel(s) that are NaN or infinite, so the result would be wrong without saying so. Clean the image first (replace or crop out those pixels).  - click Details\u2026 for the full report (log: /home/user/apps/a3_lc_home_Playground_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T140739076759_LabConstrictorPlayground_count_above_level",
+  "host_observed": {}
+}

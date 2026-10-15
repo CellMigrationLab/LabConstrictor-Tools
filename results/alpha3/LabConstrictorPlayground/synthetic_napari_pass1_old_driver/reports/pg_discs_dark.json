@@ -1,0 +1,47 @@
+{
+  "status": "COMPLETE",
+  "seconds": 3.04,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  outlines 'outlines' (3)  points 'centres' (3)  table 'measurements' (3 rows)",
+  "run_record": "/home/user/apps/a3_lc_home_Playground_synnap/runs/20261015T140643158047_LabConstrictorPlayground_feature_tour",
+  "results": [
+    {
+      "type": "labels",
+      "name": "blobs",
+      "path": "/tmp/lcin_mahxjl8r/out/blobs.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "shapes",
+      "name": "outlines",
+      "path": "/tmp/lcin_mahxjl8r/out/outlines.geojson",
+      "n": 3,
+      "apply_to": "image"
+    },
+    {
+      "type": "points",
+      "name": "centres",
+      "path": "/tmp/lcin_mahxjl8r/out/centres.csv",
+      "n": 3,
+      "columns": [
+        "y",
+        "x",
+        "label",
+        "area_px"
+      ],
+      "apply_to": "image"
+    },
+    {
+      "type": "table",
+      "name": "measurements",
+      "path": "/tmp/lcin_mahxjl8r/out/measurements.csv"
+    },
+    {
+      "type": "message",
+      "name": "summary",
+      "text": "Found **3** blob(s)."
+    }
+  ],
+  "host_observed": {}
+}

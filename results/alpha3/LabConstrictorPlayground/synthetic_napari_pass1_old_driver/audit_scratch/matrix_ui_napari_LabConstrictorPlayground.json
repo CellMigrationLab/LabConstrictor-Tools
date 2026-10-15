@@ -1,0 +1,10 @@
+{
+ "host": "napari",
+ "app": "LabConstrictorPlayground",
+ "family": "ui",
+ "host_version": "0.1.0a1",
+ "started": "2026-10-15T14:06:22Z",
+ "finished": null,
+ "expected": 0,
+ "rows": []
+}

@@ -11,3 +11,7 @@ CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancel
 CHECK ui_fiji_panel_copy_terminal FAIL not run: no tool completed a run in this audit, so there is no command to copy
 CHECK ui_fiji_panel_copy_python FAIL not run: no tool completed a run in this audit, so there is no command to copy
 CHECK ui_fiji_panel_log FAIL not run: no tool completed a run, so there is no Log of a run to read
+CHECK ui_fiji_fj1b_cancel_form_make_test_data PASS plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'
+CHECK ui_fiji_fj1b_missing_image_align_centres PASS no image open, OK on the untouched form: refused: error "[missing_parameter] 'Image' is required: open an image or choose a file", code None, status None, status line 'Command canceled: Align the centres of two images'
+CHECK ui_fiji_controls_all_known PASS 53 control(s) in 3 form(s) and 4 chooser(s), every one in the control table (20 kinds)
+CHECK ui_fiji_panel_form_ok FAIL not run: the audit ended without producing this check (a crash, a timeout, or a step that was never reached)

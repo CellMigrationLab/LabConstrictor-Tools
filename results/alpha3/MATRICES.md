@@ -62,17 +62,31 @@
 | sandbox | cli | 55 | 0 | 0 | 0 | 3 | 2026-10-15T13:24:09 |
 | alpha3 | napari | 15 | 0 | 0 | 0 | 0 | 2026-10-15T13:28:33Z |
 | synthetic | cli | 163 | 2 | 0 | 2 | 0 | 2026-10-15T13:29:55 |
+| ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
+| ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
+| synthetic | napari | 163 | 10 | 0 | 0 | 4 | 2026-10-15T14:09:51 |
 | ui | fiji | 120 | 0 | 0 | 18 | 0 | 2026-10-15T13:46:34 |
-| ui | fiji | 14 | 0 | 3 | 3 | 0 | NOT FINISHED |
+| ui | fiji | 17 | 0 | 4 | 2 | 0 | 2026-10-15T14:06:12 |
+| ui | fiji | 17 | 0 | 4 | 3 | 0 | 2026-10-15T14:04:06 |
 | ui | fiji | 17 | 0 | 4 | 3 | 0 | 2026-10-15T14:01:57 |
 | ui | napari | 66 | 2 | 0 | 15 | 0 | 2026-10-15T13:59:31Z |
 | ui | napari | 64 | 4 | 0 | 14 | 0 | 2026-10-15T13:31:43Z |
 | ui | qupath | 67 | 0 | 1 | 22 | 0 | 2026-10-15T13:56:33Z |
 
-### LabConstrictorPlayground: FAIL (8)
+### LabConstrictorPlayground: FAIL (18)
 
 * `syn_pg_ramp_f32_p90_2_value:level_used` (synthetic/cli) level_used = 89.099853515625, expected 89.09999999999991 (tol 0.0001, rtol 0)
 * `syn_pg_make_three_channels_1_tiff_slice_means` (synthetic/cli) three_channels.tif: means [42.713, 20.0, 30.0], expected [10, 20, 30]
+* `syn_host_napari_pg_channels_cyx_0_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_0' (host_observed: [])
+* `syn_host_napari_pg_channels_cyx_1_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_1' (host_observed: [])
+* `syn_host_napari_pg_channels_cyx_2_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_2' (host_observed: [])
+* `syn_host_napari_pg_channels_cyx_cli_0_status` (synthetic/napari) status COMPLETE, expected FAILED (error: None)
+* `syn_host_napari_pg_rgb_0_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_0' (host_observed: [])
+* `syn_host_napari_pg_rgb_1_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_1' (host_observed: [])
+* `syn_host_napari_pg_rgb_2_host_param` (synthetic/napari) the host reported nothing for 'blobs_channel_2' (host_observed: [])
+* `syn_host_napari_pg_ramp_f32_p90_2_value:level_used` (synthetic/napari) level_used = 89.099853515625, expected 89.09999999999991 (tol 0.0001, rtol 0)
+* `syn_host_napari_pg_pixel_zero_0_status` (synthetic/napari) code 'pixel_size_unknown', expected 'invalid_pixel_size'; message "[pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image." lacks 'above 0'
+* `syn_host_napari_pg_make_three_channels_1_tiff_slice_means` (synthetic/napari) no file matches fixtures/pg_make_out/three_channels*.tif under /home/user/synthetic/LabConstrictor-Playground
 * `ui_napari_run_look_inside_file` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
 * `ui_napari_form_summarise_table_controls` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
 * `ui_napari_run_look_inside_file` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
@@ -80,18 +94,23 @@
 * `ui_napari_run_align_centres` (ui/napari) AssertionError: prerequisite case 27 (bright_area) ended FAILED pixel_size_unknown, its expect says FAILED invalid_pixel_size | ✖ [pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.  - click Details… for the full report (log: /home/user/apps/a3_lc_home_Playground/logs/labconstrictor.log)
 * `ui_napari_screens_align_centres` (ui/napari) AssertionError: align_centres_form.png does not exist; align_centres_after_run.png does not exist
 
-### LabConstrictorPlayground: NOT_RUN (8)
+### LabConstrictorPlayground: NOT_RUN (13)
 
 * `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
 * `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
 * `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
+* `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
+* `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
+* `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
 * `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
 * `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
 * `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
 * `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
 * `ui_qupath_form_feature_tour_channel` (ui/qupath) image.channel(no multi-channel fixture three_channels.tif)
 
-### LabConstrictorPlayground: HUMAN (77)
+### LabConstrictorPlayground: HUMAN (79)
 
 * `syn_pg_channels_cyx_note` (synthetic/cli) has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
 * `syn_pg_rgb_note` (synthetic/cli) has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
@@ -113,6 +132,8 @@
 * `ui_fiji_screens_stress_slow` (ui/fiji) no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
 * `ui_fiji_run_stress_slow` (ui/fiji) no run: a stress tool: it is never run through the form
 * `ui_fiji_run_summarise_table` (ui/fiji) expectations of the case that Fiji cannot check: summary cells
+* `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
+* `ui_fiji_fj1b_missing_image` (ui/fiji) no tool of this app has a required image input: nothing to refuse
 * `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
 * `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
 * `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
