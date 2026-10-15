@@ -1,4 +1,4 @@
-# Test data for the alpha.3 human-testing round
+# Test data for the alpha.4 human-testing round
 
 This page is for people testing LabConstrictor on **their own Windows, Apple-silicon macOS, or Linux computer**. Start with [TESTER_START_HERE.md](TESTER_START_HERE.md), then record results in the [OS checklist](TEST_MATRIX.md). **You do not need to prepare all these datasets before starting.** Most first-use tests use the apps' built-in examples.
 
@@ -82,4 +82,4 @@ Use `reference_20nm.tif` against itself first (SSIM and Pearson expected near **
 
 ## Maintainer TODO — improve this before a broader human round
 
-Publish **one small, versioned, checksum-listed `LabConstrictor-alpha.3-test-data.zip`** containing P1, N1, V1, C1 and a **validated** C2 TrackMate demo. Include a one-page `README`, the expected outcomes, original upstream tags/commit SHAs, and clear separation between synthetic and real data. Then replace the generator/source-archive steps above with **one download link**. Until that bundle is published, **do not invent a download URL or imply C2 is provided**.
+Publish **one small, versioned, checksum-listed `LabConstrictor-alpha.4-test-data.zip`** containing P1, N1, V1, C1 and a **validated** C2 TrackMate demo. Include a one-page `README`, the expected outcomes, original upstream tags/commit SHAs, and clear separation between synthetic and real data. Then replace the generator/source-archive steps above with **one download link**. Until that bundle is published, **do not invent a download URL or imply C2 is provided**.

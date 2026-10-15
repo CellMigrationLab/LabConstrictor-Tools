@@ -97,7 +97,7 @@ Two sources. (a) The tool **Make test data** (folder: a new empty folder `<TESTD
 
 - [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
-## PG-13. Checks of the alpha.3 fixes (and a NaN image)
+## PG-13. Checks of the alpha.4 fixes (and a NaN image)
 **Do:** (a) with `square_nan.tif` from the P1 fixtures (an image with one NaN pixel) run **Bright area** with a pixel size of 0.5, then **Count above level** in percentile mode, then **Align centres** with it as the image. (b) In Fiji, calibrate an image in micrometres (*Image > Properties*, unit `µm`, pixel width 0.02), save it as TIFF, open it in Napari and choose it for a tool with a pixel size (for example **Bright area**).
 **Expect:** (a) each run is **refused** with a sentence that says the image has NaN (or infinite) pixels and what to do; no number is shown and nothing is recorded as COMPLETE (code `non_finite_pixels`). (b) the pixel-size field shows `0.02`.
 

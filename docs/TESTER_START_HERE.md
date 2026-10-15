@@ -11,15 +11,15 @@ You do not need to sign up for a separate host or work packet. **Choose [Windows
 
 **Data first:** [TEST_DATA.md](TEST_DATA.md) maps every test to the exact data it needs. Playground (P0), Guess the Condition (G0) and VLab4Mic (V0) can begin without downloaded TIFF files. NucleiSky's numerical matching check needs generated N1 TIFFs; CellTracksColab's full TrackMate notebook needs a validated C2 dataset, which has not yet been packaged.
 
-## 2. Exact releases for this round (`alpha.3`)
+## 2. Exact releases for this round (`alpha.4`)
 Only these versions; older ones or `main` are not a test of this round.
 
 | Item | Version | Where |
 |---|---|---|
 | Tools (installed by the apps) | `v0.3.0-alpha.1` | nothing to download |
-| Napari plugin | `v0.1.0-alpha.3` | install line below |
-| Fiji plugin | `v0.1.0-alpha.3`, file `labconstrictor-fiji-v0.1.0-alpha.3.jar` | [Fiji releases](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/tag/v0.1.0-alpha.3) |
-| QuPath plugin | `v0.1.0-alpha.3`, file `labconstrictor-qupath-v0.1.0-alpha.3.jar` | [QuPath releases](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.3) |
+| Napari plugin | `v0.1.0-alpha.4` | install line below |
+| Fiji plugin | `v0.1.0-alpha.4`, file `labconstrictor-fiji-v0.1.0-alpha.4.jar` | [Fiji releases](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/tag/v0.1.0-alpha.4) |
+| QuPath plugin | `v0.1.0-alpha.4`, file `labconstrictor-qupath-v0.1.0-alpha.4.jar` | [QuPath releases](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.4) |
 | QuPath itself | **0.7.0** exactly | https://qupath.github.io |
 | Napari itself | 0.9 or newer, Python 3.11+, Qt6 (`napari[pyqt6]`) | https://napari.org |
 | Fiji itself | current "Fiji with Java" | https://fiji.sc |
@@ -41,8 +41,8 @@ Installers (take the one for your system; Intel Macs are not supported):
 | CellTracksColab 1.1.2 | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-Windows-x86_64.exe) | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-MacOSX-arm64.pkg) | [download](https://github.com/CellMigrationLab/CellTracksColab/releases/download/1.1.2/CellTracksColab-1.1.2-Linux-x86_64.sh) |
 
 Host plugins (the same files for every system):
-* Fiji: [labconstrictor-fiji-v0.1.0-alpha.3.jar](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/download/v0.1.0-alpha.3/labconstrictor-fiji-v0.1.0-alpha.3.jar) (checksums: [SHA256SUMS](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/download/v0.1.0-alpha.3/SHA256SUMS))
-* QuPath: [labconstrictor-qupath-v0.1.0-alpha.3.jar](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/download/v0.1.0-alpha.3/labconstrictor-qupath-v0.1.0-alpha.3.jar) (checksums: [SHA256SUMS](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/download/v0.1.0-alpha.3/SHA256SUMS))
+* Fiji: [labconstrictor-fiji-v0.1.0-alpha.4.jar](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/download/v0.1.0-alpha.4/labconstrictor-fiji-v0.1.0-alpha.4.jar) (checksums: [SHA256SUMS](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/download/v0.1.0-alpha.4/SHA256SUMS))
+* QuPath: [labconstrictor-qupath-v0.1.0-alpha.4.jar](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/download/v0.1.0-alpha.4/labconstrictor-qupath-v0.1.0-alpha.4.jar) (checksums: [SHA256SUMS](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/download/v0.1.0-alpha.4/SHA256SUMS))
 * Napari: no file to download, it is installed with `pip` (below).
 
 ### Where each file goes
@@ -61,7 +61,7 @@ Napari, in a new environment (Windows PowerShell activates with `.\napari-env\Sc
 python -m venv napari-env
 # macOS/Linux: source napari-env/bin/activate
 # Windows PowerShell: .\napari-env\Scripts\Activate.ps1
-python -m pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip
+python -m pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.4.zip
 napari
 ```
 On Windows, use PowerShell with its Windows activation command instead of `source`; if script execution is disabled, use `cmd.exe` with `napari-env\Scripts\activate.bat`. Then **Plugins > LabConstrictor tools** (press **Rescan apps** after installing an app).
@@ -83,7 +83,6 @@ the disk is short (say which apps you reached): Guess the Condition, VLab4Mic, C
 * **VLab4Mic 0.1.6:** `compare_images` accepts a flat or all-zero reference image and returns a number instead of refusing; `simulate_sample` with an unsupported `structure_file` (for example `.csv`) fails with `AttributeError`; the images it writes carry no pixel size; the parameter-sweeps notebook probably ignores the folder chosen for saving (from reading the code).
 * **CellTracksColab 1.1.2:** a track with an infinite coordinate completes with infinite speeds; two spots at the same time give Max Speed 1e10; the `Custom` notebook raises `NameError` on Submit when "Use test dataset" is unticked.
 * **Fiji:** a pixel-size field follows the image's calibration and has no "use the image's calibration" button; typing the value the box already shows clears it and blocks the run; fields that do not apply are not greyed out ([HOST_FEATURES.md](HOST_FEATURES.md)).
-* **Napari:** with a form that has a radio choice open (for example Playground *Count the pixels above a level*), inserting and removing layers leaves small stray radio-button windows on screen. Known; tell us only if something else happens.
 * **Napari:** typing 0 in a pixel-size box resets it to the image's calibration and says so in the status line; it cannot reach the tool's own "invalid pixel size" message.
 * **All hosts:** native file choosers cannot be tested by our automation: a chooser that does not open **is** worth reporting.
 The full list of automated findings is in the `test-results` branch of this repository (`alpha2/FINDINGS.md`, `alpha3/FINDINGS.md`).
@@ -102,6 +101,8 @@ For each test you attempt record PASS, FAIL, BLOCKED, N/A (with reason) or NOT T
 **If something is unclear in these instructions, that is a documentation bug: tell us, it is not your mistake.**
 
 ## 5. Report back
+
+The round is tracked in [issue #141](https://github.com/CellMigrationLab/LabConstrictor-Tools/issues/141): comment there with your initials and the rows you take, and post your report there.
 
 Fill the rightmost column of **your operating system's [testing table](TEST_MATRIX.md)** (PASS / FAIL / BLOCKED / NOT TESTED / N/A, with a brief note) and post **one report per person/OS** in [LabConstrictor-Tools issues](https://github.com/CellMigrationLab/LabConstrictor-Tools/issues/new). Include your initials, OS version/architecture, app and host versions, and any antivirus/proxy restrictions. For each FAIL include what you clicked, expected and observed, and a screenshot. For BLOCKED say what prerequisite or test data was missing. A simple passing demo does **not** require a support bundle.
 
