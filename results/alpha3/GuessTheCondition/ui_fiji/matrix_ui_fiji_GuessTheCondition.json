@@ -4,7 +4,7 @@
  "family": "ui",
  "host_version": "v0.1.0-alpha.3",
  "started": "2026-10-15T12:38:19",
- "finished": null,
+ "finished": "2026-10-15T12:52:28",
  "expected": 36,
  "parts": [
   "panel",
@@ -1024,6 +1024,45 @@
    "seconds": 20.12,
    "screenshot": null,
    "ts": "2026-10-15T12:52:07"
+  },
+  {
+   "id": "ui_fiji_fj1b_cancel_form_analyze_results",
+   "family": "ui",
+   "host": "fiji",
+   "app": "GuessTheCondition",
+   "tool": "analyze_results",
+   "control": null,
+   "status": "PASS",
+   "detail": "plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'",
+   "seconds": 21.63,
+   "screenshot": null,
+   "ts": "2026-10-15T12:52:28"
+  },
+  {
+   "id": "ui_fiji_fj1b_missing_image",
+   "family": "ui",
+   "host": "fiji",
+   "app": "GuessTheCondition",
+   "tool": null,
+   "control": null,
+   "status": "HUMAN",
+   "detail": "no tool of this app has a required image input: nothing to refuse",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T12:52:28"
+  },
+  {
+   "id": "ui_fiji_controls_all_known",
+   "family": "ui",
+   "host": "fiji",
+   "app": "GuessTheCondition",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "440 control(s) in 27 form(s) and 28 chooser(s), every one in the control table (20 kinds)",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T12:52:28"
   }
  ]
 }

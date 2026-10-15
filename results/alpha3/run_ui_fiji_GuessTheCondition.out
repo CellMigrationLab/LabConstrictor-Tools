@@ -41,3 +41,6 @@ CHECK ui_fiji_fj1b_cancel_form_prepare_game PASS plain Cancel on the untouched f
 CHECK ui_fiji_fj1b_cancel_form_list_conditions PASS plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'
 CHECK ui_fiji_fj1b_cancel_form_play_round PASS plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'
 CHECK ui_fiji_fj1b_cancel_form_undo_last_guess PASS plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'
+CHECK ui_fiji_fj1b_cancel_form_analyze_results PASS plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'
+NOTE ui_fiji_fj1b_missing_image not run: no tool of this app has a required image input: nothing to refuse
+CHECK ui_fiji_controls_all_known PASS 440 control(s) in 27 form(s) and 28 chooser(s), every one in the control table (20 kinds)
