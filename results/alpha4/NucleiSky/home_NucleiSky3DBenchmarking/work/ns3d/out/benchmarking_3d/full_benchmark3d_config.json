@@ -1,18 +1,18 @@
 {
   "base_name": "full",
   "volume_shape_zyx": [
-    48,
-    160,
-    160
+    64,
+    200,
+    200
   ],
   "voxel_size_um_zyx": [
     1.0,
     1.0,
     1.0
   ],
-  "n_reference_landmarks": 35,
+  "n_reference_landmarks": 57,
   "centroids_for_bench_um_shape": [
-    35,
+    57,
     3
   ],
   "patch_shapes_px_zyx_requested": [

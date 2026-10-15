@@ -1,9 +1,9 @@
 {
   "full_image_path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/full.tif",
   "full_shape_zyx": [
-    48,
-    160,
-    160
+    64,
+    200,
+    200
   ],
   "voxel_size_full_um_zyx": [
     1.0,
@@ -18,18 +18,18 @@
     "path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/full.tif",
     "kind": ".tif",
     "shape": [
-      48,
-      160,
-      160
+      64,
+      200,
+      200
     ],
     "dtype": "uint16",
     "axes": "ZYX",
     "inferred_zyx": {
       "axes": "ZYX",
       "shape": [
-        48,
-        160,
-        160
+        64,
+        200,
+        200
       ],
       "source": "axes"
     },
@@ -49,9 +49,9 @@
     }
   },
   "segmentation_shape_zyx": [
-    48,
-    160,
-    160
+    64,
+    200,
+    200
   ],
   "voxel_size_full_seg_um_zyx": [
     1.0,
@@ -61,9 +61,9 @@
   "segmentation_source": "2.5D segmentation: method=threshold, stitch_iou=0.30",
   "labels_full_path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/out/segmentation/labels_full.tif",
   "features_full_path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/out/segmentation/features_full.csv",
-  "n_reference_objects": 35,
+  "n_reference_objects": 57,
   "centroids_full_um_shape": [
-    35,
+    57,
     3
   ]
 }
