@@ -30,7 +30,7 @@
 | **M-QUPATH** | M | macOS QuPath 0.7.0 integration | `Q0, D1`; `PG-1/2`, `GC-1/2/3`, **`D2`**, **`D3`**; `M2` (QuPath part) | 60–100 min | — | NOT RUN | — |
 | **W-LIFECYCLE** | M | One Windows machine, **after other packets** | `U1` two usable apps together; `E5, NB5`; `E4` optional; `U2` uninstall only one and confirm other still runs | 25–45 min | — | NOT RUN | — |
 | **M-LIFECYCLE** | M | One Mac, **after other packets** | `U1, E5, NB5, U2`; `M2` (Napari part if not already done) | 25–45 min | — | NOT RUN | — |
-| **L-SPOTCHECK** | S | Linux, human desktop (CI already covers Linux logic) | `L1, L2`; Playground in Napari + Fiji + QuPath (`PG-1/2`); native dialogs; `E5` | 45–90 min | — | NOT RUN | — |
+| **L-SPOTCHECK** | S | Linux, human desktop (CI already covers Linux logic) | `L1, L2` (perform destructive path-space checks only in a disposable install); Playground in Napari + Fiji + QuPath (`PG-1/2`); native dialogs; `E5` | 45–90 min | — | NOT RUN | — |
 | **REAL-DATA** | S | Any platform; microscopy user | One real TIFF/image + calibration, ROI/channel selection, and output sanity check in a host; one genuine user workflow; privacy-safe screenshots | 30–60 min | — | NOT RUN | — |
 | **ADVANCED-FAILURES** | S | Maintainer-controlled disposable test install only | `E1–E3` broken interpreter/missing dependency/worker crash; `U3–U4` updates and interrupted/offline installation. **Not for ordinary testers** | Variable | — | NOT RUN | — |
 
@@ -50,7 +50,7 @@ This is a coverage target, **not** a result table. Each cell says which packet o
 | **Mac / QuPath** | M M-QUPATH | M M-QUPATH | **Absent M M-QUPATH** | S M-QUPATH (`NS-Q1/Q2`) | **Hidden M M-QUPATH** |
 | **Linux / each host** | S | S L-SPOTCHECK | S (Napari/Fiji); **absent** in QuPath | S | **Hidden S** |
 
-**Expected discovery** ([protocol `3](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix)): Guess the Condition, Playground and NucleiSky are offered in all three hosts; VLab4Mic is offered only in Napari and Fiji; **CellTracksColab 1.1.2 ships the `Calculate Track Metrics` bridge tool but its manifest says `hosts: [notebook]`**, so hosts must hide it. First verify the app was registered: otherwise the absence check is inconclusive. `D1` must only be marked PASS for apps actually installed on that machine; uninstalled/missing apps are NOT RUN or BLOCKED.
+**Expected discovery** ([protocol section 3](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix)): Guess the Condition, Playground and NucleiSky are offered in all three hosts; VLab4Mic is offered only in Napari and Fiji; **CellTracksColab 1.1.2 ships the `Calculate Track Metrics` bridge tool but its manifest says `hosts: [notebook]`**, so hosts must hide it. First verify the app was registered: otherwise the absence check is inconclusive. `D1` must only be marked PASS for apps actually installed on that machine; uninstalled/missing apps are NOT RUN or BLOCKED.
 
 **Deliberately additional to the Must map:** NucleiSky scientific workflow in each host/OS is important but expensive. If the alpha round must validate scientific data rather than just bridge usability, promote at least **Windows/Napari NS-N3–N6** and **macOS/Fiji NS-F1–F4** to Must and allocate dedicated testers. Do not silently claim NucleiSky has been tested because it installed.
 
@@ -66,7 +66,7 @@ The host packets **do not replace** installer tests: an installer uses different
 | NucleiSky `0.1.4` | W-INSTALL-B | M-INSTALL-B | `NucleiSky2DApp` | `NB1, NB2`; `NB3` optional / possibly long |
 | CellTracksColab `1.1.2` | W-INSTALL-B | M-INSTALL-B | `CellTracksColab_TrackMate` | `NB1, NB2`; `NB3` requires sample TrackMate data; mark BLOCKED if assigned without data |
 
-**Other packaged notebooks (Should only):** Guess the Condition: `GuessTheCondition_API_Example`; Playground: `Welcome`; VLab4Mic: `VLab4Mic_parameter_sweeps`; NucleiSky: `NucleiSky2DBenchmarking`, `NucleiSky2D_API_Workflow_Example`, `NucleiSky3DApp`, `NucleiSky3DBenchmarking`, `NucleiSky3D_API_Workflow_Example`; CellTracksColab: `CellTracksColab_Custom`, `CellTracksColab_Dimensionality_Reduction`, `CellTracksColab_Distance_to_ROI`, `CellTracksColab_TrackMate_Plate`, `CellTracksColab_Track_Clustering`, `CellTracksColab_Viewer`. `Welcome` is already covered by NB2 for *each* app.
+**Other packaged notebooks (Should only):** Guess the Condition: `GuessTheCondition_API_Example`; Playground: no other app-specific notebook; VLab4Mic: `VLab4Mic_parameter_sweeps`; NucleiSky: `NucleiSky2DBenchmarking`, `NucleiSky2D_API_Workflow_Example`, `NucleiSky3DApp`, `NucleiSky3DBenchmarking`, `NucleiSky3D_API_Workflow_Example`; CellTracksColab: `CellTracksColab_Custom`, `CellTracksColab_Dimensionality_Reduction`, `CellTracksColab_Distance_to_ROI`, `CellTracksColab_TrackMate_Plate`, `CellTracksColab_Track_Clustering`, `CellTracksColab_Viewer`. `Welcome` is already covered by NB2 for *each* app.
 
 **Notebook–host parity (`NB4`, Should):** choose one *deterministic* operation with fixed input, settings and seed (e.g. Playground square image or VLab4Mic same-image comparison); compare numeric values within declared tolerance. Paths, timestamps, autogenerated file names and UI representations need not be identical.
 
