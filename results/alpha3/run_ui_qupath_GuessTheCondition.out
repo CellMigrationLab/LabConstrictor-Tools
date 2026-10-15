@@ -1,0 +1,4 @@
+labconstrictor-qupath-v0.1.0-alpha.3.jar: OK
+LabConstrictorTools-all.groovy: OK
+plan GuessTheCondition: 6 tool(s), 36 expected id(s); tools: analyze_results create_demo_experiment list_conditions play_round prepare_game undo_last_guess
+=== launch GuessTheCondition_panel (phase panel)

@@ -1,0 +1,17 @@
+NOTE ui_fiji_parts not run: only ['panel'] ran (LC_UI_PARTS)
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+NOTE ui_fiji_panel_copy_empty not run: LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['copy last run as command', 'labconstrictor tools...'] (jar)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Analyse the results', 'Create a demo experiment', 'Show the conditions', 'Play a round', 'Prepare the game', 'Undo my last guess']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'Prepare the game'
+CHECK ui_fiji_form_prepare_game_opens PASS 6 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_prepare_game_controls PASS 10 control(s) activated and read back: file_browse, flag_checkbox, number_spinner, set_checkbox, slider, text_field
+CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_terminal FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_copy_python FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_log FAIL not run: no tool completed a run, so there is no Log of a run to read
+CHECK ui_fiji_fj1b_cancel_form_prepare_game PASS plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'
+NOTE ui_fiji_fj1b_missing_image not run: no tool of this app has a required image input: nothing to refuse
+CHECK ui_fiji_controls_all_known PASS 51 control(s) in 2 form(s) and 3 chooser(s), every one in the control table (20 kinds)
+CHECK ui_fiji_panel_form_ok FAIL not run: the audit ended without producing this check (a crash, a timeout, or a step that was never reached)

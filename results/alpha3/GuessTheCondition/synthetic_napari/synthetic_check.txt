@@ -1,0 +1,155 @@
+CHECK gtc_balanced_const_0_status                                            PASS    status COMPLETE
+CHECK gtc_balanced_const_1_value:images_guessed                              PASS    images_guessed = 12, expected 12 (tol 0, rtol 0)
+CHECK gtc_balanced_const_2_value:accuracy                                    PASS    accuracy = 0.5, expected 0.5 (tol 6e-05, rtol 0)
+CHECK gtc_balanced_const_3_value:chance                                      PASS    chance = 0.5, expected 0.5 (tol 6e-05, rtol 0)
+CHECK gtc_balanced_const_4_value:biological_repeats                          PASS    biological_repeats = 3, expected 3 (tol 0, rtol 0)
+CHECK gtc_balanced_const_5_value:repeats_above_chance                        PASS    repeats_above_chance = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_balanced_const_6_value:p_randomization_these_images_exploratory    PASS    p_randomization_these_images_exploratory = 1.0, expected 1.0 (tol 1e-09, rtol 0)
+CHECK gtc_balanced_const_7_table:biological_repeat                           PASS    3 rows, columns ['n', 'correct', 'accuracy', 'chance', 'accuracy_minus_chance'] equal the truth
+CHECK gtc_balanced_const_8_table:condition                                   PASS    2 rows, columns ['n', 'correct', 'recall'] equal the truth
+CHECK gtc_balanced_const_9_message                                           PASS    message '➖ **Not above chance**\n\nThe guesses were not above chance across repeats: accuracy minus chance, mean 0 points (95% inte' contains 'Not above chance'
+CHECK gtc_balanced_const_10_absent_value:p_across_repeats                    PASS    p_across_repeats is absent
+CHECK gtc_unbalanced_const_0_status                                          PASS    status COMPLETE
+CHECK gtc_unbalanced_const_1_value:images_guessed                            PASS    images_guessed = 9, expected 9 (tol 0, rtol 0)
+CHECK gtc_unbalanced_const_2_value:accuracy                                  PASS    accuracy = 0.3333, expected 0.3333333333333333 (tol 6e-05, rtol 0)
+CHECK gtc_unbalanced_const_3_value:chance                                    PASS    chance = 0.6667, expected 0.6666666666666666 (tol 6e-05, rtol 0)
+CHECK gtc_unbalanced_const_4_value:biological_repeats                        PASS    biological_repeats = 3, expected 3 (tol 0, rtol 0)
+CHECK gtc_unbalanced_const_5_value:repeats_above_chance                      PASS    repeats_above_chance = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_unbalanced_const_6_value:p_randomization_these_images_exploratory  PASS    p_randomization_these_images_exploratory = 1.0, expected 1.0 (tol 1e-09, rtol 0)
+CHECK gtc_unbalanced_const_7_table:biological_repeat                         PASS    3 rows, columns ['n', 'correct', 'accuracy', 'chance', 'accuracy_minus_chance'] equal the truth
+CHECK gtc_unbalanced_const_8_table:condition                                 PASS    2 rows, columns ['n', 'correct', 'recall'] equal the truth
+CHECK gtc_unbalanced_const_9_message                                         PASS    message '➖ **Not above chance**\n\nThe guesses were not above chance across repeats: accuracy minus chance, mean -33 points (95% in' contains 'Not above chance'
+CHECK gtc_unbalanced_const_10_absent_value:p_across_repeats                  PASS    p_across_repeats is absent
+CHECK gtc_three_by_number_0_status                                           PASS    status COMPLETE
+CHECK gtc_three_by_number_1_value:images_guessed                             PASS    images_guessed = 18, expected 18 (tol 0, rtol 0)
+CHECK gtc_three_by_number_2_value:accuracy                                   PASS    accuracy = 0.5, expected 0.5 (tol 6e-05, rtol 0)
+CHECK gtc_three_by_number_3_value:chance                                     PASS    chance = 0.5, expected 0.5 (tol 6e-05, rtol 0)
+CHECK gtc_three_by_number_4_value:biological_repeats                         PASS    biological_repeats = 3, expected 3 (tol 0, rtol 0)
+CHECK gtc_three_by_number_5_value:repeats_above_chance                       PASS    repeats_above_chance = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_three_by_number_6_value:p_randomization_these_images_exploratory   PASS    p_randomization_these_images_exploratory = 1.0, expected 1.0 (tol 1e-09, rtol 0)
+CHECK gtc_three_by_number_7_table:biological_repeat                          PASS    3 rows, columns ['n', 'correct', 'accuracy', 'chance', 'accuracy_minus_chance'] equal the truth
+CHECK gtc_three_by_number_8_table:condition                                  PASS    3 rows, columns ['n', 'correct', 'recall'] equal the truth
+CHECK gtc_three_by_number_9_message                                          PASS    message '➖ **Not above chance**\n\nThe guesses were not above chance across repeats: accuracy minus chance, mean 0 points (95% inte' contains 'Not above chance'
+CHECK gtc_three_by_number_10_absent_value:p_across_repeats                   PASS    p_across_repeats is absent
+CHECK gtc_one_condition_repeat_0_status                                      PASS    status COMPLETE
+CHECK gtc_one_condition_repeat_1_value:images_guessed                        PASS    images_guessed = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_one_condition_repeat_2_value:accuracy                              PASS    accuracy = 0.6, expected 0.6 (tol 6e-05, rtol 0)
+CHECK gtc_one_condition_repeat_3_value:chance                                PASS    chance = 0.6, expected 0.6 (tol 6e-05, rtol 0)
+CHECK gtc_one_condition_repeat_4_value:biological_repeats                    PASS    biological_repeats = 2, expected 2 (tol 0, rtol 0)
+CHECK gtc_one_condition_repeat_5_value:repeats_above_chance                  PASS    repeats_above_chance = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_one_condition_repeat_6_value:p_randomization_these_images_exploratory PASS    p_randomization_these_images_exploratory = 1.0, expected 1.0 (tol 1e-09, rtol 0)
+CHECK gtc_one_condition_repeat_7_table:biological_repeat                     PASS    3 rows, columns ['n', 'correct', 'accuracy', 'chance', 'accuracy_minus_chance'] equal the truth
+CHECK gtc_one_condition_repeat_8_table:condition                             PASS    2 rows, columns ['n', 'correct', 'recall'] equal the truth
+CHECK gtc_one_condition_repeat_9_message                                     PASS    message '➖ **Not above chance in a pilot (n = 2)**\n\nThese guesses were not above chance on these images (a null result is a resul' contains 'Not above chance'
+CHECK gtc_one_condition_repeat_10_absent_value:p_across_repeats              PASS    p_across_repeats is absent
+CHECK gtc_one_condition_repeat_11_value:notes                                PASS    notes = 'Repeat R3 holds images of one condition only, so it cannot be compared with chance and is left out of the test across repeats. Repeat R1 has only 4 guessed image(s). Repeat R2 has only 4 guessed image(s). Repeat R3 has only 2 guessed image(s).', expected to contain 'Repeat R3 holds images of one condition only'
+CHECK gtc_demo_experiment_0_status                                           PASS    status COMPLETE
+CHECK gtc_demo_experiment_1_value:images                                     PASS    images = 12, expected 12 (tol 0, rtol 0)
+CHECK gtc_demo_zero_0_status                                                 FAIL    status DRIVER_ERROR, expected FAILED (error: AssertionError: Run did not start a task; status: ⚠ 'Images per repeat' must be >= 1 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt3_napari/tests/ui_audit_runs.py", line 258, in execute
+    raise AssertionError("Run did not start a task; status: %s" % w.status.text())
+AssertionError: Run did not start a task; status: ⚠ 'Images per repeat' must be >= 1
+)
+CHECK gtc_demo_too_many_0_status                                             FAIL    status DRIVER_ERROR, expected FAILED (error: AssertionError: Run did not start a task; status: ⚠ 'Images per repeat' must be <= 50 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt3_napari/tests/ui_audit_runs.py", line 258, in execute
+    raise AssertionError("Run did not start a task; status: %s" % w.status.text())
+AssertionError: Run did not start a task; status: ⚠ 'Images per repeat' must be <= 50
+)
+CHECK gtc_percentage_1_0_status                                              PASS    status COMPLETE
+CHECK gtc_percentage_1_1_value:images                                        PASS    images = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_percentage_1_2_value:to_guess                                      PASS    to_guess = 1, expected 1 (tol 0, rtol 0)
+CHECK gtc_percentage_1_3_value:remaining                                     PASS    remaining = 1, expected 1 (tol 0, rtol 0)
+CHECK gtc_percentage_1_4_value:guessed                                       PASS    guessed = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_percentage_25_0_status                                             PASS    status COMPLETE
+CHECK gtc_percentage_25_1_value:images                                       PASS    images = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_percentage_25_2_value:to_guess                                     PASS    to_guess = 3, expected 3 (tol 0, rtol 0)
+CHECK gtc_percentage_25_3_value:remaining                                    PASS    remaining = 3, expected 3 (tol 0, rtol 0)
+CHECK gtc_percentage_25_4_value:guessed                                      PASS    guessed = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_percentage_33_0_status                                             PASS    status COMPLETE
+CHECK gtc_percentage_33_1_value:images                                       PASS    images = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_percentage_33_2_value:to_guess                                     PASS    to_guess = 4, expected 4 (tol 0, rtol 0)
+CHECK gtc_percentage_33_3_value:remaining                                    PASS    remaining = 4, expected 4 (tol 0, rtol 0)
+CHECK gtc_percentage_33_4_value:guessed                                      PASS    guessed = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_percentage_50_0_status                                             PASS    status COMPLETE
+CHECK gtc_percentage_50_1_value:images                                       PASS    images = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_percentage_50_2_value:to_guess                                     PASS    to_guess = 5, expected 5 (tol 0, rtol 0)
+CHECK gtc_percentage_50_3_value:remaining                                    PASS    remaining = 5, expected 5 (tol 0, rtol 0)
+CHECK gtc_percentage_50_4_value:guessed                                      PASS    guessed = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_percentage_51_0_status                                             PASS    status COMPLETE
+CHECK gtc_percentage_51_1_value:images                                       PASS    images = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_percentage_51_2_value:to_guess                                     PASS    to_guess = 6, expected 6 (tol 0, rtol 0)
+CHECK gtc_percentage_51_3_value:remaining                                    PASS    remaining = 6, expected 6 (tol 0, rtol 0)
+CHECK gtc_percentage_51_4_value:guessed                                      PASS    guessed = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_percentage_100_0_status                                            PASS    status COMPLETE
+CHECK gtc_percentage_100_1_value:images                                      PASS    images = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_percentage_100_2_value:to_guess                                    PASS    to_guess = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_percentage_100_3_value:remaining                                   PASS    remaining = 10, expected 10 (tol 0, rtol 0)
+CHECK gtc_percentage_100_4_value:guessed                                     PASS    guessed = 0, expected 0 (tol 0, rtol 0)
+CHECK gtc_percentage_0_0_status                                              NOT_RUN no report file for this dataset
+CHECK gtc_percentage_101_0_status                                            NOT_RUN no report file for this dataset
+CHECK gtc_single_condition_0_status                                          PASS    status FAILED
+CHECK gtc_no_images_0_status                                                 PASS    status FAILED
+CHECK gtc_case_clash_0_status                                                PASS    status FAILED
+CHECK gtc_no_experiment_0_status                                             PASS    status FAILED
+CHECK gtc_bad_user_name_0_status                                             PASS    status FAILED
+CHECK gtc_scan_rules_0_status                                                PASS    status COMPLETE
+CHECK gtc_scan_rules_1_value:images                                          PASS    images = 6, expected 6 (tol 0, rtol 0)
+CHECK gtc_scan_rules_2_value:to_guess                                        PASS    to_guess = 2, expected 2 (tol 0, rtol 0)
+CHECK gtc_corrupt_0_status                                                   PASS    status COMPLETE
+CHECK gtc_corrupt_1_image_stat                                               PASS    shape0 of image = 16, expected 16 (tol 0)
+CHECK gtc_corrupt_2_image_stat                                               PASS    shape1 of image = 16, expected 16 (tol 0)
+CHECK gtc_view_yx_u8_0_status                                                PASS    status COMPLETE
+CHECK gtc_view_yx_u8_1_image_stat                                            PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_yx_u8_2_image_stat                                            PASS    shape1 of image = 50, expected 50 (tol 0)
+CHECK gtc_view_yx_u8_3_image_stat                                            PASS    max of image = 1, expected 1.0 (tol 1e-06)
+CHECK gtc_view_yx_u8_4_image_stat                                            PASS    min of image = 0, expected 0.0 (tol 1e-06)
+CHECK gtc_view_yx_u16_0_status                                               PASS    status COMPLETE
+CHECK gtc_view_yx_u16_1_image_stat                                           PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_yx_u16_2_image_stat                                           PASS    shape1 of image = 50, expected 50 (tol 0)
+CHECK gtc_view_yx_u16_3_image_stat                                           PASS    max of image = 1, expected 1.0 (tol 1e-06)
+CHECK gtc_view_yx_u16_4_image_stat                                           PASS    min of image = 0, expected 0.0 (tol 1e-06)
+CHECK gtc_view_yx_f32_0_status                                               PASS    status COMPLETE
+CHECK gtc_view_yx_f32_1_image_stat                                           PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_yx_f32_2_image_stat                                           PASS    shape1 of image = 50, expected 50 (tol 0)
+CHECK gtc_view_yx_f32_3_image_stat                                           PASS    max of image = 1, expected 1.0 (tol 1e-06)
+CHECK gtc_view_yx_f32_4_image_stat                                           PASS    min of image = 0, expected 0.0 (tol 1e-06)
+CHECK gtc_view_cyx3_0_status                                                 PASS    status COMPLETE
+CHECK gtc_view_cyx3_1_image_stat                                             PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_cyx3_2_image_stat                                             PASS    shape1 of image = 152, expected 152 (tol 0)
+CHECK gtc_view_cyx3_3_image_stat                                             PASS    max of image = 1, expected 1.0 (tol 1e-06)
+CHECK gtc_view_cyx3_4_image_stat                                             PASS    min of image = 0, expected 0.0 (tol 1e-06)
+CHECK gtc_view_tyx_0_status                                                  PASS    status COMPLETE
+CHECK gtc_view_tyx_1_image_stat                                              PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_tyx_2_image_stat                                              PASS    shape1 of image = 50, expected 50 (tol 0)
+CHECK gtc_view_tyx_3_image_stat                                              PASS    max of image = 1, expected 1.0 (tol 1e-06)
+CHECK gtc_view_tyx_4_image_stat                                              PASS    min of image = 0, expected 0.0 (tol 1e-06)
+CHECK gtc_view_zyx_0_status                                                  PASS    status COMPLETE
+CHECK gtc_view_zyx_1_image_stat                                              PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_zyx_2_image_stat                                              PASS    shape1 of image = 50, expected 50 (tol 0)
+CHECK gtc_view_zyx_3_image_stat                                              PASS    max of image = 1, expected 1.0 (tol 1e-06)
+CHECK gtc_view_zyx_4_image_stat                                              PASS    min of image = 0, expected 0.0 (tol 1e-06)
+CHECK gtc_view_tzcyx_0_status                                                PASS    status COMPLETE
+CHECK gtc_view_tzcyx_1_image_stat                                            PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_tzcyx_2_image_stat                                            PASS    shape1 of image = 101, expected 101 (tol 0)
+CHECK gtc_view_tzcyx_3_image_stat                                            PASS    max of image = 1, expected 1.0 (tol 1e-06)
+CHECK gtc_view_tzcyx_4_image_stat                                            PASS    min of image = 0, expected 0.0 (tol 1e-06)
+CHECK gtc_view_rgb_0_status                                                  PASS    status COMPLETE
+CHECK gtc_view_rgb_1_image_stat                                              PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_rgb_2_image_stat                                              PASS    shape1 of image = 50, expected 50 (tol 0)
+CHECK gtc_view_rgb_3_image_stat                                              PASS    max of image = 1, expected 1.0 (tol 1e-06)
+CHECK gtc_view_rgb_4_image_stat                                              PASS    min of image = 0, expected 0.0 (tol 1e-06)
+CHECK gtc_view_unlabelled_3planes_0_status                                   PASS    status COMPLETE
+CHECK gtc_view_unlabelled_3planes_1_image_stat                               PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_unlabelled_3planes_2_image_stat                               PASS    shape1 of image = 152, expected 152 (tol 0)
+CHECK gtc_view_unlabelled_8planes_0_status                                   PASS    status COMPLETE
+CHECK gtc_view_unlabelled_8planes_1_image_stat                               PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_unlabelled_8planes_2_image_stat                               PASS    shape1 of image = 50, expected 50 (tol 0)
+CHECK gtc_view_flat_0_status                                                 PASS    status COMPLETE
+CHECK gtc_view_flat_1_image_stat                                             PASS    max of image = 0, expected 0.0 (tol 1e-09)
+CHECK gtc_view_nan_0_status                                                  PASS    status COMPLETE
+CHECK gtc_view_nan_1_image_stat                                              PASS    shape0 of image = 30, expected 30 (tol 0)
+CHECK gtc_view_nan_2_image_stat                                              PASS    shape1 of image = 50, expected 50 (tol 0)
+CHECK gtc_stress_big_0_status                                                PASS    status COMPLETE
+CHECK gtc_stress_big_1_image_stat                                            PASS    shape0 of image = 3000, expected 3000 (tol 0)
+CHECK gtc_stress_big_2_image_stat                                            PASS    shape1 of image = 3000, expected 3000 (tol 0)
+SUMMARY {'PASS': 142, 'FAIL': 2, 'NOT_RUN': 2} (146 checks, 35 datasets)
