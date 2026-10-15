@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.16,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102859697178_LabConstrictorPlayground_bright_area/run.json",
+  "error": "[invalid_pixel_size] The pixel size must be above 0 um/px (it is 0).",
+  "code": "invalid_pixel_size",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.46,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102918684830_LabConstrictorPlayground_summarise_table/run.json",
+  "error": "[no_numbers] The table has no column of numbers (its columns: name, kind).",
+  "code": "no_numbers",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

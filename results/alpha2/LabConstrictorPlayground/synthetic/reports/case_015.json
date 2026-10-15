@@ -1,0 +1,17 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.24,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102851960392_LabConstrictorPlayground_count_above_level/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "level_used": 50.0,
+        "pixels": 2000,
+        "fraction": 0.5
+      }
+    }
+  ],
+  "job_dir": "/home/user/a2/syn_scratch_pg/_jobs/015"
+}

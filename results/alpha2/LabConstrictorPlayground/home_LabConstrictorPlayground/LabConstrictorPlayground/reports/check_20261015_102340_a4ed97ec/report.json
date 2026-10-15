@@ -1,0 +1,132 @@
+{
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "python": "3.12.15 (main, Oct 13 2026, 16:52:04) [GCC 15.3.0]",
+  "checks": [
+    {
+      "layer": "machine",
+      "name": "system",
+      "status": "info",
+      "detail": "Linux 6.18.44-fc-v114, x86_64, Python 3.12.15",
+      "fix": ""
+    },
+    {
+      "layer": "machine",
+      "name": "cpu",
+      "status": "info",
+      "detail": "4 logical cores",
+      "fix": ""
+    },
+    {
+      "layer": "machine",
+      "name": "memory",
+      "status": "ok",
+      "detail": "15.7 GB",
+      "fix": ""
+    },
+    {
+      "layer": "machine",
+      "name": "free disk (temporary folder)",
+      "status": "warn",
+      "detail": "4.2 GB free in /home/user/results/alpha2/LabConstrictorPlayground/home_LabConstrictorPlayground/tmp",
+      "fix": "Free some space: results and model downloads need several GB."
+    },
+    {
+      "layer": "machine",
+      "name": "free disk (home folder)",
+      "status": "warn",
+      "detail": "4.2 GB free in /home/user/results/alpha2/LabConstrictorPlayground/home_LabConstrictorPlayground",
+      "fix": "Free some space: results and model downloads need several GB."
+    },
+    {
+      "layer": "machine",
+      "name": "writing files",
+      "status": "ok",
+      "detail": "wrote and read a file with a non-ASCII name in /home/user/results/alpha2/LabConstrictorPlayground/home_LabConstrictorPlayground/tmp/lc_check_krndccp5",
+      "fix": ""
+    },
+    {
+      "layer": "worker",
+      "name": "python",
+      "status": "info",
+      "detail": "/home/user/apps/Playground/bin/python (3.12.15)",
+      "fix": ""
+    },
+    {
+      "layer": "worker",
+      "name": "labconstrictor-tools",
+      "status": "info",
+      "detail": "0.3.0a1",
+      "fix": ""
+    },
+    {
+      "layer": "worker",
+      "name": "numpy",
+      "status": "info",
+      "detail": "2.0.2",
+      "fix": ""
+    },
+    {
+      "layer": "worker",
+      "name": "pandas",
+      "status": "info",
+      "detail": "2.2.2",
+      "fix": ""
+    },
+    {
+      "layer": "worker",
+      "name": "scipy",
+      "status": "info",
+      "detail": "1.16.3",
+      "fix": ""
+    },
+    {
+      "layer": "worker",
+      "name": "tifffile",
+      "status": "info",
+      "detail": "2026.4.11",
+      "fix": ""
+    },
+    {
+      "layer": "worker",
+      "name": "matplotlib",
+      "status": "info",
+      "detail": "3.10.0",
+      "fix": ""
+    },
+    {
+      "layer": "gpu tools",
+      "name": "nvidia-smi",
+      "status": "info",
+      "detail": "not found (no NVIDIA driver on this machine, or it is not on the path)",
+      "fix": ""
+    },
+    {
+      "layer": "gpu libraries",
+      "name": "PyTorch",
+      "status": "ok",
+      "detail": "version 2.8.0+cpu",
+      "fix": ""
+    },
+    {
+      "layer": "gpu libraries",
+      "name": "CUDA",
+      "status": "info",
+      "detail": "no CUDA device",
+      "fix": ""
+    },
+    {
+      "layer": "benchmark",
+      "name": "cpu",
+      "status": "ok",
+      "detail": "48.5 ms per run (conv + matmul, 512x512)",
+      "fix": ""
+    },
+    {
+      "layer": "install",
+      "name": "install log",
+      "status": "info",
+      "detail": "NVIDIA GPU not detected, installing CPU requirements from /home/user/apps/Playground/LabConstrictorPlayground/requirements.txt",
+      "fix": ""
+    }
+  ]
+}

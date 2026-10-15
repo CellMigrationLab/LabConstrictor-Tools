@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.83,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102848966274_LabConstrictorPlayground_feature_tour/run.json",
+  "error": "[no_result] The image is flat (every pixel has the value 0): there is nothing to find.",
+  "code": "no_result",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

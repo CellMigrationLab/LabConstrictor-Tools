@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.81,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102846790045_LabConstrictorPlayground_feature_tour/run.json",
+  "error": "[empty_region] The selected region is empty: select an object, or untick 'use the selection'.",
+  "code": "empty_region",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

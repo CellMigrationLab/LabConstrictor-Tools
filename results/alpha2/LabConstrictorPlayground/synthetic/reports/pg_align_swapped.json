@@ -1,0 +1,31 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.21,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102900681692_LabConstrictorPlayground_align_centres/run.json",
+  "results": [
+    {
+      "type": "affine",
+      "name": "alignment",
+      "matrix_yx": [
+        [
+          1.0,
+          0.0,
+          -31.0
+        ],
+        [
+          0.0,
+          1.0,
+          -11.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "apply_to": "image",
+      "relative_to": "reference"
+    }
+  ],
+  "job_dir": "/home/user/a2/syn_scratch_pg/_jobs/041"
+}

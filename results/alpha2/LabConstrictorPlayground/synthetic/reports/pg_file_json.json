@@ -1,0 +1,22 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.18,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102919630901_LabConstrictorPlayground_look_inside_file/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "file": "pg_file_json.json",
+        "bytes": 120,
+        "kind": "json",
+        "keys": "channels, name, nested, normalise, tags, threshold",
+        "value_name": "synthetic \u00b5\u2192\u2713",
+        "value_threshold": 0.25,
+        "value_channels": 4,
+        "value_normalise": false
+      }
+    }
+  ],
+  "job_dir": "/home/user/a2/syn_scratch_pg/_jobs/054"
+}

@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.29,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102921296352_LabConstrictorPlayground_look_inside_file/run.json",
+  "error": "[file_too_large] 'pg_file_over_limit.txt' is 1000001 bytes; this tool reads files of at most 1000000 bytes.",
+  "code": "file_too_large",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

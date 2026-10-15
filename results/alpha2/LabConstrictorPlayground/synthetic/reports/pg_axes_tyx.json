@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.26,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102853807345_LabConstrictorPlayground_count_above_level/run.json",
+  "error": "[wrong_dimensions] 'Image' must be a 2D image (YX) but got 3D with shape (5, 40, 100)",
+  "code": "wrong_dimensions",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

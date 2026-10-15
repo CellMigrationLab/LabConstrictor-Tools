@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.17,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102922149295_LabConstrictorPlayground_make_test_data/run.json",
+  "error": "[invalid_parameter] 'Size' must be >= 32",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

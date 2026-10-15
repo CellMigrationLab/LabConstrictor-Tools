@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 2.35,
+  "error": "[wrong_dimensions] 'Image' must be a 2D image (YX) but got 5D with shape (2, 3, 2, 40, 100)",
+  "code": "wrong_dimensions",
+  "status_text": "\u2716 [wrong_dimensions] 'Image' must be a 2D image (YX) but got 5D with shape (2, 3, 2, 40, 100)  - click Details\u2026 for the full report (log: /home/user/apps/a2_lc_home_Playground_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a2_lc_home_Playground_synnap/runs/20261015T103049086994_LabConstrictorPlayground_count_above_level",
+  "host_observed": {}
+}

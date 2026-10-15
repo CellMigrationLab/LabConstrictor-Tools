@@ -1,0 +1,45 @@
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Align the centres of two images', 'Area of the bright region', 'Check everything', 'Count the pixels above a level', 'Feature tour', 'List the devices', 'Look inside a file', 'Make test data', 'Run a small test on a device', 'Stress: a big image', 'Stress: crash the worker', 'Stress: a tool that ignores Cancel', 'Stress: many points', 'Stress: out of memory (simulated)', 'Stress: real memory pressure (bounded, opt-in)', 'Stress: slow run with progress', 'Summarise a table']; the combo...
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'Align the centres of two images'
+CHECK ui_fiji_form_align_centres_opens PASS 2 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_align_centres_controls PASS 6 control(s) activated and read back: file_browse, image_choice, text_field
+CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_run_align_centres PASS status COMPLETE; every declared result shown (alignment:affine); inputs from case {"image": "fixtures/data/square_a.tif", "reference": "fixtures/data/square_b.tif"}
+CHECK ui_fiji_panel_log PASS the Log window holds the run's command line and Python snippet, equal to the saved last command
+CHECK ui_fiji_panel_form_ok PASS a real click on OK closed the form and the plugin ran the tool (status COMPLETE)
+CHECK ui_fiji_screens_align_centres PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_bright_area_opens PASS 3 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_bright_area_controls PASS 6 control(s) activated and read back: file_browse, image_choice, number_spinner, slider, text_field
+CHECK ui_fiji_run_bright_area PASS status COMPLETE; every declared result shown (values:values); inputs from case {"image": "fixtures/data/square_a.tif", "pixel_size": 0.5}
+CHECK ui_fiji_screens_bright_area PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_check_everything_opens PASS 2 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_check_everything_controls PASS 2 control(s) activated and read back: flag_checkbox
+CHECK ui_fiji_run_check_everything PASS status COMPLETE; every declared result shown (readout:message, details:table, report:file); inputs from case {"run_benchmark": true, "check_internet": false}
+CHECK ui_fiji_screens_check_everything PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_count_above_level_opens PASS 4 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_count_above_level_controls PASS 7 control(s) activated and read back: file_browse, image_choice, radio, text_field
+CHECK ui_fiji_run_count_above_level PASS status COMPLETE; every declared result shown (values:values); inputs from case {"image": "fixtures/data/square_a.tif", "mode": "fixed", "level": 100}
+CHECK ui_fiji_screens_count_above_level PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_feature_tour_opens PASS 6 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_feature_tour_controls PASS 14 control(s) activated and read back: channel_spinner, file_browse, number_spinner, radio, set_checkbox, slider, text_field, use_selection_checkbox
+CHECK ui_fiji_run_feature_tour PASS status COMPLETE; every declared result shown (blobs:labels, outlines:shapes, centres:points, measurements:table, summary:message); inputs from case {}
+CHECK ui_fiji_screens_feature_tour PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_list_devices_opens PASS 0 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_list_devices_controls FAIL no control of the form could be activated (0 found)
+CHECK ui_fiji_run_list_devices PASS status COMPLETE; every declared result shown (values:values); inputs from case {}
+CHECK ui_fiji_screens_list_devices PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_look_inside_file_opens PASS 1 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_look_inside_file_controls PASS 2 control(s) activated and read back: file_browse, text_field
+CHECK ui_fiji_run_look_inside_file PASS status COMPLETE; every declared result shown (values:values); inputs from case {"file": "fixtures/data/settings.json"}
+CHECK ui_fiji_screens_look_inside_file PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_make_test_data_opens PASS 3 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_make_test_data_controls PASS 4 control(s) activated and read back: choice_combo, file_browse, text_field
+CHECK ui_fiji_run_make_test_data PASS status COMPLETE; every declared result shown (files:message, values:values); inputs from case {"folder": "fixtures/data", "kind": "all", "size": 64}
+CHECK ui_fiji_screens_make_test_data PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_run_on_device_opens PASS 3 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_run_on_device_controls PASS 3 control(s) activated and read back: choice_combo, text_field
+CHECK ui_fiji_run_run_on_device PASS status COMPLETE; every declared result shown (result:message, values:values); inputs from case {"device": "cpu", "size": 128, "repeats": 2}
+CHECK ui_fiji_screens_run_on_device PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)

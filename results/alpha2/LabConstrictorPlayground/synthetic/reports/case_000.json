@@ -1,0 +1,44 @@
+{
+  "status": "COMPLETE",
+  "seconds": 1.03,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102840925363_LabConstrictorPlayground_feature_tour/run.json",
+  "results": [
+    {
+      "type": "labels",
+      "name": "blobs",
+      "path": "/home/user/a2/syn_scratch_pg/_jobs/000/blobs.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "shapes",
+      "name": "outlines",
+      "path": "/home/user/a2/syn_scratch_pg/_jobs/000/outlines.geojson",
+      "n": 14,
+      "apply_to": "image"
+    },
+    {
+      "type": "points",
+      "name": "centres",
+      "path": "/home/user/a2/syn_scratch_pg/_jobs/000/centres.csv",
+      "n": 14,
+      "columns": [
+        "y",
+        "x",
+        "label",
+        "area_px"
+      ],
+      "apply_to": "image"
+    },
+    {
+      "type": "table",
+      "name": "measurements",
+      "path": "/home/user/a2/syn_scratch_pg/_jobs/000/measurements.csv"
+    },
+    {
+      "type": "message",
+      "name": "summary",
+      "text": "Found **14** blob(s)."
+    }
+  ],
+  "job_dir": "/home/user/a2/syn_scratch_pg/_jobs/000"
+}
