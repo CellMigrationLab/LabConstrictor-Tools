@@ -98,3 +98,13 @@ Guess the Condition 0.0.1 vs released script: 36 expected ids: 32 PASS, 3 FAIL, 
 
 ## QuPath fix PR for Q-1 opened: https://github.com/CellMigrationLab/LabConstrictor-QuPath/pull/38 (branch claude/qupath-run-button-fix, head 7d64e60; not merged)
 * `this.run()` plus a new GUI body that fires the real Run button. With the fix 4 of 4 PASS; with the line reverted the test FAILS (negative control). Needs a new QuPath tag from the owner (v0.1.0-alpha.1 contains the bug).
+
+## F-004 RESOLVED: root cause found with Windows Python under Wine; fix PR Tools#139 (https://github.com/CellMigrationLab/LabConstrictor-Tools/pull/139, head 38e5a8b, not merged)
+* Class: Tools sandbox harness bug (Windows-only), NOT the app and NOT the Tools CLI. `cli_params` turned any string input for which `(base / v).exists()` into an absolute path; on Windows `Path(base) / "   "` is `base` itself (the system drops trailing spaces), so the blank guess became the test-files folder (`guess=Z:\tmp\wtest\base`) and the tool answered `no_image` instead of `empty_guess`.
+* Reproduced under Wine (Windows Python 3.12.8): before `['guess=Z:\\tmp\\wtest\\base', ...]`; after the fix `['guess=   ', ...]`. Negative control: the new unit test fails against the old code.
+* Method note: Wine 9.0 (apt, 0.7 GB) plus the Windows embeddable Python (22 MB) runs stdlib-level Windows behaviour (paths, quoting, subprocess) in this Linux container in seconds; it cannot run the constructor installers or the GUI hosts.
+
+## H-N1 fix opened and verified: Napari PR #64 (https://github.com/CellMigrationLab/LabConstrictor-napari/pull/64, branch claude/napari-run-button-fix, head e71bd97; not merged)
+* Cause confirmed: magicgui's `_disable_button_and_call` runs `enabled = True` in `finally` right after the click handler returns. Fix: a slot connected to `call_button.changed` re-applies the real run state after magicgui's own slot.
+* Parent re-ran the regression test: on UNFIXED main it FAILS (`running_run_disabled`, `still_disabled_after_second_click`, `cancel_run_disabled_while_running`); with the fix `FAILURES: none`. Audit driver on Guess the Condition with the fix: 37 PASS, 0 FAIL, `ui_napari_panel_run PASS`.
+* Follow-up causes (not in the PR): H-N2 RGB chooser: magicgui `Container.reset_choices()` resets the static `ComboBox(choices=[""])` after `_refresh_channels` filled it; proposed fix: callable choices in `_add_channel_choosers`. H-N3: `_group_heading` is never initialised or reset (`__init__`, `_clear_form`).
