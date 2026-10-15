@@ -1,0 +1,24 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.33,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  folder=/tmp/lc_ui_audit_tests_j3q2apjz/LabConstrictor-Playground/fixtures/pg_make_out, files=three_channels.tif",
+  "run_record": "/home/user/apps/a2_lc_home_Playground_synnap/runs/20261015T103249073906_LabConstrictorPlayground_make_test_data",
+  "results": [
+    {
+      "type": "message",
+      "name": "files",
+      "text": "Wrote 1 file(s) into /tmp/lc_ui_audit_tests_j3q2apjz/LabConstrictor-Playground/fixtures/pg_make_out:\n- three_channels: /tmp/lc_ui_audit_tests_j3q2apjz/LabConstrictor-Playground/fixtures/pg_make_out/three_channels.tif"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "folder": "/tmp/lc_ui_audit_tests_j3q2apjz/LabConstrictor-Playground/fixtures/pg_make_out",
+        "files": "three_channels.tif"
+      }
+    }
+  ],
+  "host_observed": {}
+}

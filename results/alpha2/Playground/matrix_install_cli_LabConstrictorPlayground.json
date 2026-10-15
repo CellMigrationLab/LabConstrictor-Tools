@@ -1,0 +1,36 @@
+{
+ "host": "cli",
+ "app": "LabConstrictorPlayground",
+ "family": "install",
+ "started": "2026-10-15T10:47:40",
+ "finished": "2026-10-15T10:47:40",
+ "expected": 0,
+ "rows": [
+  {
+   "id": "install_exit0",
+   "family": "install",
+   "host": "cli",
+   "app": "LabConstrictorPlayground",
+   "tool": "",
+   "control": "",
+   "status": "FAIL",
+   "detail": "installer exit=1 after 5m40s: post_install pip step ran out of disk (ENOSPC) while downloading nvidia_cudnn: the Linux requirements pull torch 2.8.0 with its CUDA wheels (about 4 GB download, 4 GB installed); this machine had 6 GB free. Completed by hand (CUDA wheels removed, torch 2.8.0+cpu, rest of post_install.sh rerun): environment",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T10:47:40"
+  },
+  {
+   "id": "uninstall_clean",
+   "family": "install",
+   "host": "cli",
+   "app": "LabConstrictorPlayground",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "uninstall.sh exit 0, prefix removed, registry empty",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T10:47:40"
+  }
+ ]
+}

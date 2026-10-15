@@ -1,0 +1,43 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=37287 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+WARNING: Unknown module: javafx.graphics specified to --add-opens
+WARNING: Unknown module: javafx.base specified to --add-opens
+WARNING: Unknown module: javafx.web specified to --enable-native-access
+WARNING: Unknown module: javafx.graphics specified to --enable-native-access
+WARNING: Unknown module: javafx.media specified to --enable-native-access
+10:45:56.341 [main] [INFO ] qupath.QuPath - Setting system property lc.noshow=true
+10:45:56.343 [main] [INFO ] qupath.QuPath - Setting system property lc.qupath.test.script=/tmp/lc_gui_test.groovy
+10:45:56.343 [main] [INFO ] qupath.QuPath - Setting system property lc.test.out=/home/user/results/alpha2/LabConstrictorPlayground/ui_qupath/logs/shots/LabConstrictorPlayground_tool_stress_real_memory
+10:45:56.343 [main] [INFO ] qupath.QuPath - Setting system property lc.test.fixtures=/home/user/wt_ui_qupath/tests/fixtures
+Oct 15, 2026 10:45:56 AM com.sun.javafx.application.PlatformImpl startup
+WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @3d34d211'
+10:45:56.687 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting default Locale to en_US
+10:45:56.688 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for FORMAT to en_US
+10:45:56.688 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for DISPLAY to en_US
+10:45:56.711 [JavaFX Application Thread] [INFO ] qupath.lib.common.ThreadTools - Setting parallelism to 3
+10:45:56.736 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - Initializing: 1792061156736
+10:45:57.024 [JavaFX Application Thread] [INFO ] q.l.g.i.s.ImageRegionStoreFactory - Setting tile cache size to 1710.00 MB (25.0% max memory)
+10:45:57.511 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - QuPath build: Version: 0.7.0
+Build time: 2026-02-25 16:06
+Latest commit tag: "04ccfa4"
+10:46:00.174 [JavaFX Application Thread] [INFO ] qupath.lib.scripting.QP - Initializing type adapters
+10:46:00.800 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension LabConstrictor tools version 0.1.0-alpha.2 (1 ms)
+10:46:00.826 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - Bio-Formats version 8.4.0
+10:46:00.834 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - If Bio-Formats is slow to load images, setting the Bio-Formats memoization time in QuPath's preferences may help (this will create temp files)
+10:46:00.837 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Bio-Formats extension (Bio-Formats 8.4.0) version 0.7.0 (35 ms)
+10:46:00.839 [JavaFX Application Thread] [INFO ] qupath.ext.djl.DjlExtension - Registering DjlDnnModel
+10:46:00.849 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Deep Java Library extension version 0.4.2 (10 ms)
+10:46:00.972 [JavaFX Application Thread] [INFO ] q.ext.openslide.OpenSlideExtension - OpenSlide loaded successfully: 4.0.0
+10:46:00.973 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension OpenSlide extension version 0.7.0 (122 ms)
+10:46:01.041 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension ImageJ extension version 0.7.0 (39 ms)
+10:46:01.076 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Processing & classification extension version 0.7.0 (34 ms)
+10:46:01.374 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Rich script editor extension version 0.7.0 (289 ms)
+10:46:01.378 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension SVG export extension version 0.7.0 (3 ms)
+10:46:01.383 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension QuPath training extension version 0.1.0 (3 ms)
+10:46:01.431 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathApp - Starting QuPath with parameters: [--quiet=true]
+
+(QuPath:21990): Gdk-WARNING **: 10:46:01.469: XSetErrorHandler() called with a GDK error trap pushed. Don't do that.
+CHECK ui_qupath_form_stress_real_memory_opens PASS 2 parameter(s), one widget of the declared kind each: target_mb:integer, limit_mb:integer
+CHECK ui_qupath_form_stress_real_memory_controls PASS 3 control(s) activated and read back: section:Advanced settings, target_mb, limit_mb
+NOTE ui_qupath_run_stress_real_memory not run: no case of 'stress_real_memory' is run (declared in no_case.json: opt-in, uses real memory; covered by the sandbox extras); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_real_memory not run: 'stress_real_memory' is not run, so only the form picture stress_real_memory_form.png exists, for a person to look at [HUMAN]
+UI_AUDIT_LAUNCH_END phase=tool exit=0

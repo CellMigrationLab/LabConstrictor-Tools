@@ -1,0 +1,11 @@
+{
+  "status": "FAILED",
+  "seconds": 2.58,
+  "error": "[pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.",
+  "code": "pixel_size_unknown",
+  "status_text": "\u2716 [pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.  - click Details\u2026 for the full report (log: /home/user/apps/a2_lc_home_Playground_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a2_lc_home_Playground_synnap/runs/20261015T103131595363_LabConstrictorPlayground_bright_area",
+  "host_observed": {
+    "pixel_size": null
+  }
+}

@@ -1,0 +1,531 @@
+[
+  {
+    "case": 0,
+    "dataset": "pg_discs",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 1,
+    "dataset": "pg_region_offset",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 2,
+    "dataset": "pg_discs_min_size",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 3,
+    "dataset": "pg_discs_dark",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 4,
+    "dataset": "pg_discs_none_found",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": []
+  },
+  {
+    "case": 5,
+    "dataset": "pg_region_empty",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "empty_region",
+    "problems": []
+  },
+  {
+    "case": 6,
+    "dataset": "pg_region_wrong_size",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "bad_input",
+    "problems": []
+  },
+  {
+    "case": 7,
+    "dataset": "pg_threshold_out_of_range",
+    "tool": "feature_tour",
+    "status": "NOT_EXPRESSIBLE",
+    "why": "value 1.5 is outside of the allowed range: (0.0, 1.0)"
+  },
+  {
+    "case": 8,
+    "dataset": "pg_flat_zero",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": []
+  },
+  {
+    "case": 9,
+    "dataset": "pg_nan_float",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": []
+  },
+  {
+    "case": 10,
+    "dataset": "pg_channels_cyx_cli",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [
+      "status COMPLETE, expected FAILED: "
+    ]
+  },
+  {
+    "case": 11,
+    "dataset": "pg_ramp_u8_fixed",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 12,
+    "dataset": "pg_ramp_u8_p90",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 13,
+    "dataset": "pg_ramp_u16_fixed",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 14,
+    "dataset": "pg_ramp_u16_p90",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 15,
+    "dataset": "pg_ramp_f32_fixed",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 16,
+    "dataset": "pg_ramp_f32_p90",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 17,
+    "dataset": "pg_ramp_i32_fixed",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 18,
+    "dataset": "pg_ramp_lowrange",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 19,
+    "dataset": "pg_axes_cyx",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 20,
+    "dataset": "pg_axes_tyx",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 21,
+    "dataset": "pg_axes_zyx",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 22,
+    "dataset": "pg_axes_tzcyx",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 23,
+    "dataset": "pg_axes_rgb",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 24,
+    "dataset": "pg_nan_count",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "non_finite_pixels",
+    "problems": []
+  },
+  {
+    "case": 25,
+    "dataset": "pg_area_u8",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 26,
+    "dataset": "pg_area_u16",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 27,
+    "dataset": "pg_area_f32",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 28,
+    "dataset": "pg_area_u32",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 29,
+    "dataset": "pg_cal_nm",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 30,
+    "dataset": "pg_cal_um",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 31,
+    "dataset": "pg_cal_micro_sign",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 32,
+    "dataset": "pg_cal_micron",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 33,
+    "dataset": "pg_cal_none",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "pixel_size_unknown",
+    "problems": []
+  },
+  {
+    "case": 34,
+    "dataset": "pg_cal_pixel_unit",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "pixel_size_unknown",
+    "problems": []
+  },
+  {
+    "case": 35,
+    "dataset": "pg_cal_anisotropic",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 36,
+    "dataset": "pg_area_all_zero",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 37,
+    "dataset": "pg_area_nan",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "non_finite_pixels",
+    "problems": []
+  },
+  {
+    "case": 38,
+    "dataset": "pg_pixel_zero",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "pixel_size_unknown",
+    "problems": [
+      "code 'pixel_size_unknown', expected 'invalid_pixel_size'"
+    ]
+  },
+  {
+    "case": 39,
+    "dataset": "pg_pixel_negative",
+    "tool": "bright_area",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 [invalid_parameter] 'Pixel size' must be greater than 0 (um per pixe"
+    ]
+  },
+  {
+    "case": 40,
+    "dataset": "pg_align_squares",
+    "tool": "align_centres",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 41,
+    "dataset": "pg_align_swapped",
+    "tool": "align_centres",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 42,
+    "dataset": "pg_align_identity",
+    "tool": "align_centres",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 43,
+    "dataset": "pg_align_subpixel",
+    "tool": "align_centres",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 44,
+    "dataset": "pg_align_zero",
+    "tool": "align_centres",
+    "status": "FAILED",
+    "code": "no_signal",
+    "problems": []
+  },
+  {
+    "case": 45,
+    "dataset": "pg_align_nan",
+    "tool": "align_centres",
+    "status": "FAILED",
+    "code": "non_finite_pixels",
+    "problems": []
+  },
+  {
+    "case": 46,
+    "dataset": "pg_stress_discs",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 47,
+    "dataset": "pg_stress_halves",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 48,
+    "dataset": "pg_stress_halves_area",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 49,
+    "dataset": "pg_table_basic",
+    "tool": "summarise_table",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 50,
+    "dataset": "pg_table_unicode",
+    "tool": "summarise_table",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 51,
+    "dataset": "pg_table_big",
+    "tool": "summarise_table",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 52,
+    "dataset": "pg_table_no_numbers",
+    "tool": "summarise_table",
+    "status": "FAILED",
+    "code": "no_numbers",
+    "problems": []
+  },
+  {
+    "case": 53,
+    "dataset": "pg_table_header_only",
+    "tool": "summarise_table",
+    "status": "FAILED",
+    "code": "no_numbers",
+    "problems": []
+  },
+  {
+    "case": 54,
+    "dataset": "pg_file_json",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 55,
+    "dataset": "pg_file_json_list",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 56,
+    "dataset": "pg_file_text_crlf",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 57,
+    "dataset": "pg_file_empty",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 58,
+    "dataset": "pg_file_exact_limit",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 59,
+    "dataset": "pg_file_over_limit",
+    "tool": "look_inside_file",
+    "status": "FAILED",
+    "code": "file_too_large",
+    "problems": []
+  },
+  {
+    "case": 60,
+    "dataset": "pg_file_binary",
+    "tool": "look_inside_file",
+    "status": "FAILED",
+    "code": "not_text",
+    "problems": []
+  },
+  {
+    "case": 61,
+    "dataset": "pg_make_three_channels",
+    "tool": "make_test_data",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 62,
+    "dataset": "pg_make_size_too_small",
+    "tool": "make_test_data",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Size' must be >= 32 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 63,
+    "dataset": "pg_make_size_too_big",
+    "tool": "make_test_data",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Size' must be <= 4096 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 64,
+    "dataset": "pg_make_missing_folder",
+    "tool": "make_test_data",
+    "status": "FAILED",
+    "code": "folder_not_found",
+    "problems": []
+  }
+]

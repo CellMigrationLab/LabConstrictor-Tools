@@ -1,0 +1,8 @@
+[
+  {
+    "case": 7,
+    "dataset": "pg_threshold_out_of_range",
+    "tool": "feature_tour",
+    "why": "value 1.5 is outside of the allowed range: (0.0, 1.0)"
+  }
+]

@@ -1,0 +1,8 @@
+CHECK 1a_post_install_ok PASS log tail: Post-install completed successfully.
+CHECK 1b_tools_registered PASS ["WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.", "WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: ht
+CHECK 2a_list_shows_the_apps_tools PASS tools in schema=17 missing from list=[]
+CHECK 2c_registered_version_is_the_release PASS LabConstrictorPlayground  (0.0.5)
+CHECK 2b_doctor_clean PASS rc=0 findings=[{'app': 'LabConstrictorPlayground', 'level': 'ok', 'message': '17 tool(s), schema current, interpreter /home/user/apps/Playground/bin/python (0.09 s); Tools 0.3.0a1, features: app_hosts_v1, reserved_inputs_v1, retention_prune, shm_order_v1'}]
+CHECK 3_tools_version_is_the_pin PASS version=0.3.0a1 pin=v0.3.0-alpha.1 direct_url={"archive_info": {"hash": "sha256=4375c14ee941e49958301134a43810857408c8b34303c5b41b55a1d0aba14376", "hashes": {"sha256": "4375c14ee941e49958301134a43810857408c8b34303c5b41b55a1d0aba14376"}}, "url": "https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip"}
+CHECK 4n_notebooks_installed PASS ['LabConstrictorPlayground/notebooks/Welcome.ipynb', 'LabConstrictorPlayground/notebooks/LabConstrictorPlayground/LabConstrictorPlayground.ipynb']
+SECTION basic: 7 checks, 0 failed []

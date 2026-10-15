@@ -1,0 +1,261 @@
+WARNING: could not determine DPI
+Traceback (most recent call last):
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FunctionGui' object has no attribute 'region'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py", line 69, in _on_value_change
+    self.changed.emit(value)
+  File "src/psygnal/_signal.py", line 1233, in emit
+  File "src/psygnal/_signal.py", line 1328, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psygnal._exceptions.EmitLoopError: 
+
+While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback:
+
+  AttributeError: 'FunctionGui' object has no attribute 'region'
+  --------------------------------------------------------------
+
+  SIGNAL EMISSION: 
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data
+      self._event_filter.valueChanged.emit(self._mgui_get_value())
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py:69 in _on_value_change
+      self.changed.emit(value)  # <-- SIGNAL WAS EMITTED HERE
+
+  CALLBACK CHAIN:
+    src/psygnal/_signal.py:1311 in _run_emit_loop
+    ... 5 more frames ...
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py:117 in __getattr__
+      return object.__getattribute__(self, name)  # type: ignore  # <-- ERROR OCCURRED HERE 
+
+      Local variables:
+                name = 'region'
+                 wdg = None
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 000 COMPLETE   feature_tour                 OK
+CASE 001 COMPLETE   feature_tour                 OK
+CASE 002 COMPLETE   feature_tour                 OK
+CASE 003 COMPLETE   feature_tour                 OK
+CASE 004 FAILED     feature_tour                 OK
+CASE 005 FAILED     feature_tour                 OK
+CASE 006 FAILED     feature_tour                 OK
+CASE 007 NOT_EXPRESSIBLE feature_tour value 1.5 is outside of the allowed range: (0.0, 1.0)
+CASE 008 FAILED     feature_tour                 OK
+CASE 009 FAILED     feature_tour                 OK
+CASE 010 COMPLETE   feature_tour                 MISMATCH status COMPLETE, expected FAILED: 
+CASE 011 COMPLETE   count_above_level            OK
+CASE 012 COMPLETE   count_above_level            OK
+CASE 013 COMPLETE   count_above_level            OK
+CASE 014 COMPLETE   count_above_level            OK
+CASE 015 COMPLETE   count_above_level            OK
+CASE 016 COMPLETE   count_above_level            OK
+CASE 017 COMPLETE   count_above_level            OK
+CASE 018 COMPLETE   count_above_level            OK
+CASE 019 FAILED     count_above_level            OK
+CASE 020 FAILED     count_above_level            OK
+CASE 021 FAILED     count_above_level            OK
+CASE 022 FAILED     count_above_level            OK
+CASE 023 FAILED     count_above_level            OK
+CASE 024 FAILED     count_above_level            OK
+Traceback (most recent call last):
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FunctionGui' object has no attribute 'pixel_size'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py", line 69, in _on_value_change
+    self.changed.emit(value)
+  File "src/psygnal/_signal.py", line 1233, in emit
+  File "src/psygnal/_signal.py", line 1328, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psygnal._exceptions.EmitLoopError: 
+
+While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback:
+
+  AttributeError: 'FunctionGui' object has no attribute 'pixel_size'
+  ------------------------------------------------------------------
+
+  SIGNAL EMISSION: 
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data
+      self._event_filter.valueChanged.emit(self._mgui_get_value())
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py:69 in _on_value_change
+      self.changed.emit(value)  # <-- SIGNAL WAS EMITTED HERE
+
+  CALLBACK CHAIN:
+    src/psygnal/_signal.py:1311 in _run_emit_loop
+    ... 5 more frames ...
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py:117 in __getattr__
+      return object.__getattribute__(self, name)  # type: ignore  # <-- ERROR OCCURRED HERE 
+
+      Local variables:
+                name = 'pixel_size'
+                 wdg = None
+CASE 025 COMPLETE   bright_area                  OK
+CASE 026 COMPLETE   bright_area                  OK
+CASE 027 COMPLETE   bright_area                  OK
+CASE 028 COMPLETE   bright_area                  OK
+CASE 029 COMPLETE   bright_area                  OK
+CASE 030 COMPLETE   bright_area                  OK
+CASE 031 COMPLETE   bright_area                  OK
+CASE 032 COMPLETE   bright_area                  OK
+CASE 033 FAILED     bright_area                  OK
+CASE 034 FAILED     bright_area                  OK
+CASE 035 COMPLETE   bright_area                  OK
+CASE 036 COMPLETE   bright_area                  OK
+CASE 037 FAILED     bright_area                  OK
+CASE 038 FAILED     bright_area                  MISMATCH code 'pixel_size_unknown', expected 'invalid_pixel_size'
+CASE 039 DRIVER_ERROR bright_area                  MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ [invalid_parameter] 'Pixel size' must be greater than 0 (um per pixe
+CASE 040 COMPLETE   align_centres                OK
+CASE 041 COMPLETE   align_centres                OK
+CASE 042 COMPLETE   align_centres                OK
+CASE 043 COMPLETE   align_centres                OK
+CASE 044 FAILED     align_centres                OK
+CASE 045 FAILED     align_centres                OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 046 COMPLETE   feature_tour                 OK
+CASE 047 COMPLETE   count_above_level            OK
+Traceback (most recent call last):
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FunctionGui' object has no attribute 'pixel_size'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py", line 69, in _on_value_change
+    self.changed.emit(value)
+  File "src/psygnal/_signal.py", line 1233, in emit
+  File "src/psygnal/_signal.py", line 1328, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1311, in _run_emit_loop
+  File "src/psygnal/_signal.py", line 1346, in _run_emit_loop_immediate
+  File "src/psygnal/_weak_callback.py", line 415, in cb
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 641, in <lambda>
+    controller.changed.connect(lambda *_: self._refresh_enabled())
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/napari_labconstrictor/_widget.py", line 918, in _refresh_enabled
+    self.gui[name].enabled = applies
+    ~~~~~~~~^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 134, in __getitem__
+    return self.__getattr__(key)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py", line 117, in __getattr__
+    return object.__getattribute__(self, name)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psygnal._exceptions.EmitLoopError: 
+
+While emitting signal 'magicgui.widgets.RadioButtons.changed', an error occurred in a callback:
+
+  AttributeError: 'FunctionGui' object has no attribute 'pixel_size'
+  ------------------------------------------------------------------
+
+  SIGNAL EMISSION: 
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/backends/_qtpy/widgets.py:1096 in _emit_data
+      self._event_filter.valueChanged.emit(self._mgui_get_value())
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_value_widget.py:69 in _on_value_change
+      self.changed.emit(value)  # <-- SIGNAL WAS EMITTED HERE
+
+  CALLBACK CHAIN:
+    src/psygnal/_signal.py:1311 in _run_emit_loop
+    ... 5 more frames ...
+    /home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/bases/_container_widget.py:117 in __getattr__
+      return object.__getattribute__(self, name)  # type: ignore  # <-- ERROR OCCURRED HERE 
+
+      Local variables:
+                name = 'pixel_size'
+                 wdg = None
+CASE 048 COMPLETE   bright_area                  OK
+CASE 049 COMPLETE   summarise_table              OK
+CASE 050 COMPLETE   summarise_table              OK
+CASE 051 COMPLETE   summarise_table              OK
+CASE 052 FAILED     summarise_table              OK
+CASE 053 FAILED     summarise_table              OK
+CASE 054 COMPLETE   look_inside_file             OK
+CASE 055 COMPLETE   look_inside_file             OK
+CASE 056 COMPLETE   look_inside_file             OK
+CASE 057 COMPLETE   look_inside_file             OK
+CASE 058 COMPLETE   look_inside_file             OK
+CASE 059 FAILED     look_inside_file             OK
+CASE 060 FAILED     look_inside_file             OK
+CASE 061 COMPLETE   make_test_data               OK
+CASE 062 DRIVER_ERROR make_test_data               MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Size' must be >= 32 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 063 DRIVER_ERROR make_test_data               MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Size' must be <= 4096 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 064 FAILED     make_test_data               OK
+HOSTONLY pg_channels_cyx {}
+HOSTONLY pg_rgb {}
+SUMMARY 65 cases, 5 differ from their own expectation, 1 not expressible in the form

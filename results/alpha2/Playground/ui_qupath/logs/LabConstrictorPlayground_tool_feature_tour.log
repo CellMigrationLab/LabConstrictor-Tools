@@ -1,0 +1,166 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=37287 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+WARNING: Unknown module: javafx.graphics specified to --add-opens
+WARNING: Unknown module: javafx.base specified to --add-opens
+WARNING: Unknown module: javafx.web specified to --enable-native-access
+WARNING: Unknown module: javafx.graphics specified to --enable-native-access
+WARNING: Unknown module: javafx.media specified to --enable-native-access
+10:41:19.157 [main] [INFO ] qupath.QuPath - Setting system property lc.noshow=true
+10:41:19.160 [main] [INFO ] qupath.QuPath - Setting system property lc.qupath.test.script=/tmp/lc_gui_test.groovy
+10:41:19.160 [main] [INFO ] qupath.QuPath - Setting system property lc.test.out=/home/user/results/alpha2/LabConstrictorPlayground/ui_qupath/logs/shots/LabConstrictorPlayground_tool_feature_tour
+10:41:19.160 [main] [INFO ] qupath.QuPath - Setting system property lc.test.fixtures=/home/user/wt_ui_qupath/tests/fixtures
+Oct 15, 2026 10:41:19 AM com.sun.javafx.application.PlatformImpl startup
+WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @3d34d211'
+10:41:19.514 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting default Locale to en_US
+10:41:19.516 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for FORMAT to en_US
+10:41:19.516 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for DISPLAY to en_US
+10:41:19.543 [JavaFX Application Thread] [INFO ] qupath.lib.common.ThreadTools - Setting parallelism to 3
+10:41:19.561 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - Initializing: 1792060879561
+10:41:19.871 [JavaFX Application Thread] [INFO ] q.l.g.i.s.ImageRegionStoreFactory - Setting tile cache size to 1710.00 MB (25.0% max memory)
+10:41:20.311 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - QuPath build: Version: 0.7.0
+Build time: 2026-02-25 16:06
+Latest commit tag: "04ccfa4"
+10:41:23.021 [JavaFX Application Thread] [INFO ] qupath.lib.scripting.QP - Initializing type adapters
+10:41:23.596 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension LabConstrictor tools version 0.1.0-alpha.2 (1 ms)
+10:41:23.608 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - Bio-Formats version 8.4.0
+10:41:23.616 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - If Bio-Formats is slow to load images, setting the Bio-Formats memoization time in QuPath's preferences may help (this will create temp files)
+10:41:23.616 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Bio-Formats extension (Bio-Formats 8.4.0) version 0.7.0 (19 ms)
+10:41:23.618 [JavaFX Application Thread] [INFO ] qupath.ext.djl.DjlExtension - Registering DjlDnnModel
+10:41:23.627 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Deep Java Library extension version 0.4.2 (9 ms)
+10:41:23.759 [JavaFX Application Thread] [INFO ] q.ext.openslide.OpenSlideExtension - OpenSlide loaded successfully: 4.0.0
+10:41:23.760 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension OpenSlide extension version 0.7.0 (130 ms)
+10:41:23.827 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension ImageJ extension version 0.7.0 (29 ms)
+10:41:23.864 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Processing & classification extension version 0.7.0 (35 ms)
+10:41:24.158 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Rich script editor extension version 0.7.0 (282 ms)
+10:41:24.161 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension SVG export extension version 0.7.0 (2 ms)
+10:41:24.165 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension QuPath training extension version 0.1.0 (2 ms)
+10:41:24.189 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathApp - Starting QuPath with parameters: [--quiet=true]
+
+(QuPath:19078): Gdk-WARNING **: 10:41:24.229: XSetErrorHandler() called with a GDK error trap pushed. Don't do that.
+10:41:37.273 [JavaFX Application Thread] [INFO ] labconstrictor - LabConstrictor: no channel chooser for 'image' (the image has 0 channel(s))
+CHECK ui_qupath_form_feature_tour_opens PASS 6 parameter(s), one widget of the declared kind each: image:image, region:labels, look_for:choice, threshold:float, min_size_px:integer, side_note:string
+10:41:40.889 [JavaFX Application Thread] [ERROR] q.l.i.s.b.BioFormatsImageServer - /tmp/lc_ui_tests.XxoCMD/fixtures/blobs.tif
+java.nio.file.NoSuchFileException: /tmp/lc_ui_tests.XxoCMD/fixtures/blobs.tif
+	at java.base/sun.nio.fs.UnixException.translateToIOException(Unknown Source)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(Unknown Source)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(Unknown Source)
+	at java.base/sun.nio.fs.UnixPath.toRealPath(Unknown Source)
+	at qupath.lib.images.servers.bioformats.BioFormatsImageServer.<init>(BioFormatsImageServer.java:336)
+	at qupath.lib.images.servers.bioformats.BioFormatsImageServer.checkSupport(BioFormatsImageServer.java:269)
+	at qupath.lib.images.servers.bioformats.BioFormatsServerBuilder.checkImageSupport(BioFormatsServerBuilder.java:66)
+	at qupath.lib.images.servers.ImageServers.getImageSupport(ImageServers.java:409)
+	at qupath.lib.images.servers.ImageServers.getAllImageSupports(ImageServers.java:382)
+	at qupath.lib.images.servers.ImageServers.buildServer(ImageServers.java:315)
+	at qupath.lib.images.servers.ImageServers.buildServer(ImageServers.java:289)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at LcDialog$_channelChooser_closure72.doCall(Script1.groovy:1641)
+	at LcDialog$_channelChooser_closure72.doCall(Script1.groovy)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at LcDialog$_channelChooser_closure74.doCall(Script1.groovy:1653)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:338)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:274)
+	at org.codehaus.groovy.runtime.metaclass.ClosureMetaClass.invokeMethod(ClosureMetaClass.java:270)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1015)
+	at groovy.lang.Closure.call(Closure.java:471)
+	at org.codehaus.groovy.runtime.ConvertedClosure.invokeCustom(ConvertedClosure.java:54)
+	at org.codehaus.groovy.runtime.ConversionHandler.invoke(ConversionHandler.java:114)
+	at jdk.proxy2/jdk.proxy2.$Proxy48.changed(Unknown Source)
+	at com.sun.javafx.binding.ExpressionHelper$Generic.fireValueChangedEvent(ExpressionHelper.java:386)
+	at com.sun.javafx.binding.ExpressionHelper.fireValueChangedEvent(ExpressionHelper.java:91)
+	at javafx.beans.property.ReadOnlyBooleanPropertyBase.fireValueChangedEvent(ReadOnlyBooleanPropertyBase.java:78)
+	at javafx.scene.Node$FocusPropertyBase.notifyListeners(Node.java:8300)
+	at javafx.scene.Node$17.notifyListeners(Node.java:8388)
+	at javafx.scene.Node.notifyFocusListeners(Node.java:8321)
+	at javafx.scene.Scene$FocusOwnerProperty.invalidated(Scene.java:2331)
+	at javafx.beans.property.ObjectPropertyBase.markInvalid(ObjectPropertyBase.java:112)
+	at javafx.beans.property.ObjectPropertyBase.set(ObjectPropertyBase.java:147)
+	at javafx.scene.Scene.setFocusOwner(Scene.java:2376)
+	at javafx.scene.Scene.requestFocus(Scene.java:2264)
+	at javafx.scene.Node.requestFocus(Node.java:8582)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at Script1$_uaTypeFile_closure8.doCall(Script1.groovy:4074)
+	at Script1$_uaTypeFile_closure8.doCall(Script1.groovy)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at UiAudit$_fx_closure1.doCall(Script1.groovy:3977)
+	at UiAudit$_fx_closure1.doCall(Script1.groovy)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:338)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:274)
+	at org.codehaus.groovy.runtime.metaclass.ClosureMetaClass.invokeMethod(ClosureMetaClass.java:270)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1015)
+	at groovy.lang.Closure.call(Closure.java:471)
+	at groovy.lang.Closure.call(Closure.java:450)
+	at groovy.lang.Closure.run(Closure.java:543)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$0(PlatformImpl.java:424)
+	at com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+	at com.sun.glass.ui.gtk.GtkApplication._runLoop(Native Method)
+	at com.sun.glass.ui.gtk.GtkApplication.lambda$runLoop$0(GtkApplication.java:242)
+	at java.base/java.lang.Thread.run(Unknown Source)
+10:41:40.928 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsServerOptions - Setting max Bio-Formats readers to 4
+10:41:41.017 [JavaFX Application Thread] [WARN ] labconstrictor - LabConstrictor: channels of 'image' could not be read
+java.io.IOException: Unable to open file:/tmp/lc_ui_tests.XxoCMD/fixtures/blobs.tif
+	at qupath.lib.images.servers.ImageServers.buildServer(ImageServers.java:328)
+	at qupath.lib.images.servers.ImageServers.buildServer(ImageServers.java:289)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at LcDialog$_channelChooser_closure72.doCall(Script1.groovy:1641)
+	at LcDialog$_channelChooser_closure72.doCall(Script1.groovy)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at LcDialog$_channelChooser_closure74.doCall(Script1.groovy:1653)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:338)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:274)
+	at org.codehaus.groovy.runtime.metaclass.ClosureMetaClass.invokeMethod(ClosureMetaClass.java:270)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1015)
+	at groovy.lang.Closure.call(Closure.java:471)
+	at org.codehaus.groovy.runtime.ConvertedClosure.invokeCustom(ConvertedClosure.java:54)
+	at org.codehaus.groovy.runtime.ConversionHandler.invoke(ConversionHandler.java:114)
+	at jdk.proxy2/jdk.proxy2.$Proxy48.changed(Unknown Source)
+	at com.sun.javafx.binding.ExpressionHelper$Generic.fireValueChangedEvent(ExpressionHelper.java:386)
+	at com.sun.javafx.binding.ExpressionHelper.fireValueChangedEvent(ExpressionHelper.java:91)
+	at javafx.beans.property.ReadOnlyBooleanPropertyBase.fireValueChangedEvent(ReadOnlyBooleanPropertyBase.java:78)
+	at javafx.scene.Node$FocusPropertyBase.notifyListeners(Node.java:8300)
+	at javafx.scene.Node$17.notifyListeners(Node.java:8388)
+	at javafx.scene.Node.notifyFocusListeners(Node.java:8321)
+	at javafx.scene.Scene$FocusOwnerProperty.invalidated(Scene.java:2331)
+	at javafx.beans.property.ObjectPropertyBase.markInvalid(ObjectPropertyBase.java:112)
+	at javafx.beans.property.ObjectPropertyBase.set(ObjectPropertyBase.java:147)
+	at javafx.scene.Scene.setFocusOwner(Scene.java:2376)
+	at javafx.scene.Scene.requestFocus(Scene.java:2264)
+	at javafx.scene.Node.requestFocus(Node.java:8582)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at Script1$_uaTypeFile_closure8.doCall(Script1.groovy:4074)
+	at Script1$_uaTypeFile_closure8.doCall(Script1.groovy)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at UiAudit$_fx_closure1.doCall(Script1.groovy:3977)
+	at UiAudit$_fx_closure1.doCall(Script1.groovy)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:338)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:274)
+	at org.codehaus.groovy.runtime.metaclass.ClosureMetaClass.invokeMethod(ClosureMetaClass.java:270)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1015)
+	at groovy.lang.Closure.call(Closure.java:471)
+	at groovy.lang.Closure.call(Closure.java:450)
+	at groovy.lang.Closure.run(Closure.java:543)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$0(PlatformImpl.java:424)
+	at com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+	at com.sun.glass.ui.gtk.GtkApplication._runLoop(Native Method)
+	at com.sun.glass.ui.gtk.GtkApplication.lambda$runLoop$0(GtkApplication.java:242)
+	at java.base/java.lang.Thread.run(Unknown Source)
+	Suppressed: java.io.IOException: Unable to build ImageServer for file:/tmp/lc_ui_tests.XxoCMD/fixtures/blobs.tif with requested provider qupath.imagej.images.servers.ImageJServerBuilder
+		at qupath.lib.images.servers.ImageServerBuilder$DefaultImageServerBuilder.buildOriginal(ImageServerBuilder.java:385)
+		at qupath.lib.images.servers.ImageServerBuilder$AbstractServerBuilder.build(ImageServerBuilder.java:190)
+		at qupath.lib.images.servers.ImageServers.buildServer(ImageServers.java:321)
+		... 48 common frames omitted
+CHECK ui_qupath_form_feature_tour_controls PASS 9 control(s) activated and read back: section:Extras, image.set, image, region, look_for, threshold, min_size_px, side_note.set, side_note
+NOTE ui_qupath_form_feature_tour_browse not run: the native file chooser of [image, region] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+NOTE ui_qupath_form_feature_tour_channel not run: image.channel(no multi-channel fixture three_channels.tif) [NOT_RUN]
+10:41:47.796 [JavaFX Application Thread] [INFO ] labconstrictor - LabConstrictor: outlines 'outlines' not placed: they were not found in the image open in QuPath
+10:41:47.799 [JavaFX Application Thread] [INFO ] labconstrictor - LabConstrictor: points 'centres' not placed: they were not found in the image open in QuPath (table only)
+10:41:50.490 [JavaFX Application Thread] [INFO ] qupath.lib.gui.viewer.QuPathViewer - Image data set to ImageData: Fluorescence, blobs.tif
+CHECK ui_qupath_run_feature_tour PASS COMPLETE in 2.2 s, 5 result(s) shown and checked against their files, record 20261015T104146229696_LabConstrictorPlayground_feature_tour
+CHECK ui_qupath_screens_feature_tour PASS feature_tour_form.png and feature_tour_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+UI_AUDIT_LAUNCH_END phase=tool exit=0

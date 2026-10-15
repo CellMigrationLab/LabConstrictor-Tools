@@ -1,0 +1,8 @@
+  super(cls, self).__init__(**kwargs)  # type: ignore
+  super(cls, self).__init__(**kwargs)  # type: ignore
+TOOLS 17
+ERRORS 2
+  EmitLoopError: 
+  AttributeError: 'FunctionGui' object has no attribute 'region'
+  ----------------------------------
+VISIBLE TOP-LEVEL Counter({'_QtMainWindow': 1})

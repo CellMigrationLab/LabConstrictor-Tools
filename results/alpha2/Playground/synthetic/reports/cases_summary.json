@@ -1,0 +1,587 @@
+[
+  {
+    "case": 0,
+    "dataset": "pg_discs",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_discs] 14 blobs (12 discs radius 5-10 and 2 rings with a hole) at known integer centre"
+  },
+  {
+    "case": 1,
+    "dataset": "pg_region_offset",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_region_offset] the same blobs, region = box rows 90-249, columns 70-239 (origin not at"
+  },
+  {
+    "case": 2,
+    "dataset": "pg_discs_min_size",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_discs_min_size] min_size_px = 150 removes the small discs (areas known exactly)"
+  },
+  {
+    "case": 3,
+    "dataset": "pg_discs_dark",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_discs_dark] look_for = dark: the background and the two ring holes"
+  },
+  {
+    "case": 4,
+    "dataset": "pg_discs_none_found",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[pg_discs_none_found] threshold 1.0 and min size 500: nothing qualifies"
+  },
+  {
+    "case": 5,
+    "dataset": "pg_region_empty",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "empty_region",
+    "problems": [],
+    "comment": "[pg_region_empty] a selection that is empty"
+  },
+  {
+    "case": 6,
+    "dataset": "pg_region_wrong_size",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "bad_input",
+    "problems": [],
+    "comment": "[pg_region_wrong_size] a selection that is of the wrong size (100x100 for a 256x256 image)"
+  },
+  {
+    "case": 7,
+    "dataset": "pg_threshold_out_of_range",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[pg_threshold_out_of_range] threshold 1.5 (declared range 0..1)"
+  },
+  {
+    "case": 8,
+    "dataset": "pg_flat_zero",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[pg_flat_zero] an all-zero image"
+  },
+  {
+    "case": 9,
+    "dataset": "pg_nan_float",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[pg_nan_float] a float image with a block of NaN"
+  },
+  {
+    "case": 10,
+    "dataset": "pg_channels_cyx_cli",
+    "tool": "feature_tour",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[pg_channels_cyx_cli] the same 3-channel file given whole to the worker"
+  },
+  {
+    "case": 11,
+    "dataset": "pg_ramp_u8_fixed",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_ramp_u8_fixed] ramp 0..99 (u8), count pixels >= 50"
+  },
+  {
+    "case": 12,
+    "dataset": "pg_ramp_u8_p90",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_ramp_u8_p90] ramp 0..99 (u8), 90th percentile"
+  },
+  {
+    "case": 13,
+    "dataset": "pg_ramp_u16_fixed",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_ramp_u16_fixed] ramp 0..99 (u16), count pixels >= 50"
+  },
+  {
+    "case": 14,
+    "dataset": "pg_ramp_u16_p90",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_ramp_u16_p90] ramp 0..99 (u16), 90th percentile"
+  },
+  {
+    "case": 15,
+    "dataset": "pg_ramp_f32_fixed",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_ramp_f32_fixed] ramp 0..99 (f32), count pixels >= 50"
+  },
+  {
+    "case": 16,
+    "dataset": "pg_ramp_f32_p90",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_ramp_f32_p90] ramp 0..99 (f32), 90th percentile"
+  },
+  {
+    "case": 17,
+    "dataset": "pg_ramp_i32_fixed",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_ramp_i32_fixed] ramp 0..99 as int32 (plain TIFF, no calibration)"
+  },
+  {
+    "case": 18,
+    "dataset": "pg_ramp_lowrange",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_ramp_lowrange] 16-bit values 0..11 only (a low dynamic range), count >= 6"
+  },
+  {
+    "case": 19,
+    "dataset": "pg_axes_cyx",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[pg_axes_cyx] a CYX image (3x40x100) given to a 2D tool"
+  },
+  {
+    "case": 20,
+    "dataset": "pg_axes_tyx",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[pg_axes_tyx] a TYX image (5x40x100) given to a 2D tool"
+  },
+  {
+    "case": 21,
+    "dataset": "pg_axes_zyx",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[pg_axes_zyx] a ZYX image (6x40x100) given to a 2D tool"
+  },
+  {
+    "case": 22,
+    "dataset": "pg_axes_tzcyx",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[pg_axes_tzcyx] a TZCYX image (2x3x2x40x100) given to a 2D tool"
+  },
+  {
+    "case": 23,
+    "dataset": "pg_axes_rgb",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": [],
+    "comment": "[pg_axes_rgb] an RGB image given to a 2D tool"
+  },
+  {
+    "case": 24,
+    "dataset": "pg_nan_count",
+    "tool": "count_above_level",
+    "status": "FAILED",
+    "code": "non_finite_pixels",
+    "problems": [],
+    "comment": "[pg_nan_count] a float image with one NaN pixel, percentile mode"
+  },
+  {
+    "case": 25,
+    "dataset": "pg_area_u8",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_area_u8] a 20x30 bright rectangle (u8), 0.5 um per pixel"
+  },
+  {
+    "case": 26,
+    "dataset": "pg_area_u16",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_area_u16] a 20x30 bright rectangle (u16), 0.5 um per pixel"
+  },
+  {
+    "case": 27,
+    "dataset": "pg_area_f32",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_area_f32] a 20x30 bright rectangle (f32), 0.5 um per pixel"
+  },
+  {
+    "case": 28,
+    "dataset": "pg_area_u32",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_area_u32] the rectangle as uint32 with values near 4e9"
+  },
+  {
+    "case": 29,
+    "dataset": "pg_cal_nm",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_cal_nm] calibration written in nm (500 nm per pixel)"
+  },
+  {
+    "case": 30,
+    "dataset": "pg_cal_um",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_cal_um] calibration written in um (0.5 um per pixel)"
+  },
+  {
+    "case": 31,
+    "dataset": "pg_cal_micro_sign",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_cal_micro_sign] calibration written in \u00b5m (0.5 \u00b5m per pixel)"
+  },
+  {
+    "case": 32,
+    "dataset": "pg_cal_micron",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_cal_micron] calibration written in micron (0.5 micron per pixel)"
+  },
+  {
+    "case": 33,
+    "dataset": "pg_cal_none",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "pixel_size_unknown",
+    "problems": [],
+    "comment": "[pg_cal_none] no calibration in the file"
+  },
+  {
+    "case": 34,
+    "dataset": "pg_cal_pixel_unit",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "pixel_size_unknown",
+    "problems": [],
+    "comment": "[pg_cal_pixel_unit] an ImageJ file whose unit is 'pixel' (scale 1)"
+  },
+  {
+    "case": 35,
+    "dataset": "pg_cal_anisotropic",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_cal_anisotropic] anisotropic pixels: 0.25 um in Y, 0.5 um in X"
+  },
+  {
+    "case": 36,
+    "dataset": "pg_area_all_zero",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_area_all_zero] an all-zero image"
+  },
+  {
+    "case": 37,
+    "dataset": "pg_area_nan",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "non_finite_pixels",
+    "problems": [],
+    "comment": "[pg_area_nan] the rectangle with one NaN pixel"
+  },
+  {
+    "case": 38,
+    "dataset": "pg_pixel_zero",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "invalid_pixel_size",
+    "problems": [],
+    "comment": "[pg_pixel_zero] pixel size 0"
+  },
+  {
+    "case": 39,
+    "dataset": "pg_pixel_negative",
+    "tool": "bright_area",
+    "status": "FAILED",
+    "code": "invalid_pixel_size",
+    "problems": [],
+    "comment": "[pg_pixel_negative] pixel size -0.5"
+  },
+  {
+    "case": 40,
+    "dataset": "pg_align_squares",
+    "tool": "align_centres",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_align_squares] a 6x6 square and an 8x8 square in images of different sizes"
+  },
+  {
+    "case": 41,
+    "dataset": "pg_align_swapped",
+    "tool": "align_centres",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_align_swapped] the same two images swapped"
+  },
+  {
+    "case": 42,
+    "dataset": "pg_align_identity",
+    "tool": "align_centres",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_align_identity] an image against itself"
+  },
+  {
+    "case": 43,
+    "dataset": "pg_align_subpixel",
+    "tool": "align_centres",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_align_subpixel] two Gaussian spots at sub-pixel positions (30.3, 40.7) and (55.8, 90.2"
+  },
+  {
+    "case": 44,
+    "dataset": "pg_align_zero",
+    "tool": "align_centres",
+    "status": "FAILED",
+    "code": "no_signal",
+    "problems": [],
+    "comment": "[pg_align_zero] an all-zero image has no centre"
+  },
+  {
+    "case": 45,
+    "dataset": "pg_align_nan",
+    "tool": "align_centres",
+    "status": "FAILED",
+    "code": "non_finite_pixels",
+    "problems": [],
+    "comment": "[pg_align_nan] an image with one NaN"
+  },
+  {
+    "case": 46,
+    "dataset": "pg_stress_discs",
+    "tool": "feature_tour",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_stress_discs] stress: 3000x3000 uint8 with a 20x20 grid of 400 discs (radius 12)"
+  },
+  {
+    "case": 47,
+    "dataset": "pg_stress_halves",
+    "tool": "count_above_level",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_stress_halves] stress: 3000x3000 uint16 (18 MB, memory-mapped by the worker), left hal"
+  },
+  {
+    "case": 48,
+    "dataset": "pg_stress_halves_area",
+    "tool": "bright_area",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_stress_halves_area] the same image: area of the bright region at 0.1 um per pixel"
+  },
+  {
+    "case": 49,
+    "dataset": "pg_table_basic",
+    "tool": "summarise_table",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_table_basic] 8 rows: a counter, a constant, a column with 2 empty cells, a text column"
+  },
+  {
+    "case": 50,
+    "dataset": "pg_table_unicode",
+    "tool": "summarise_table",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_table_unicode] column names with \u00b5, \u00df and Cyrillic"
+  },
+  {
+    "case": 51,
+    "dataset": "pg_table_big",
+    "tool": "summarise_table",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_table_big] stress: 100 000 rows x 3 numeric columns"
+  },
+  {
+    "case": 52,
+    "dataset": "pg_table_no_numbers",
+    "tool": "summarise_table",
+    "status": "FAILED",
+    "code": "no_numbers",
+    "problems": [],
+    "comment": "[pg_table_no_numbers] a table with only text columns"
+  },
+  {
+    "case": 53,
+    "dataset": "pg_table_header_only",
+    "tool": "summarise_table",
+    "status": "FAILED",
+    "code": "no_numbers",
+    "problems": [],
+    "comment": "[pg_table_header_only] a header and no rows"
+  },
+  {
+    "case": 54,
+    "dataset": "pg_file_json",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_file_json] a JSON object with text, numbers, a boolean, a nested object and a list"
+  },
+  {
+    "case": 55,
+    "dataset": "pg_file_json_list",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_file_json_list] a JSON list"
+  },
+  {
+    "case": 56,
+    "dataset": "pg_file_text_crlf",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_file_text_crlf] three lines with CRLF, LF and a trailing newline"
+  },
+  {
+    "case": 57,
+    "dataset": "pg_file_empty",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_file_empty] an empty file"
+  },
+  {
+    "case": 58,
+    "dataset": "pg_file_exact_limit",
+    "tool": "look_inside_file",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_file_exact_limit] a text file of exactly 1 000 000 bytes"
+  },
+  {
+    "case": 59,
+    "dataset": "pg_file_over_limit",
+    "tool": "look_inside_file",
+    "status": "FAILED",
+    "code": "file_too_large",
+    "problems": [],
+    "comment": "[pg_file_over_limit] a text file of 1 000 001 bytes"
+  },
+  {
+    "case": 60,
+    "dataset": "pg_file_binary",
+    "tool": "look_inside_file",
+    "status": "FAILED",
+    "code": "not_text",
+    "problems": [],
+    "comment": "[pg_file_binary] a binary file (bytes 128-255)"
+  },
+  {
+    "case": 61,
+    "dataset": "pg_make_three_channels",
+    "tool": "make_test_data",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[pg_make_three_channels] 'Make test data' kind three_channels: the docstring says the chan"
+  },
+  {
+    "case": 62,
+    "dataset": "pg_make_size_too_small",
+    "tool": "make_test_data",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[pg_make_size_too_small] Make test data with size=16"
+  },
+  {
+    "case": 63,
+    "dataset": "pg_make_size_too_big",
+    "tool": "make_test_data",
+    "status": "FAILED",
+    "code": "invalid_parameter",
+    "problems": [],
+    "comment": "[pg_make_size_too_big] Make test data with size=5000"
+  },
+  {
+    "case": 64,
+    "dataset": "pg_make_missing_folder",
+    "tool": "make_test_data",
+    "status": "FAILED",
+    "code": "folder_not_found",
+    "problems": [],
+    "comment": "[pg_make_missing_folder] Make test data with folder=fixtures/does_not_exist"
+  }
+]

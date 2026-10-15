@@ -1,0 +1,22 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.26,
+  "run_record": "/home/user/a2/pgnan_home/runs/20261015T101654310602_LabConstrictorPlayground_make_test_data/run.json",
+  "results": [
+    {
+      "type": "message",
+      "name": "files",
+      "text": "Wrote 1 file(s) into /tmp/pg_mtd:\n- three_channels: /tmp/pg_mtd/three_channels.tif"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "folder": "/tmp/pg_mtd",
+        "files": "three_channels.tif"
+      }
+    }
+  ],
+  "job_dir": "/home/user/a2/pgnan_home/results/20261015T101654_2b87e5_LabConstrictorPlayground_make_test_data"
+}
+(results are in /home/user/a2/pgnan_home/results/20261015T101654_2b87e5_LabConstrictorPlayground_make_test_data - use --out DIR to choose where they go; the newest 20 runs are kept)

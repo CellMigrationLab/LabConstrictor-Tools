@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.32,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102848072655_LabConstrictorPlayground_feature_tour/run.json",
+  "error": "[invalid_parameter] 'Threshold' must be <= 1",
+  "code": "invalid_parameter",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

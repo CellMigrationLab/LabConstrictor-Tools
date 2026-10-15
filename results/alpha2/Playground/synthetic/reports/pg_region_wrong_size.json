@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.66,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102847622485_LabConstrictorPlayground_feature_tour/run.json",
+  "error": "[bad_input] the region (100 x 100) does not have the size of the image (256 x 256)",
+  "code": "bad_input",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}

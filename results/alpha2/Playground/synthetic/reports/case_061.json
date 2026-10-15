@@ -1,0 +1,21 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.22,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102921864486_LabConstrictorPlayground_make_test_data/run.json",
+  "results": [
+    {
+      "type": "message",
+      "name": "files",
+      "text": "Wrote 1 file(s) into /home/user/a2/syn_scratch_pg/fixtures/pg_make_out:\n- three_channels: /home/user/a2/syn_scratch_pg/fixtures/pg_make_out/three_channels.tif"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "folder": "/home/user/a2/syn_scratch_pg/fixtures/pg_make_out",
+        "files": "three_channels.tif"
+      }
+    }
+  ],
+  "job_dir": "/home/user/a2/syn_scratch_pg/_jobs/061"
+}

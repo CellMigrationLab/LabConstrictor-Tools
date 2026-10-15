@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.26,
+  "run_record": "/home/user/apps/a2_lc_home_Playground_syn/runs/20261015T102901837560_LabConstrictorPlayground_align_centres/run.json",
+  "error": "[non_finite_pixels] The image has 1 pixel(s) that are NaN or infinite, so the result would be wrong without saying so. Clean the image first (replace or crop out those pixels).",
+  "code": "non_finite_pixels",
+  "log": "/home/user/apps/a2_lc_home_Playground_syn/logs/labconstrictor.log"
+}
