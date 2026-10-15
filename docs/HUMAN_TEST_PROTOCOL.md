@@ -28,10 +28,11 @@ released app on fresh runners, but only Napari for most apps and Fiji/QuPath onl
 ## How to use this document
 1. Copy this file and the case file of each app you test (or paste them into a GitHub issue: the boxes then become clickable). Print them if you prefer paper.
 2. Fill in the **Record sheet** (section 0). **Every result is tied to the versions in it**: a result without a filled record sheet cannot be used.
-3. Do the sections in order. Each test has **Do**, **Expect** and three boxes. Tick exactly one:
+3. Do the sections in order. Each test has **Do**, **Expect** and four boxes. Tick exactly one; a test you did not attempt stays unticked (**NOT TESTED**):
    * `PASS`: what you see matches **Expect**.
    * `FAIL`: it differs. Write what you saw in *Notes*, and take a screenshot.
-   * `N/A`: you could not do the step (say why; "no Windows machine" is a valid reason).
+   * `BLOCKED`: you could not do the step because something was missing (a dataset, an installed app, disk space, a host); say what.
+   * `N/A`: the step does not apply to your system or software (say why).
 4. Do not skip a failing test: note it and continue, unless the test says **STOP**.
 5. At the end, send the record sheet, the screenshots and a support bundle (test E4).
 
@@ -160,7 +161,7 @@ it may register no tool at all, which hides it trivially.
 ### S0. The path
 **Do:** choose, for each app, a prefix without a space (rule 1) and write it in the record sheet. Windows: do not use the default folder if your user name has a space.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### S1. Install an app
 **Do:** run the installer of the app you test (Linux batch example: `bash NucleiSky-<version>-Linux-x86_64.sh -b -p <PREFIX>`; use the file of
@@ -168,7 +169,7 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 
 **Expect:** the installer finishes without an error message. `<PREFIX>/menuinst_debug.log` exists and its last line is `Post-install completed successfully.`
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### S2. The tools were registered during installation
 **Do:** open `menuinst_debug.log`, search for `lc_tools`. (The installer downloads the small *labconstrictor-tools* package from GitHub, so it needs internet at that moment: the log shows
@@ -179,28 +180,28 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 
 **Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab 1.1.2:** its bridge tool `Calculate Track Metrics` **must be registered** and visible in `list`, with notebook-only hosts; absence from the three host UIs is checked separately in CT-3/D3.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### S3. Diagnose
 **Do:** `<APP_PY> -m labconstrictor_tools doctor`.
 
 **Expect:** one line per registered app starting with a check mark, no line starting with a cross; the last lines name the registry folder and the log file.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### S4. Nothing unexpected was installed or written
 **Do:** look in your home folder.
 
 **Expect:** the only new **LabConstrictor** folder is `.labconstrictor` (registry, logs, runs). The installer may also create menu entries (on Linux under `~/.local/share/applications` and `~/.local/share/desktop-directories`) and the folders of the tools it uses (`~/.conda`, `~/.mamba`, `~/.cache`, `~/.config`, `~/.local/share/mime`, dated backups of `~/.config/menus/applications.menu`; later `~/.imagej`, `~/.java` from Fiji): normal. No error dialogs. No administrator rights needed unless you chose a protected folder.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### C1. Run a tool without any window (optional)
 **Do:** `<APP_PY> -m labconstrictor_tools run <App> <tool id> name=value ...` for a tool of the app (the case file gives one, with its tool id).
 
 **Expect:** a JSON report with `"status": "COMPLETE"` and a last line `(results are in ...results/<time>_<id>_<App>_<tool> - ...; the newest 20 runs are kept)` (it goes to the error stream: with a pipe it can appear before the JSON; not a failure). A wrong input gives `"status": "FAILED"` with a `code` and a sentence an ordinary person can read.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ---
 
@@ -212,31 +213,31 @@ show the same tools; the notebooks must keep working next to them. Which noteboo
 **Do:** start the app from its menu entry or desktop shortcut (installed in S1) and open the notebook list.
 **Expect:** JupyterLab opens in your browser and lists the app's notebooks (`Welcome` and the ones named in the matrix). No error page, no blank browser tab.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### NB2. The Welcome notebook runs top to bottom
 **Do:** open `Welcome` and run every cell in order (*Run > Run All Cells*), or press the buttons it shows.
 **Expect:** no red error output; whatever it says it will do (links, a version line, a check of the installation) is shown.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### NB3. The main notebook with its own demo data
 **Do:** open the app's main notebook (matrix, "main notebook") and use it as its instructions say, on the demo or example data it offers (press **every** button and widget once: buttons that do nothing are a finding). If a notebook needs your own data and you have none: N/A, say so.
 **Expect:** the steps finish, results appear in the notebook (tables, plots, images) and nothing says `Error` or shows a traceback. A native file chooser that does not open is a **Major** FAIL.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (notebook name): ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes (notebook name): ______________________________
 
 ### NB4. Notebook and host agree (apps with tools in the hosts)
 **Do:** do one operation of the app both in the notebook and in a host (for example Guess the Condition *Create a demo experiment*, Playground *Summarise a table*, VLab4Mic *Compare images*) with the same input.
 **Expect:** the same result (same numbers, same files). A difference is a finding even if both look plausible; write both values.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### NB5. Closing the notebook leaves nothing behind
 **Do:** close the browser tab, then stop JupyterLab (close its terminal window, or *File > Shut Down*). Look at the process list.
 **Expect:** no `jupyter` or `python` process of the app remains within 15 seconds.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ---
 
@@ -256,7 +257,7 @@ Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **
 
 **Expect:** Napari opens. `Plugins` contains **LabConstrictor tools**. There is no backend notice (a PyQt5 notice would mean the wrong install). On a bare Linux system a Qt error `Could not load the Qt platform plugin "xcb"` means missing `libxcb-*` packages: a computer set-up problem, not a LabConstrictor one.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (Qt backend you have): ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes (Qt backend you have): ______________________________
 
 ### F0. Fiji
 **Do (jar, preferred):** download `labconstrictor-fiji-v0.1.0-alpha.3.jar` from the Fiji release of the record sheet, put it into `Fiji.app/plugins/` (not a subfolder; remove any older `labconstrictor-fiji-*.jar`), restart Fiji. Menu entry: **Plugins > LabConstrictor > LabConstrictor Tools...**. Check the file against `SHA256SUMS` of the release if you can.
@@ -264,7 +265,7 @@ Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **
 
 **Expect:** after restart the menu entry exists (if you cannot find it, type `LabConstrictor` into Fiji's search bar, press *Run*, and note it as a FAIL of this test).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Menu path you used: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Menu path you used: ______________________________
 
 *What it should look like:* ![F0 the menu entry Plugins > LabConstrictor > LabConstrictor Tools](img/F0_fiji_menu.png)
 
@@ -281,7 +282,7 @@ Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **
 
 **Expect:** **Extensions > LabConstrictor tools...** exists. With no app registered the window says "No LabConstrictor app is registered on this machine" (install an app, press **Rescan apps**).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 *Not verified:* the drag-and-drop install of a released jar (the release smoke test puts the jar on the class path), and any QuPath step on Windows or macOS by a person.
 
@@ -305,25 +306,25 @@ QuPath `Extensions > LabConstrictor tools...` (app chooser).
 
 A mismatch is a **Major** FAIL (an app that must be hidden is shown, or one that must be listed is missing); write the host, app, and what the Log or status line says.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### D2. VLab4Mic is not offered in QuPath
 **Do:** install VLab4Mic. Open QuPath's app chooser. Press **Rescan apps**.
 **Expect:** VLab4Mic is not there, while it is in Napari and Fiji; the other apps are unaffected. The host writes `'VLab4Mic' is not listed in qupath: the app declares hosts: notebook, napari, fiji` to the Tools log (`<LC_HOME>/logs/labconstrictor.log`) and shows it wherever it reports left-out apps. The tagged release source contains `labconstrictor-app.yaml` and `--app-manifest` hooks, so test the actual installed registration rather than assuming it. For an app registered by an installer that passes no hosts the sentence is `'<app>' declares no hosts, so it is listed in every host; register it with --app-manifest (or --hosts) to choose`, and the app is then listed in every host.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### D3. CellTracksColab is offered nowhere
 **Do:** install CellTracksColab next to another app, and first confirm that `list` shows CellTracksColab's registered `Calculate Track Metrics` tool and notebook-only host declaration (CT-2). Then look at all three hosts (Rescan apps / restart Fiji).
 **Expect:** registered, but **not in any of the three host lists**; no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule; the declaration exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so verify the actual installed manifest/registration before considering an absent host entry a PASS.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### D4. An app with an old Tools is refused with a sentence (only if you have one)
 **Do:** if you have an app installed from an older release (Tools `0.2.0rc1`), open the three hosts. (This is the situation for every released installer before the pin pull requests; do not install one on purpose.)
 **Expect:** Fiji and QuPath leave it out of the list with a sentence in the Log such as `this app's labconstrictor-tools 0.2.0rc1 is older than the 0.3.0a1 this host needs: update it`; QuPath refuses a run with the same sentence; Napari: not verified (its plugin requires Tools 0.3.0a1 and checks it at load).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ---
 
@@ -345,7 +346,7 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 
 **Expect:** `doctor` shows a cross for the broken app with `not available on this machine (interpreter ... is missing)`; `list` says `<App>  -- skipped: ...`. The other app stays usable. Napari lists only the other app and its status line reads `⚠ skipped: <App> (...)`; Fiji's Log has `LabConstrictor: skipped <App>: not available on this machine (interpreter ... is missing)`; QuPath: not verified (write down what it says). **Restore the file name before you continue** (`mv <PREFIX>/bin/python.off <PREFIX>/bin/python`; `Rename-Item "<PREFIX>\python.off" python.exe`) and check that `doctor` is clean again.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 *What the Fiji line looks like (older screenshot: the skipped app was CellTracksColab then):* ![F11 Log line for a skipped app](img/F11_fiji_log_skipped_app.png)
 
@@ -354,49 +355,49 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 
 **Expect:** `✖ [ModuleNotFoundError] No module named 'pandas'  - click Details...` (Napari; Fiji: an error window naming the log; QuPath: the status line and **Details**). Details shows the traceback. After reinstalling, the tool works again.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### E3. A process killed from outside
 **Do:** start a long run (Playground "Stress: slow run with progress", 60 s). In the process list end the `python ... labconstrictor_tools serve` process of that app.
 **Expect:** the host says `worker exited unexpectedly (code ...)` with a likely cause, the run button is usable again, and the next run works.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### E4. Support bundle
 **Do:** `<APP_PY> -m labconstrictor_tools support-bundle --out <somewhere>/bundle.zip`, open the zip.
 **Expect:** it contains `logs/labconstrictor.log`, `apps/*.json`, the latest `runs/*/run.json`, `doctor.txt` and `environment.txt`: file names, folder names and parameter values of recent runs, **no image or table contents**. Logs and run records are **not scrubbed of secrets**: read the files before you share the zip, remove anything private (your user name appears in paths).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### E5. Closing leaves nothing behind
 **Do:** close each host you used; open the process list (Task Manager, Activity Monitor, or `ps aux | grep '[l]abconstrictor_tools.*serve'`).
 **Expect:** no `python ... labconstrictor_tools serve` process remains within 15 seconds (QuPath and Fiji: Fiji's worker may take up to 10 s to exit after its input is closed, then it is killed).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### U1. Two apps side by side
 **Do:** with two apps installed, switch between them in one host session and run a tool of each.
 **Expect:** each runs in its own Python (no conflict between their packages); both succeed in the same session.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### U2. Uninstall one app
 **Do:** close all hosts and check that no worker of that app runs. Uninstall it with its normal uninstaller (Windows: *Apps & features*; Linux/macOS: `bash <PREFIX>/uninstall.sh`). Run `list` with another app's Python, then reopen the hosts (Rescan apps / restart).
 **Expect:** the app is gone from `list` and from every host; the other app is still listed and runs; `~/.labconstrictor/apps` no longer holds its `.json`.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### U3. Update an app (the install rules in practice)
 **Do:** with an older installed version (if you have one) follow rule 2 of section 2: macOS/Windows uninstall then install; Linux `-u` on a **finished** install. Then, once, do the failure case on Linux: interrupt an install (Ctrl+C during the download), then run the `-u` update.
 **Expect:** the update keeps your data (`~/.labconstrictor/results`, your own files). The `-u` after an interrupted install fails or breaks; deleting `<PREFIX>/pkgs` (or uninstalling) and installing again repairs it. (If you have no older version: N/A.)
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ### U4. Installation without internet for the tools package (optional, advanced)
 **Do:** before running an installer set an unreachable source: Linux/macOS `LC_TOOLS_SPEC=/nonexistent/x.whl bash installer.sh -b -p <new folder>`; Windows cmd.exe `set LC_TOOLS_SPEC=C:\nonexistent\x.whl` (PowerShell `$env:LC_TOOLS_SPEC='C:\nonexistent\x.whl'`), then start the installer from the same window. **Afterwards remove the setting** (`set LC_TOOLS_SPEC=` / `Remove-Item Env:LC_TOOLS_SPEC`), or every later installer from that window fails the same way.
 **Expect:** the installation still **finishes** and the app works; `menuinst_debug.log` has `WARNING: tool registration failed - ...`; `list` does not show the app. Remove that install afterwards.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ---
 

@@ -10,20 +10,20 @@ host UI test app: earlier versions of this protocol used it as a second app in N
 **Do:** install the latest release (protocol S0 and S1: a path without a space). Start the app from the menu or desktop and open a notebook it offers.
 **Expect:** the installer finishes (last line of `menuinst_debug.log`: `Post-install completed successfully.`); the notebook opens in JupyterLab and its first cells run (what to run: see the notebook's own instructions; a full TrackMate import needs a validated dataset that is not yet packaged: [TEST_DATA.md](../TEST_DATA.md#data-c1c2-celltrackscolab)).
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ## CT-2. Registered bridge, deliberately excluded from image hosts
 **Do:** `<APP_PY> -m labconstrictor_tools list` with the Python of CellTracksColab (or any other app's Python).
 **Expect:** `list` contains **CellTracksColab 1.1.2**, a `Calculate Track Metrics` tool and the notebook-only host declaration; `menuinst_debug.log` confirms installation and registration of `celltracks_lc_tools` without `WARNING: tool registration failed`; `doctor` is clean. This step **must pass before CT-3 can establish that host exclusion works**.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
 ## CT-3. Not offered in any host
 This is test D3 of the protocol. With CellTracksColab installed next to another app: Napari (Rescan apps), Fiji (restart) and QuPath (Rescan apps) do not list it, show no error about it, and the other app still works. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps. The 1.1.2 release source contains the manifest and the installer hooks that pass it; these behaviours must now be **tested**, not treated as future work. Check CT-2 first, or the absence in hosts could be a false PASS. Record the result here too.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes (host): ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes (host): ______________________________
 
 ## CT-4. Uninstall leaves other apps alone
 Test U2 of the protocol, with CellTracksColab as the app removed: the other app stays registered and runs.
 
-- [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
+- [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
