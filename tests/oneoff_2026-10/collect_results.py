@@ -7,11 +7,14 @@ from pathlib import Path
 from typing import Any
 
 
-def load(directory: Path, rerun: bool = False) -> list[dict[str, Any]]:
-    """The matrices under `directory`; the alpha.2 rerun lives in `directory/alpha2/` and is kept apart from the alpha.1 round (`rerun=True` reads only that)."""
+def load(directory: Path, rerun: "bool | str" = False) -> list[dict[str, Any]]:
+    """The matrices under `directory`; a rerun lives in `directory/alphaN/` (alpha2, alpha3) and is kept apart from the alpha.1 round.
+    `rerun=False` reads only the alpha.1 matrices (those under no alphaN folder), `rerun="alpha3"` reads only that round."""
     documents: list[dict[str, Any]] = []
     for path in sorted(directory.rglob("matrix_*.json")):
-        if ("alpha2" in path.relative_to(directory).parts) != rerun:
+        parts = path.relative_to(directory).parts
+        folder = next((p for p in parts if p.startswith("alpha") and p[5:].isdigit()), "")
+        if folder != (rerun or ""):
             continue
         try:
             documents.append(json.loads(path.read_text(encoding="utf-8")))
@@ -55,9 +58,10 @@ def main() -> int:
     text = render(load(directory))
     (directory / "RESULTS.md").write_text(text, encoding="utf-8")
     print("wrote %s (%d bytes)" % (directory / "RESULTS.md", len(text)))
-    if (directory / "alpha2").is_dir():  # the rerun's generated tables go next to its hand-written RESULTS.md, never into the alpha.1 file
-        again = render(load(directory, rerun=True)).replace("# Results of the one-off test run", "# Results of the alpha.2 rerun (generated from the matrices)")
-        (directory / "alpha2" / "MATRICES.md").write_text(again, encoding="utf-8")
+    for name in ("alpha2", "alpha3"):
+        if (directory / name).is_dir():  # a rerun's generated tables go next to its hand-written RESULTS.md, never into the alpha.1 file
+            again = render(load(directory, rerun=name)).replace("# Results of the one-off test run", "# Results of the %s rerun (generated from the matrices)" % name)
+            (directory / name / "MATRICES.md").write_text(again, encoding="utf-8")
     return 0
 
 
