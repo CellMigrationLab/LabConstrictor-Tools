@@ -1,0 +1,14 @@
+{
+ "host": "fiji",
+ "app": "VLab4Mic",
+ "family": "ui",
+ "host_version": "v0.1.0-alpha.3",
+ "started": "2026-10-15T14:33:38",
+ "finished": null,
+ "expected": 20,
+ "parts": [
+  "panel",
+  "tools"
+ ],
+ "rows": []
+}

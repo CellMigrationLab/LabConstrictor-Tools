@@ -1,0 +1,23 @@
+WARNING: could not determine DPI
+CHECK a3_napari_tools_listed PASS 2 tool(s) in the chooser, 2 in the schema
+CHECK a3_napari_capture_selftest PASS a deliberately failing signal callback was captured by the capture (1 line(s))
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK a3_napari_switch_no_exceptions PASS 2 tool(s) x 5 round(s) there and back (20 form switches), every radio/check flipped: no exception on stderr/excepthook/Qt (1 unrelated line(s))
+CHECK a3_napari_no_stray_radio_windows PASS no stray top-level radio button windows after the switching
+CHECK a3_napari_group_headings_compare_images PASS headings ['Images']; after visiting 1 other tool(s) and back ['Images']; expected ['Images']
+CHECK a3_napari_group_headings_simulate_sample PASS headings ['Sample', 'Labelling', 'Imaging', 'Labelling', 'Sample', 'Modality', 'Localisations (SMLM)', 'Imaging']; after visiting 1 other tool(s) and back ['Sample', 'Labelling', 'Imaging', 'Labelling', 'Sample', 'Modality', 'Localisations (SMLM)', 'Imaging']; expected ['Sample', 'Labelling', 'Imaging', 'Labelling', 'Sample', 'Modality', 'Localisations (SMLM)', 'Imaging']
+CHECK a3_napari_pixel_zero_compare_images PASS image with a 0.5 um scale chosen: box '0.5'; after typing 0 + Enter into reference_pixel_size_um the status line says "0 means: use the image's calibration"; the box then shows '0.5'
+CHECK a3_napari_pixel_zero_compare_images PASS image with a 0.5 um scale chosen: box '0.5'; after typing 0 + Enter into simulated_pixel_size_um the status line says "0 means: use the image's calibration"; the box then shows '0.5'
+/home/user/w/venv/lib/python3.11/site-packages/napari/components/viewer_model.py:1519: UserWarning: The "builtins" plugin name is deprecated and will not work in a future version. Please use "napari" instead.
+  warnings.warn(
+CHECK a3_napari_cal_um_compare_images_reference_pixel_size_um_evidence_fiji_written_um PASS evidence evidence_fiji_written_um.tif in the 'or file' row: the pixel-size field shows '0.02' (expected 0.02); status "0 means: use the image's calibration"; (informative: as a napari-opened layer the field shows '')
+/home/user/w/venv/lib/python3.11/site-packages/napari/components/viewer_model.py:1519: UserWarning: The "builtins" plugin name is deprecated and will not work in a future version. Please use "napari" instead.
+  warnings.warn(
+CHECK a3_napari_cal_um_compare_images_simulated_pixel_size_um_evidence_fiji_written_um PASS evidence evidence_fiji_written_um.tif in the 'or file' row: the pixel-size field shows '0.02' (expected 0.02); status "0 means: use the image's calibration"; (informative: as a napari-opened layer the field shows '')
+/home/user/w/venv/lib/python3.11/site-packages/napari/components/viewer_model.py:1519: UserWarning: The "builtins" plugin name is deprecated and will not work in a future version. Please use "napari" instead.
+  warnings.warn(
+CHECK a3_napari_cal_um_compare_images_reference_pixel_size_um_vm_cal_micro PASS evidence vm_cal_micro.tif in the 'or file' row: the pixel-size field shows '0.02' (expected 0.02); status "0 means: use the image's calibration"; (informative: as a napari-opened layer the field shows '')
+/home/user/w/venv/lib/python3.11/site-packages/napari/components/viewer_model.py:1519: UserWarning: The "builtins" plugin name is deprecated and will not work in a future version. Please use "napari" instead.
+  warnings.warn(
+CHECK a3_napari_cal_um_compare_images_simulated_pixel_size_um_vm_cal_micro PASS evidence vm_cal_micro.tif in the 'or file' row: the pixel-size field shows '0.02' (expected 0.02); status "0 means: use the image's calibration"; (informative: as a napari-opened layer the field shows '')

@@ -196,3 +196,17 @@
 * `ui_qupath_form_summarise_table_browse` (ui/qupath) the native file chooser of [table] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
 * `ui_qupath_run_summarise_table_unverified` (ui/qupath) expectation(s) the GUI cannot check: summary.cells
 
+## VLab4Mic
+
+| family | host | PASS | FAIL | NOT_RUN | HUMAN | NOTE | finished |
+|---|---|---|---|---|---|---|---|
+| alpha3 | napari | 12 | 0 | 0 | 0 | 0 | 2026-10-15T14:30:25Z |
+| ui | fiji | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
+| ui | napari | 21 | 0 | 0 | 3 | 0 | 2026-10-15T14:33:36Z |
+
+### VLab4Mic: HUMAN (3)
+
+* `ui_napari_prerequisite_simulate_sample_case12` (ui/napari) case 12 of simulate_sample cannot be typed into the form (value 1.5 is outside of the allowed range: (0.0, 1.0)); its expected outcome {'status': 'FAILED', 'code': 'invalid_parameter', 'message_contains': 'Labelling efficiency'} is covered by the CLI
+* `ui_napari_prerequisite_simulate_sample_case13` (ui/napari) case 13 of simulate_sample cannot be typed into the form (value 0 is outside of the allowed range: (1, 20)); its expected outcome {'status': 'FAILED', 'code': 'invalid_parameter', 'message_contains': 'Number of particles'} is covered by the CLI
+* `ui_napari_panel_cancel_running` (ui/napari) no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+
