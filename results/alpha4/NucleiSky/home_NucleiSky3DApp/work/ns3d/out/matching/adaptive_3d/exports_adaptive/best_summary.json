@@ -1,0 +1,11 @@
+{
+  "success": false,
+  "matcher": "pyramid",
+  "best_scale": null,
+  "best_t_um_zyx": null,
+  "best_R_zyx": null,
+  "match_quality": {
+    "frac_inliers": 0.0,
+    "mean_error_um": null
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "base_name": "full",
+  "volume_shape_zyx": [
+    48,
+    160,
+    160
+  ],
+  "voxel_size_um_zyx": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "n_reference_landmarks": 35,
+  "centroids_for_bench_um_shape": [
+    35,
+    3
+  ],
+  "patch_shapes_px_zyx_requested": [
+    [
+      32,
+      96,
+      96
+    ],
+    [
+      40,
+      128,
+      128
+    ],
+    [
+      64,
+      320,
+      320
+    ],
+    [
+      80,
+      384,
+      384
+    ],
+    [
+      96,
+      448,
+      448
+    ],
+    [
+      112,
+      512,
+      512
+    ],
+    [
+      128,
+      640,
+      640
+    ],
+    [
+      160,
+      768,
+      768
+    ],
+    [
+      192,
+      896,
+      896
+    ],
+    [
+      224,
+      1024,
+      1024
+    ]
+  ],
+  "patch_shapes_px_zyx_effective": [
+    [
+      32,
+      96,
+      96
+    ],
+    [
+      40,
+      128,
+      128
+    ]
+  ],
+  "patch_shapes_px_zyx_skipped": [
+    [
+      64,
+      320,
+      320
+    ],
+    [
+      80,
+      384,
+      384
+    ],
+    [
+      96,
+      448,
+      448
+    ],
+    [
+      112,
+      512,
+      512
+    ],
+    [
+      128,
+      640,
+      640
+    ],
+    [
+      160,
+      768,
+      768
+    ],
+    [
+      192,
+      896,
+      896
+    ],
+    [
+      224,
+      1024,
+      1024
+    ]
+  ],
+  "patches_per_shape": 3,
+  "random_state": 0,
+  "matchers": [
+    "pyramid",
+    "hashing"
+  ],
+  "min_nuclei_per_patch": 3,
+  "matcher_config_is_none": true,
+  "matcher_kwargs_map": {
+    "adaptive": {
+      "matcher_order": [
+        "pyramid",
+        "hashing"
+      ],
+      "stop_on_success": true,
+      "max_total_time_s": null,
+      "verbose": false
+    }
+  },
+  "restart": false,
+  "checkpoint_dir": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/out/benchmarking_3d/full_checkpoints",
+  "results_csv": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/out/benchmarking_3d/full_benchmark3d_results.csv"
+}

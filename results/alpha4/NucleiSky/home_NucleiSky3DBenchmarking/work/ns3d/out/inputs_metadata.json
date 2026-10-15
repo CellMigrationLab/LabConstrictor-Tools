@@ -1,0 +1,69 @@
+{
+  "full_image_path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/full.tif",
+  "full_shape_zyx": [
+    48,
+    160,
+    160
+  ],
+  "voxel_size_full_um_zyx": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "voxel_size_source": "metadata or manual fallback",
+  "full_axes": "ZYX",
+  "full_channel_axis": null,
+  "full_channel_index": 0,
+  "header": {
+    "path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/full.tif",
+    "kind": ".tif",
+    "shape": [
+      48,
+      160,
+      160
+    ],
+    "dtype": "uint16",
+    "axes": "ZYX",
+    "inferred_zyx": {
+      "axes": "ZYX",
+      "shape": [
+        48,
+        160,
+        160
+      ],
+      "source": "axes"
+    },
+    "voxel_size_um": 1.0,
+    "voxel_size_um_zyx": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ome_physical_size_um": null,
+    "voxel_details": {
+      "source": "ImageJ (z-only)",
+      "x_um": 1.0,
+      "y_um": 1.0,
+      "z_um": 1.0,
+      "note": "ResolutionUnit=1; used ImageJ unit='\u00b5m' to interpret X/YResolution."
+    }
+  },
+  "segmentation_shape_zyx": [
+    48,
+    160,
+    160
+  ],
+  "voxel_size_full_seg_um_zyx": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "segmentation_source": "2.5D segmentation: method=threshold, stitch_iou=0.30",
+  "labels_full_path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/out/segmentation/labels_full.tif",
+  "features_full_path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DBenchmarking/work/ns3d/out/segmentation/features_full.csv",
+  "n_reference_objects": 35,
+  "centroids_full_um_shape": [
+    35,
+    3
+  ]
+}

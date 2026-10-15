@@ -1,0 +1,21 @@
+{
+  "full_image_path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DApp/work/ns3d/full.tif",
+  "crop_image_path": "/home/user/results/alpha4/NucleiSky/home_NucleiSky3DApp/work/ns3d/crop.tif",
+  "voxel_size_full_um_zyx": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "voxel_size_crop_um_zyx": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "mode": "external",
+  "full_axes": "ZYX",
+  "crop_axes": "ZYX",
+  "full_channel_axis": null,
+  "full_channel_index": null,
+  "crop_channel_axis": null,
+  "crop_channel_index": null
+}
