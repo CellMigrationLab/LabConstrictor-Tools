@@ -58,7 +58,7 @@ QuPath. *Registry* = the folder where installed apps announce themselves. *Prefi
 
 ## 0. Record sheet: the test set (fill in before you start)
 
-### 0.1 The test set (round `alpha.3`; the maintainer updates this table for each round)
+### 0.1 The test set (round `alpha.4`; the maintainer updates this table for each round)
 Testers install **only this set** and only the **versions specified here**: an older release or a branch is not a test of this round. (Why exact
 versions: an installed app carries the Tools it was built with; hosts refuse an app whose Tools is too old; a result is meaningless without
 knowing which pieces met.) The same table, with the install lines, is in [TESTER_START_HERE.md](TESTER_START_HERE.md).
@@ -66,9 +66,9 @@ knowing which pieces met.) The same table, with the install lines, is in [TESTER
 | Item | Value | Download link |
 |---|---|---|
 | Tools | `v0.3.0-alpha.1` (Python version `0.3.0a1`); installed by every app below, nothing to download | https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/tag/v0.3.0-alpha.1 |
-| Napari plugin | `v0.1.0-alpha.3` | `https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip` |
-| Fiji plugin | `v0.1.0-alpha.3`: `labconstrictor-fiji-v0.1.0-alpha.3.jar` (also `labconstrictor-fiji-script-v0.1.0-alpha.3.zip`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/tag/v0.1.0-alpha.3 |
-| QuPath plugin | `v0.1.0-alpha.3`: `labconstrictor-qupath-v0.1.0-alpha.3.jar` (also `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.3 |
+| Napari plugin | `v0.1.0-alpha.4` | `https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.4.zip` |
+| Fiji plugin | `v0.1.0-alpha.4`: `labconstrictor-fiji-v0.1.0-alpha.4.jar` (also `labconstrictor-fiji-script-v0.1.0-alpha.4.zip`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/tag/v0.1.0-alpha.4 |
+| QuPath plugin | `v0.1.0-alpha.4`: `labconstrictor-qupath-v0.1.0-alpha.4.jar` (also `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.4 |
 | Napari / Fiji / QuPath themselves | Napari 0.9 or newer (Python 3.11+, Qt6); the current "Fiji with Java"; QuPath **0.7.0** exactly (the plugin is built against it) | https://napari.org, https://fiji.sc, https://qupath.github.io |
 | NucleiSky | **0.1.4** | https://github.com/CellMigrationLab/NucleiSky/releases/tag/0.1.4 |
 | Playground | **0.0.5** | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/tag/0.0.5 |
@@ -250,18 +250,18 @@ show the same tools; the notebooks must keep working next to them. Which noteboo
 python -m venv napari-env
 # Linux/macOS: source napari-env/bin/activate
 # Windows PowerShell: .\napari-env\Scripts\Activate.ps1
-python -m pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip
+python -m pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.4.zip
 napari
 ```
-Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **not** `napari[pyqt5]`: the plugin's README says PyQt5 is not tested and napari deprecated it in 0.8.0. The two long addresses are source archives of tags: no `git` program is needed; replace `v0.1.0-alpha.3` by the tag in the record sheet.
+Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **not** `napari[pyqt5]`: the plugin's README says PyQt5 is not tested and napari deprecated it in 0.8.0. The two long addresses are source archives of tags: no `git` program is needed; replace `v0.1.0-alpha.4` by the tag in the record sheet.
 
 **Expect:** Napari opens. `Plugins` contains **LabConstrictor tools**. There is no backend notice (a PyQt5 notice would mean the wrong install). On a bare Linux system a Qt error `Could not load the Qt platform plugin "xcb"` means missing `libxcb-*` packages: a computer set-up problem, not a LabConstrictor one.
 
 - [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes (Qt backend you have): ______________________________
 
 ### F0. Fiji
-**Do (jar, preferred):** download `labconstrictor-fiji-v0.1.0-alpha.3.jar` from the Fiji release of the record sheet, put it into `Fiji.app/plugins/` (not a subfolder; remove any older `labconstrictor-fiji-*.jar`), restart Fiji. Menu entry: **Plugins > LabConstrictor > LabConstrictor Tools...**. Check the file against `SHA256SUMS` of the release if you can.
-**Alternative (no jar):** download `labconstrictor-fiji-script-v0.1.0-alpha.3.zip` and unzip it so that **both** the script `LabConstrictor_Tools.groovy` **and its `lib` folder** sit in `Fiji.app/scripts/Plugins/LabConstrictor/` (the script alone stops with a message); the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots; Fiji also lists the `lib` helper files in the menu: harmless). **Macro calls need the jar.** Do not install both (the tool would be listed twice). Write down which one you used.
+**Do (jar, preferred):** download `labconstrictor-fiji-v0.1.0-alpha.4.jar` from the Fiji release of the record sheet, put it into `Fiji.app/plugins/` (not a subfolder; remove any older `labconstrictor-fiji-*.jar`), restart Fiji. Menu entry: **Plugins > LabConstrictor > LabConstrictor Tools...**. Check the file against `SHA256SUMS` of the release if you can.
+**Alternative (no jar):** download `labconstrictor-fiji-script-v0.1.0-alpha.4.zip` and unzip it so that **both** the script `LabConstrictor_Tools.groovy` **and its `lib` folder** sit in `Fiji.app/scripts/Plugins/LabConstrictor/` (the script alone stops with a message); the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots; Fiji also lists the `lib` helper files in the menu: harmless). **Macro calls need the jar.** Do not install both (the tool would be listed twice). Write down which one you used.
 
 **Expect:** after restart the menu entry exists (if you cannot find it, type `LabConstrictor` into Fiji's search bar, press *Run*, and note it as a FAIL of this test).
 
@@ -277,7 +277,7 @@ Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **
 (Source: `LabConstrictor-Fiji` README, "Known limits of the pixel-size field", and [HOST_FEATURES.md](HOST_FEATURES.md).)
 
 ### Q0. QuPath
-**Do (jar, preferred):** install QuPath **0.7.0** (QuPath 0.7 is built with Java 25 and the jar needs it; older QuPath versions are not supported). Download `labconstrictor-qupath-v0.1.0-alpha.3.jar` from the QuPath release of the record sheet, drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences), restart QuPath.
+**Do (jar, preferred):** install QuPath **0.7.0** (QuPath 0.7 is built with Java 25 and the jar needs it; older QuPath versions are not supported). Download `labconstrictor-qupath-v0.1.0-alpha.4.jar` from the QuPath release of the record sheet, drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences), restart QuPath.
 **Alternative (Script Editor):** download the **single file** `LabConstrictorTools-all.groovy` from the same release, open it in QuPath's Script Editor (`Automate > Show script editor`) and run it. The repository's source script is split into several part files joined by the build; **the parts are not usable in the Script Editor**, only the all-in-one file from the release (the jar joins the parts itself). Write down which one you used.
 
 **Expect:** **Extensions > LabConstrictor tools...** exists. With no app registered the window says "No LabConstrictor app is registered on this machine" (install an app, press **Rescan apps**).
@@ -432,6 +432,6 @@ For human testing, follow your [OS checklist](TEST_MATRIX.md#1-windows--voluntee
 
 ## Appendix. Provenance and remaining unverified behaviours
 
-Documentation updated for the tagged alpha.3 set published 14–15 October 2026. The release source for **CellTracksColab 1.1.2** includes `celltracks_lc_tools` (`Calculate Track Metrics`), Tools `v0.3.0-alpha.1`, and `labconstrictor-app.yaml` with `hosts: [notebook]`: `CT-2` must assert **successful registration**, and `D3` must separately assert **not listed in Napari, Fiji or QuPath**. The tagged sources of the other four apps also include host manifests and hooks that pass `--app-manifest`.
+Documentation updated for the tagged alpha.4 set published 14–15 October 2026. The release source for **CellTracksColab 1.1.2** includes `celltracks_lc_tools` (`Calculate Track Metrics`), Tools `v0.3.0-alpha.1`, and `labconstrictor-app.yaml` with `hosts: [notebook]`: `CT-2` must assert **successful registration**, and `D3` must separately assert **not listed in Napari, Fiji or QuPath**. The tagged sources of the other four apps also include host manifests and hooks that pass `--app-manifest`.
 
 Actual end-to-end human installation and GUI runs on Windows and macOS are **not established by this documentation** and must be reported through the [test packets](TEST_MATRIX.md#1-windows--volunteer---windows-version-). The historic Linux screenshots, numeric tolerances, exact Fiji/QuPath error wording and whether native installer drag-and-drop succeeds are not proof of behaviour on these platforms. Distinguish **expected**, **observed**, and **not yet tested**.
