@@ -1,0 +1,1 @@
+app folder /home/user/apps/NucleiSky/NucleiSky: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: no lookups; HTTP none | subprocesses: 1 (['lscpu']) | scratch home received 2 files (.ipython/profile_default/startup/README, side_audit.jsonl)
