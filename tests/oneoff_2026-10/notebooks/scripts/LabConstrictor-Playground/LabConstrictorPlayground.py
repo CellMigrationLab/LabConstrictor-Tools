@@ -29,12 +29,12 @@ lcnb.check("click_check_with_internet", "Report saved in" in second["stdout"], "
     "make": '''
 I = lcnb.INPUTS
 lcnb.set_value(lcnb.find(kind="Text", description="Folder"), I["data_folder"])
-dropdown = lcnb.find(kind="Dropdown", description="Kind")
-button = lcnb.find(kind="Button", description="Make test data")
-for kind in list(dropdown.options):
-    lcnb.set_value(dropdown, kind)
-    result = lcnb.guarded("click_make_" + kind, lambda: lcnb.click(button))
-    lcnb.check("click_make_%s_listed" % kind, result is not None and ("three_channels" if kind == "all" else kind) in result["stdout"], "kind %s printed: %s" % (kind, (result or {"stdout": "(click failed)"})["stdout"].strip()[:150]))
+_dd = lcnb.find(kind="Dropdown", description="Kind")
+_btn = lcnb.find(kind="Button", description="Make test data")
+for _kind_name in list(_dd.options):
+    lcnb.set_value(_dd, _kind_name)
+    result = lcnb.guarded("click_make_" + _kind_name, lambda: lcnb.click(_btn))
+    lcnb.check("click_make_%s_listed" % _kind_name, result is not None and ("three_channels" if _kind_name == "all" else _kind_name) in result["stdout"], "kind %s printed: %s" % (_kind_name, (result or {"stdout": "(click failed)"})["stdout"].strip()[:150]))
 ''',
 }
 
