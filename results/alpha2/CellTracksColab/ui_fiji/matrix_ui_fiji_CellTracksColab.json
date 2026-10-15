@@ -1,0 +1,41 @@
+{
+ "host": "fiji",
+ "app": "CellTracksColab",
+ "family": "ui",
+ "host_version": "v0.1.0-alpha.2",
+ "started": "2026-10-15T09:03:31",
+ "finished": "2026-10-15T09:03:50",
+ "expected": 2,
+ "parts": [
+  "panel",
+  "tools"
+ ],
+ "rows": [
+  {
+   "id": "ui_fiji_app_not_in_chooser",
+   "family": "ui",
+   "host": "fiji",
+   "app": "CellTracksColab",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "'CellTracksColab' is not in the chooser (Fiji lists: GuessTheCondition)",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T09:03:50"
+  },
+  {
+   "id": "ui_fiji_forms_not_checked",
+   "family": "ui",
+   "host": "fiji",
+   "app": "CellTracksColab",
+   "tool": null,
+   "control": null,
+   "status": "HUMAN",
+   "detail": "'CellTracksColab' is not listed in Fiji, so there is no form to check",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T09:03:50"
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+NOTE ui_napari_host_version 0.1.0a1
+WARNING: could not determine DPI
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_not_listed PASS CellTracksColab is not in the app chooser ['GuessTheCondition']
+NOTE ui_napari_not_listed_forms not run: no control, form or run checks, CellTracksColab is hidden from this host by design
+NAPARI UI AUDIT SUMMARY failed=0

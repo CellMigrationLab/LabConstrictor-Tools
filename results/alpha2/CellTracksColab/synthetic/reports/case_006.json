@@ -1,0 +1,18 @@
+{
+  "status": "COMPLETE",
+  "seconds": 1.43,
+  "run_record": "/home/user/apps/a2_lc_home_CellTracksColab_syn/runs/20261015T090429348784_CellTracksColab_calculate_metrics/run.json",
+  "results": [
+    {
+      "type": "table",
+      "name": "table",
+      "path": "/home/user/a2/syn_scratch_CellTracksColab/_jobs/006/table.csv"
+    },
+    {
+      "type": "message",
+      "name": "summary",
+      "text": "1 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)"
+    }
+  ],
+  "job_dir": "/home/user/a2/syn_scratch_CellTracksColab/_jobs/006"
+}

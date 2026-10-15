@@ -1,0 +1,8 @@
+{
+ "host": "fiji",
+ "app": "CellTracksColab",
+ "ids": [
+  "ui_fiji_app_not_in_chooser",
+  "ui_fiji_forms_not_checked"
+ ]
+}

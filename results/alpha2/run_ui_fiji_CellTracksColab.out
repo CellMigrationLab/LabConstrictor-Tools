@@ -1,0 +1,2 @@
+CHECK ui_fiji_app_not_in_chooser PASS 'CellTracksColab' is not in the chooser (Fiji lists: GuessTheCondition)
+NOTE ui_fiji_forms_not_checked not run: 'CellTracksColab' is not listed in Fiji, so there is no form to check

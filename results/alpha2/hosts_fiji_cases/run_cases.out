@@ -1,0 +1,5 @@
+affine_with_an_unrelated_image_still_shows_the_overlay PASS  (22.8 s)
+cancel_on_a_tool_form_runs_nothing_and_records_nothing PASS  (21.3 s)
+cancel_on_the_tool_chooser_ends_the_command PASS  (18.9 s)
+macro_omitted_required_scalar_is_refused PASS  (16.8 s)
+4/4 cases passed in 80 s

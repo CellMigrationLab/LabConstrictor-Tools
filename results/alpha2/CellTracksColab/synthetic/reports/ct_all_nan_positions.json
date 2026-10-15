@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.24,
+  "run_record": "/home/user/apps/a2_lc_home_CellTracksColab_syn/runs/20261015T090455490174_CellTracksColab_calculate_metrics/run.json",
+  "error": "[no_result] No track has 2 or more spots with complete positions (0 track(s) skipped, 13 row(s) dropped because of empty values).",
+  "code": "no_result",
+  "log": "/home/user/apps/a2_lc_home_CellTracksColab_syn/logs/labconstrictor.log"
+}
