@@ -1,0 +1,47 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=36553 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+WARNING: Unknown module: javafx.graphics specified to --add-opens
+WARNING: Unknown module: javafx.base specified to --add-opens
+WARNING: Unknown module: javafx.web specified to --enable-native-access
+WARNING: Unknown module: javafx.graphics specified to --enable-native-access
+WARNING: Unknown module: javafx.media specified to --enable-native-access
+13:13:49.209 [main] [INFO ] qupath.QuPath - Setting system property lc.noshow=true
+13:13:49.211 [main] [INFO ] qupath.QuPath - Setting system property lc.qupath.test.script=/tmp/lc_gui_test.groovy
+13:13:49.211 [main] [INFO ] qupath.QuPath - Setting system property lc.test.out=/home/user/results/alpha3/GuessTheCondition/ui_qupath/logs/shots/GuessTheCondition_tool_analyze_results
+13:13:49.211 [main] [INFO ] qupath.QuPath - Setting system property lc.test.fixtures=/home/user/wt3_qupath/tests/fixtures
+Oct 15, 2026 1:13:49 PM com.sun.javafx.application.PlatformImpl startup
+WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @3d34d211'
+13:13:49.602 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting default Locale to en_US
+13:13:49.603 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for FORMAT to en_US
+13:13:49.603 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for DISPLAY to en_US
+13:13:49.634 [JavaFX Application Thread] [INFO ] qupath.lib.common.ThreadTools - Setting parallelism to 3
+13:13:49.656 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - Initializing: 1792070029656
+13:13:49.971 [JavaFX Application Thread] [INFO ] q.l.g.i.s.ImageRegionStoreFactory - Setting tile cache size to 1710.00 MB (25.0% max memory)
+13:13:50.474 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - QuPath build: Version: 0.7.0
+Build time: 2026-02-25 16:06
+Latest commit tag: "04ccfa4"
+13:13:53.471 [JavaFX Application Thread] [INFO ] qupath.lib.scripting.QP - Initializing type adapters
+13:13:54.078 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension LabConstrictor tools version 0.1.0-alpha.3 (1 ms)
+13:13:54.090 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - Bio-Formats version 8.4.0
+13:13:54.098 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - If Bio-Formats is slow to load images, setting the Bio-Formats memoization time in QuPath's preferences may help (this will create temp files)
+13:13:54.099 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Bio-Formats extension (Bio-Formats 8.4.0) version 0.7.0 (19 ms)
+13:13:54.102 [JavaFX Application Thread] [INFO ] qupath.ext.djl.DjlExtension - Registering DjlDnnModel
+13:13:54.117 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Deep Java Library extension version 0.4.2 (15 ms)
+13:13:54.291 [JavaFX Application Thread] [INFO ] q.ext.openslide.OpenSlideExtension - OpenSlide loaded successfully: 4.0.0
+13:13:54.291 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension OpenSlide extension version 0.7.0 (172 ms)
+13:13:54.353 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension ImageJ extension version 0.7.0 (26 ms)
+13:13:54.387 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Processing & classification extension version 0.7.0 (33 ms)
+13:13:54.689 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Rich script editor extension version 0.7.0 (293 ms)
+13:13:54.692 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension SVG export extension version 0.7.0 (2 ms)
+13:13:54.697 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension QuPath training extension version 0.1.0 (3 ms)
+13:13:54.724 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathApp - Starting QuPath with parameters: [--quiet=true]
+
+(QuPath:18208): Gdk-WARNING **: 13:13:54.760: XSetErrorHandler() called with a GDK error trap pushed. Don't do that.
+CHECK ui_qupath_form_analyze_results_opens PASS 3 parameter(s), one widget of the declared kind each: results_folder:folder, user_name:string, random_seed:integer
+CHECK ui_qupath_form_analyze_results_controls PASS 5 control(s) activated and read back: section:Advanced settings, results_folder, user_name, random_seed.set, random_seed
+NOTE ui_qupath_form_analyze_results_browse not run: the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+13:14:22.886 [lc-run] [WARN ] labconstrictor - LabConstrictor: run of 'create_demo_experiment' refused: 'Output folder': folder not found: fixtures/nope
+13:14:29.604 [JavaFX Application Thread] [INFO ] labconstrictor - LabConstrictor: 'guess' stays a text field: waiting for a value of results_folder, user_name
+13:14:31.991 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsServerOptions - Setting max Bio-Formats readers to 4
+CHECK ui_qupath_run_analyze_results PASS COMPLETE in 2.6 s, 5 result(s) shown and checked against their files, record 20261015T131450763827_GuessTheCondition_analyze_results
+CHECK ui_qupath_screens_analyze_results PASS analyze_results_form.png and analyze_results_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+UI_AUDIT_LAUNCH_END phase=tool exit=0

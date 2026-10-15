@@ -10,3 +10,38 @@ WARNING: Unknown module: javafx.media specified to --enable-native-access
 13:12:24.383 [main] [INFO ] qupath.QuPath - Setting system property lc.test.fixtures=/home/user/wt3_qupath/tests/fixtures
 Oct 15, 2026 1:12:24 PM com.sun.javafx.application.PlatformImpl startup
 WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @3d34d211'
+13:12:27.142 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting default Locale to en_US
+13:12:27.143 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for FORMAT to en_US
+13:12:27.143 [JavaFX Application Thread] [INFO ] qupath.lib.gui.prefs.PathPrefs - Setting Locale for DISPLAY to en_US
+13:12:27.170 [JavaFX Application Thread] [INFO ] qupath.lib.common.ThreadTools - Setting parallelism to 3
+13:12:27.350 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - Initializing: 1792069947350
+13:12:27.737 [JavaFX Application Thread] [INFO ] q.l.g.i.s.ImageRegionStoreFactory - Setting tile cache size to 1710.00 MB (25.0% max memory)
+13:12:29.090 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathGUI - QuPath build: Version: 0.7.0
+Build time: 2026-02-25 16:06
+Latest commit tag: "04ccfa4"
+13:12:46.354 [JavaFX Application Thread] [INFO ] qupath.lib.scripting.QP - Initializing type adapters
+13:12:51.289 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension LabConstrictor tools version 0.1.0-alpha.3 (1 ms)
+13:12:51.502 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - Bio-Formats version 8.4.0
+13:12:51.511 [JavaFX Application Thread] [INFO ] q.l.i.s.b.BioFormatsOptionsExtension - If Bio-Formats is slow to load images, setting the Bio-Formats memoization time in QuPath's preferences may help (this will create temp files)
+13:12:51.512 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Bio-Formats extension (Bio-Formats 8.4.0) version 0.7.0 (24 ms)
+13:12:51.514 [JavaFX Application Thread] [INFO ] qupath.ext.djl.DjlExtension - Registering DjlDnnModel
+13:12:51.663 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Deep Java Library extension version 0.4.2 (148 ms)
+13:12:52.308 [JavaFX Application Thread] [INFO ] q.ext.openslide.OpenSlideExtension - OpenSlide loaded successfully: 4.0.0
+13:12:52.309 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension OpenSlide extension version 0.7.0 (644 ms)
+13:12:52.777 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension ImageJ extension version 0.7.0 (32 ms)
+13:12:52.806 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Processing & classification extension version 0.7.0 (27 ms)
+13:12:55.270 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension Rich script editor extension version 0.7.0 (2228 ms)
+13:12:55.279 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension SVG export extension version 0.7.0 (6 ms)
+13:12:55.286 [JavaFX Application Thread] [INFO ] qupath.lib.gui.ExtensionLoader - Loaded extension QuPath training extension version 0.1.0 (4 ms)
+13:12:55.318 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathApp - Starting QuPath with parameters: [--quiet=true]
+
+(QuPath:16143): Gdk-WARNING **: 13:12:55.698: XSetErrorHandler() called with a GDK error trap pushed. Don't do that.
+CHECK ui_qupath_panel_app_chooser PASS offers [GuessTheCondition] (the registry files list the same); 'GuessTheCondition' shows its 6 CLI tool(s)
+13:13:09.007 [JavaFX Application Thread] [INFO ] labconstrictor - LabConstrictor: 'guess' stays a text field: waiting for a value of results_folder, user_name
+CHECK ui_qupath_panel_tool_chooser PASS each of 6 tool(s) builds its form and shows the description of the schema
+CHECK ui_qupath_panel_rescan_apps PASS clicked; status 'Found 1 app(s)', app kept
+CHECK ui_qupath_panel_cancel PASS disabled; a click left the status at 'Found 1 app(s)' and started nothing
+CHECK ui_qupath_panel_copy_as_command PASS a click opened the menu: entries [Terminal command, Python snippet]
+CHECK ui_qupath_panel_copy_terminal_command PASS the clipboard text (188 characters) parses back to the interpreter of the registry entry, 'GuessTheCondition', 'create_demo_experiment' and 2 predicted value(s)
+CHECK ui_qupath_panel_copy_python_snippet PASS the clipboard text (286 characters) parses back to the interpreter of the registry entry, 'GuessTheCondition', 'create_demo_experiment' and 2 predicted value(s)
+UI_AUDIT_LAUNCH_END phase=panel exit=0

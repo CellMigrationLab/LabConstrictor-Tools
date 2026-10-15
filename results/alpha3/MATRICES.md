@@ -12,7 +12,7 @@
 | ui | fiji | 33 | 1 | 0 | 5 | 0 | 2026-10-15T13:09:28 |
 | ui | fiji | 20 | 0 | 4 | 4 | 0 | 2026-10-15T13:11:47 |
 | ui | napari | 37 | 0 | 0 | 1 | 0 | 2026-10-15T12:37:44Z |
-| ui | qupath | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
+| ui | qupath | 37 | 0 | 0 | 7 | 0 | 2026-10-15T13:18:41Z |
 
 ### GuessTheCondition: FAIL (1)
 
@@ -25,7 +25,7 @@
 * `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
 * `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
 
-### GuessTheCondition: HUMAN (20)
+### GuessTheCondition: HUMAN (27)
 
 * `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
 * `ui_fiji_run_create_demo_experiment` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
@@ -47,4 +47,17 @@
 * `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
 * `ui_fiji_fj1b_missing_image` (ui/fiji) no tool of this app has a required image input: nothing to refuse
 * `ui_napari_panel_cancel_running` (ui/napari) no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+* `ui_qupath_form_analyze_results_browse` (ui/qupath) the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
+* `ui_qupath_form_create_demo_experiment_browse` (ui/qupath) the native file chooser of [output_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
+* `ui_qupath_form_list_conditions_browse` (ui/qupath) the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
+* `ui_qupath_form_play_round_browse` (ui/qupath) the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
+* `ui_qupath_run_play_round_unverified` (ui/qupath) expectation(s) the GUI cannot check: expect.progress_events_min
+* `ui_qupath_form_prepare_game_browse` (ui/qupath) the native file chooser of [experiment_folder, results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
+* `ui_qupath_form_undo_last_guess_browse` (ui/qupath) the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
+
+## LabConstrictorPlayground
+
+| family | host | PASS | FAIL | NOT_RUN | HUMAN | NOTE | finished |
+|---|---|---|---|---|---|---|---|
+| sandbox | cli | 48 | 0 | 0 | 0 | 2 | NOT FINISHED |
 

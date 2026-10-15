@@ -1,0 +1,14 @@
+PREFIX=/home/user/apps/GuessTheCondition
+Unpacking bootstrapper...
+Unpacking payload...
+
+Installing base environment...
+
+Preparing transaction: ...working... done
+Executing transaction: ...working... done
+Thank you! You have successfully installed GuessTheCondition 0.0.1.
+
+real	1m4.877s
+user	0m42.247s
+sys	0m16.492s
+exit=0
