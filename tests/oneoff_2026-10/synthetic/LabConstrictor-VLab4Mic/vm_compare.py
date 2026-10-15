@@ -323,8 +323,8 @@ def add_compare(s: Suite) -> None:
         "vm_different_fields",
         "two unrelated images of different sizes (160x160 and 100x100), same pixel size",
         "works",
-        derivation="Unrelated spots: no similarity (Pearson near 0, SSIM near 0); a run must complete (sizes may differ) "
-        "and must not report a match.",
+        derivation="Unrelated spots: Pearson near 0; a run must complete (sizes may differ). SSIM is not checked: on two mostly dark "
+        "images it is high by construction (0.78 measured), so the earlier 'SSIM near 0' truth was wrong (owner decision).",
         files=[ref, other],
         tool="compare_images",
         inputs={
@@ -334,7 +334,7 @@ def add_compare(s: Suite) -> None:
             "simulated_pixel_size_um": 0.02,
         },
         expect={"results": {"values": {"pearson": {"approx": 0.0, "tol": 0.3}}}},
-        checks=[chk_status("COMPLETE"), chk_value("pearson", 0.0, 0.3), chk_value("ssim", 0.0, 0.3)],
+        checks=[chk_status("COMPLETE"), chk_value("pearson", 0.0, 0.3)],
     )
     big = spots_image(2500, seed=25, sigma=4.0, count=400)
     bp = write_tiff(f / "vm_stress_2500.tif", big, "YX", pixel_um=(0.02, 0.02), unit="nm")
