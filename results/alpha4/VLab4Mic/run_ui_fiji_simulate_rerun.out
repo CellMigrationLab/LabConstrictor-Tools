@@ -1,0 +1,9 @@
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+NOTE ui_fiji_panel_copy_empty not run: LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Compare an image with a reference', 'Simulate imaging of a virtual sample']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'Simulate imaging of a virtual sample'
+CHECK ui_fiji_form_simulate_sample_opens PASS 38 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_simulate_sample_controls PASS 62 control(s) activated and read back: choice_combo, file_browse, flag_checkbox, number_spinner, set_checkbox, slider, text_field
+CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancelled, no run, no worker, no run record
