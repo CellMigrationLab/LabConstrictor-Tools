@@ -29,7 +29,7 @@ curl.exe -L -O https://raw.githubusercontent.com/CellMigrationLab/NucleiSky/<NS_
 & "<PREFIX>\python.exe" make_fixtures.py ns
 "hello" | Out-File -Encoding ascii fake.tif
 ```
-(Whether the file is reachable under the release tag of every NucleiSky release: not verified; it exists on `main`.) `fake.tif` is a text file that pretends to be an image.
+(The generator exists in the verified NucleiSky `0.1.4` tag. See [test data](../TEST_DATA.md#data-n1-nucleisky-matching-fixtures).) `fake.tif` is a text file that pretends to be an image.
 Write down the full path of `testdata`: **`<TESTDATA>`** below.
 
 **Expect:** the folder `ns` holds `reference.tif` (about 5 MB), `query.tif`, `reference_mask.tif`, `query_mask.tif`, `ground_truth.json` and a few more masks used by automated tests (ignore them); the last line printed is `ok (1600, 1600) (520, 520)`.
