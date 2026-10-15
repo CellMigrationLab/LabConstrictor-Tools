@@ -1,0 +1,54 @@
+{
+ "host": "fiji",
+ "app": "GuessTheCondition",
+ "family": "ui",
+ "host_version": "v0.1.0-alpha.2",
+ "started": "2026-10-15T08:19:22",
+ "finished": null,
+ "expected": 36,
+ "parts": [
+  "panel",
+  "tools"
+ ],
+ "rows": [
+  {
+   "id": "ui_fiji_panel_chooser_cancel",
+   "family": "ui",
+   "host": "fiji",
+   "app": "GuessTheCondition",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record",
+   "seconds": 19.23,
+   "screenshot": null,
+   "ts": "2026-10-15T08:19:58"
+  },
+  {
+   "id": "ui_fiji_panel_copy_empty",
+   "family": "ui",
+   "host": "fiji",
+   "app": "GuessTheCondition",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "with no earlier run the entry says 'nothing to copy yet' and copies nothing",
+   "seconds": 18.62,
+   "screenshot": null,
+   "ts": "2026-10-15T08:20:17"
+  },
+  {
+   "id": "ui_fiji_panel_menu",
+   "family": "ui",
+   "host": "fiji",
+   "app": "GuessTheCondition",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)",
+   "seconds": 18.62,
+   "screenshot": null,
+   "ts": "2026-10-15T08:20:17"
+  }
+ ]
+}

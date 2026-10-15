@@ -1,0 +1,53 @@
+NOTE ui_napari_host_version 0.1.0a1
+WARNING: could not determine DPI
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_app_listed PASS GuessTheCondition is offered with all 6 tools of its schema file
+CHECK ui_napari_form_create_demo_experiment_opens PASS 2 parameters: output_folder:folder, images_per_repeat:integer
+CHECK ui_napari_form_create_demo_experiment_controls PASS 2 parameters activated
+CHECK ui_napari_run_create_demo_experiment PASS COMPLETE in 0.6s, 0 progress updates, outputs: values(values)
+CHECK ui_napari_screens_create_demo_experiment PASS create_demo_experiment_form.png and create_demo_experiment_after_run.png written for a person to look at (120761 and 140443 bytes)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_prepare_game_opens PASS 6 parameters: experiment_folder:folder, results_folder:folder, user_name:string, percentage_to_test:integer, restart:boolean, random_seed:integer
+CHECK ui_napari_form_prepare_game_controls PASS 6 parameters activated (advanced box)
+CHECK ui_napari_run_prepare_game PASS COMPLETE in 0.1s, 1 progress updates, outputs: values(values) (prerequisites replayed: create_demo_experiment(FAILED), create_demo_experiment(FAILED))
+CHECK ui_napari_screens_prepare_game PASS prepare_game_form.png and prepare_game_after_run.png written for a person to look at (147683 and 164340 bytes)
+CHECK ui_napari_form_list_conditions_opens PASS 2 parameters: results_folder:folder, user_name:string
+CHECK ui_napari_form_list_conditions_controls PASS 2 parameters activated
+CHECK ui_napari_run_list_conditions PASS COMPLETE in 0.1s, 0 progress updates, outputs: values(values)
+CHECK ui_napari_screens_list_conditions PASS list_conditions_form.png and list_conditions_after_run.png written for a person to look at (153804 and 125598 bytes)
+CHECK ui_napari_form_play_round_opens PASS 3 parameters: results_folder:folder, user_name:string, guess:string
+CHECK ui_napari_form_play_round_controls PASS 3 parameters activated
+CHECK ui_napari_run_play_round PASS COMPLETE in 0.1s, 1 progress updates, outputs: image(image), values(values) (prerequisites replayed: list_conditions(FAILED))
+CHECK ui_napari_screens_play_round PASS play_round_form.png and play_round_after_run.png written for a person to look at (144615 and 122556 bytes)
+CHECK ui_napari_form_undo_last_guess_opens PASS 2 parameters: results_folder:folder, user_name:string
+CHECK ui_napari_form_undo_last_guess_controls PASS 2 parameters activated
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_run_undo_last_guess PASS COMPLETE in 0.1s, 0 progress updates, outputs: values(values) (prerequisites replayed: play_round, play_round(FAILED))
+CHECK ui_napari_screens_undo_last_guess PASS undo_last_guess_form.png and undo_last_guess_after_run.png written for a person to look at (148293 and 139825 bytes)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_analyze_results_opens PASS 3 parameters: results_folder:folder, user_name:string, random_seed:integer
+CHECK ui_napari_form_analyze_results_controls PASS 3 parameters activated (advanced box)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_run_analyze_results PASS COMPLETE in 1.7s, 2 progress updates, outputs: readout(message), values(values), by_repeat(table), by_condition(table), report_pdf(file) (prerequisites replayed: play_round, play_round, play_round(FAILED), play_round(FAILED))
+CHECK ui_napari_screens_analyze_results PASS analyze_results_form.png and analyze_results_after_run.png written for a person to look at (155880 and 210298 bytes)
+CHECK ui_napari_controls_all_known PASS 11 controls found = the 11 table rows: run, cancel, rescan_apps, restart_worker, keep_the_worker_running, details, copy_as_command, copy_terminal_command, copy_python_snippet, app_chooser, tool_chooser
+CHECK ui_napari_panel_run PASS clicked for create_demo_experiment: started, disabled while running, enabled after (COMPLETE)
+CHECK ui_napari_panel_cancel PASS greyed out and a no-op when idle (status unchanged)
+CHECK ui_napari_panel_details PASS dialog 'LabConstrictor - last run' opened and closed; the run record and the log it names exist on disk
+CHECK ui_napari_panel_copy_as_command PASS menu entries ['Terminal command', 'Python snippet']
+CHECK ui_napari_panel_copy_terminal_command PASS terminal line: run GuessTheCondition create_demo_experiment with the 2 values of the case: /home/user/apps/GuessTheCondition/bin/python -m labconstrictor_tools run GuessTheCondition create_demo_experiment output
+CHECK ui_napari_panel_copy_python_snippet PASS Python snippet parses and holds the app, the tool and the case's text values (7 lines)
+CHECK ui_napari_panel_rescan_apps PASS registry read again; apps ['GuessTheCondition'] of the files ['GuessTheCondition'], choice kept
+CHECK ui_napari_panel_restart_worker PASS worker process 11152 ended after Restart worker
+CHECK ui_napari_panel_keep_the_worker_running PASS ticked (default): worker 11252 stayed alive; unticked: worker 11278 ended
+CHECK ui_napari_panel_app_chooser PASS apps and their tool counts: GuessTheCondition(6)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_tool_chooser PASS 6 tools chosen, each gave its form and the description of the schema
+NOTE ui_napari_panel_cancel_running not run: [human] no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+NAPARI UI AUDIT SUMMARY failed=0

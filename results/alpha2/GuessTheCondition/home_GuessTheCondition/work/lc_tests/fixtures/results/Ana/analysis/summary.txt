@@ -1,0 +1,23 @@
+⚠️ Trend only
+Above chance on average but not significant across repeats: accuracy minus chance, mean 17 points (95% interval -127 to 160), n = 3 repeats, p = 0.333. 2 of 3 repeats were above chance.
+
+Images guessed: 3, correct: 2 (accuracy 66.7%, exact 95% interval 9.4-99.2%); chance 50.0% (always naming the most common condition of the experiment).
+Exploratory, the images you saw (randomization test, true conditions shuffled within each repeat, 10000 times): p = 1.000. It counts every image as independent, so it does not say whether the effect repeats; with 3 or more repeats the test across repeats above is the one to read.
+
+By biological repeat (n = 3 compared with chance):
+- R1: 1/1 correct, 100.0% (chance 50.0%)
+- R2: 0/1 correct, 0.0% (chance 50.0%)
+- R3: 1/1 correct, 100.0% (chance 50.0%)
+Exploratory: do the repeats differ in accuracy? permutation p = 1.000.
+
+By condition (pooled over repeats):
+- Control: 1/1 recognised, 100.0% (95% interval 2.5-100.0%)
+- Mutant: 1/2 recognised, 50.0% (95% interval 1.3-98.7%)
+
+Most frequent confusions:
+- Mutant guessed as Control: 1 time(s), 50.0% of its images
+
+Notes:
+- Repeat R1 has only 1 guessed image(s).
+- Repeat R2 has only 1 guessed image(s).
+- Repeat R3 has only 1 guessed image(s).
