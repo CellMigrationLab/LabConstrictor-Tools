@@ -1,1 +1,6 @@
 == CellTracksColab / CellTracksColab_Custom
+nb CellTracksColab: {'PASS': 38, 'FAIL': 1, 'NOT_RUN': 0, 'HUMAN': 3, 'NOTE': 4}
+
+real	5m25.002s
+user	0m23.085s
+sys	0m1.514s
