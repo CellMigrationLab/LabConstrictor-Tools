@@ -1,0 +1,70 @@
+labconstrictor-qupath-v0.1.0-alpha.3.jar: OK
+LabConstrictorTools-all.groovy: OK
+plan LabConstrictorPlayground: 17 tool(s), 80 expected id(s); tools: align_centres bright_area check_everything count_above_level feature_tour list_devices look_inside_file make_test_data run_on_device stress_big_image stress_crash stress_hang stress_many_points stress_out_of_memory stress_real_memory stress_slow summarise_table
+=== launch LabConstrictorPlayground_panel (phase panel)
+CHECK ui_qupath_panel_app_chooser PASS offers [LabConstrictorPlayground] (the registry files list the same); 'LabConstrictorPlayground' shows its 17 CLI tool(s)
+CHECK ui_qupath_panel_tool_chooser PASS each of 17 tool(s) builds its form and shows the description of the schema
+CHECK ui_qupath_panel_rescan_apps PASS clicked; status 'Found 1 app(s)', app kept
+CHECK ui_qupath_panel_cancel PASS disabled; a click left the status at 'Found 1 app(s)' and started nothing
+CHECK ui_qupath_panel_copy_as_command PASS a click opened the menu: entries [Terminal command, Python snippet]
+CHECK ui_qupath_panel_copy_terminal_command PASS the clipboard text (222 characters) parses back to the interpreter of the registry entry, 'LabConstrictorPlayground', 'align_centres' and 2 predicted value(s)
+CHECK ui_qupath_panel_copy_python_snippet PASS the clipboard text (329 characters) parses back to the interpreter of the registry entry, 'LabConstrictorPlayground', 'align_centres' and 2 predicted value(s)
+=== launch LabConstrictorPlayground_panel_run (phase panel_run)
+CHECK ui_qupath_panel_run_refusal PASS an empty 'Image' of 'align_centres' is refused with ''Image' is required: choose an image, or give a file'
+CHECK ui_qupath_panel_run PASS a real click started a run (Run off, Cancel on, then back); an empty 'Image' of 'align_centres' is refused with ''Image' is required: choose an image, or give a file'
+CHECK ui_qupath_panel_details PASS window shows the report and the worker output (976 characters)
+CHECK ui_qupath_panel_restart_worker PASS a click ended the kept worker; status 'worker stopped'
+CHECK ui_qupath_panel_keep_worker PASS unticked: no worker after a run; ticked: a worker is kept
+=== launch LabConstrictorPlayground_tool_align_centres (phase tool, tool align_centres)
+CHECK ui_qupath_form_align_centres_opens PASS 2 parameter(s), one widget of the declared kind each: image:image, reference:image
+CHECK ui_qupath_form_align_centres_controls PASS 2 control(s) activated and read back: image, reference
+NOTE ui_qupath_form_align_centres_browse not run: the native file chooser of [image, reference] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_align_centres PASS COMPLETE in 1.2 s, 1 result(s) shown and checked against their files, record 20261015T134815615928_LabConstrictorPlayground_align_centres
+CHECK ui_qupath_screens_align_centres PASS align_centres_form.png and align_centres_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_bright_area (phase tool, tool bright_area)
+CHECK ui_qupath_form_bright_area_opens PASS 3 parameter(s), one widget of the declared kind each: image:image, pixel_size:float, threshold:float
+CHECK ui_qupath_form_bright_area_controls PASS 4 control(s) activated and read back: image, pixel_size.use_calibration, pixel_size, threshold
+NOTE ui_qupath_form_bright_area_browse not run: the native file chooser of [image] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_bright_area PASS COMPLETE in 0.9 s, 1 result(s) shown and checked against their files, record 20261015T134848375336_LabConstrictorPlayground_bright_area
+CHECK ui_qupath_screens_bright_area PASS bright_area_form.png and bright_area_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_check_everything (phase tool, tool check_everything)
+CHECK ui_qupath_form_check_everything_opens PASS 2 parameter(s), one widget of the declared kind each: run_benchmark:boolean, check_internet:boolean
+CHECK ui_qupath_form_check_everything_controls PASS 2 control(s) activated and read back: run_benchmark, check_internet
+CHECK ui_qupath_run_check_everything PASS COMPLETE in 2.9 s, 3 result(s) shown and checked against their files, record 20261015T134917349314_LabConstrictorPlayground_check_everything
+CHECK ui_qupath_screens_check_everything PASS check_everything_form.png and check_everything_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_count_above_level (phase tool, tool count_above_level)
+CHECK ui_qupath_form_count_above_level_opens PASS 4 parameter(s), one widget of the declared kind each: image:image, mode:choice, level:float, percentile:float
+CHECK ui_qupath_form_count_above_level_controls PASS 4 control(s) activated and read back: image, mode, level, percentile
+NOTE ui_qupath_form_count_above_level_browse not run: the native file chooser of [image] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_count_above_level PASS COMPLETE in 1.0 s, 1 result(s) shown and checked against their files, record 20261015T134952132621_LabConstrictorPlayground_count_above_level
+CHECK ui_qupath_screens_count_above_level PASS count_above_level_form.png and count_above_level_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_feature_tour (phase tool, tool feature_tour)
+CHECK ui_qupath_form_feature_tour_opens PASS 6 parameter(s), one widget of the declared kind each: image:image, region:labels, look_for:choice, threshold:float, min_size_px:integer, side_note:string
+CHECK ui_qupath_form_feature_tour_controls PASS 9 control(s) activated and read back: section:Extras, image.set, image, region, look_for, threshold, min_size_px, side_note.set, side_note
+NOTE ui_qupath_form_feature_tour_browse not run: the native file chooser of [image, region] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+NOTE ui_qupath_form_feature_tour_channel not run: image.channel(no multi-channel fixture three_channels.tif) [NOT_RUN]
+CHECK ui_qupath_run_feature_tour PASS COMPLETE in 2.9 s, 5 result(s) shown and checked against their files, record 20261015T135027799941_LabConstrictorPlayground_feature_tour
+CHECK ui_qupath_screens_feature_tour PASS feature_tour_form.png and feature_tour_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_list_devices (phase tool, tool list_devices)
+CHECK ui_qupath_form_list_devices_opens PASS 0 parameter(s), one widget of the declared kind each:
+CHECK ui_qupath_form_list_devices_controls PASS 0 control(s) activated and read back:
+CHECK ui_qupath_run_list_devices PASS COMPLETE in 2.0 s, 1 result(s) shown and checked against their files, record 20261015T135127888402_LabConstrictorPlayground_list_devices
+CHECK ui_qupath_screens_list_devices PASS list_devices_form.png and list_devices_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_look_inside_file (phase tool, tool look_inside_file)
+CHECK ui_qupath_form_look_inside_file_opens PASS 1 parameter(s), one widget of the declared kind each: file:file
+CHECK ui_qupath_form_look_inside_file_controls PASS 1 control(s) activated and read back: file
+NOTE ui_qupath_form_look_inside_file_browse not run: the native file chooser of [file] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_look_inside_file PASS COMPLETE in 0.9 s, 1 result(s) shown and checked against their files, record 20261015T135159418283_LabConstrictorPlayground_look_inside_file
+CHECK ui_qupath_screens_look_inside_file PASS look_inside_file_form.png and look_inside_file_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_make_test_data (phase tool, tool make_test_data)
+CHECK ui_qupath_form_make_test_data_opens PASS 3 parameter(s), one widget of the declared kind each: folder:folder, kind:choice, size:integer
+CHECK ui_qupath_form_make_test_data_controls PASS 3 control(s) activated and read back: folder, kind, size
+NOTE ui_qupath_form_make_test_data_browse not run: the native file chooser of [folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_make_test_data PASS COMPLETE in 1.1 s, 2 result(s) shown and checked against their files, record 20261015T135229561444_LabConstrictorPlayground_make_test_data
+CHECK ui_qupath_screens_make_test_data PASS make_test_data_form.png and make_test_data_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_run_on_device (phase tool, tool run_on_device)
+CHECK ui_qupath_form_run_on_device_opens PASS 3 parameter(s), one widget of the declared kind each: device:string, size:integer, repeats:integer
+CHECK ui_qupath_form_run_on_device_controls PASS 4 control(s) activated and read back: section:Advanced settings, device, size, repeats
+CHECK ui_qupath_run_run_on_device PASS COMPLETE in 0.7 s, 2 result(s) shown and checked against their files, record 20261015T135259767272_LabConstrictorPlayground_run_on_device
+CHECK ui_qupath_screens_run_on_device PASS run_on_device_form.png and run_on_device_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch LabConstrictorPlayground_tool_stress_big_image (phase tool, tool stress_big_image)

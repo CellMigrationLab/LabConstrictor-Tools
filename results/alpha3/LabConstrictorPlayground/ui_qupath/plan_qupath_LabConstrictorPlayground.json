@@ -1,0 +1,1199 @@
+{
+  "app": "LabConstrictorPlayground",
+  "python": "/home/user/apps/Playground/bin/python",
+  "tools": [
+    {
+      "id": "align_centres",
+      "label": "Align the centres of two images",
+      "inputs": [
+        {
+          "name": "image",
+          "label": "Image",
+          "required": true,
+          "type": "image",
+          "axes": "YX",
+          "description": "The image to move",
+          "group": "Images"
+        },
+        {
+          "name": "reference",
+          "label": "Reference",
+          "required": true,
+          "type": "image",
+          "axes": "YX",
+          "description": "The image to move it onto",
+          "group": "Images"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "alignment",
+          "type": "affine",
+          "display": {
+            "apply_to": "image",
+            "relative_to": "reference"
+          }
+        }
+      ],
+      "description": "The translation that moves the intensity centre of one image onto that of the other, as a 3x3 matrix (pixels of the image to pixels of the reference, y then x); a host shows the moved image on the reference."
+    },
+    {
+      "id": "bright_area",
+      "label": "Area of the bright region",
+      "inputs": [
+        {
+          "name": "image",
+          "label": "Image",
+          "required": true,
+          "type": "image",
+          "axes": "YX",
+          "description": "A 2D image",
+          "group": "Image"
+        },
+        {
+          "name": "pixel_size",
+          "label": "Pixel size",
+          "required": false,
+          "type": "float",
+          "unit": "um/px",
+          "pixel_size_of": "image",
+          "description": "Size of a pixel of the image. A host fills it from the image's calibration; if the image has none, set it here. There is no stand-in value: an unknown pixel size stops the run",
+          "group": "Image",
+          "nullable": true
+        },
+        {
+          "name": "threshold",
+          "label": "Threshold",
+          "required": false,
+          "default": 0.5,
+          "type": "float",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fraction of the maximum above which a pixel is bright",
+          "group": "Image",
+          "widget": "slider"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "The area of the bright region in square micrometres. It never guesses the pixel size: with no calibration the run is refused, not given a made-up area."
+    },
+    {
+      "id": "check_everything",
+      "label": "Check everything",
+      "inputs": [
+        {
+          "name": "run_benchmark",
+          "label": "Run the speed test",
+          "required": false,
+          "default": true,
+          "type": "boolean",
+          "description": "Times a small convolution and matrix product on the CPU and on every GPU found, and checks that they agree",
+          "group": "Checks"
+        },
+        {
+          "name": "check_internet",
+          "label": "Check internet",
+          "required": false,
+          "default": false,
+          "type": "boolean",
+          "description": "Also try to reach pypi.org, huggingface.co and github.com (needed to download models and packages)",
+          "group": "Checks"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "readout",
+          "type": "message"
+        },
+        {
+          "name": "details",
+          "type": "table"
+        },
+        {
+          "name": "report",
+          "type": "file"
+        }
+      ],
+      "description": "Tests the machine, the worker and the GPU libraries; every failure comes with what to do. Attach report.json to an issue."
+    },
+    {
+      "id": "count_above_level",
+      "label": "Count the pixels above a level",
+      "inputs": [
+        {
+          "name": "image",
+          "label": "Image",
+          "required": true,
+          "type": "image",
+          "axes": "YX",
+          "description": "A 2D image",
+          "group": "Image"
+        },
+        {
+          "name": "mode",
+          "label": "Mode",
+          "required": false,
+          "default": "fixed",
+          "type": "choice",
+          "choices": [
+            "fixed",
+            "percentile"
+          ],
+          "description": "Give the level itself, or the percentile of the pixel values it sits at",
+          "group": "Level",
+          "widget": "radio"
+        },
+        {
+          "name": "level",
+          "label": "Level",
+          "required": false,
+          "default": 128.0,
+          "type": "float",
+          "description": "The pixel value (used when the mode is 'fixed')",
+          "group": "Level",
+          "enabled_when": {
+            "param": "mode",
+            "equals": [
+              "fixed"
+            ]
+          }
+        },
+        {
+          "name": "percentile",
+          "label": "Percentile",
+          "required": false,
+          "default": 99.0,
+          "type": "float",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "The percentile (used when the mode is 'percentile')",
+          "group": "Level",
+          "enabled_when": {
+            "param": "mode",
+            "equals": [
+              "percentile"
+            ]
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Counts the pixels at or above a level. The level or the percentile is only meaningful for its mode, so a host greys the other one out (the tool still accepts both)."
+    },
+    {
+      "id": "feature_tour",
+      "label": "Feature tour",
+      "inputs": [
+        {
+          "name": "image",
+          "label": "Image",
+          "required": false,
+          "type": "image",
+          "axes": "YX",
+          "pick_channel": true,
+          "description": "A 2D image (pick its channel in the host). Leave it unset to use a built-in demo image with round blobs, rings (a hole) and blobs in two parts",
+          "group": "Image",
+          "nullable": true
+        },
+        {
+          "name": "region",
+          "label": "Region",
+          "required": false,
+          "type": "labels",
+          "axes": "YX",
+          "description": "Only keep the blobs whose centre is inside this region: the host fills it from the selection (a Shapes layer, a ROI, annotations)",
+          "group": "Image",
+          "region_of": "image",
+          "nullable": true
+        },
+        {
+          "name": "look_for",
+          "label": "Look for",
+          "required": false,
+          "default": "bright",
+          "type": "choice",
+          "choices": [
+            "bright",
+            "dark"
+          ],
+          "description": "Blobs brighter or darker than the background",
+          "group": "Segmentation",
+          "widget": "radio"
+        },
+        {
+          "name": "threshold",
+          "label": "Threshold",
+          "required": false,
+          "default": 0.5,
+          "type": "float",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fraction of the intensity range that separates blobs from background",
+          "group": "Segmentation",
+          "widget": "slider"
+        },
+        {
+          "name": "min_size_px",
+          "label": "Minimum size",
+          "required": false,
+          "default": 20,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500,
+          "unit": "px",
+          "description": "Blobs with fewer pixels are removed",
+          "group": "Segmentation",
+          "widget": "slider"
+        },
+        {
+          "name": "side_note",
+          "label": "Side note",
+          "required": false,
+          "type": "string",
+          "description": "A free text shown in the summary. This group starts folded, and the box empties itself after a run",
+          "group": "Extras",
+          "group_collapsed": true,
+          "clear_after_run": true,
+          "nullable": true
+        }
+      ],
+      "outputs": [
+        {
+          "name": "blobs",
+          "type": "labels",
+          "replace": true,
+          "display": {
+            "apply_to": "image"
+          }
+        },
+        {
+          "name": "outlines",
+          "type": "shapes",
+          "replace": true,
+          "display": {
+            "apply_to": "image"
+          }
+        },
+        {
+          "name": "centres",
+          "type": "points",
+          "replace": true,
+          "display": {
+            "apply_to": "image"
+          }
+        },
+        {
+          "name": "measurements",
+          "type": "table",
+          "replace": true
+        },
+        {
+          "name": "summary",
+          "type": "message"
+        }
+      ],
+      "description": "Label the blobs of an image and return them in every form a host can show: labels, outlines, points, a table and a message."
+    },
+    {
+      "id": "list_devices",
+      "label": "List the devices",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "The devices a PyTorch tool can use here (cpu, cuda:0, mps). The `choices` feed the device dropdown of other tools."
+    },
+    {
+      "id": "look_inside_file",
+      "label": "Look inside a file",
+      "inputs": [
+        {
+          "name": "file",
+          "label": "File",
+          "required": true,
+          "type": "file",
+          "description": "A small text or JSON file (at most 1 MB)",
+          "group": "File"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Reads one small file and says what is in it: a JSON file gives its keys and its plain values, any other text its number of lines."
+    },
+    {
+      "id": "make_test_data",
+      "label": "Make test data",
+      "inputs": [
+        {
+          "name": "folder",
+          "label": "Folder",
+          "required": true,
+          "type": "folder",
+          "description": "An existing folder to write the files into",
+          "group": "Data"
+        },
+        {
+          "name": "kind",
+          "label": "Kind",
+          "required": false,
+          "default": "all",
+          "type": "choice",
+          "choices": [
+            "all",
+            "three_channels",
+            "rgb",
+            "labels",
+            "timelapse",
+            "points"
+          ],
+          "group": "Data"
+        },
+        {
+          "name": "size",
+          "label": "Size",
+          "required": false,
+          "default": 256,
+          "type": "integer",
+          "minimum": 32,
+          "maximum": 4096,
+          "description": "Side of the images in pixels",
+          "group": "Data"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "files",
+          "type": "message"
+        },
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Writes small test files (a 3-channel image: the first channel is 10 plus the nuclei (so its mean is above 10 and depends on the image size), the second and third are flat at 20 and 30; an RGB image, labels, a time-lapse, points)."
+    },
+    {
+      "id": "run_on_device",
+      "label": "Run a small test on a device",
+      "inputs": [
+        {
+          "name": "device",
+          "label": "Device",
+          "required": false,
+          "default": "cpu",
+          "type": "string",
+          "description": "cpu, a GPU (cuda:0, ...) or Apple's mps",
+          "group": "Test",
+          "choices_from": {
+            "tool": "list_devices",
+            "depends": [],
+            "field": "choices"
+          }
+        },
+        {
+          "name": "size",
+          "label": "Size",
+          "required": false,
+          "default": 1024,
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 4096,
+          "description": "Side of the square test image",
+          "group": "Test"
+        },
+        {
+          "name": "repeats",
+          "label": "Repeats",
+          "required": false,
+          "default": 10,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "group": "Test",
+          "advanced": true
+        }
+      ],
+      "outputs": [
+        {
+          "name": "result",
+          "type": "message"
+        },
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Runs the same convolution and matrix product on the chosen device and reports the time (shows the device dropdown and real GPU use)."
+    },
+    {
+      "id": "stress_big_image",
+      "label": "Stress: a big image",
+      "inputs": [
+        {
+          "name": "megabytes",
+          "label": "Megabytes",
+          "required": false,
+          "default": 200,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000,
+          "description": "About how large the result image is"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "big",
+          "type": "image",
+          "replace": true
+        }
+      ],
+      "description": "Returns a large 16-bit image: the host must show it or say clearly that it is too big, never freeze."
+    },
+    {
+      "id": "stress_crash",
+      "label": "Stress: crash the worker",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Kills the worker with a real segmentation fault (what a native library does when it fails): the host must say so and recover."
+    },
+    {
+      "id": "stress_hang",
+      "label": "Stress: a tool that ignores Cancel",
+      "inputs": [
+        {
+          "name": "seconds",
+          "label": "Seconds",
+          "required": false,
+          "default": 60.0,
+          "type": "float",
+          "minimum": 1,
+          "maximum": 600,
+          "description": "How long it ignores everything"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Ignores Cancel for a while: the host must stop the worker after its grace period and leave no process behind."
+    },
+    {
+      "id": "stress_many_points",
+      "label": "Stress: many points",
+      "inputs": [
+        {
+          "name": "count",
+          "label": "Count",
+          "required": false,
+          "default": 200000,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000000,
+          "description": "Number of points"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "points",
+          "type": "points",
+          "replace": true
+        }
+      ],
+      "description": "Returns many points (y, x, score): layers and tables with that many rows must stay usable."
+    },
+    {
+      "id": "stress_out_of_memory",
+      "label": "Stress: out of memory (simulated)",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "SIMULATED: raises a MemoryError on purpose without using any memory (the same on every system): the host must show a clear failure, and the worker must stay usable."
+    },
+    {
+      "id": "stress_real_memory",
+      "label": "Stress: real memory pressure (bounded, opt-in)",
+      "inputs": [
+        {
+          "name": "target_mb",
+          "label": "Target mb",
+          "required": false,
+          "default": 128,
+          "type": "integer",
+          "minimum": 8,
+          "maximum": 512,
+          "description": "Memory the test process tries to use; never more than 512 MB"
+        },
+        {
+          "name": "limit_mb",
+          "label": "Limit mb",
+          "required": false,
+          "default": 64,
+          "type": "integer",
+          "minimum": 8,
+          "maximum": 512,
+          "description": "On Linux the test process may not grow beyond this (so a larger target ends in a real MemoryError of that process)",
+          "advanced": true
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "REAL but bounded: a separate test process really uses memory (at most 512 MB). Run it on purpose; the worker is never the process that is limited."
+    },
+    {
+      "id": "stress_slow",
+      "label": "Stress: slow run with progress",
+      "inputs": [
+        {
+          "name": "seconds",
+          "label": "Seconds",
+          "required": false,
+          "default": 20.0,
+          "type": "float",
+          "minimum": 1,
+          "maximum": 600,
+          "description": "How long to work; press Cancel to stop earlier"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Works for a while, reporting progress, and stops when Cancel is pressed (the progress bar and Cancel must respond)."
+    },
+    {
+      "id": "summarise_table",
+      "label": "Summarise a table",
+      "inputs": [
+        {
+          "name": "table",
+          "label": "Table",
+          "required": true,
+          "type": "table",
+          "description": "A CSV table; every column of numbers is summarised",
+          "group": "Table"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "summary",
+          "type": "table",
+          "replace": true
+        },
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "The count, mean, minimum and maximum of each numeric column of a CSV table, and how many rows and columns it has."
+    }
+  ],
+  "cases": [
+    {
+      "tool": "list_devices",
+      "comment": "the device list always has the CPU",
+      "expect": {
+        "results": {
+          "values": {
+            "pytorch": "installed"
+          }
+        }
+      }
+    },
+    {
+      "tool": "check_everything",
+      "inputs": {
+        "run_benchmark": true,
+        "check_internet": false
+      },
+      "comment": "the whole chain on this machine: a readout, a table, a report file",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "readout": {
+            "contains": "checks:"
+          },
+          "details": {
+            "columns": [
+              "layer",
+              "name",
+              "status",
+              "detail",
+              "fix"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "tool": "run_on_device",
+      "inputs": {
+        "device": "cpu",
+        "size": 128,
+        "repeats": 2
+      },
+      "comment": "the same test on the CPU",
+      "expect": {
+        "results": {
+          "values": {
+            "device": "cpu"
+          }
+        }
+      }
+    },
+    {
+      "tool": "run_on_device",
+      "inputs": {
+        "device": "cuda:7",
+        "size": 128,
+        "repeats": 1
+      },
+      "comment": "a device that is not here is refused with the list of the ones that are",
+      "expect": {
+        "status": "FAILED",
+        "code": "unknown_device",
+        "message_contains": "cpu"
+      }
+    },
+    {
+      "tool": "make_test_data",
+      "inputs": {
+        "folder": "fixtures/data",
+        "kind": "all",
+        "size": 64
+      },
+      "comment": "every kind of test file",
+      "expect": {
+        "results": {
+          "files": {
+            "contains": "three_channels"
+          }
+        }
+      }
+    },
+    {
+      "tool": "stress_big_image",
+      "inputs": {
+        "megabytes": 4
+      },
+      "comment": "a large 16-bit image",
+      "expect": {
+        "results": {
+          "big": {
+            "dtype": "uint16"
+          }
+        }
+      }
+    },
+    {
+      "tool": "stress_many_points",
+      "inputs": {
+        "count": 5000
+      },
+      "comment": "many points",
+      "expect": {
+        "results": {
+          "points": {
+            "rows": 5000,
+            "columns": [
+              "y",
+              "x",
+              "score"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "tool": "stress_slow",
+      "inputs": {
+        "seconds": 2
+      },
+      "comment": "a slow run reports progress",
+      "expect": {
+        "progress_events_min": 1,
+        "results": {
+          "values": {
+            "worked_seconds": {
+              "approx": 2.0,
+              "tol": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": "stress_slow",
+      "inputs": {
+        "seconds": 30
+      },
+      "cancel_after_s": 2,
+      "comment": "Cancel stops a polite tool",
+      "expect": {
+        "status": "CANCELED",
+        "max_seconds": 20
+      }
+    },
+    {
+      "tool": "stress_out_of_memory",
+      "comment": "SIMULATED out of memory (nothing is allocated): a readable failure with the code MemoryError, not a crash",
+      "expect": {
+        "status": "FAILED",
+        "code": "MemoryError",
+        "message_contains": "SIMULATED"
+      }
+    },
+    {
+      "tool": "stress_crash",
+      "comment": "the worker ends without a message",
+      "expect": {
+        "status": "CRASHED"
+      }
+    },
+    {
+      "tool": "feature_tour",
+      "inputs": {},
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "summary": {
+            "contains": "16"
+          },
+          "outlines": {
+            "features": 16
+          },
+          "centres": {
+            "rows": 16,
+            "columns": [
+              "y",
+              "x",
+              "label"
+            ]
+          },
+          "measurements": {
+            "rows": 16
+          }
+        }
+      }
+    },
+    {
+      "tool": "feature_tour",
+      "inputs": {
+        "image": "fixtures/data/demo_blobs.tif",
+        "side_note": "hello \u00b5\u2192\u2713"
+      },
+      "expect": {
+        "results": {
+          "summary": {
+            "contains": "hello \u00b5\u2192\u2713"
+          },
+          "outlines": {
+            "features": 16
+          }
+        }
+      }
+    },
+    {
+      "tool": "feature_tour",
+      "inputs": {
+        "image": "fixtures/data/demo_blobs.tif",
+        "region": "fixtures/data/top_half_region.tif"
+      },
+      "expect": {
+        "results": {
+          "summary": {
+            "contains": "inside the region"
+          },
+          "outlines": {
+            "features": 11
+          },
+          "centres": {
+            "rows": 11
+          }
+        }
+      }
+    },
+    {
+      "tool": "feature_tour",
+      "inputs": {
+        "image": "fixtures/data/demo_blobs.tif",
+        "look_for": "dark"
+      },
+      "expect": {
+        "results": {
+          "outlines": {
+            "features": 3
+          }
+        }
+      }
+    },
+    {
+      "tool": "feature_tour",
+      "inputs": {
+        "threshold": 1.0,
+        "min_size_px": 500
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "no_result",
+        "message_contains": "No blob found"
+      }
+    },
+    {
+      "tool": "feature_tour",
+      "inputs": {
+        "image": "fixtures/data/demo_blobs.tif",
+        "region": "fixtures/data/empty_region.tif"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "empty_region",
+        "message_contains": "empty"
+      }
+    },
+    {
+      "tool": "feature_tour",
+      "inputs": {
+        "image": "fixtures/data/demo_blobs.tif",
+        "region": "fixtures/data/wrong_size_region.tif"
+      },
+      "expect": {
+        "status": "FAILED",
+        "code": "bad_input",
+        "message_contains": "size of the image"
+      }
+    },
+    {
+      "tool": "look_inside_file",
+      "inputs": {
+        "file": "fixtures/data/settings.json"
+      },
+      "comment": "a JSON file: its keys and plain values",
+      "expect": {
+        "results": {
+          "values": {
+            "kind": "json",
+            "keys": "channels, name, normalise, threshold",
+            "value_name": "demo",
+            "value_threshold": 0.5,
+            "value_channels": 3,
+            "value_normalise": true
+          }
+        }
+      }
+    },
+    {
+      "tool": "look_inside_file",
+      "inputs": {
+        "file": "fixtures/data/notes.txt"
+      },
+      "comment": "any other text: its number of lines",
+      "expect": {
+        "results": {
+          "values": {
+            "kind": "text",
+            "lines": 3
+          }
+        }
+      }
+    },
+    {
+      "tool": "look_inside_file",
+      "inputs": {
+        "file": "fixtures/data/square_a.tif"
+      },
+      "comment": "a binary file is refused, not shown as garbage",
+      "expect": {
+        "status": "FAILED",
+        "code": "not_text",
+        "message_contains": "square_a.tif"
+      }
+    },
+    {
+      "tool": "summarise_table",
+      "inputs": {
+        "table": "fixtures/data/measurements.csv"
+      },
+      "comment": "known answer: length 10,20,30 and width 2,4,6; the id column counts as numbers, the group column does not",
+      "expect": {
+        "results": {
+          "summary": {
+            "columns": [
+              "column",
+              "count",
+              "mean",
+              "min",
+              "max"
+            ],
+            "rows": 3,
+            "cells": {
+              "mean[1]": 20.0,
+              "max[1]": 30.0,
+              "mean[2]": 4.0,
+              "min[2]": 2.0
+            }
+          },
+          "values": {
+            "rows": 3,
+            "columns": 4,
+            "numeric_columns": 3
+          }
+        }
+      }
+    },
+    {
+      "tool": "count_above_level",
+      "inputs": {
+        "image": "fixtures/data/square_a.tif",
+        "mode": "fixed",
+        "level": 100
+      },
+      "comment": "known answer: a 4 x 4 square of 255 in a 32 x 32 image",
+      "expect": {
+        "results": {
+          "values": {
+            "pixels": 16,
+            "level_used": 100.0
+          }
+        }
+      }
+    },
+    {
+      "tool": "count_above_level",
+      "inputs": {
+        "image": "fixtures/data/square_a.tif",
+        "mode": "percentile",
+        "percentile": 99
+      },
+      "comment": "the 99th percentile of the pixel values is 255 (16 of 1024 pixels are 255)",
+      "expect": {
+        "results": {
+          "values": {
+            "pixels": 16,
+            "level_used": 255.0
+          }
+        }
+      }
+    },
+    {
+      "tool": "count_above_level",
+      "inputs": {
+        "image": "fixtures/data/square_a.tif",
+        "mode": "percentile",
+        "percentile": 99,
+        "level": 999
+      },
+      "comment": "a parameter that is greyed out in a host is still accepted: the level is ignored in percentile mode",
+      "expect": {
+        "results": {
+          "values": {
+            "pixels": 16
+          }
+        }
+      }
+    },
+    {
+      "tool": "bright_area",
+      "inputs": {
+        "image": "fixtures/data/square_a.tif",
+        "pixel_size": 0.5
+      },
+      "comment": "known answer: 16 bright pixels of 0.5 um = 4 um2",
+      "expect": {
+        "results": {
+          "values": {
+            "bright_pixels": 16,
+            "area_um2": 4.0
+          }
+        }
+      }
+    },
+    {
+      "tool": "bright_area",
+      "inputs": {
+        "image": "fixtures/data/square_a.tif"
+      },
+      "comment": "no pixel size: the run is refused, there is no default stand-in",
+      "expect": {
+        "status": "FAILED",
+        "code": "pixel_size_unknown",
+        "message_contains": "pixel size"
+      }
+    },
+    {
+      "tool": "bright_area",
+      "inputs": {
+        "image": "fixtures/data/square_a.tif",
+        "pixel_size": 0
+      },
+      "comment": "a pixel size of 0 is refused",
+      "expect": {
+        "status": "FAILED",
+        "code": "invalid_pixel_size"
+      }
+    },
+    {
+      "tool": "align_centres",
+      "inputs": {
+        "image": "fixtures/data/square_a.tif",
+        "reference": "fixtures/data/square_b.tif"
+      },
+      "comment": "known answer: the squares' centres are (5.5, 9.5) and (15.5, 21.5): a translation by (10, 12)",
+      "expect": {
+        "results": {
+          "alignment": {
+            "matrix": [
+              [
+                1,
+                0,
+                10
+              ],
+              [
+                0,
+                1,
+                12
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "tool": "align_centres",
+      "inputs": {
+        "image": "fixtures/data/square_a.tif",
+        "reference": "fixtures/data/square_a.tif"
+      },
+      "comment": "an image onto itself: the identity",
+      "expect": {
+        "results": {
+          "alignment": {
+            "matrix": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "tool": "count_above_level",
+      "inputs": {
+        "image": "fixtures/data/square_nan.tif",
+        "mode": "percentile",
+        "percentile": 99
+      },
+      "comment": "one NaN pixel: refused, not a silent wrong level",
+      "expect": {
+        "status": "FAILED",
+        "code": "non_finite_pixels",
+        "message_contains": "NaN"
+      }
+    },
+    {
+      "tool": "bright_area",
+      "inputs": {
+        "image": "fixtures/data/square_nan.tif",
+        "pixel_size": 0.5
+      },
+      "comment": "one NaN pixel: refused, not an area of 0",
+      "expect": {
+        "status": "FAILED",
+        "code": "non_finite_pixels",
+        "message_contains": "NaN"
+      }
+    },
+    {
+      "tool": "align_centres",
+      "inputs": {
+        "image": "fixtures/data/square_nan.tif",
+        "reference": "fixtures/data/square_a.tif"
+      },
+      "comment": "one NaN pixel: refused, not a NaN matrix",
+      "expect": {
+        "status": "FAILED",
+        "code": "non_finite_pixels",
+        "message_contains": "NaN"
+      }
+    }
+  ],
+  "no_case": {
+    "stress_hang": "no grace-period kill in the case runner; covered by the host test suites and the sandbox extras",
+    "stress_real_memory": "opt-in, uses real memory; covered by the sandbox extras"
+  },
+  "chosen": {
+    "align_centres": 28,
+    "bright_area": 25,
+    "check_everything": 1,
+    "count_above_level": 22,
+    "feature_tour": 11,
+    "list_devices": 0,
+    "look_inside_file": 18,
+    "make_test_data": 4,
+    "run_on_device": 2,
+    "summarise_table": 21
+  },
+  "replay": {
+    "align_centres": [],
+    "bright_area": [],
+    "check_everything": [],
+    "count_above_level": [],
+    "feature_tour": [],
+    "list_devices": [],
+    "look_inside_file": [],
+    "make_test_data": [],
+    "run_on_device": [],
+    "summarise_table": []
+  },
+  "ordered": false
+}
