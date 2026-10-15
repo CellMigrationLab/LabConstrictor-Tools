@@ -5,8 +5,7 @@ installation instructions of the apps and the hosts are kept here and in the hos
 you install exactly the versions of the [test set](HUMAN_TEST_PROTOCOL.md#0-record-sheet-the-test-set-fill-in-before-you-start); this page
 describes how, the protocol says which versions.
 
-Status when this was written (14 Oct 2026): the Tools tag `v0.3.0-alpha.1` and the releases of Fiji and QuPath had **not been created yet**
-(tags and releases are made by the maintainer), and the Napari plugin has no tag. Where a link below does not exist yet, the step cannot be done yet.
+Round `alpha.3`: Tools `v0.3.0-alpha.1`, Napari, Fiji and QuPath plugins `v0.1.0-alpha.3` (all three published; the full table of versions is in the [test set](HUMAN_TEST_PROTOCOL.md#01-the-test-set-round-alpha3-the-maintainer-updates-this-table-for-each-round)). A tester starts at [TESTER_START_HERE.md](TESTER_START_HERE.md).
 
 ## 1. Install an app (one click)
 1. Download the installer for your system from the app's **GitHub Releases page** (Windows `.exe`, Apple-silicon Mac `.pkg` or `.sh`, Linux `.sh`; **Intel Macs are not supported**). Take the latest release only. The apps: [Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases), [NucleiSky](https://github.com/CellMigrationLab/NucleiSky/releases), [VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases), [Guess the Condition](https://github.com/CellMigrationLab/GuessTheCondition/releases), [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab/releases) (a notebook app: no host shows it).
@@ -27,22 +26,20 @@ Status when this was written (14 Oct 2026): the Tools tag `v0.3.0-alpha.1` and t
 ## 3. Napari
 Python 3.11 or newer, in the environment you start Napari from. Use a **Qt6** backend: `napari[pyqt6]` (or `napari[pyside6]`); **not** `napari[pyqt5]` (PyQt5 is not tested and napari deprecated it in 0.8.0).
 
-    python -m pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/<NAPARI_TAG>.zip
+    python -m pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.3.zip
 
-Both addresses are source archives of tags (no `git` needed); `<NAPARI_TAG>` is the plugin tag of the test set (the plugin had no tag when this was written: not verified that the line works). Then start Napari and choose **Plugins > LabConstrictor tools**. The plugin installs no Qt backend of its own.
+Both addresses are source archives of tags (no `git` needed); `v0.1.0-alpha.3` is the plugin tag of the test set (checked on Linux: both archives install). Then start Napari and choose **Plugins > LabConstrictor tools**. The plugin installs no Qt backend of its own.
 
 ## 4. Fiji
-**State today:** no Fiji or QuPath plugin release (tag, jar) exists yet; the maintainer creates them next, and until then these steps have nothing to download. **After the tags exist, fill the record sheet** of the [human test protocol](HUMAN_TEST_PROTOCOL.md) (the tag and file names).
-
-1. Download `labconstrictor-fiji-<tag>.jar` from the [LabConstrictor-Fiji Releases page](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases) (`SHA256SUMS` lists the checksums).
+1. Download `labconstrictor-fiji-v0.1.0-alpha.3.jar` from the [LabConstrictor-Fiji Releases page](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/tag/v0.1.0-alpha.3) (`SHA256SUMS` lists the checksums).
 2. Put it into `Fiji.app/plugins/` (not a subfolder; remove an older `labconstrictor-fiji-*.jar`) and restart Fiji.
 3. Run **Plugins > LabConstrictor > LabConstrictor Tools...**.
 
-No-jar alternative: the same release has `labconstrictor-fiji-script-<tag>.zip` with the script `LabConstrictor_Tools.groovy` **and the `lib` folder it needs**; unzip it so both sit in `Fiji.app/scripts/Plugins/LabConstrictor/`; the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots). Macro calls need the jar. Install one of the two, not both. The release gate is Linux; Windows and macOS (Apple silicon) get a best-effort check in the release run and are untested by a person.
+No-jar alternative: the same release has `labconstrictor-fiji-script-v0.1.0-alpha.3.zip` with the script `LabConstrictor_Tools.groovy` **and the `lib` folder it needs**; unzip it so both sit in `Fiji.app/scripts/Plugins/LabConstrictor/`; the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots). Macro calls need the jar. Install one of the two, not both. The release gate is Linux; Windows and macOS (Apple silicon) get a best-effort check in the release run and are untested by a person.
 
 ## 5. QuPath
 QuPath **0.7.0** (built with Java 25; the jar needs it; other versions are not supported).
-1. Download `labconstrictor-qupath-<tag>.jar` from the [LabConstrictor-QuPath Releases page](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases).
+1. Download `labconstrictor-qupath-v0.1.0-alpha.3.jar` from the [LabConstrictor-QuPath Releases page](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.3).
 2. Drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences) and restart QuPath.
 3. Run **Extensions > LabConstrictor tools...**.
 

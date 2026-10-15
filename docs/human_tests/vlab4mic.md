@@ -1,6 +1,6 @@
 # Human tests: VLab4Mic (Napari and Fiji; not QuPath)
 
-Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install VLab4Mic (release 0.1.6, decided) and the host(s) as it says.
+Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install VLab4Mic (release 0.1.6) and the host(s) as it says.
 VLab4Mic simulates fluorescence microscopy images of a virtual sample (a structure, a labelling probe, an imaging modality). **Discovery:** listed in **Napari and Fiji**, **not in QuPath**.
 Registered name `VLab4Mic`; tools: **Simulate imaging of a virtual sample** (id `simulate_sample`) and **Compare an image with a reference** (id `compare_images`). It needs internet on the first run with a structure (the structure is downloaded) and about 5 minutes for a full run of the app's own cases (not verified by the authors: only the declaration tests were run). Expected numbers come from the app's `lc_tests/cases.json`.
 

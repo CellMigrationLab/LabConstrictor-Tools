@@ -1,7 +1,7 @@
 # Human tests: CellTracksColab (a notebook app; no host shows it)
 
 Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first. CellTracksColab analyses cell-tracking data in notebooks and is distributed as a desktop installer of its notebooks
-(latest release 1.1.1 when this was written; no new release is planned before the bridge decision). **Discovery: hidden in Napari, Fiji and QuPath (notebook only).** It is **not** a
+(release 1.1.2). **Discovery: hidden in Napari, Fiji and QuPath (notebook only).** It is **not** a
 host test app: earlier versions of this protocol used it as a second app in Napari and Fiji, that expectation is gone.
 
 What is true today (checked in the repository, not by an installer run): `main` has no `<package>_lc_tools` module and its `post_install` hook has no Tools step, so a release built from `main` registers **no tools**;

@@ -1,6 +1,6 @@
 # Human tests: NucleiSky (Napari, Fiji, QuPath)
 
-Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install NucleiSky and the host(s) as it says.
+Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install NucleiSky (release 0.1.4) and the host(s) as it says.
 NucleiSky aligns a small image (the *query*) inside a large one (the *reference*) by matching nuclei. **Discovery:** listed in Napari, Fiji and QuPath.
 Registered name `NucleiSky`; tools: **List the devices** (a helper: it fills the `device` drop-down) and **Relocalize 2D** (tool id `relocalize`).
 How the hosts show the helper tool in their tool lists: not verified (write down what you see).

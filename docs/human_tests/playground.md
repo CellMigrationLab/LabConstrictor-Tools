@@ -1,6 +1,6 @@
 # Human tests: Playground (Napari, Fiji, QuPath)
 
-Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install the Playground (release 0.0.4, decided) and the host(s) as it says.
+Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record sheet first, install the Playground (release 0.0.5) and the host(s) as it says.
 The Playground is a **test application**: it answers "is this computer, this installation and its GPU in order?" and carries one small tool per bridge feature, so the same
 steps show what each host does. **Discovery:** listed in Napari, Fiji and QuPath. Registered name `LabConstrictorPlayground` (this is the name in the command line); 17 tools
 (the app's `lc_tools` module declares them; the test cases of the app are in `lc_tests/cases.json`). Expected values below come from the app's README and those cases; where a
