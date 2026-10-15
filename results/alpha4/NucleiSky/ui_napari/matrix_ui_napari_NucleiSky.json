@@ -4,7 +4,7 @@
  "family": "ui",
  "host_version": "0.1.0a1",
  "started": "2026-10-15T19:41:32Z",
- "finished": null,
+ "finished": "2026-10-15T19:44:35Z",
  "expected": 22,
  "rows": [
   {
@@ -240,6 +240,58 @@
    "seconds": 1.19,
    "screenshot": null,
    "ts": "2026-10-15T19:43:53Z"
+  },
+  {
+   "id": "ui_napari_panel_keep_the_worker_running",
+   "family": "ui",
+   "host": "napari",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "keep_the_worker_running",
+   "status": "PASS",
+   "detail": "ticked (default): worker 13829 stayed alive; unticked: worker 15471 ended",
+   "seconds": 39.21,
+   "screenshot": null,
+   "ts": "2026-10-15T19:44:33Z"
+  },
+  {
+   "id": "ui_napari_panel_app_chooser",
+   "family": "ui",
+   "host": "napari",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "app_chooser",
+   "status": "PASS",
+   "detail": "apps and their tool counts: NucleiSky(2)",
+   "seconds": 0.61,
+   "screenshot": null,
+   "ts": "2026-10-15T19:44:33Z"
+  },
+  {
+   "id": "ui_napari_panel_tool_chooser",
+   "family": "ui",
+   "host": "napari",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "tool_chooser",
+   "status": "PASS",
+   "detail": "2 tools chosen, each gave its form and the description of the schema",
+   "seconds": 1.34,
+   "screenshot": null,
+   "ts": "2026-10-15T19:44:35Z"
+  },
+  {
+   "id": "ui_napari_panel_cancel_running",
+   "family": "ui",
+   "host": "napari",
+   "app": "NucleiSky",
+   "tool": "",
+   "control": "cancel",
+   "status": "HUMAN",
+   "detail": "no case of cases.json sets cancel_after_s: a person presses Cancel during a long run",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T19:44:35Z"
   }
  ]
 }

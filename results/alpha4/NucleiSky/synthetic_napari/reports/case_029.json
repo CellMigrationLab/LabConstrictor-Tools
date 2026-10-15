@@ -1,0 +1,21 @@
+{
+  "status": "COMPLETE",
+  "seconds": 2.32,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  choices=['auto', 'cpu']",
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T194857203175_NucleiSky_list_devices",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "choices": [
+          "auto",
+          "cpu"
+        ]
+      }
+    }
+  ],
+  "host_observed": {}
+}

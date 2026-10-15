@@ -1,0 +1,12 @@
+{
+  "status": "FAILED",
+  "seconds": 4.16,
+  "error": "[bad_input] the region (100 x 100) does not have the size of the image (1200 x 1200)",
+  "code": "bad_input",
+  "status_text": "\u2716 [bad_input] the region (100 x 100) does not have the size of the image (1200 x 1200)  - click Details\u2026 for the full report (log: /home/user/apps/a4_lc_home_NS/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T194829427830_NucleiSky_relocalize",
+  "host_observed": {
+    "reference_pixel_size_um": 0.65,
+    "query_pixel_size_um": 0.325
+  }
+}

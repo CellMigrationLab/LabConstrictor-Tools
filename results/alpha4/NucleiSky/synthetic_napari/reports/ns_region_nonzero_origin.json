@@ -1,0 +1,102 @@
+{
+  "status": "COMPLETE",
+  "seconds": 7.12,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.9s  rotation_deg=24.993, scale=1.0004, offset_y_px=542.0363, offset_x_px=480.7794, bbox_y0y1x0x1=[432, 768, 473, 808], n_nuclei_reference=148, n_nuclei_query=5, matcher=quad  points 'reference_nuclei' (148)  points 'query_nuclei' (5)  outlines 'reference_outlines' (148)  outlines 'query_outlines' (5)",
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T194819007665_NucleiSky_relocalize",
+  "results": [
+    {
+      "type": "affine",
+      "name": "alignment",
+      "matrix_yx": [
+        [
+          0.453345399967064,
+          -0.2113308555694471,
+          542.0362635444419
+        ],
+        [
+          0.21133085556944708,
+          0.45334539996706397,
+          480.77939636408996
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "apply_to": "query",
+      "relative_to": "reference"
+    },
+    {
+      "type": "image",
+      "name": "query_aligned",
+      "path": "/tmp/lcin_hgk4c0z1/out/query_aligned.tif",
+      "axes": "YX"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "rotation_deg": 24.99298442034025,
+        "scale": 1.0003654975797829,
+        "offset_y_px": 542.0362635444419,
+        "offset_x_px": 480.77939636408996,
+        "bbox_y0y1x0x1": [
+          432,
+          768,
+          473,
+          808
+        ],
+        "n_nuclei_reference": 148,
+        "n_nuclei_query": 5,
+        "matcher": "quad"
+      }
+    },
+    {
+      "type": "points",
+      "name": "reference_nuclei",
+      "path": "/tmp/lcin_hgk4c0z1/out/reference_nuclei.csv",
+      "n": 148,
+      "columns": [
+        "y",
+        "x",
+        "label",
+        "area"
+      ],
+      "apply_to": "reference"
+    },
+    {
+      "type": "points",
+      "name": "query_nuclei",
+      "path": "/tmp/lcin_hgk4c0z1/out/query_nuclei.csv",
+      "n": 5,
+      "columns": [
+        "y",
+        "x",
+        "label",
+        "area"
+      ],
+      "apply_to": "query"
+    },
+    {
+      "type": "shapes",
+      "name": "reference_outlines",
+      "path": "/tmp/lcin_hgk4c0z1/out/reference_outlines.geojson",
+      "n": 148,
+      "apply_to": "reference"
+    },
+    {
+      "type": "shapes",
+      "name": "query_outlines",
+      "path": "/tmp/lcin_hgk4c0z1/out/query_outlines.geojson",
+      "n": 5,
+      "apply_to": "query"
+    }
+  ],
+  "host_observed": {
+    "reference_pixel_size_um": 0.65,
+    "query_pixel_size_um": 0.325
+  }
+}

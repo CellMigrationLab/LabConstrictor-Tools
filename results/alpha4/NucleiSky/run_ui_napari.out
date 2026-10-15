@@ -26,3 +26,10 @@ CHECK ui_napari_panel_copy_python_snippet FAIL AssertionError: the Python snippe
   super(cls, self).__init__(**kwargs)  # type: ignore
 CHECK ui_napari_panel_rescan_apps PASS registry read again; apps ['NucleiSky'] of the files ['NucleiSky'], choice kept
 CHECK ui_napari_panel_restart_worker PASS worker process 12793 ended after Restart worker
+CHECK ui_napari_panel_keep_the_worker_running PASS ticked (default): worker 13829 stayed alive; unticked: worker 15471 ended
+CHECK ui_napari_panel_app_chooser PASS apps and their tool counts: NucleiSky(2)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_tool_chooser PASS 2 tools chosen, each gave its form and the description of the schema
+NOTE ui_napari_panel_cancel_running not run: [human] no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+NAPARI UI AUDIT SUMMARY failed=6

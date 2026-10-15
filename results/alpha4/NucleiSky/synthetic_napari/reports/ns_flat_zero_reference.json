@@ -1,0 +1,12 @@
+{
+  "status": "FAILED",
+  "seconds": 3.21,
+  "error": "[no_nuclei] No nuclei found in the reference (try other segmentation settings).",
+  "code": "no_nuclei",
+  "status_text": "\u2716 [no_nuclei] No nuclei found in the reference (try other segmentation settings).  - click Details\u2026 for the full report (log: /home/user/apps/a4_lc_home_NS/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a4_lc_home_NS/runs/20261015T194542386168_NucleiSky_relocalize",
+  "host_observed": {
+    "reference_pixel_size_um": 0.65,
+    "query_pixel_size_um": 0.325
+  }
+}
