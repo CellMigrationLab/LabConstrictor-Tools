@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.08,
+  "run_record": "/home/user/apps/a4_lc_home_CTC/runs/20261015T181233072243_CellTracksColab_calculate_metrics/run.json",
+  "error": "[non_finite_position] 1 row(s) have an infinite position or time (first data rows: 3): the speeds would be infinite. Correct or remove those rows.",
+  "code": "non_finite_position",
+  "log": "/home/user/apps/a4_lc_home_CTC/logs/labconstrictor.log"
+}

@@ -1,0 +1,11 @@
+{
+  "host": "qupath",
+  "app": "CellTracksColab",
+  "family": "ui",
+  "expected": [
+    "ui_qupath_not_listed_celltrackscolab"
+  ],
+  "phases": {
+    "ui_qupath_not_listed_celltrackscolab": "not_listed"
+  }
+}

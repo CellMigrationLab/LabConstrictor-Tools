@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.4,
+  "run_record": "/home/user/apps/a4_lc_home_CTC/runs/20261015T181229535872_CellTracksColab_calculate_metrics/run.json",
+  "error": "[unreadable_table] cannot read ct_empty_file.csv as a CSV table: No columns to parse from file; save the table as a UTF-8 CSV file with a header row",
+  "code": "unreadable_table",
+  "log": "/home/user/apps/a4_lc_home_CTC/logs/labconstrictor.log"
+}

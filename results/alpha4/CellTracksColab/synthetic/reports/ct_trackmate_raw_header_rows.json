@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.23,
+  "run_record": "/home/user/apps/a4_lc_home_CTC/runs/20261015T181222645931_CellTracksColab_calculate_metrics/run.json",
+  "error": "[missing_track_id] 1 row(s) have an empty TRACK_ID (first data rows: 3). Give every row a track id or remove those rows.",
+  "code": "missing_track_id",
+  "log": "/home/user/apps/a4_lc_home_CTC/logs/labconstrictor.log"
+}

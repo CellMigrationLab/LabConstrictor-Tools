@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.19,
+  "run_record": "/home/user/apps/a4_lc_home_CTC/runs/20261015T181226446691_CellTracksColab_calculate_metrics/run.json",
+  "error": "[missing_columns] CSV is missing columns: Unique_ID (set 'track_id_column' to TRACK_ID)",
+  "code": "missing_columns",
+  "log": "/home/user/apps/a4_lc_home_CTC/logs/labconstrictor.log"
+}

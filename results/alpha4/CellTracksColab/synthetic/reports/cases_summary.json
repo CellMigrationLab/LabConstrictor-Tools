@@ -1,0 +1,229 @@
+[
+  {
+    "case": 0,
+    "dataset": "ct_linear_2d",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_linear_2d] straight tracks in the XY plane, speeds 0.5..10, 3..50 spots, one time unit"
+  },
+  {
+    "case": 1,
+    "dataset": "ct_linear_3d",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_linear_3d] straight tracks with a Z component (azimuth and elevation), POSITION_Z pres"
+  },
+  {
+    "case": 2,
+    "dataset": "ct_time_units",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_time_units] time in seconds (dt = 2.5 s, start 10 s), positions in micrometres: speeds"
+  },
+  {
+    "case": 3,
+    "dataset": "ct_irregular_dt",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_irregular_dt] irregular time steps (0.5, 1, 2, 0.25, 1) with per-step speeds exactly 1"
+  },
+  {
+    "case": 4,
+    "dataset": "ct_zigzag",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_zigzag] out-and-back tracks: net displacement 0 (even steps) and s (odd steps)"
+  },
+  {
+    "case": 5,
+    "dataset": "ct_circle",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_circle] tracks on a circle of radius 10 (15 degrees per step): a full turn and a half "
+  },
+  {
+    "case": 6,
+    "dataset": "ct_speed_ramp",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_speed_ramp] step lengths 1, 2, ..., 10 at dt = 1 (acceleration): mean 5.5, median 5.5,"
+  },
+  {
+    "case": 7,
+    "dataset": "ct_unsorted",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_unsorted] the rows of ct_linear_2d shuffled (time not sorted inside the file)"
+  },
+  {
+    "case": 8,
+    "dataset": "ct_single_spot",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_single_spot] three normal tracks and four tracks with a single spot (no speed exists)"
+  },
+  {
+    "case": 9,
+    "dataset": "ct_nan_rows",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_nan_rows] empty positions in some rows: 2 rows of track A (6 spots, speed 2) and 1 row"
+  },
+  {
+    "case": 10,
+    "dataset": "ct_no_z",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_no_z] 2D data without a POSITION_Z column"
+  },
+  {
+    "case": 11,
+    "dataset": "ct_z_column_empty",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_z_column_empty] a POSITION_Z column that is empty everywhere (TrackMate 2D export)"
+  },
+  {
+    "case": 12,
+    "dataset": "ct_large",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_large] stress: 2000 straight 3D tracks of 50 spots (100 000 rows, random speed, direct"
+  },
+  {
+    "case": 13,
+    "dataset": "ct_trackmate_columns",
+    "tool": "calculate_metrics",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [],
+    "comment": "[ct_trackmate_columns] TrackMate-like columns (LABEL, TRACK_ID, FRAME, extra columns) with"
+  },
+  {
+    "case": 14,
+    "dataset": "ct_trackmate_raw_header_rows",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "missing_track_id",
+    "problems": [],
+    "comment": "[ct_trackmate_raw_header_rows] a raw TrackMate spot export: three descriptive rows (names,"
+  },
+  {
+    "case": 15,
+    "dataset": "ct_missing_column",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "missing_columns",
+    "problems": [],
+    "comment": "[ct_missing_column] the POSITION_Y column is missing"
+  },
+  {
+    "case": 16,
+    "dataset": "ct_empty_id",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "missing_track_id",
+    "problems": [],
+    "comment": "[ct_empty_id] two rows without a track id"
+  },
+  {
+    "case": 17,
+    "dataset": "ct_wrong_id_column",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "missing_columns",
+    "problems": [],
+    "comment": "[ct_wrong_id_column] a TRACK_ID file given with the default id column (Unique_ID)"
+  },
+  {
+    "case": 18,
+    "dataset": "ct_all_single_spot",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[ct_all_single_spot] every track has one spot"
+  },
+  {
+    "case": 19,
+    "dataset": "ct_header_only",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[ct_header_only] a table with the header and no row"
+  },
+  {
+    "case": 20,
+    "dataset": "ct_empty_file",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "unreadable_table",
+    "problems": [],
+    "comment": "[ct_empty_file] an empty file (0 bytes)"
+  },
+  {
+    "case": 21,
+    "dataset": "ct_decimal_comma",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[ct_decimal_comma] numbers written with a decimal comma inside quotes (a European spreadsh"
+  },
+  {
+    "case": 22,
+    "dataset": "ct_all_nan_positions",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "no_result",
+    "problems": [],
+    "comment": "[ct_all_nan_positions] every position is empty"
+  },
+  {
+    "case": 23,
+    "dataset": "ct_inf_position",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "non_finite_position",
+    "problems": [],
+    "comment": "[ct_inf_position] one position is infinite"
+  },
+  {
+    "case": 24,
+    "dataset": "ct_duplicate_time",
+    "tool": "calculate_metrics",
+    "status": "FAILED",
+    "code": "same_time_twice",
+    "problems": [
+      "status FAILED, expected COMPLETE: [same_time_twice] 2 spot(s) share a time with another spot of the same track (for example track D at time 1.0): a speed needs different times. Remove the duplicate spots; tracks that split or merge ar"
+    ],
+    "comment": "[ct_duplicate_time] two spots of one track at the same time (the middle step has dt = 0)"
+  }
+]

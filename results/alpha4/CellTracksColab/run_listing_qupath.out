@@ -1,0 +1,9 @@
+labconstrictor-qupath-v0.1.0-alpha.4.jar: OK
+LabConstrictorTools-all.groovy: OK
+plan CellTracksColab: 0 tool(s), 1 expected id(s); tools: 
+=== launch CellTracksColab_not_listed (phase not_listed)
+CHECK ui_qupath_not_listed_celltrackscolab PASS 'CellTracksColab' is absent from the app chooser (it offers [RadioNeighbour])
+NOTE ui_qupath_forms_celltrackscolab not run: the app must not be listed in QuPath, so no form, run or screenshot check applies [NOTE]
+SUMMARY qupath CellTracksColab pass=1 fail=0 not_run=0 human=0 (matrix: /home/user/results/alpha4/CellTracksColab/listing_qupath/matrix_ui_qupath_CellTracksColab.json)
+matrix: /home/user/results/alpha4/CellTracksColab/listing_qupath/matrix_ui_qupath_CellTracksColab.json
+exit status 0

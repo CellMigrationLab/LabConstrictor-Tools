@@ -1,0 +1,37 @@
+{
+  "host": "qupath",
+  "app": "CellTracksColab",
+  "family": "ui",
+  "host_version": "v0.1.0-alpha.4",
+  "started": "2026-10-15T18:13:41Z",
+  "finished": "2026-10-15T18:14:49Z",
+  "expected": 1,
+  "rows": [
+    {
+      "id": "ui_qupath_not_listed_celltrackscolab",
+      "family": "ui",
+      "host": "qupath",
+      "app": "CellTracksColab",
+      "tool": "",
+      "control": "app_chooser",
+      "status": "PASS",
+      "detail": "'CellTracksColab' is absent from the app chooser (it offers [RadioNeighbour])",
+      "seconds": 0.0,
+      "screenshot": null,
+      "ts": "2026-10-15T18:14:48Z"
+    },
+    {
+      "id": "ui_qupath_forms_celltrackscolab",
+      "family": "ui",
+      "host": "qupath",
+      "app": "CellTracksColab",
+      "tool": "",
+      "control": "",
+      "status": "NOTE",
+      "detail": "the app must not be listed in QuPath, so no form, run or screenshot check applies",
+      "seconds": 0.0,
+      "screenshot": null,
+      "ts": "2026-10-15T18:14:48Z"
+    }
+  ]
+}

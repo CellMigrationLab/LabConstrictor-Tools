@@ -1,0 +1,3 @@
+NOTE ui_napari_host_version 0.1.0a1
+CHECK ui_napari_app_listed FAIL AssertionError: CellTracksColab is not in the app chooser ['RadioNeighbour']
+NAPARI UI AUDIT SUMMARY failed=1

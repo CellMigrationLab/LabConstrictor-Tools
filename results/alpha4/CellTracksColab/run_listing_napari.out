@@ -1,0 +1,5 @@
+NOTE ui_napari_host_version 0.1.0a1
+WARNING: could not determine DPI
+CHECK ui_napari_not_listed PASS CellTracksColab is not in the app chooser ['RadioNeighbour']
+NOTE ui_napari_not_listed_forms not run: no control, form or run checks, CellTracksColab is hidden from this host by design
+NAPARI UI AUDIT SUMMARY failed=0

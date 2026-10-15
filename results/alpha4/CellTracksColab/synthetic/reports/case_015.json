@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.24,
+  "run_record": "/home/user/apps/a4_lc_home_CTC/runs/20261015T181223979280_CellTracksColab_calculate_metrics/run.json",
+  "error": "[missing_columns] CSV is missing columns: POSITION_Y",
+  "code": "missing_columns",
+  "log": "/home/user/apps/a4_lc_home_CTC/logs/labconstrictor.log"
+}

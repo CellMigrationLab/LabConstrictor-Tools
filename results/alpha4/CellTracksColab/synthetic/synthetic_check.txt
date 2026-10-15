@@ -1,0 +1,54 @@
+CHECK ct_linear_2d_0_status                                                  PASS    status COMPLETE
+CHECK ct_linear_2d_1_table:Unique_ID                                         PASS    6 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_linear_2d_2_message                                                 PASS    message '6 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '6 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_linear_3d_0_status                                                  PASS    status COMPLETE
+CHECK ct_linear_3d_1_table:Unique_ID                                         PASS    5 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_linear_3d_2_message                                                 PASS    message '5 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '5 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_time_units_0_status                                                 PASS    status COMPLETE
+CHECK ct_time_units_1_table:Unique_ID                                        PASS    3 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_time_units_2_message                                                PASS    message '3 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '3 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_irregular_dt_0_status                                               PASS    status COMPLETE
+CHECK ct_irregular_dt_1_table:Unique_ID                                      PASS    1 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_irregular_dt_2_message                                              PASS    message '1 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '1 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_zigzag_0_status                                                     PASS    status COMPLETE
+CHECK ct_zigzag_1_table:Unique_ID                                            PASS    2 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_zigzag_2_message                                                    PASS    message '2 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '2 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_circle_0_status                                                     PASS    status COMPLETE
+CHECK ct_circle_1_table:Unique_ID                                            PASS    2 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_circle_2_message                                                    PASS    message '2 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '2 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_speed_ramp_0_status                                                 PASS    status COMPLETE
+CHECK ct_speed_ramp_1_table:Unique_ID                                        PASS    1 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_speed_ramp_2_message                                                PASS    message '1 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '1 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_unsorted_0_status                                                   PASS    status COMPLETE
+CHECK ct_unsorted_1_table:Unique_ID                                          PASS    6 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_unsorted_2_message                                                  PASS    message '6 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '6 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_single_spot_0_status                                                PASS    status COMPLETE
+CHECK ct_single_spot_1_table:Unique_ID                                       PASS    3 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_single_spot_2_message                                               PASS    message '3 tracks, 4 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '3 tracks, 4 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_nan_rows_0_status                                                   PASS    status COMPLETE
+CHECK ct_nan_rows_1_table:Unique_ID                                          PASS    2 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_nan_rows_2_message                                                  PASS    message '2 tracks, 1 skipped (fewer than 2 spots), 3 rows dropped (NaN)' contains '2 tracks, 1 skipped (fewer than 2 spots), 3 rows dropped (NaN)'
+CHECK ct_no_z_0_status                                                       PASS    status COMPLETE
+CHECK ct_no_z_1_table:Unique_ID                                              PASS    3 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_no_z_2_message                                                      PASS    message '3 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN). No POSITION_Z: treated as 2D (Z = 0)' contains '3 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN). No POSITION_Z: treated as 2D (Z = 0)'
+CHECK ct_z_column_empty_0_status                                             PASS    status COMPLETE
+CHECK ct_z_column_empty_1_table:Unique_ID                                    PASS    3 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_z_column_empty_2_message                                            PASS    message '3 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN). No POSITION_Z: treated as 2D (Z = 0)' contains '3 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN). No POSITION_Z: treated as 2D (Z = 0)'
+CHECK ct_large_0_status                                                      PASS    status COMPLETE
+CHECK ct_large_1_table:Unique_ID                                             PASS    2000 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_large_2_message                                                     PASS    message '2000 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '2000 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_trackmate_columns_0_status                                          PASS    status COMPLETE
+CHECK ct_trackmate_columns_1_table:TRACK_ID                                  PASS    3 rows, columns ['Track Duration', 'Median Speed', 'Mean Speed', 'Max Speed', 'Min Speed', 'Speed Standard Deviation', 'Total Distance Traveled', 'Directionality'] equal the truth
+CHECK ct_trackmate_columns_2_message                                         PASS    message '3 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)' contains '3 tracks, 0 skipped (fewer than 2 spots), 0 rows dropped (NaN)'
+CHECK ct_trackmate_raw_header_rows_0_status                                  PASS    status FAILED
+CHECK ct_missing_column_0_status                                             PASS    status FAILED
+CHECK ct_empty_id_0_status                                                   PASS    status FAILED
+CHECK ct_wrong_id_column_0_status                                            PASS    status FAILED
+CHECK ct_all_single_spot_0_status                                            PASS    status FAILED
+CHECK ct_header_only_0_status                                                PASS    status FAILED
+CHECK ct_empty_file_0_status                                                 PASS    status FAILED
+CHECK ct_decimal_comma_0_status                                              PASS    status FAILED
+CHECK ct_all_nan_positions_0_status                                          PASS    status FAILED
+CHECK ct_inf_position_0_status                                               PASS    status FAILED
+CHECK ct_duplicate_time_0_table_bound                                        FAIL    no table result (status FAILED)
+SUMMARY {'PASS': 52, 'FAIL': 1, 'NOT_RUN': 0} (53 checks, 25 datasets)

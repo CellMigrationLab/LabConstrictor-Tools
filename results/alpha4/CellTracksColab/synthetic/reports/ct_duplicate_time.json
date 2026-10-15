@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.06,
+  "run_record": "/home/user/apps/a4_lc_home_CTC/runs/20261015T181234223253_CellTracksColab_calculate_metrics/run.json",
+  "error": "[same_time_twice] 2 spot(s) share a time with another spot of the same track (for example track D at time 1.0): a speed needs different times. Remove the duplicate spots; tracks that split or merge are not supported by these statistics.",
+  "code": "same_time_twice",
+  "log": "/home/user/apps/a4_lc_home_CTC/logs/labconstrictor.log"
+}
