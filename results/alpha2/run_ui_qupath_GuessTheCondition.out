@@ -1,0 +1,58 @@
+labconstrictor-qupath-v0.1.0-alpha.2.jar: OK
+LabConstrictorTools-all.groovy: OK
+plan GuessTheCondition: 6 tool(s), 36 expected id(s); tools: analyze_results create_demo_experiment list_conditions play_round prepare_game undo_last_guess
+=== launch GuessTheCondition_panel (phase panel)
+CHECK ui_qupath_panel_app_chooser PASS offers [GuessTheCondition] (the registry files list the same); 'GuessTheCondition' shows its 6 CLI tool(s)
+CHECK ui_qupath_panel_tool_chooser PASS each of 6 tool(s) builds its form and shows the description of the schema
+CHECK ui_qupath_panel_rescan_apps PASS clicked; status 'Found 1 app(s)', app kept
+CHECK ui_qupath_panel_cancel PASS disabled; a click left the status at 'Found 1 app(s)' and started nothing
+CHECK ui_qupath_panel_copy_as_command PASS a click opened the menu: entries [Terminal command, Python snippet]
+CHECK ui_qupath_panel_copy_terminal_command PASS the clipboard text (188 characters) parses back to the interpreter of the registry entry, 'GuessTheCondition', 'create_demo_experiment' and 2 predicted value(s)
+CHECK ui_qupath_panel_copy_python_snippet PASS the clipboard text (286 characters) parses back to the interpreter of the registry entry, 'GuessTheCondition', 'create_demo_experiment' and 2 predicted value(s)
+=== launch GuessTheCondition_panel_run (phase panel_run)
+CHECK ui_qupath_panel_run_refusal PASS an empty 'Results folder' of 'analyze_results' is refused with ''Results folder' is required'
+CHECK ui_qupath_panel_run PASS a real click started a run (Run off, Cancel on, then back); an empty 'Results folder' of 'analyze_results' is refused with ''Results folder' is required'
+CHECK ui_qupath_panel_details PASS window shows the report and the worker output (904 characters)
+CHECK ui_qupath_panel_restart_worker PASS a click ended the kept worker; status 'worker stopped'
+CHECK ui_qupath_panel_keep_worker PASS unticked: no worker after a run; ticked: a worker is kept
+=== launch GuessTheCondition_tool_analyze_results (phase tool, tool analyze_results)
+CHECK ui_qupath_form_analyze_results_opens PASS 3 parameter(s), one widget of the declared kind each: results_folder:folder, user_name:string, random_seed:integer
+CHECK ui_qupath_form_analyze_results_controls PASS 5 control(s) activated and read back: section:Advanced settings, results_folder, user_name, random_seed.set, random_seed
+NOTE ui_qupath_form_analyze_results_browse not run: the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_analyze_results PASS COMPLETE in 2.6 s, 5 result(s) shown and checked against their files, record 20261015T085537243113_GuessTheCondition_analyze_results
+CHECK ui_qupath_screens_analyze_results PASS analyze_results_form.png and analyze_results_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch GuessTheCondition_tool_create_demo_experiment (phase tool, tool create_demo_experiment)
+CHECK ui_qupath_form_create_demo_experiment_opens PASS 2 parameter(s), one widget of the declared kind each: output_folder:folder, images_per_repeat:integer
+CHECK ui_qupath_form_create_demo_experiment_controls PASS 2 control(s) activated and read back: output_folder, images_per_repeat
+NOTE ui_qupath_form_create_demo_experiment_browse not run: the native file chooser of [output_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_create_demo_experiment PASS COMPLETE in 1.2 s, 1 result(s) shown and checked against their files, record 20261015T085606751236_GuessTheCondition_create_demo_experiment
+CHECK ui_qupath_screens_create_demo_experiment PASS create_demo_experiment_form.png and create_demo_experiment_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch GuessTheCondition_tool_list_conditions (phase tool, tool list_conditions)
+CHECK ui_qupath_form_list_conditions_opens PASS 2 parameter(s), one widget of the declared kind each: results_folder:folder, user_name:string
+CHECK ui_qupath_form_list_conditions_controls PASS 2 control(s) activated and read back: results_folder, user_name
+NOTE ui_qupath_form_list_conditions_browse not run: the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_list_conditions PASS COMPLETE in 0.5 s, 1 result(s) shown and checked against their files, record 20261015T085644139839_GuessTheCondition_list_conditions
+CHECK ui_qupath_screens_list_conditions PASS list_conditions_form.png and list_conditions_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch GuessTheCondition_tool_play_round (phase tool, tool play_round)
+CHECK ui_qupath_form_play_round_opens PASS 3 parameter(s), one widget of the declared kind each: results_folder:folder, user_name:string, guess:string
+CHECK ui_qupath_form_play_round_controls PASS 4 control(s) activated and read back: results_folder, user_name, guess.set, guess
+NOTE ui_qupath_form_play_round_browse not run: the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+NOTE ui_qupath_run_play_round_unverified not run: expectation(s) the GUI cannot check: expect.progress_events_min [HUMAN]
+CHECK ui_qupath_run_play_round PASS COMPLETE in 1.1 s, 2 result(s) shown and checked against their files, record 20261015T085725831123_GuessTheCondition_play_round
+CHECK ui_qupath_screens_play_round PASS play_round_form.png and play_round_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch GuessTheCondition_tool_prepare_game (phase tool, tool prepare_game)
+CHECK ui_qupath_form_prepare_game_opens PASS 6 parameter(s), one widget of the declared kind each: experiment_folder:folder, results_folder:folder, user_name:string, percentage_to_test:integer, restart:boolean, random_seed:integer
+CHECK ui_qupath_form_prepare_game_controls PASS 8 control(s) activated and read back: section:Advanced settings, experiment_folder, results_folder, user_name, percentage_to_test, restart, random_seed.set, random_seed
+NOTE ui_qupath_form_prepare_game_browse not run: the native file chooser of [experiment_folder, results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_prepare_game PASS COMPLETE in 0.5 s, 1 result(s) shown and checked against their files, record 20261015T085827140309_GuessTheCondition_prepare_game
+CHECK ui_qupath_screens_prepare_game PASS prepare_game_form.png and prepare_game_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+=== launch GuessTheCondition_tool_undo_last_guess (phase tool, tool undo_last_guess)
+CHECK ui_qupath_form_undo_last_guess_opens PASS 2 parameter(s), one widget of the declared kind each: results_folder:folder, user_name:string
+CHECK ui_qupath_form_undo_last_guess_controls PASS 2 control(s) activated and read back: results_folder, user_name
+NOTE ui_qupath_form_undo_last_guess_browse not run: the native file chooser of [results_folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+CHECK ui_qupath_run_undo_last_guess PASS COMPLETE in 0.5 s, 1 result(s) shown and checked against their files, record 20261015T085913802432_GuessTheCondition_undo_last_guess
+CHECK ui_qupath_screens_undo_last_guess PASS undo_last_guess_form.png and undo_last_guess_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+CHECK ui_qupath_controls_all_known PASS every control found is expected and every expected control was found, in every window of every launch
+SUMMARY qupath GuessTheCondition pass=37 fail=0 not_run=0 human=7 (matrix: /home/user/results/alpha2/GuessTheCondition/ui_qupath/matrix_ui_qupath_GuessTheCondition.json)
+matrix: /home/user/results/alpha2/GuessTheCondition/ui_qupath/matrix_ui_qupath_GuessTheCondition.json
+exit status 0

@@ -1,0 +1,679 @@
+{
+  "app": "GuessTheCondition",
+  "python": "/home/user/apps/GuessTheCondition/bin/python",
+  "tools": [
+    {
+      "id": "analyze_results",
+      "label": "Analyse the results",
+      "inputs": [
+        {
+          "name": "results_folder",
+          "label": "Results folder",
+          "required": true,
+          "type": "folder",
+          "description": "Folder that holds the results of every player (it must exist); a folder with the user's name is made inside it",
+          "group": "Game"
+        },
+        {
+          "name": "user_name",
+          "label": "Your name",
+          "required": false,
+          "default": "YourName",
+          "type": "string",
+          "description": "Names your game: your results are kept in a folder with this name, so you can stop and resume",
+          "group": "Game"
+        },
+        {
+          "name": "random_seed",
+          "label": "Random seed",
+          "required": false,
+          "type": "integer",
+          "minimum": 0,
+          "description": "Seed of the randomization tests; unset = 0",
+          "group": "Game",
+          "advanced": true,
+          "nullable": true
+        }
+      ],
+      "outputs": [
+        {
+          "name": "readout",
+          "type": "message"
+        },
+        {
+          "name": "values",
+          "type": "values"
+        },
+        {
+          "name": "by_repeat",
+          "type": "table"
+        },
+        {
+          "name": "by_condition",
+          "type": "table"
+        },
+        {
+          "name": "report_pdf",
+          "type": "file"
+        }
+      ],
+      "description": "Can the conditions be told apart? Accuracy against chance across the biological repeats, per condition, the confusion matrix and decision times; the PDF holds the text, the figures and the tables."
+    },
+    {
+      "id": "create_demo_experiment",
+      "label": "Create a demo experiment",
+      "inputs": [
+        {
+          "name": "output_folder",
+          "label": "Output folder",
+          "required": true,
+          "type": "folder",
+          "description": "An existing folder; the demo experiment is made inside it, in a folder called GuessTheCondition_demo",
+          "group": "Demo"
+        },
+        {
+          "name": "images_per_repeat",
+          "label": "Images per repeat",
+          "required": false,
+          "default": 4,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Images per condition and repeat (2 conditions x 3 repeats)",
+          "group": "Demo"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Make a small synthetic experiment (two conditions, three repeats) to try the game before using your own images."
+    },
+    {
+      "id": "list_conditions",
+      "label": "Show the conditions",
+      "inputs": [
+        {
+          "name": "results_folder",
+          "label": "Results folder",
+          "required": true,
+          "type": "folder",
+          "description": "Folder that holds the results of every player (it must exist); a folder with the user's name is made inside it",
+          "group": "Game"
+        },
+        {
+          "name": "user_name",
+          "label": "Your name",
+          "required": false,
+          "default": "YourName",
+          "type": "string",
+          "description": "Names your game: your results are kept in a folder with this name, so you can stop and resume",
+          "group": "Game"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "The conditions you can name in 'Play a round' (needs a game prepared for this name). Hosts use it to fill the guess list."
+    },
+    {
+      "id": "play_round",
+      "label": "Play a round",
+      "inputs": [
+        {
+          "name": "results_folder",
+          "label": "Results folder",
+          "required": true,
+          "type": "folder",
+          "description": "Folder that holds the results of every player (it must exist); a folder with the user's name is made inside it",
+          "group": "Game"
+        },
+        {
+          "name": "user_name",
+          "label": "Your name",
+          "required": false,
+          "default": "YourName",
+          "type": "string",
+          "description": "Names your game: your results are kept in a folder with this name, so you can stop and resume",
+          "group": "Game"
+        },
+        {
+          "name": "guess",
+          "label": "Guess",
+          "required": false,
+          "type": "string",
+          "description": "Your guess for the image on screen: a condition name or its number in the list. Leave unset to see the first image. Change it every round",
+          "group": "Game",
+          "clear_after_run": true,
+          "choices_from": {
+            "tool": "list_conditions",
+            "depends": [
+              "results_folder",
+              "user_name"
+            ],
+            "field": "choices"
+          },
+          "nullable": true
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "image",
+          "replace": true,
+          "axes": "YX"
+        },
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Record your guess (when you give one) and show the next image. The condition of an image is never shown."
+    },
+    {
+      "id": "prepare_game",
+      "label": "Prepare the game",
+      "inputs": [
+        {
+          "name": "experiment_folder",
+          "label": "Experiment folder",
+          "required": true,
+          "type": "folder",
+          "description": "One folder per condition, inside it one folder per biological repeat holding the TIFF images",
+          "group": "Game"
+        },
+        {
+          "name": "results_folder",
+          "label": "Results folder",
+          "required": true,
+          "type": "folder",
+          "description": "Folder that holds the results of every player (it must exist); a folder with the user's name is made inside it",
+          "group": "Game"
+        },
+        {
+          "name": "user_name",
+          "label": "Your name",
+          "required": false,
+          "default": "YourName",
+          "type": "string",
+          "description": "Names your game: your results are kept in a folder with this name, so you can stop and resume",
+          "group": "Game"
+        },
+        {
+          "name": "percentage_to_test",
+          "label": "Percentage to guess",
+          "required": false,
+          "default": 20,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "unit": "%",
+          "description": "Share of the images you will guess (rounded up); images are spread over the conditions and repeats",
+          "group": "Game",
+          "widget": "slider"
+        },
+        {
+          "name": "restart",
+          "label": "Restart",
+          "required": false,
+          "default": false,
+          "type": "boolean",
+          "description": "Start again: your earlier results are kept as a backup. Unticked, an existing game is resumed",
+          "group": "Game"
+        },
+        {
+          "name": "random_seed",
+          "label": "Random seed",
+          "required": false,
+          "type": "integer",
+          "minimum": 0,
+          "description": "Seed of the order of the images; unset = a random one, kept with the game",
+          "group": "Game",
+          "advanced": true,
+          "nullable": true
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Scan the experiment folder and start (or resume) your game."
+    },
+    {
+      "id": "undo_last_guess",
+      "label": "Undo my last guess",
+      "inputs": [
+        {
+          "name": "results_folder",
+          "label": "Results folder",
+          "required": true,
+          "type": "folder",
+          "description": "Folder that holds the results of every player (it must exist); a folder with the user's name is made inside it",
+          "group": "Game"
+        },
+        {
+          "name": "user_name",
+          "label": "Your name",
+          "required": false,
+          "default": "YourName",
+          "type": "string",
+          "description": "Names your game: your results are kept in a folder with this name, so you can stop and resume",
+          "group": "Game"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "type": "values"
+        }
+      ],
+      "description": "Forget the last guess you recorded (for example one made by mistake); that image is shown again by 'Play a round'."
+    }
+  ],
+  "cases": [
+    {
+      "tool": "create_demo_experiment",
+      "inputs": {
+        "output_folder": "fixtures/results",
+        "images_per_repeat": 2
+      },
+      "comment": "a demo experiment to try the game (2 conditions x 3 repeats x 2 images)",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "images": 12
+          }
+        }
+      }
+    },
+    {
+      "tool": "create_demo_experiment",
+      "inputs": {
+        "output_folder": "fixtures/results",
+        "images_per_repeat": 2
+      },
+      "comment": "nothing is overwritten",
+      "expect": {
+        "status": "FAILED",
+        "code": "already_exists",
+        "message_contains": "already exists"
+      }
+    },
+    {
+      "tool": "create_demo_experiment",
+      "inputs": {
+        "output_folder": "fixtures/nope"
+      },
+      "comment": "a folder that does not exist is refused",
+      "expect": {
+        "status": "FAILED"
+      }
+    },
+    {
+      "tool": "prepare_game",
+      "inputs": {
+        "experiment_folder": "fixtures/experiment",
+        "results_folder": "fixtures/results",
+        "user_name": "Ana",
+        "percentage_to_test": 25,
+        "restart": true,
+        "random_seed": 7
+      },
+      "comment": "a new game: 25% of 12 images = 3",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "images": 12,
+            "to_guess": 3,
+            "guessed": 0,
+            "remaining": 3,
+            "conditions": "1: Control | 2: Mutant"
+          }
+        }
+      }
+    },
+    {
+      "tool": "list_conditions",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana"
+      },
+      "comment": "the options for the guess list",
+      "expect": {
+        "status": "COMPLETE"
+      }
+    },
+    {
+      "tool": "list_conditions",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Nobody"
+      },
+      "comment": "no game for this name",
+      "expect": {
+        "status": "FAILED"
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana"
+      },
+      "comment": "the first image, nothing to record yet",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "image": "1 of 3",
+            "conditions": "1: Control | 2: Mutant"
+          }
+        },
+        "progress_events_min": 1
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana",
+        "guess": "Control"
+      },
+      "comment": "records the guess (a name), shows the next",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "image": "2 of 3"
+          }
+        }
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana",
+        "guess": "Nonsense"
+      },
+      "comment": "a guess that is not a condition is explained",
+      "expect": {
+        "status": "FAILED",
+        "code": "unknown_condition",
+        "message_contains": "Choose one of: 1: Control | 2: Mutant"
+      }
+    },
+    {
+      "tool": "undo_last_guess",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana"
+      },
+      "comment": "the last guess is forgotten",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "forgotten_guess": "Control",
+            "guessed": 0
+          }
+        }
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana",
+        "guess": "2"
+      },
+      "comment": "a guess by number; the image undone before is guessed now",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "image": "2 of 3"
+          }
+        }
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana",
+        "guess": "mutant"
+      },
+      "comment": "a name in any case",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "image": "3 of 3"
+          }
+        }
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana",
+        "guess": "Control"
+      },
+      "comment": "the last guess is saved and the game says it is over",
+      "expect": {
+        "status": "FAILED",
+        "code": "no_result",
+        "message_contains": "last image"
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana"
+      },
+      "comment": "nothing left to guess",
+      "expect": {
+        "status": "FAILED",
+        "code": "finished",
+        "message_contains": "Thank you"
+      }
+    },
+    {
+      "tool": "analyze_results",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana"
+      },
+      "comment": "the analysis of 3 guesses (a pilot: no verdict across repeats)",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "images_guessed": 3
+          },
+          "readout": {
+            "contains": "3"
+          }
+        }
+      }
+    },
+    {
+      "tool": "prepare_game",
+      "inputs": {
+        "experiment_folder": "fixtures/experiment",
+        "results_folder": "fixtures/results",
+        "user_name": "Ana",
+        "percentage_to_test": 100
+      },
+      "comment": "resuming keeps the guesses and takes the new percentage",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "guessed": 3,
+            "to_guess": 12,
+            "remaining": 9
+          }
+        }
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Ana"
+      },
+      "comment": "and goes on",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "image": "4 of 12"
+          }
+        }
+      }
+    },
+    {
+      "tool": "prepare_game",
+      "inputs": {
+        "experiment_folder": "fixtures/experiment",
+        "results_folder": "fixtures/results",
+        "user_name": "a/b"
+      },
+      "comment": "a name that is not a folder name",
+      "expect": {
+        "status": "FAILED",
+        "code": "bad_user_name",
+        "message_contains": "folder name"
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Nobody"
+      },
+      "comment": "no game for this player",
+      "expect": {
+        "status": "FAILED",
+        "code": "no_session",
+        "message_contains": "prepare the game first"
+      }
+    },
+    {
+      "tool": "prepare_game",
+      "inputs": {
+        "experiment_folder": "fixtures/experiment",
+        "results_folder": "fixtures/results",
+        "user_name": "Fresh",
+        "restart": true
+      },
+      "comment": "a second player",
+      "expect": {
+        "max_seconds": 120,
+        "results": {
+          "values": {
+            "guessed": 0
+          }
+        }
+      }
+    },
+    {
+      "tool": "analyze_results",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Fresh"
+      },
+      "comment": "nothing guessed yet",
+      "expect": {
+        "status": "FAILED",
+        "code": "no_guesses",
+        "message_contains": "play some rounds first"
+      }
+    },
+    {
+      "tool": "play_round",
+      "inputs": {
+        "results_folder": "fixtures/results",
+        "user_name": "Fresh",
+        "guess": "   "
+      },
+      "comment": "blank guess is refused",
+      "expect": {
+        "status": "FAILED",
+        "code": "empty_guess"
+      }
+    }
+  ],
+  "no_case": {},
+  "chosen": {
+    "analyze_results": 14,
+    "create_demo_experiment": 0,
+    "list_conditions": 4,
+    "play_round": 6,
+    "prepare_game": 3,
+    "undo_last_guess": 9
+  },
+  "replay": {
+    "analyze_results": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "create_demo_experiment": [],
+    "list_conditions": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "play_round": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "prepare_game": [
+      0,
+      1,
+      2
+    ],
+    "undo_last_guess": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  "ordered": true
+}
