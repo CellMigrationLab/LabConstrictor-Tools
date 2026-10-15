@@ -8,7 +8,7 @@ host UI test app: earlier versions of this protocol used it as a second app in N
 
 ## CT-1. Install and open the notebook
 **Do:** install the latest release (protocol S0 and S1: a path without a space). Start the app from the menu or desktop and open a notebook it offers.
-**Expect:** the installer finishes (last line of `menuinst_debug.log`: `Post-install completed successfully.`); the notebook opens in JupyterLab and its first cells run (what to run: see the notebook's own instructions; an analysis with your own data is outside this protocol).
+**Expect:** the installer finishes (last line of `menuinst_debug.log`: `Post-install completed successfully.`); the notebook opens in JupyterLab and its first cells run (what to run: see the notebook's own instructions; a full TrackMate import needs a validated dataset that is not yet packaged: [TEST_DATA.md](../TEST_DATA.md#data-c1c2-celltrackscolab)).
 
 - [ ] PASS  - [ ] FAIL  - [ ] N/A   Notes: ______________________________
 
