@@ -131,3 +131,8 @@ Install 1m46s, 1.5 GB, exit 0; uninstall.sh clean. Sandbox basic/hosts/cases/ret
 * **VL-12 (Tools/app design gap, owner decision): the images simulate_sample writes carry no pixel size.** `simulated.tif` and `noiseless.tif` have ResolutionUnit NONE, 1/1 resolution, so Napari shows the result layers with scale 1.0 although the tool knows `pixel_size_um` (it reports it in the values) and feeding them to compare_images needs the size typed. The schema declares them as plain `image` results; no calibration is declared for outputs.
 * VL-13 (note, repo hygiene): at tag 0.1.6 `construct.yaml` still says `version: 0.1.5` and the conclusion text 0.1.5; the released installer reports 0.1.6, so the release build overrides it.
 * Not run / limits: Windows and macOS installers; native file choosers (HUMAN); QuPath cannot show the app (hidden by design) so `not_listed` is the only QuPath row, and its registry held no other app, so the check cannot catch a wrongly listed neighbour; `vm_cal_anisotropic` HUMAN (the Napari box stays blank for anisotropic pixels, as the host catalog says unknown); the Fiji host was not driven with the synthetic calibration files (the Fiji audit ran the app's own cases).
+
+## Decisions after the VLab4Mic round (owner)
+* VL-7 fixed in Napari PR https://github.com/CellMigrationLab/LabConstrictor-napari/pull/65 (decode ImageJ `µm`).
+* VL-3, VL-4, VL-5, VL-12: bugs to file; Issues are disabled on LabConstrictor-VLab4Mic, text in /home/user/results/VLab4Mic_issues_to_file.md.
+* VL-6: truth was wrong; the SSIM-near-0 check is dropped from the synthetic generator (branch claude/oneoff-synthetic).
