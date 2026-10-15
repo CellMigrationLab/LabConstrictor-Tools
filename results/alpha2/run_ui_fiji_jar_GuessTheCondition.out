@@ -1,0 +1,20 @@
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['copy last run as command', 'labconstrictor tools...'] (jar)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Analyse the results', 'Create a demo experiment', 'Show the conditions', 'Play a round', 'Prepare the game', 'Undo my last guess']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'Create a demo experiment'
+CHECK ui_fiji_form_create_demo_experiment_opens PASS 2 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_create_demo_experiment_controls PASS 3 control(s) activated and read back: file_browse, text_field
+CHECK ui_fiji_panel_form_cancel FAIL the summary does not say cancelled; a run started (status 'FAILED'); 1 run record(s) were created
+CHECK ui_fiji_run_create_demo_experiment PASS status COMPLETE; every declared result shown (values:values); inputs from case {"output_folder": "fixtures/results", "images_per_repeat": 2}
+CHECK ui_fiji_panel_log PASS the Log window holds the run's command line and Python snippet, equal to the saved last command
+CHECK ui_fiji_panel_form_ok PASS a real click on OK closed the form and the plugin ran the tool (status COMPLETE)
+CHECK ui_fiji_screens_create_demo_experiment PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_prepare_game_opens PASS 6 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_prepare_game_controls PASS 10 control(s) activated and read back: file_browse, flag_checkbox, number_spinner, set_checkbox, slider, text_field
+CHECK ui_fiji_run_prepare_game PASS status COMPLETE; every declared result shown (values:values); inputs from case {"experiment_folder": "fixtures/experiment", "results_folder": "fixtures/results", "user_name": "Ana", "percentage_to_te
+CHECK ui_fiji_screens_prepare_game PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_panel_copy_terminal PASS the clipboard holds the terminal line of the last run (GuessTheCondition: prepare_game), equal to the saved command
+CHECK ui_fiji_panel_copy_python PASS the clipboard holds the Python snippet of the last run (GuessTheCondition: prepare_game), equal to the saved command
+CHECK ui_fiji_controls_all_known PASS 107 control(s) in 6 form(s) and 7 chooser(s), every one in the control table (20 kinds)
