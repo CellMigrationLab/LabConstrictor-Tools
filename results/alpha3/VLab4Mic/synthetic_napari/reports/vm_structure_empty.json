@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 5.25,
+  "error": "[ValueError] Empty file.",
+  "code": "ValueError",
+  "status_text": "\u2716 [ValueError] Empty file.  - click Details\u2026 for the full report (log: /home/user/apps/a3_lc_home_VLab4Mic_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a3_lc_home_VLab4Mic_synnap/runs/20261015T144138096815_VLab4Mic_simulate_sample",
+  "host_observed": {}
+}

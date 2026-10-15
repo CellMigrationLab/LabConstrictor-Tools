@@ -1,0 +1,5 @@
+{
+  "status": "DRIVER_ERROR",
+  "error": "AssertionError: Run did not start a task; status: \u26a0 'Pixel size' must be <= 1000 |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/wt3_napari/tests/ui_audit_runs.py\", line 258, in execute\n    raise AssertionError(\"Run did not start a task; status: %s\" % w.status.text())\nAssertionError: Run did not start a task; status: \u26a0 'Pixel size' must be <= 1000\n",
+  "host_observed": {}
+}

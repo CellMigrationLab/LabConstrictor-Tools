@@ -201,11 +201,47 @@
 | family | host | PASS | FAIL | NOT_RUN | HUMAN | NOTE | finished |
 |---|---|---|---|---|---|---|---|
 | alpha3 | napari | 12 | 0 | 0 | 0 | 0 | 2026-10-15T14:30:25Z |
-| ui | fiji | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
+| ui | napari | 0 | 0 | 0 | 0 | 0 | NOT FINISHED |
+| synthetic | napari | 79 | 3 | 0 | 1 | 10 | 2026-10-15T14:42:06 |
+| ui | fiji | 70 | 21 | 0 | 4 | 0 | 2026-10-15T14:38:36 |
+| ui | fiji | 32 | 0 | 0 | 1 | 0 | NOT FINISHED |
 | ui | napari | 21 | 0 | 0 | 3 | 0 | 2026-10-15T14:33:36Z |
 
-### VLab4Mic: HUMAN (3)
+### VLab4Mic: FAIL (24)
 
+* `syn_host_napari_vm_flat_reference_0_status` (synthetic/napari) status COMPLETE, expected FAILED (error: None)
+* `syn_host_napari_vm_zero_reference_0_status` (synthetic/napari) status COMPLETE, expected FAILED (error: None)
+* `syn_host_napari_vm_different_fields_2_value:ssim` (synthetic/napari) ssim = 0.778662, expected 0.0 (tol 0.3, rtol 0)
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1223), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1293), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1326), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1396), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1429), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1462), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1532), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1602), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1672), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1742), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1884), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,1954), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,2024), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,2094), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,2164), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,2269), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,2339), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,2409), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) the control is at (930,2514), outside the 1600.0x1000.0 screen: a real click cannot reach it
+* `ui_fiji_form_simulate_sample_opens` (ui/fiji) the dialog is 1066x3024 on a 1600x1000 screen (oversized); form_ok is at (1149,2587) 77x23: not on the screen, it cannot be pressed; form_cancel is at (1234,2587) 77x23: not on the screen, it cannot be pressed; at the form: the window 'Simulate imaging of a virtual sample' is 1066x3024 on a 1600x1000 screen
+* `ui_fiji_form_simulate_sample_controls` (ui/fiji) 19 of 62 control(s) failed: set_checkbox 'set minimal distance between particles': the control is at (930,1223), outside the 1600.0x1000.0 screen: a real click cannot reach it; flag_checkbox 'random positions': the control is at (930,1293), outside the 1600.0x1000.0 screen: a real click cannot reach it; set_checkbox 'set axial offset': the control is at (930,1326), outside the 1600.0x1000.0 screen: a real click cannot reach it; flag_checkbox 'random orientations': the control is at (930,1396)...
+
+### VLab4Mic: HUMAN (9)
+
+* `syn_host_napari_vm_cal_anisotropic_note` (synthetic/napari) has no machine oracle for this run (HUMAN): judged by a person
+* `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
+* `ui_fiji_run_compare_images` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
+* `ui_fiji_run_simulate_sample` (ui/fiji) expectations of the case that Fiji cannot check: max_seconds
+* `ui_fiji_fj1b_cancel_form` (ui/fiji) no tool of this app has a required file/folder/table input on a form of several parameters: nothing to cancel with an empty required path
+* `ui_fiji_parts` (ui/fiji) only ['tools'] ran (LC_UI_PARTS)
 * `ui_napari_prerequisite_simulate_sample_case12` (ui/napari) case 12 of simulate_sample cannot be typed into the form (value 1.5 is outside of the allowed range: (0.0, 1.0)); its expected outcome {'status': 'FAILED', 'code': 'invalid_parameter', 'message_contains': 'Labelling efficiency'} is covered by the CLI
 * `ui_napari_prerequisite_simulate_sample_case13` (ui/napari) case 13 of simulate_sample cannot be typed into the form (value 0 is outside of the allowed range: (1, 20)); its expected outcome {'status': 'FAILED', 'code': 'invalid_parameter', 'message_contains': 'Number of particles'} is covered by the CLI
 * `ui_napari_panel_cancel_running` (ui/napari) no case of cases.json sets cancel_after_s: a person presses Cancel during a long run

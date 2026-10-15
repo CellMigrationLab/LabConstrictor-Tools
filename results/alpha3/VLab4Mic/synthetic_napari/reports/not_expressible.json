@@ -1,0 +1,20 @@
+[
+  {
+    "case": 30,
+    "dataset": "vm_sim_wobble_too_big",
+    "tool": "simulate_sample",
+    "why": "value 60.0 is outside of the allowed range: (0.0, 45.0)"
+  },
+  {
+    "case": 31,
+    "dataset": "vm_sim_efficiency_negative",
+    "tool": "simulate_sample",
+    "why": "value -0.1 is outside of the allowed range: (0.0, 1.0)"
+  },
+  {
+    "case": 32,
+    "dataset": "vm_sim_too_many_particles",
+    "tool": "simulate_sample",
+    "why": "value 21 is outside of the allowed range: (1, 20)"
+  }
+]

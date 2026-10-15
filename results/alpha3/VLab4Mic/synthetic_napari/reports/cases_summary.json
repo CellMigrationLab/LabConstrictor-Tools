@@ -1,0 +1,313 @@
+[
+  {
+    "case": 0,
+    "dataset": "vm_identical",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 1,
+    "dataset": "vm_gain_offset",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 2,
+    "dataset": "vm_inverted",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 3,
+    "dataset": "vm_half_res_right_units",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 4,
+    "dataset": "vm_half_res_wrong_units",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 5,
+    "dataset": "vm_cal_none",
+    "tool": "compare_images",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'reference_pixel_size_um' needs a value: 'reference' has no pixel si"
+    ]
+  },
+  {
+    "case": 6,
+    "dataset": "vm_nan_simulated",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "bad_input",
+    "problems": []
+  },
+  {
+    "case": 7,
+    "dataset": "vm_nan_reference",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "bad_input",
+    "problems": []
+  },
+  {
+    "case": 8,
+    "dataset": "vm_flat_simulated",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "flat_image",
+    "problems": []
+  },
+  {
+    "case": 9,
+    "dataset": "vm_zero_simulated",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "flat_image",
+    "problems": []
+  },
+  {
+    "case": 10,
+    "dataset": "vm_flat_reference",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [
+      "status COMPLETE, expected FAILED: "
+    ]
+  },
+  {
+    "case": 11,
+    "dataset": "vm_zero_reference",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": [
+      "status COMPLETE, expected FAILED: "
+    ]
+  },
+  {
+    "case": 12,
+    "dataset": "vm_stack_cyx",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 13,
+    "dataset": "vm_stack_zyx",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 14,
+    "dataset": "vm_stack_tyx",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 15,
+    "dataset": "vm_rgb",
+    "tool": "compare_images",
+    "status": "FAILED",
+    "code": "wrong_dimensions",
+    "problems": []
+  },
+  {
+    "case": 16,
+    "dataset": "vm_pixel_zero",
+    "tool": "compare_images",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'reference_pixel_size_um' needs a value: 'reference' has no pixel si"
+    ]
+  },
+  {
+    "case": 17,
+    "dataset": "vm_pixel_negative",
+    "tool": "compare_images",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Reference pixel size um' must be >= 0 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 18,
+    "dataset": "vm_different_fields",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 19,
+    "dataset": "vm_stress_identical",
+    "tool": "compare_images",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 20,
+    "dataset": "vm_sim_sted",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 21,
+    "dataset": "vm_sim_widefield",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 22,
+    "dataset": "vm_sim_confocal",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 23,
+    "dataset": "vm_sim_airyscan",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 24,
+    "dataset": "vm_sim_smlm",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 25,
+    "dataset": "vm_sim_centred",
+    "tool": "simulate_sample",
+    "status": "COMPLETE",
+    "code": null,
+    "problems": []
+  },
+  {
+    "case": 26,
+    "dataset": "vm_sim_sample_too_small",
+    "tool": "simulate_sample",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Sample size XY' must be >= 100 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 27,
+    "dataset": "vm_sim_pixel_too_big",
+    "tool": "simulate_sample",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Pixel size' must be <= 1000 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 28,
+    "dataset": "vm_sim_seed_negative",
+    "tool": "simulate_sample",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Random seed' must be >= 0 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 29,
+    "dataset": "vm_sim_exposure_too_long",
+    "tool": "simulate_sample",
+    "status": "DRIVER_ERROR",
+    "code": null,
+    "problems": [
+      "status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: \u26a0 'Exposure time' must be <= 10 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    ]
+  },
+  {
+    "case": 30,
+    "dataset": "vm_sim_wobble_too_big",
+    "tool": "simulate_sample",
+    "status": "NOT_EXPRESSIBLE",
+    "why": "value 60.0 is outside of the allowed range: (0.0, 45.0)"
+  },
+  {
+    "case": 31,
+    "dataset": "vm_sim_efficiency_negative",
+    "tool": "simulate_sample",
+    "status": "NOT_EXPRESSIBLE",
+    "why": "value -0.1 is outside of the allowed range: (0.0, 1.0)"
+  },
+  {
+    "case": 32,
+    "dataset": "vm_sim_too_many_particles",
+    "tool": "simulate_sample",
+    "status": "NOT_EXPRESSIBLE",
+    "why": "value 21 is outside of the allowed range: (1, 20)"
+  },
+  {
+    "case": 33,
+    "dataset": "vm_sim_pixel_not_multiple",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "pixel_size_not_multiple",
+    "problems": []
+  },
+  {
+    "case": 34,
+    "dataset": "vm_structure_garbage",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "ValueError",
+    "problems": []
+  },
+  {
+    "case": 35,
+    "dataset": "vm_structure_empty",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "ValueError",
+    "problems": []
+  },
+  {
+    "case": 36,
+    "dataset": "vm_structure_missing",
+    "tool": "simulate_sample",
+    "status": "FAILED",
+    "code": "structure_unavailable",
+    "problems": []
+  }
+]

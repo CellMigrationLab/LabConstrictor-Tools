@@ -1,0 +1,24 @@
+{
+  "status": "COMPLETE",
+  "seconds": 3.02,
+  "error": null,
+  "code": null,
+  "status_text": "\u2714 done in 0.1s  ssim=0.8266, pearson=0.0033, reference_pixel_size_nm=20.0, simulated_pixel_size_nm=20.0",
+  "run_record": "/home/user/apps/a3_lc_home_VLab4Mic_synnap/runs/20261015T143916133828_VLab4Mic_compare_images",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "ssim": 0.826563,
+        "pearson": 0.003286,
+        "reference_pixel_size_nm": 20.0,
+        "simulated_pixel_size_nm": 20.0
+      }
+    }
+  ],
+  "host_observed": {
+    "reference_pixel_size_um": 0.02,
+    "simulated_pixel_size_um": 0.02
+  }
+}

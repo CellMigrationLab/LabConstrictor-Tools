@@ -1,0 +1,9 @@
+{
+  "status": "FAILED",
+  "seconds": 5.8,
+  "error": "[structure_unavailable] Could not get the structure 1XI5 (FileNotFoundError: [Errno 2] No such file or directory: '/home/user/wt3_napari/fixtures/no_such.cif'). The first use of a structure downloads it from RCSB: check the internet connection and try again.",
+  "code": "structure_unavailable",
+  "status_text": "\u2716 [structure_unavailable] Could not get the structure 1XI5 (FileNotFoundError: [Errno 2] No such file or directory: '/home/user/wt3_napari/fixtures/no_such.cif'). The first use of a structure downloads it from RCSB: check the internet connection and try again.  - click Details\u2026 for the full report (log: /home/user/apps/a3_lc_home_VLab4Mic_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a3_lc_home_VLab4Mic_synnap/runs/20261015T144143479586_VLab4Mic_simulate_sample",
+  "host_observed": {}
+}

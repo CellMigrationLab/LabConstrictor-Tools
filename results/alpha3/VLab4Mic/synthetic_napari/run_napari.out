@@ -1,0 +1,46 @@
+WARNING: could not determine DPI
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 000 COMPLETE   compare_images               OK
+CASE 001 COMPLETE   compare_images               OK
+CASE 002 COMPLETE   compare_images               OK
+CASE 003 COMPLETE   compare_images               OK
+CASE 004 COMPLETE   compare_images               OK
+CASE 005 DRIVER_ERROR compare_images               MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'reference_pixel_size_um' needs a value: 'reference' has no pixel si
+CASE 006 FAILED     compare_images               OK
+CASE 007 FAILED     compare_images               OK
+CASE 008 FAILED     compare_images               OK
+CASE 009 FAILED     compare_images               OK
+CASE 010 COMPLETE   compare_images               MISMATCH status COMPLETE, expected FAILED: 
+CASE 011 COMPLETE   compare_images               MISMATCH status COMPLETE, expected FAILED: 
+CASE 012 FAILED     compare_images               OK
+CASE 013 FAILED     compare_images               OK
+CASE 014 FAILED     compare_images               OK
+CASE 015 FAILED     compare_images               OK
+CASE 016 DRIVER_ERROR compare_images               MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'reference_pixel_size_um' needs a value: 'reference' has no pixel si
+CASE 017 DRIVER_ERROR compare_images               MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Reference pixel size um' must be >= 0 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 018 COMPLETE   compare_images               OK
+CASE 019 COMPLETE   compare_images               OK
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CASE 020 COMPLETE   simulate_sample              OK
+CASE 021 COMPLETE   simulate_sample              OK
+CASE 022 COMPLETE   simulate_sample              OK
+CASE 023 COMPLETE   simulate_sample              OK
+CASE 024 COMPLETE   simulate_sample              OK
+CASE 025 COMPLETE   simulate_sample              OK
+CASE 026 DRIVER_ERROR simulate_sample              MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Sample size XY' must be >= 100 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 027 DRIVER_ERROR simulate_sample              MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Pixel size' must be <= 1000 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 028 DRIVER_ERROR simulate_sample              MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Random seed' must be >= 0 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 029 DRIVER_ERROR simulate_sample              MISMATCH status DRIVER_ERROR, expected FAILED: AssertionError: Run did not start a task; status: ⚠ 'Exposure time' must be <= 10 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CASE 030 NOT_EXPRESSIBLE simulate_sample value 60.0 is outside of the allowed range: (0.0, 45.0)
+CASE 031 NOT_EXPRESSIBLE simulate_sample value -0.1 is outside of the allowed range: (0.0, 1.0)
+CASE 032 NOT_EXPRESSIBLE simulate_sample value 21 is outside of the allowed range: (1, 20)
+CASE 033 FAILED     simulate_sample              OK
+CASE 034 FAILED     simulate_sample              OK
+CASE 035 FAILED     simulate_sample              OK
+CASE 036 FAILED     simulate_sample              OK
+HOSTONLY vm_cal_um {'reference_pixel_size_um': 0.02, 'simulated_pixel_size_um': None}
+HOSTONLY vm_cal_nm {'reference_pixel_size_um': 0.02, 'simulated_pixel_size_um': None}
+HOSTONLY vm_cal_micro {'reference_pixel_size_um': 0.02, 'simulated_pixel_size_um': None}
+SUMMARY 37 cases, 9 differ from their own expectation, 3 not expressible in the form

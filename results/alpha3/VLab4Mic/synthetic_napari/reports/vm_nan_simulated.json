@@ -1,0 +1,12 @@
+{
+  "status": "FAILED",
+  "seconds": 3.03,
+  "error": "[bad_input] Simulated contains NaN or infinite values",
+  "code": "bad_input",
+  "status_text": "\u2716 [bad_input] Simulated contains NaN or infinite values  - click Details\u2026 for the full report (log: /home/user/apps/a3_lc_home_VLab4Mic_synnap/logs/labconstrictor.log)",
+  "run_record": "/home/user/apps/a3_lc_home_VLab4Mic_synnap/runs/20261015T143921046628_VLab4Mic_compare_images",
+  "host_observed": {
+    "reference_pixel_size_um": 0.02,
+    "simulated_pixel_size_um": 0.02
+  }
+}
