@@ -3,17 +3,13 @@
 You do not need to program. You install an app and a host (Napari, Fiji or QuPath), press the buttons, and tell us what happened.
 This page is the starting point; the long protocol ([HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md)) is the detail behind it.
 
-## 1. Pick what you test (see the [matrix](TEST_MATRIX.md))
-Ask the coordinator for a **packet ID** from the [assignment matrix](TEST_MATRIX.md#1-assignable-test-packets-coordinator-fills-this-table); do only the assigned app/host combinations. **Windows and macOS matter most:** the automated checks run on Linux, so only you can find install
-and window problems on your system. Intel Macs are not supported (tell us instead of testing).
+## 1. Choose your operating system and follow its checklist
 
-| Level | Time | What |
-|---|---|---|
-| **A. Smoke** | one app + one host | successful run, deliberate error and first-use feedback; install/setup time additional |
-| **B. Assigned packet** | see matrix | all cases and evidence belonging to your packet; reuse downloads and setup on the same machine |
-| **C. Advanced** | varies | maintainer-assigned destructive/interrupt/update scenarios only |
+You do not need to sign up for a separate host or work packet. **Choose [Windows, macOS or Linux in the testing table](TEST_MATRIX.md)**, write your initials next to the checks you perform, and report what worked and what did not. Ideally one person tests several apps on their own computer. Other volunteers may fill any remaining rows. You may stop and send partial results.
 
-Do the smoke path first. If a prerequisite fails, report **BLOCKED** for the steps it prevents; do not mark them N/A or PASS. Do not uninstall until the other testers on that machine finish, and collect any needed logs before uninstalling.
+**Use this sequence:** install an app → open its notebook or a host → run its built-in demo → try one intentional error → record PASS, FAIL, BLOCKED or NOT TESTED. **Do not uninstall until all testing on that computer is done.** A missing test dataset means BLOCKED for the data-dependent step, not a failure of the installation.
+
+**Data first:** [TEST_DATA.md](TEST_DATA.md) maps every test to the exact data it needs. Playground (P0), Guess the Condition (G0) and VLab4Mic (V0) can begin without downloaded TIFF files. NucleiSky's numerical matching check needs generated N1 TIFFs; CellTracksColab's full TrackMate notebook needs a validated C2 dataset, which has not yet been packaged.
 
 ## 2. Exact releases for this round (`alpha.3`)
 Only these versions; older ones or `main` are not a test of this round.
@@ -77,20 +73,23 @@ On Windows, use PowerShell with its Windows activation command instead of `sourc
 * **Linux:** `bash <installer>.sh -b -p ~/labconstrictor/<App>`; if Napari says `Could not load the Qt platform plugin "xcb"`, the `libxcb-*` packages are missing (write it down).
 * **All:** installing takes 6 to 8 minutes (PyTorch apps: longer, and about 25 GB of free disk for NucleiSky or Playground); the window can look idle.
 
-## 4. Smoke steps (only for your assigned app and host)
+## 4. Basic workflow for each app and host you choose
 1. **Install** the app (section 2 and 3). Check: `<APP_PY> -m labconstrictor_tools list` shows the app and `doctor` shows no cross
    (`<APP_PY>` is `<install folder>/bin/python` on Linux/macOS and `& "<install folder>\python.exe"` on Windows).   [S1 to S3]
-2. **Open the assigned host** and find the app in the list. Check it against the [matrix of who shows what](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix) (VLab4Mic is not in QuPath, CellTracksColab nowhere).   [D1]
+2. **Open your preferred host** and find the app in the list. Check it against the [matrix of who shows what](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix) (VLab4Mic is not in QuPath, CellTracksColab nowhere).   [D1]
 3. **Run one tool** from the app's file in [human_tests/](human_tests/) (choose the first successful run appropriate for **that** host) and compare with **Expect**.
 4. **Make one mistake on purpose** (the second test of the host section) and check that the message is understandable.
 5. **When your packet includes notebook checks, open the app's notebook** (menu entry or desktop shortcut of the app): JupyterLab opens, `Welcome` runs without a red error, and the main notebook works on its demo data. [NB1 to NB3, which notebooks: [matrix](TEST_MATRIX.md#2-installer-and-notebook-coverage)]
 6. **Close the host and shut down JupyterLab, if used.** Merely closing the browser tab does not stop Jupyter. Check that no app-owned worker or Jupyter server remains. Do not terminate unrelated Python processes. [E5, NB5]
-7. **Do not uninstall yet**, unless your packet is W-LIFECYCLE or M-LIFECYCLE. Preserve the installation for another host and the two-app coexistence checks. [U1, U2]
+7. **Do not uninstall yet**, until all the tests you plan on your computer are finished. Preserve the installation for another host and the two-app coexistence checks. [U1, U2]
 
-For each assigned test record PASS, FAIL, BLOCKED, N/A (with reason) or NOT RUN in your packet report. A FAIL needs: what you did, what you expected, what happened, a screenshot.
+For each test you attempt record PASS, FAIL, BLOCKED, N/A (with reason) or NOT RUN in your packet report. A FAIL needs: what you did, what you expected, what happened, a screenshot.
 **If something is unclear in these instructions, that is a documentation bug: tell us, it is not your mistake.**
 
 ## 5. Report back
-Use **one GitHub issue per assigned packet**, with the [short report template](TEST_MATRIX.md#4-copy-and-paste-report-template). Include your packet ID, machine ID, exact OS/host/app versions, test IDs and outcomes (PASS / FAIL / BLOCKED / N/A / NOT RUN), expected versus observed for failures, and one screenshot per failure. If useful, collect a support bundle *before* uninstalling (`<APP_PY> -m labconstrictor_tools support-bundle --out bundle.zip`); **inspect/redact it** before sharing. Do not submit a blank copy of the full protocol.
 
-Severity: **Blocker** (cannot install or start, data lost, or a wrong result with no warning) · **Major** (a feature does not work, or an error nobody can understand) · **Minor** (works but confusing) · **Cosmetic**.
+Fill the rightmost column of **your operating system's [testing table](TEST_MATRIX.md)** (PASS / FAIL / BLOCKED / NOT TESTED / N/A, with a brief note) and post **one report per person/OS** in [LabConstrictor-Tools issues](https://github.com/CellMigrationLab/LabConstrictor-Tools/issues/new). Include your initials, OS version/architecture, app and host versions, and any antivirus/proxy restrictions. For each FAIL include what you clicked, expected and observed, and a screenshot. For BLOCKED say what prerequisite or test data was missing. A simple passing demo does **not** require a support bundle.
+
+If useful, collect a support bundle before uninstalling (`<APP_PY> -m labconstrictor_tools support-bundle --out bundle.zip`), inspect it and remove anything sensitive before sharing. Don't upload private images or raw logs containing secrets.
+
+Severity: **Blocker** (cannot install or start, data lost, or an unwarned wrong scientific result) · **Major** (a feature does not work or error is incomprehensible) · **Minor** (works but confusing) · **Cosmetic**.
