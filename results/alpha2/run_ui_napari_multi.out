@@ -77,3 +77,10 @@ CHECK ui_napari_panel_copy_terminal_command PASS terminal line: run VLab4Mic sim
 CHECK ui_napari_panel_copy_python_snippet PASS Python snippet parses and holds the app, the tool and the case's text values (24 lines)
 CHECK ui_napari_panel_rescan_apps PASS registry read again; apps ['GuessTheCondition', 'VLab4Mic'] of the files ['GuessTheCondition', 'VLab4Mic'], choice kept
 CHECK ui_napari_panel_restart_worker PASS worker process 4507 ended after Restart worker
+CHECK ui_napari_panel_keep_the_worker_running PASS ticked (default): worker 4617 stayed alive; unticked: worker 5587 ended
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_app_chooser PASS apps and their tool counts: GuessTheCondition(6), VLab4Mic(2)
+CHECK ui_napari_panel_tool_chooser PASS 2 tools chosen, each gave its form and the description of the schema
+NOTE ui_napari_panel_cancel_running not run: [human] no case of cases.json sets cancel_after_s: a person presses Cancel during a long run
+NAPARI UI AUDIT SUMMARY failed=0

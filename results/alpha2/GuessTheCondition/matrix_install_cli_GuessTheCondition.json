@@ -1,0 +1,36 @@
+{
+ "host": "cli",
+ "app": "GuessTheCondition",
+ "family": "install",
+ "started": "2026-10-15T09:55:29",
+ "finished": "2026-10-15T09:55:29",
+ "expected": 0,
+ "rows": [
+  {
+   "id": "install_exit0",
+   "family": "install",
+   "host": "cli",
+   "app": "GuessTheCondition",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "exit=0 real\t0m52.797s",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T09:55:29"
+  },
+  {
+   "id": "uninstall_clean",
+   "family": "install",
+   "host": "cli",
+   "app": "GuessTheCondition",
+   "tool": "",
+   "control": "",
+   "status": "PASS",
+   "detail": "uninstall.sh exit 0, prefix removed=True, registry entries left=[]",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T09:55:29"
+  }
+ ]
+}

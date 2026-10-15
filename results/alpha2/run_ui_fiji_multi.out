@@ -1,0 +1,33 @@
+NOTE ui_fiji_parts not run: only ['panel'] ran (LC_UI_PARTS)
+NOTE ui_fiji_parts not run: only ['panel'] ran (LC_UI_PARTS)
+CHECK ui_fiji_multi_lists_GuessTheCondition PASS the chooser lists ['GuessTheCondition', 'VLab4Mic'] and offers all 6 tool(s) of 'GuessTheCondition': ['Analyse the results', 'Create a demo experiment', 'Show the conditions', 'Play a round', 'Prepare the game', 'Undo my last guess']
+CHECK ui_fiji_multi_switch_GuessTheCondition_VLab4Mic PASS choosing 'GuessTheCondition' offers ['Analyse the results', 'Create a demo experiment', 'Show the conditions', 'Play a round', 'Prepare the game', 'Undo my last guess'], choosing 'VLab4Mic' offers ['Compare an image with a reference', 'Simulate imaging of a virtual sample']
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+CHECK ui_fiji_panel_chooser_app PASS lists ['GuessTheCondition', 'VLab4Mic']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Analyse the results', 'Create a demo experiment', 'Show the conditions', 'Play a round', 'Prepare the game', 'Undo my last guess']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the app chooser opened 'LabConstrictor: GuessTheCondition'
+CHECK ui_fiji_form_create_demo_experiment_opens PASS 2 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_create_demo_experiment_controls PASS 3 control(s) activated and read back: file_browse, text_field
+CHECK ui_fiji_panel_form_cancel FAIL the summary does not say cancelled; a run started (status 'FAILED'); 1 run record(s) were created
+CHECK ui_fiji_panel_copy_terminal FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_copy_python FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_log FAIL not run: no tool completed a run, so there is no Log of a run to read
+CHECK ui_fiji_controls_all_known PASS 34 control(s) in 1 form(s) and 5 chooser(s), every one in the control table (20 kinds)
+CHECK ui_fiji_panel_form_ok FAIL not run: the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
+CHECK ui_fiji_multi_lists_VLab4Mic PASS the chooser lists ['GuessTheCondition', 'VLab4Mic'] and offers all 2 tool(s) of 'VLab4Mic': ['Compare an image with a reference', 'Simulate imaging of a virtual sample']
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+NOTE ui_fiji_panel_copy_empty not run: LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+CHECK ui_fiji_panel_chooser_app PASS lists ['GuessTheCondition', 'VLab4Mic']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Compare an image with a reference', 'Simulate imaging of a virtual sample']; the combo box, OK and Cancel are all it holds; each item selected and read back
+CHECK ui_fiji_panel_chooser_ok PASS OK on the app chooser opened 'LabConstrictor: VLab4Mic'
+CHECK ui_fiji_form_compare_images_opens PASS 4 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_compare_images_controls PASS 8 control(s) activated and read back: file_browse, image_choice, number_spinner, text_field
+CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_terminal FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_copy_python FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_log FAIL not run: no tool completed a run, so there is no Log of a run to read
+CHECK ui_fiji_controls_all_known PASS 40 control(s) in 1 form(s) and 5 chooser(s), every one in the control table (20 kinds)
+CHECK ui_fiji_panel_form_ok FAIL not run: the audit ended without producing this check (a crash, a timeout, or a step that was never reached)

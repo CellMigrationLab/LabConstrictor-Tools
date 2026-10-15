@@ -4,7 +4,7 @@
  "family": "ui",
  "host_version": "0.1.0a1",
  "started": "2026-10-15T09:47:00Z",
- "finished": null,
+ "finished": "2026-10-15T09:51:28Z",
  "expected": 22,
  "rows": [
   {
@@ -305,6 +305,58 @@
    "seconds": 0.54,
    "screenshot": null,
    "ts": "2026-10-15T09:50:55Z"
+  },
+  {
+   "id": "ui_napari_panel_keep_the_worker_running",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "",
+   "control": "keep_the_worker_running",
+   "status": "PASS",
+   "detail": "ticked (default): worker 4617 stayed alive; unticked: worker 5587 ended",
+   "seconds": 31.04,
+   "screenshot": null,
+   "ts": "2026-10-15T09:51:26Z"
+  },
+  {
+   "id": "ui_napari_panel_app_chooser",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "",
+   "control": "app_chooser",
+   "status": "PASS",
+   "detail": "apps and their tool counts: GuessTheCondition(6), VLab4Mic(2)",
+   "seconds": 1.05,
+   "screenshot": null,
+   "ts": "2026-10-15T09:51:27Z"
+  },
+  {
+   "id": "ui_napari_panel_tool_chooser",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "",
+   "control": "tool_chooser",
+   "status": "PASS",
+   "detail": "2 tools chosen, each gave its form and the description of the schema",
+   "seconds": 1.21,
+   "screenshot": null,
+   "ts": "2026-10-15T09:51:28Z"
+  },
+  {
+   "id": "ui_napari_panel_cancel_running",
+   "family": "ui",
+   "host": "napari",
+   "app": "VLab4Mic",
+   "tool": "",
+   "control": "cancel",
+   "status": "HUMAN",
+   "detail": "no case of cases.json sets cancel_after_s: a person presses Cancel during a long run",
+   "seconds": 0.0,
+   "screenshot": null,
+   "ts": "2026-10-15T09:51:28Z"
   }
  ]
 }
