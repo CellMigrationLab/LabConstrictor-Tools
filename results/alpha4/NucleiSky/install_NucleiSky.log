@@ -6,3 +6,9 @@ Installing base environment...
 
 Preparing transaction: ...working... done
 Executing transaction: ...working... done
+Thank you! You have successfully installed NucleiSky 0.1.4.
+
+real	3m20.293s
+user	1m15.836s
+sys	0m19.080s
+exit=0
