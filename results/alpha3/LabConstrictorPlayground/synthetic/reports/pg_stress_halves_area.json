@@ -1,0 +1,17 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.26,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132947770389_LabConstrictorPlayground_bright_area/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "bright_pixels": 4500000,
+        "pixel_size_um": 0.1,
+        "area_um2": 45000.0
+      }
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_pg/_jobs/048"
+}

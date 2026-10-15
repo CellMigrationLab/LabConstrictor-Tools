@@ -59,5 +59,37 @@
 
 | family | host | PASS | FAIL | NOT_RUN | HUMAN | NOTE | finished |
 |---|---|---|---|---|---|---|---|
-| sandbox | cli | 48 | 0 | 0 | 0 | 2 | NOT FINISHED |
+| sandbox | cli | 55 | 0 | 0 | 0 | 3 | 2026-10-15T13:24:09 |
+| alpha3 | napari | 15 | 0 | 0 | 0 | 0 | 2026-10-15T13:28:33Z |
+| synthetic | cli | 163 | 2 | 0 | 2 | 0 | 2026-10-15T13:29:55 |
+| ui | fiji | 3 | 0 | 0 | 0 | 0 | NOT FINISHED |
+| ui | napari | 64 | 4 | 0 | 14 | 0 | 2026-10-15T13:31:43Z |
+
+### LabConstrictorPlayground: FAIL (6)
+
+* `syn_pg_ramp_f32_p90_2_value:level_used` (synthetic/cli) level_used = 89.099853515625, expected 89.09999999999991 (tol 0.0001, rtol 0)
+* `syn_pg_make_three_channels_1_tiff_slice_means` (synthetic/cli) three_channels.tif: means [42.713, 20.0, 30.0], expected [10, 20, 30]
+* `ui_napari_run_look_inside_file` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
+* `ui_napari_form_summarise_table_controls` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
+* `ui_napari_run_align_centres` (ui/napari) AssertionError: prerequisite case 27 (bright_area) ended FAILED pixel_size_unknown, its expect says FAILED invalid_pixel_size | ✖ [pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.  - click Details… for the full report (log: /home/user/apps/a3_lc_home_Playground/logs/labconstrictor.log)
+* `ui_napari_screens_align_centres` (ui/napari) AssertionError: align_centres_form.png does not exist; align_centres_after_run.png does not exist
+
+### LabConstrictorPlayground: HUMAN (16)
+
+* `syn_pg_channels_cyx_note` (synthetic/cli) has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
+* `syn_pg_rgb_note` (synthetic/cli) has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
+* `ui_napari_run_stress_big_image` (ui/napari) stress_big_image is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_big_image` (ui/napari) stress_big_image is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_big_image_form.png was taken
+* `ui_napari_run_stress_crash` (ui/napari) stress_crash is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_crash` (ui/napari) stress_crash is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_crash_form.png was taken
+* `ui_napari_run_stress_hang` (ui/napari) stress_hang is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_hang` (ui/napari) stress_hang is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_hang_form.png was taken
+* `ui_napari_run_stress_many_points` (ui/napari) stress_many_points is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_many_points` (ui/napari) stress_many_points is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_many_points_form.png was taken
+* `ui_napari_run_stress_out_of_memory` (ui/napari) stress_out_of_memory is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_out_of_memory` (ui/napari) stress_out_of_memory is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_out_of_memory_form.png was taken
+* `ui_napari_run_stress_real_memory` (ui/napari) stress_real_memory is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_real_memory` (ui/napari) stress_real_memory is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_real_memory_form.png was taken
+* `ui_napari_run_stress_slow` (ui/napari) stress_slow is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_slow` (ui/napari) stress_slow is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_slow_form.png was taken
 

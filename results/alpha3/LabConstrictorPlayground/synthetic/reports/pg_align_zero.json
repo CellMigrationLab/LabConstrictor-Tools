@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.19,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132932150362_LabConstrictorPlayground_align_centres/run.json",
+  "error": "[no_signal] The image has no signal (its sum is not above 0), so it has no centre.",
+  "code": "no_signal",
+  "log": "/home/user/apps/a3_lc_home_Playground_syn/logs/labconstrictor.log"
+}

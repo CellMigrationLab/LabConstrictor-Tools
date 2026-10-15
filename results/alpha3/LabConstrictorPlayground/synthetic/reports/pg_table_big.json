@@ -1,0 +1,22 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.65,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132949544427_LabConstrictorPlayground_summarise_table/run.json",
+  "results": [
+    {
+      "type": "table",
+      "name": "summary",
+      "path": "/home/user/a3/syn_scratch_pg/_jobs/051/summary.csv"
+    },
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "rows": 100000,
+        "columns": 3,
+        "numeric_columns": 3
+      }
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_pg/_jobs/051"
+}

@@ -1,0 +1,14 @@
+PREFIX=/home/user/apps/Playground
+Unpacking bootstrapper...
+Unpacking payload...
+
+Installing base environment...
+
+Preparing transaction: ...working... done
+Executing transaction: ...working... done
+Thank you! You have successfully installed LabConstrictorPlayground 0.0.5.
+
+real	1m37.810s
+user	0m58.401s
+sys	0m18.410s
+exit=0

@@ -1,0 +1,18 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.18,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132951775065_LabConstrictorPlayground_look_inside_file/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "file": "pg_file_text_crlf.txt",
+        "bytes": 18,
+        "kind": "text",
+        "lines": 3
+      }
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_pg/_jobs/056"
+}

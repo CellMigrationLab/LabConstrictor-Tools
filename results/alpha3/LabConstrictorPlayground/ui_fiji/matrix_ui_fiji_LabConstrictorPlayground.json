@@ -1,0 +1,54 @@
+{
+ "host": "fiji",
+ "app": "LabConstrictorPlayground",
+ "family": "ui",
+ "host_version": "v0.1.0-alpha.3",
+ "started": "2026-10-15T13:31:45",
+ "finished": null,
+ "expected": 80,
+ "parts": [
+  "panel",
+  "tools"
+ ],
+ "rows": [
+  {
+   "id": "ui_fiji_panel_chooser_cancel",
+   "family": "ui",
+   "host": "fiji",
+   "app": "LabConstrictorPlayground",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record",
+   "seconds": 21.63,
+   "screenshot": null,
+   "ts": "2026-10-15T13:32:25"
+  },
+  {
+   "id": "ui_fiji_panel_copy_empty",
+   "family": "ui",
+   "host": "fiji",
+   "app": "LabConstrictorPlayground",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "with no earlier run the entry says 'nothing to copy yet' and copies nothing",
+   "seconds": 20.43,
+   "screenshot": null,
+   "ts": "2026-10-15T13:32:45"
+  },
+  {
+   "id": "ui_fiji_panel_menu",
+   "family": "ui",
+   "host": "fiji",
+   "app": "LabConstrictorPlayground",
+   "tool": null,
+   "control": null,
+   "status": "PASS",
+   "detail": "Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)",
+   "seconds": 20.43,
+   "screenshot": null,
+   "ts": "2026-10-15T13:32:45"
+  }
+ ]
+}

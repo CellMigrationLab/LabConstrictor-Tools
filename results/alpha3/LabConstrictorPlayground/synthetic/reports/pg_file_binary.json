@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.17,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132952950200_LabConstrictorPlayground_look_inside_file/run.json",
+  "error": "[not_text] 'pg_file_binary.bin' is not a UTF-8 text file.",
+  "code": "not_text",
+  "log": "/home/user/apps/a3_lc_home_Playground_syn/logs/labconstrictor.log"
+}

@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.7,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132917927745_LabConstrictorPlayground_feature_tour/run.json",
+  "error": "[no_result] No blob found (threshold 1.00, at least 500 pixels): lower the threshold or the minimum size.",
+  "code": "no_result",
+  "log": "/home/user/apps/a3_lc_home_Playground_syn/logs/labconstrictor.log"
+}

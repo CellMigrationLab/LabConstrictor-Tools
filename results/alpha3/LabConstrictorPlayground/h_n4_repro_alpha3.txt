@@ -1,0 +1,3 @@
+TOOLS 17
+ERRORS 0
+VISIBLE TOP-LEVEL Counter({'_QtMainWindow': 1})

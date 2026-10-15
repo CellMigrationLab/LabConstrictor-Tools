@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 1.07,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132954235173_LabConstrictorPlayground_make_test_data/run.json",
+  "error": "[folder_not_found] 'Folder': folder not found: fixtures/does_not_exist",
+  "code": "folder_not_found",
+  "log": "/home/user/apps/a3_lc_home_Playground_syn/logs/labconstrictor.log"
+}

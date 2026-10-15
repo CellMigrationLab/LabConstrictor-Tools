@@ -1,0 +1,22 @@
+WARNING: could not determine DPI
+CHECK a3_napari_tools_listed PASS 17 tool(s) in the chooser, 17 in the schema
+CHECK a3_napari_capture_selftest PASS a deliberately failing signal callback was captured by the capture (1 line(s))
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK a3_napari_switch_no_exceptions PASS 17 tool(s) x 10 round(s) there and back (340 form switches), every radio/check flipped: no exception on stderr/excepthook/Qt (2 unrelated line(s))
+CHECK a3_napari_no_stray_radio_windows PASS no stray top-level radio button windows after the switching
+CHECK a3_napari_group_headings_align_centres PASS headings ['Images']; after visiting 2 other tool(s) and back ['Images']; expected ['Images']
+CHECK a3_napari_group_headings_bright_area PASS headings ['Image']; after visiting 2 other tool(s) and back ['Image']; expected ['Image']
+CHECK a3_napari_group_headings_check_everything PASS headings ['Checks']; after visiting 2 other tool(s) and back ['Checks']; expected ['Checks']
+CHECK a3_napari_group_headings_count_above_level PASS headings ['Image', 'Level']; after visiting 2 other tool(s) and back ['Image', 'Level']; expected ['Image', 'Level']
+CHECK a3_napari_group_headings_feature_tour PASS headings ['Image', 'Segmentation', 'Extras']; after visiting 2 other tool(s) and back ['Image', 'Segmentation', 'Extras']; expected ['Image', 'Segmentation', 'Extras']
+CHECK a3_napari_group_headings_look_inside_file PASS headings ['File']; after visiting 2 other tool(s) and back ['File']; expected ['File']
+CHECK a3_napari_group_headings_make_test_data PASS headings ['Data']; after visiting 2 other tool(s) and back ['Data']; expected ['Data']
+CHECK a3_napari_group_headings_run_on_device PASS headings ['Test']; after visiting 2 other tool(s) and back ['Test']; expected ['Test']
+CHECK a3_napari_group_headings_summarise_table PASS headings ['Table']; after visiting 2 other tool(s) and back ['Table']; expected ['Table']
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK a3_napari_rgb_channel_chooser_feature_tour_image PASS chose the inserted RGB layer: Red/Green/Blue (visible), unchanged 2 s later, after another layer was inserted and removed, each colour kept, again after a tool switch (grayscale layer chosen before: ['']; value of the chooser right after the insertion alone: gray_probe, choices [''])
+CHECK a3_napari_pixel_zero_bright_area PASS image with a 0.5 um scale chosen: box '0.5'; after typing 0 + Enter into pixel_size the status line says "0 means: use the image's calibration"; the box then shows '0.5'

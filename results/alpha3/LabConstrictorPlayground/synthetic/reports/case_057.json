@@ -1,0 +1,18 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.2,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132952079421_LabConstrictorPlayground_look_inside_file/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "file": "pg_file_empty.txt",
+        "bytes": 0,
+        "kind": "text",
+        "lines": 0
+      }
+    }
+  ],
+  "job_dir": "/home/user/a3/syn_scratch_pg/_jobs/057"
+}

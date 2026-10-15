@@ -1,0 +1,3 @@
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_empty PASS with no earlier run the entry says 'nothing to copy yet' and copies nothing
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)

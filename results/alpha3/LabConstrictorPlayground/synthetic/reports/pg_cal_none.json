@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.22,
+  "run_record": "/home/user/apps/a3_lc_home_Playground_syn/runs/20261015T132928500047_LabConstrictorPlayground_bright_area/run.json",
+  "error": "[pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.",
+  "code": "pixel_size_unknown",
+  "log": "/home/user/apps/a3_lc_home_Playground_syn/logs/labconstrictor.log"
+}
