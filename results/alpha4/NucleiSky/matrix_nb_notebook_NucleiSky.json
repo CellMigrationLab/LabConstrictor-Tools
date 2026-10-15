@@ -2,7 +2,7 @@
  "host": "notebook",
  "app": "NucleiSky",
  "family": "nb",
- "started": "2026-10-15T18:54:29",
+ "started": "2026-10-15T19:01:57",
  "finished": null,
  "expected": 65,
  "rows": [
@@ -17,7 +17,7 @@
    "detail": "the source checkout is at the release tag 0.1.4",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:29"
+   "ts": "2026-10-15T19:01:57"
   },
   {
    "id": "nb_NucleiSky_notebooks_inventory",
@@ -30,7 +30,7 @@
    "detail": "7 notebooks installed, the same as construct.yaml lists: NucleiSky2DApp, NucleiSky2DBenchmarking, NucleiSky2D_API_Workflow_Example, NucleiSky3DApp, NucleiSky3DBenchmarking, NucleiSky3D_API_Workflow_Example, Welcome",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:29"
+   "ts": "2026-10-15T19:01:57"
   },
   {
    "id": "nb_NucleiSky_Welcome_packaged",
@@ -43,7 +43,7 @@
    "detail": "2 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:30"
+   "ts": "2026-10-15T19:01:59"
   },
   {
    "id": "nb_NucleiSky_Welcome_valid",
@@ -56,7 +56,7 @@
    "detail": "nbformat 4.5 valid; kernelspec 'python3' resolves to /home/user/apps/NucleiSky/bin/python (spec dir /home/user/apps/NucleiSky/share/jupyter/kernels/python3); app interpreter /home/user/apps/NucleiSky/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:30"
+   "ts": "2026-10-15T19:01:59"
   },
   {
    "id": "nb_NucleiSky_Welcome_imports",
@@ -67,9 +67,9 @@
    "control": "",
    "status": "PASS",
    "detail": "12 imports resolved in /home/user/apps/NucleiSky/bin/python",
-   "seconds": 0.35,
+   "seconds": 0.3,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:31"
+   "ts": "2026-10-15T19:01:59"
   },
   {
    "id": "nb_NucleiSky_Welcome_kernel",
@@ -82,7 +82,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/NucleiSky/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:32"
+   "ts": "2026-10-15T19:02:00"
   },
   {
    "id": "nb_NucleiSky_Welcome_welcome_branch",
@@ -95,7 +95,7 @@
    "detail": "GitHub answered 200: the table is shown directly",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_oracle_welcome_rows",
@@ -108,7 +108,7 @@
    "detail": "the table has a row for each of the 6 notebooks the app ships (NucleiSky2DApp, NucleiSky2DBenchmarking, NucleiSky2D_API_Workflow_Example, NucleiSky3DApp, NucleiSky3DBenchmarking, NucleiSky3D_API_Workflow_Example)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_welcome_status",
@@ -121,7 +121,7 @@
    "detail": "status cells: ['Up-to-date', 'Up-to-date', 'Up-to-date', 'Up-to-date', 'Up-to-date', 'Up-to-date']",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_oracle_welcome_open_buttons",
@@ -134,7 +134,7 @@
    "detail": "6 open buttons for 6 notebooks",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_oracle_welcome_open_targets",
@@ -147,7 +147,7 @@
    "detail": "open buttons target ['notebooks/NucleiSky2DApp/NucleiSky2DApp.ipynb', 'notebooks/NucleiSky2DBenchmarking/NucleiSky2DBenchmarking.ipynb', 'notebooks/NucleiSky2D_API_Workflow_Example/NucleiSky2D_API_Workflow_Example.ipynb', 'notebooks/NucleiSky3DApp/NucleiSky3DApp.ipynb', 'notebooks/NucleiSky3DBenchmarking/NucleiSky3DBenchmarking.ipynb', 'notebooks/NucleiSky3D_API_Workflow_Example/NucleiSky3D_API_Wo",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_welcome_update",
@@ -160,7 +160,7 @@
    "detail": "no Update button: every notebook is up to date or GitHub was not reachable",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_runs",
@@ -171,9 +171,9 @@
    "control": "",
    "status": "PASS",
    "detail": "4 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /home/user/results/alpha4/NucleiSky/executed/Welcome.ipynb",
-   "seconds": 2.56,
+   "seconds": 2.25,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_oracle",
@@ -186,7 +186,7 @@
    "detail": "3 outcome assertions passed",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_net_0",
@@ -199,7 +199,7 @@
    "detail": "get https://api.github.com/repos/CellMigrationLab/NucleiSky/contents/notebooks/notebook_latest_versions.yaml?ref=main -> 200 (size 1553 bytes)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_net_1",
@@ -212,7 +212,7 @@
    "detail": "get https://api.github.com/repos/CellMigrationLab/NucleiSky/contents/construct.yaml?ref=main -> 200 (size 13529 bytes)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_net_2",
@@ -225,7 +225,7 @@
    "detail": "get https://api.github.com/repos/CellMigrationLab/NucleiSky/contents/.tools/meta/src_change.yaml?ref=main -> 200 (size 994 bytes)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_sideeffects",
@@ -238,7 +238,7 @@
    "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/NucleiSky/NucleiSky: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: DNS 127.0.0.1; HTTP get https://api.github.c (full: /home/user/results/alpha4/NucleiSky/sideeffects_Welcome.txt)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:33"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_downloads",
@@ -251,7 +251,7 @@
    "detail": "scratch home held 2.2 MB after the run (cap 300 MB); deleted afterwards, small text files kept",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:34"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_Welcome_noleak",
@@ -264,7 +264,7 @@
    "detail": "no kernel process of this notebook is left",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:34"
+   "ts": "2026-10-15T19:02:01"
   },
   {
    "id": "nb_NucleiSky_NucleiSky2DApp_packaged",
@@ -277,7 +277,7 @@
    "detail": "17 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:35"
+   "ts": "2026-10-15T19:02:03"
   },
   {
    "id": "nb_NucleiSky_NucleiSky2DApp_valid",
@@ -290,7 +290,7 @@
    "detail": "nbformat 4.0 valid; kernelspec 'python3' resolves to /home/user/apps/NucleiSky/bin/python (spec dir /home/user/apps/NucleiSky/share/jupyter/kernels/python3); app interpreter /home/user/apps/NucleiSky/bin/python",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:35"
+   "ts": "2026-10-15T19:02:03"
   },
   {
    "id": "nb_NucleiSky_NucleiSky2DApp_imports",
@@ -301,9 +301,9 @@
    "control": "",
    "status": "PASS",
    "detail": "22 imports resolved in /home/user/apps/NucleiSky/bin/python; optional or Colab-only unresolved: google.colab (colab): ModuleNotFoundError: No module named 'google'",
-   "seconds": 4.44,
+   "seconds": 4.02,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:40"
+   "ts": "2026-10-15T19:02:07"
   },
   {
    "id": "nb_NucleiSky_NucleiSky2DApp_kernel",
@@ -316,7 +316,7 @@
    "detail": "live kernel 'python3' runs /home/user/apps/NucleiSky/bin/python (the app's interpreter)",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:50"
+   "ts": "2026-10-15T19:02:16"
   },
   {
    "id": "nb_NucleiSky_NucleiSky2DApp_click_load_status",
@@ -329,7 +329,7 @@
    "detail": "status_html:  |       |        Ready  |         Success!  Using specified output directory: /home/user/results/alpha4/NucleiSky/home_NucleiSky2DApp/work/ns2d/out Full: 0.6500 \u00b5m/px (metadata) Crop: 0.6500 \u00b5m/px (metadata)  |       |",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:53"
+   "ts": "2026-10-15T19:02:20"
   },
   {
    "id": "nb_NucleiSky_NucleiSky2DApp_click_segment_status",
@@ -342,7 +342,7 @@
    "detail": "seg_status:  Segmentation complete.",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:55"
+   "ts": "2026-10-15T19:02:21"
   },
   {
    "id": "nb_NucleiSky_NucleiSky2DApp_click_segment_deep_learning",
@@ -355,384 +355,7 @@
    "detail": "Cellpose and InstanSeg segmentation need model files (download) and a GPU for useful speed: not run, the threshold method is used",
    "seconds": 0.0,
    "screenshot": null,
-   "ts": "2026-10-15T18:54:55"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_click_match_status",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "matcher_status:  Matching  complete.",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:30"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_click_adaptive_status",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "status_log:  \u2705  Success!  Adaptive search complete. Best Inlier Score:  0.91  Results saved to:  adaptive",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:36"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_click_apply_transform_found",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "transform files under RESULT_DIR: ['graph_transform_original.json', 'quad_transform_original.json', 'triangles_transform_original.json', 'adaptive_best_transform_original.json']",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:36"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_click_apply_status",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "status_html:  |       |        Export complete  |        Export complete. 1 item(s) written.  |       |",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:36"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_runs",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "13 cells and stages executed; failing cells: none; failing click stages/assertions: none; executed notebook: /home/user/results/alpha4/NucleiSky/executed/NucleiSky2DApp.ipynb",
-   "seconds": 58.27,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_oracle_inputs_metadata",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "inputs_metadata.json: {'pixel_size_full': 0.6499999999999999, 'pixel_size_crop': 0.6499999999999999, 'mode': 'external'} (expected both pixel sizes 0.65 um from the TIFF tags, mode external)",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_oracle_matching_transform_json",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "saved transform adaptive_best_transform_original.json (1810 bytes)",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_oracle_matching_scale",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "scale 1.0007413310263948, expected 1.000 (the crop was cut at the same pixel size)",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_oracle_matching_translation",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "FAIL",
-   "detail": "translation None has length nan um, expected 379.01 um (offset of the cut times the pixel size, +/- 2.0)",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_oracle_export_files",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "1 files exported by Step 3: ['aligned_on_full_px.tif']",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_oracle",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "FAIL",
-   "detail": "failing: oracle_matching_translation",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_sideeffects",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "NOTE",
-   "detail": "app folder created 0, changed 0, removed 0 files; app folder /home/user/apps/NucleiSky/NucleiSky: created none; changed none; removed none | writes under the prefix or the original home seen by the audit hook: none | network: no lookups; HTTP none | subprocesses: 1 (['l (full: /home/user/results/alpha4/NucleiSky/sideeffects_NucleiSky2DApp.txt)",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_downloads",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "NOTE",
-   "detail": "scratch home held 35.8 MB after the run (cap 300 MB); deleted afterwards, small text files kept",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DApp_noleak",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DApp",
-   "control": "",
-   "status": "PASS",
-   "detail": "no kernel process of this notebook is left",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:38"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_packaged",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "PASS",
-   "detail": "16 cells, types and sources equal to the release (installer rewrites outputs and metadata only)",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:40"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_valid",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "PASS",
-   "detail": "nbformat 4.4 valid; kernelspec 'python3' resolves to /home/user/apps/NucleiSky/bin/python (spec dir /home/user/apps/NucleiSky/share/jupyter/kernels/python3); app interpreter /home/user/apps/NucleiSky/bin/python",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:40"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_imports",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "PASS",
-   "detail": "29 imports resolved in /home/user/apps/NucleiSky/bin/python; optional or Colab-only unresolved: google.colab (colab): ModuleNotFoundError: No module named 'google'",
-   "seconds": 3.76,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_edit_cell_8",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "cell 8 edited as a user would, before running: 'patch_sizes_px=[50, 75, 100, 128, 192, 256, 320, 384, 448, 512]' replaced by 'patch_sizes_px=[128, 256]'",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_edit_cell_8",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "cell 8 edited as a user would, before running: 'patches_per_size=50' replaced by 'patches_per_size=3'",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_edit_cell_8",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "cell 8 edited as a user would, before running: 'matchers=(\"graph\", \"quad\", \"triangles\", \"hashing\", \"adaptive\")' replaced by 'matchers=(\"graph\", \"quad\")'",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_edit_cell_13",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "cell 13 edited as a user would, before running: 'PATCHES_PER_SIZE = 20' replaced by 'PATCHES_PER_SIZE = 2'",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_edit_cell_13",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "cell 13 edited as a user would, before running: 'MIN_CLEAN_NUCLEI_PER_PATCH = 50' replaced by 'MIN_CLEAN_NUCLEI_PER_PATCH = 10'",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_edit_cell_13",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "cell 13 edited as a user would, before running: 'MATCHERS = (\"quad\", \"triangles\", \"hashing\")' replaced by 'MATCHERS = (\"quad\",)'",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_edit_cell_13",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "cell 13 edited as a user would, before running: 'MISSED_NUCLEI_PCT = [0, 10, 20, 40, 60, 80, 90, 95]' replaced by 'MISSED_NUCLEI_PCT = [0, 20]'",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_edit_cell_13",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "cell 13 edited as a user would, before running: 'EXTRA_DETECTIONS_PCT = [0, 10, 25, 50, 100, 200, 500, 1000]' replaced by 'EXTRA_DETECTIONS_PCT = [0, 50]'",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:44"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_kernel",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "PASS",
-   "detail": "live kernel 'python3' runs /home/user/apps/NucleiSky/bin/python (the app's interpreter)",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:53"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_click_load_status",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "PASS",
-   "detail": "status_html:  |       |      Success!  Working Directory: out Path: /home/user/results/alpha4/NucleiSky/home_NucleiSky2DBenchmarking/work/ns2d/out Full: 0.6500 \u00b5m/px (metadata)",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:57"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_click_segment",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "FAIL",
-   "detail": "KeyError: 'seg_status'",
-   "seconds": 1.18,
-   "screenshot": null,
-   "ts": "2026-10-15T18:55:58"
-  },
-  {
-   "id": "nb_NucleiSky_NucleiSky2DBenchmarking_click_reload_seg",
-   "family": "nb",
-   "host": "notebook",
-   "app": "NucleiSky",
-   "tool": "NucleiSky2DBenchmarking",
-   "control": "",
-   "status": "NOTE",
-   "detail": "pressed Load results with the default folder the notebook proposes",
-   "seconds": 0.0,
-   "screenshot": null,
-   "ts": "2026-10-15T18:57:40"
+   "ts": "2026-10-15T19:02:21"
   }
  ]
 }
