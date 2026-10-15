@@ -79,7 +79,7 @@ On Windows, use PowerShell with its Windows activation command instead of `sourc
 2. **Open your preferred host** and find the app in the list. Check it against the [matrix of who shows what](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix) (VLab4Mic is not in QuPath, CellTracksColab nowhere).   [D1]
 3. **Run one tool** from the app's file in [human_tests/](human_tests/) (choose the first successful run appropriate for **that** host) and compare with **Expect**.
 4. **Make one mistake on purpose** (the second test of the host section) and check that the message is understandable.
-5. **When your packet includes notebook checks, open the app's notebook** (menu entry or desktop shortcut of the app): JupyterLab opens, `Welcome` runs without a red error, and the main notebook works on its demo data. [NB1 to NB3, which notebooks: [matrix](TEST_MATRIX.md#2-installer-and-notebook-coverage)]
+5. **When your packet includes notebook checks, open the app's notebook** (menu entry or desktop shortcut of the app): JupyterLab opens, `Welcome` runs without a red error, and the main notebook works on its demo data. [NB1 to NB3, which notebooks: [matrix](TEST_MATRIX.md#5-data-at-a-glance)]
 6. **Close the host and shut down JupyterLab, if used.** Merely closing the browser tab does not stop Jupyter. Check that no app-owned worker or Jupyter server remains. Do not terminate unrelated Python processes. [E5, NB5]
 7. **Do not uninstall yet**, until all the tests you plan on your computer are finished. Preserve the installation for another host and the two-app coexistence checks. [U1, U2]
 
