@@ -12,8 +12,7 @@ Run every test in **each host you were asked to test**; the *Do* is the same, th
 Two sources. (a) The tool **Make test data** (folder: a new empty folder `<TESTDATA>`; kind `all`; size 64). Terminal:
 `<APP_PY> -m labconstrictor_tools run LabConstrictorPlayground make_test_data folder=<TESTDATA> kind=all size=64`.
 (b) The app's own fixtures: download the source archive of the Playground release in the record sheet,
-`https://github.com/CellMigrationLab/LabConstrictor-Playground/archive/refs/tags/<PG_TAG>.zip`, unzip it and use the folder `lc_tests/fixtures/data` (called `<FIXTURES>` below; whether
-every release tag carries it: not verified, it exists on `main`).
+`https://github.com/CellMigrationLab/LabConstrictor-Playground/archive/refs/tags/<PG_TAG>.zip`, unzip it and use the folder `lc_tests/fixtures/data` (called `<FIXTURES>` below; the referenced fixtures exist in the verified `0.0.5` tag). See the [test-data guide](../TEST_DATA.md#data-p1-playground-source-fixtures).
 
 **Expect:** (a) `<TESTDATA>` holds `three_channels.tif` (a 3-channel image whose channels have the means 10, 20 and 30), `rgb.tif`, `labels.tif`, `timelapse.tif` and `points.csv`.
 (b) `<FIXTURES>` holds `demo_blobs.tif` (16 round blobs), `square_a.tif` and `square_b.tif` (a 4 x 4 square of 255 in a 32 x 32 image), `top_half_region.tif`, `empty_region.tif`, `wrong_size_region.tif`, `settings.json`, `notes.txt`, `measurements.csv`.
