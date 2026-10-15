@@ -1,0 +1,1 @@
+negative control: detector counts 1 for a deliberately shown parentless QRadioButton

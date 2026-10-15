@@ -1,0 +1,21 @@
+CASE 000 COMPLETE compare_images               OK [vm_identical] the same 160x160 spot image twice, 20 nm per 
+CASE 001 COMPLETE compare_images               OK [vm_gain_offset] the image times 3 plus 100 (a brighter, off
+CASE 002 COMPLETE compare_images               OK [vm_inverted] the inverted image (4000 minus the image)
+CASE 003 COMPLETE compare_images               OK [vm_half_res_right_units] the same field with 2x2 blocks ave
+CASE 004 COMPLETE compare_images               OK [vm_half_res_wrong_units] the same two files with the pixel 
+CASE 005 FAILED   compare_images               OK [vm_cal_none] no calibration in the file
+CASE 006 FAILED   compare_images               OK [vm_nan_simulated] the simulated image holds a NaN
+CASE 007 FAILED   compare_images               OK [vm_nan_reference] the reference image holds a NaN
+CASE 008 FAILED   compare_images               OK [vm_flat_simulated] the simulated image is flat (100 everywh
+CASE 009 FAILED   compare_images               OK [vm_zero_simulated] the simulated image is all zero
+CASE 010 FAILED   compare_images               OK [vm_flat_reference] the REFERENCE image is flat
+CASE 011 FAILED   compare_images               OK [vm_zero_reference] the REFERENCE image is all zero
+CASE 012 FAILED   compare_images               OK [vm_stack_cyx] a CYX stack as the simulated image
+CASE 013 FAILED   compare_images               OK [vm_stack_zyx] a ZYX stack as the simulated image
+CASE 014 FAILED   compare_images               OK [vm_stack_tyx] a TYX stack as the simulated image
+CASE 015 FAILED   compare_images               OK [vm_rgb] an RGB image as the simulated image
+CASE 016 FAILED   compare_images               OK [vm_pixel_zero] pixel size 0
+CASE 017 FAILED   compare_images               OK [vm_pixel_negative] pixel size -0.02 (declared minimum 0)
+CASE 018 COMPLETE compare_images               OK [vm_different_fields] two unrelated images of different size
+CASE 019 COMPLETE compare_images               OK [vm_stress_identical] stress: the same 2500x2500 uint16 imag
+CASE 020 COMPLETE simulate_sample              OK [vm_sim_sted] STED, structure file mini_ring.cif, sample 100

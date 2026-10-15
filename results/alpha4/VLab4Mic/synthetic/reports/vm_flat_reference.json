@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "seconds": 0.19,
+  "run_record": "/home/user/apps/a4_lc_home_VLab4Mic/runs/20261015T180603729608_VLab4Mic_compare_images/run.json",
+  "error": "[flat_image] The reference image has the same value everywhere: similarity cannot be measured.",
+  "code": "flat_image",
+  "log": "/home/user/apps/a4_lc_home_VLab4Mic/logs/labconstrictor.log"
+}

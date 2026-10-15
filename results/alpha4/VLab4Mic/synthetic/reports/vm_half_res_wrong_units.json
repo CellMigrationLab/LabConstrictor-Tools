@@ -1,0 +1,18 @@
+{
+  "status": "COMPLETE",
+  "seconds": 0.94,
+  "run_record": "/home/user/apps/a4_lc_home_VLab4Mic/runs/20261015T180601932443_VLab4Mic_compare_images/run.json",
+  "results": [
+    {
+      "type": "values",
+      "name": "values",
+      "values": {
+        "ssim": 0.826563,
+        "pearson": 0.003286,
+        "reference_pixel_size_nm": 20.0,
+        "simulated_pixel_size_nm": 20.0
+      }
+    }
+  ],
+  "job_dir": "/home/user/a4/syn_scratch_vm/_jobs/004"
+}

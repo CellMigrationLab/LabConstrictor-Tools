@@ -11,3 +11,12 @@ CHECK ui_fiji_run_compare_images PASS status COMPLETE; every declared result sho
 CHECK ui_fiji_panel_log PASS the Log window holds the run's command line and Python snippet, equal to the saved last command
 CHECK ui_fiji_panel_form_ok PASS a real click on OK closed the form and the plugin ran the tool (status COMPLETE)
 CHECK ui_fiji_screens_compare_images PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_form_simulate_sample_opens PASS 38 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_simulate_sample_controls PASS 62 control(s) activated and read back: choice_combo, file_browse, flag_checkbox, number_spinner, set_checkbox, slider, text_field
+CHECK ui_fiji_run_simulate_sample PASS status COMPLETE; every declared result shown (simulated:image, noiseless:image, values:values); inputs from case {"random_seed": 1}
+CHECK ui_fiji_screens_simulate_sample PASS the form and after-run screenshots exist, are fresh and plausible (evidence for a person, not a check of the picture)
+CHECK ui_fiji_panel_copy_terminal PASS the clipboard holds the terminal line of the last run (VLab4Mic: simulate_sample), equal to the saved command
+CHECK ui_fiji_panel_copy_python PASS the clipboard holds the Python snippet of the last run (VLab4Mic: simulate_sample), equal to the saved command
+NOTE ui_fiji_fj1b_cancel_form not run: no tool of this app has a required file/folder/table input on a form of several parameters: nothing to cancel with an empty required path
+CHECK ui_fiji_fj1b_missing_image_compare_images PASS no image open, OK on the untouched form: refused: error "[missing_parameter] 'Reference' is required: open an image or choose a file", code None, status None, status line 'Command canceled: Compare an image with a reference'
+CHECK ui_fiji_controls_all_known PASS 224 control(s) in 5 form(s) and 6 chooser(s), every one in the control table (20 kinds)
