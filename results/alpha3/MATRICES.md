@@ -63,23 +63,35 @@
 | alpha3 | napari | 15 | 0 | 0 | 0 | 0 | 2026-10-15T13:28:33Z |
 | synthetic | cli | 163 | 2 | 0 | 2 | 0 | 2026-10-15T13:29:55 |
 | ui | fiji | 120 | 0 | 0 | 18 | 0 | 2026-10-15T13:46:34 |
+| ui | fiji | 14 | 0 | 3 | 3 | 0 | NOT FINISHED |
+| ui | fiji | 17 | 0 | 4 | 3 | 0 | 2026-10-15T14:01:57 |
+| ui | napari | 66 | 2 | 0 | 15 | 0 | 2026-10-15T13:59:31Z |
 | ui | napari | 64 | 4 | 0 | 14 | 0 | 2026-10-15T13:31:43Z |
-| ui | qupath | 48 | 0 | 1 | 6 | 0 | NOT FINISHED |
+| ui | qupath | 67 | 0 | 1 | 22 | 0 | 2026-10-15T13:56:33Z |
 
-### LabConstrictorPlayground: FAIL (6)
+### LabConstrictorPlayground: FAIL (8)
 
 * `syn_pg_ramp_f32_p90_2_value:level_used` (synthetic/cli) level_used = 89.099853515625, expected 89.09999999999991 (tol 0.0001, rtol 0)
 * `syn_pg_make_three_channels_1_tiff_slice_means` (synthetic/cli) three_channels.tif: means [42.713, 20.0, 30.0], expected [10, 20, 30]
 * `ui_napari_run_look_inside_file` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
 * `ui_napari_form_summarise_table_controls` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
+* `ui_napari_run_look_inside_file` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
+* `ui_napari_form_summarise_table_controls` (ui/napari) AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
 * `ui_napari_run_align_centres` (ui/napari) AssertionError: prerequisite case 27 (bright_area) ended FAILED pixel_size_unknown, its expect says FAILED invalid_pixel_size | ✖ [pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.  - click Details… for the full report (log: /home/user/apps/a3_lc_home_Playground/logs/labconstrictor.log)
 * `ui_napari_screens_align_centres` (ui/napari) AssertionError: align_centres_form.png does not exist; align_centres_after_run.png does not exist
 
-### LabConstrictorPlayground: NOT_RUN (1)
+### LabConstrictorPlayground: NOT_RUN (8)
 
+* `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
+* `ui_fiji_panel_copy_terminal` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_copy_python` (ui/fiji) no tool completed a run in this audit, so there is no command to copy
+* `ui_fiji_panel_log` (ui/fiji) no tool completed a run, so there is no Log of a run to read
+* `ui_fiji_panel_form_ok` (ui/fiji) the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
 * `ui_qupath_form_feature_tour_channel` (ui/qupath) image.channel(no multi-channel fixture three_channels.tif)
 
-### LabConstrictorPlayground: HUMAN (40)
+### LabConstrictorPlayground: HUMAN (77)
 
 * `syn_pg_channels_cyx_note` (synthetic/cli) has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
 * `syn_pg_rgb_note` (synthetic/cli) has no machine oracle for this run (works): judged by a person or by a host driver (--with-host)
@@ -101,6 +113,27 @@
 * `ui_fiji_screens_stress_slow` (ui/fiji) no run, so no after-run screenshot; the form screenshot was taken (evidence for a person)
 * `ui_fiji_run_stress_slow` (ui/fiji) no run: a stress tool: it is never run through the form
 * `ui_fiji_run_summarise_table` (ui/fiji) expectations of the case that Fiji cannot check: summary cells
+* `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
+* `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+* `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
+* `ui_fiji_parts` (ui/fiji) only ['panel'] ran (LC_UI_PARTS)
+* `ui_fiji_panel_copy_empty` (ui/fiji) LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+* `ui_fiji_panel_chooser_app` (ui/fiji) not applicable: only one app is listed, so Fiji shows no app chooser
+* `ui_napari_prerequisite_bright_area_case27` (ui/napari) case 27 of bright_area types a pixel size of 0, which the form reads as 'use the image's calibration' (documented in the status line); the form ended FAILED pixel_size_unknown instead of the tool's invalid_pixel_size, which the CLI covers | ✖ [pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.  - click Details… for the full report (log: /home/user/apps/a3_lc_home_Playground/logs/labconstrictor.log
+* `ui_napari_run_stress_big_image` (ui/napari) stress_big_image is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_big_image` (ui/napari) stress_big_image is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_big_image_form.png was taken
+* `ui_napari_run_stress_crash` (ui/napari) stress_crash is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_crash` (ui/napari) stress_crash is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_crash_form.png was taken
+* `ui_napari_run_stress_hang` (ui/napari) stress_hang is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_hang` (ui/napari) stress_hang is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_hang_form.png was taken
+* `ui_napari_run_stress_many_points` (ui/napari) stress_many_points is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_many_points` (ui/napari) stress_many_points is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_many_points_form.png was taken
+* `ui_napari_run_stress_out_of_memory` (ui/napari) stress_out_of_memory is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_out_of_memory` (ui/napari) stress_out_of_memory is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_out_of_memory_form.png was taken
+* `ui_napari_run_stress_real_memory` (ui/napari) stress_real_memory is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_real_memory` (ui/napari) stress_real_memory is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_real_memory_form.png was taken
+* `ui_napari_run_stress_slow` (ui/napari) stress_slow is a stress tool: the app's own extras run it, the UI audit never does
+* `ui_napari_screens_stress_slow` (ui/napari) stress_slow is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_slow_form.png was taken
 * `ui_napari_run_stress_big_image` (ui/napari) stress_big_image is a stress tool: the app's own extras run it, the UI audit never does
 * `ui_napari_screens_stress_big_image` (ui/napari) stress_big_image is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_big_image_form.png was taken
 * `ui_napari_run_stress_crash` (ui/napari) stress_crash is a stress tool: the app's own extras run it, the UI audit never does
@@ -121,4 +154,20 @@
 * `ui_qupath_form_feature_tour_browse` (ui/qupath) the native file chooser of [image, region] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
 * `ui_qupath_form_look_inside_file_browse` (ui/qupath) the native file chooser of [file] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
 * `ui_qupath_form_make_test_data_browse` (ui/qupath) the native file chooser of [folder] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
+* `ui_qupath_run_stress_big_image` (ui/qupath) no case of 'stress_big_image' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made
+* `ui_qupath_screens_stress_big_image` (ui/qupath) 'stress_big_image' is not run, so only the form picture stress_big_image_form.png exists, for a person to look at
+* `ui_qupath_run_stress_crash` (ui/qupath) no case of 'stress_crash' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made
+* `ui_qupath_screens_stress_crash` (ui/qupath) 'stress_crash' is not run, so only the form picture stress_crash_form.png exists, for a person to look at
+* `ui_qupath_run_stress_hang` (ui/qupath) no case of 'stress_hang' is run (declared in no_case.json: no grace-period kill in the case runner; covered by the host test suites and the sandbox extras); the form checks were made
+* `ui_qupath_screens_stress_hang` (ui/qupath) 'stress_hang' is not run, so only the form picture stress_hang_form.png exists, for a person to look at
+* `ui_qupath_run_stress_many_points` (ui/qupath) no case of 'stress_many_points' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made
+* `ui_qupath_screens_stress_many_points` (ui/qupath) 'stress_many_points' is not run, so only the form picture stress_many_points_form.png exists, for a person to look at
+* `ui_qupath_run_stress_out_of_memory` (ui/qupath) no case of 'stress_out_of_memory' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made
+* `ui_qupath_screens_stress_out_of_memory` (ui/qupath) 'stress_out_of_memory' is not run, so only the form picture stress_out_of_memory_form.png exists, for a person to look at
+* `ui_qupath_run_stress_real_memory` (ui/qupath) no case of 'stress_real_memory' is run (declared in no_case.json: opt-in, uses real memory; covered by the sandbox extras); the form checks were made
+* `ui_qupath_screens_stress_real_memory` (ui/qupath) 'stress_real_memory' is not run, so only the form picture stress_real_memory_form.png exists, for a person to look at
+* `ui_qupath_run_stress_slow` (ui/qupath) no case of 'stress_slow' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made
+* `ui_qupath_screens_stress_slow` (ui/qupath) 'stress_slow' is not run, so only the form picture stress_slow_form.png exists, for a person to look at
+* `ui_qupath_form_summarise_table_browse` (ui/qupath) the native file chooser of [table] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field
+* `ui_qupath_run_summarise_table_unverified` (ui/qupath) expectation(s) the GUI cannot check: summary.cells
 

@@ -36,3 +36,8 @@ Latest commit tag: "04ccfa4"
 13:53:09.360 [JavaFX Application Thread] [INFO ] qupath.lib.gui.QuPathApp - Starting QuPath with parameters: [--quiet=true]
 
 (QuPath:1986): Gdk-WARNING **: 13:53:09.397: XSetErrorHandler() called with a GDK error trap pushed. Don't do that.
+CHECK ui_qupath_form_stress_big_image_opens PASS 1 parameter(s), one widget of the declared kind each: megabytes:integer
+CHECK ui_qupath_form_stress_big_image_controls PASS 1 control(s) activated and read back: megabytes
+NOTE ui_qupath_run_stress_big_image not run: no case of 'stress_big_image' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_big_image not run: 'stress_big_image' is not run, so only the form picture stress_big_image_form.png exists, for a person to look at [HUMAN]
+UI_AUDIT_LAUNCH_END phase=tool exit=0

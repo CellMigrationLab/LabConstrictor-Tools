@@ -68,3 +68,48 @@ CHECK ui_qupath_form_run_on_device_controls PASS 4 control(s) activated and read
 CHECK ui_qupath_run_run_on_device PASS COMPLETE in 0.7 s, 2 result(s) shown and checked against their files, record 20261015T135259767272_LabConstrictorPlayground_run_on_device
 CHECK ui_qupath_screens_run_on_device PASS run_on_device_form.png and run_on_device_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
 === launch LabConstrictorPlayground_tool_stress_big_image (phase tool, tool stress_big_image)
+CHECK ui_qupath_form_stress_big_image_opens PASS 1 parameter(s), one widget of the declared kind each: megabytes:integer
+CHECK ui_qupath_form_stress_big_image_controls PASS 1 control(s) activated and read back: megabytes
+NOTE ui_qupath_run_stress_big_image not run: no case of 'stress_big_image' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_big_image not run: 'stress_big_image' is not run, so only the form picture stress_big_image_form.png exists, for a person to look at [HUMAN]
+=== launch LabConstrictorPlayground_tool_stress_crash (phase tool, tool stress_crash)
+CHECK ui_qupath_form_stress_crash_opens PASS 0 parameter(s), one widget of the declared kind each:
+CHECK ui_qupath_form_stress_crash_controls PASS 0 control(s) activated and read back:
+NOTE ui_qupath_run_stress_crash not run: no case of 'stress_crash' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_crash not run: 'stress_crash' is not run, so only the form picture stress_crash_form.png exists, for a person to look at [HUMAN]
+=== launch LabConstrictorPlayground_tool_stress_hang (phase tool, tool stress_hang)
+CHECK ui_qupath_form_stress_hang_opens PASS 1 parameter(s), one widget of the declared kind each: seconds:float
+CHECK ui_qupath_form_stress_hang_controls PASS 1 control(s) activated and read back: seconds
+NOTE ui_qupath_run_stress_hang not run: no case of 'stress_hang' is run (declared in no_case.json: no grace-period kill in the case runner; covered by the host test suites and the sandbox extras); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_hang not run: 'stress_hang' is not run, so only the form picture stress_hang_form.png exists, for a person to look at [HUMAN]
+=== launch LabConstrictorPlayground_tool_stress_many_points (phase tool, tool stress_many_points)
+CHECK ui_qupath_form_stress_many_points_opens PASS 1 parameter(s), one widget of the declared kind each: count:integer
+CHECK ui_qupath_form_stress_many_points_controls PASS 1 control(s) activated and read back: count
+NOTE ui_qupath_run_stress_many_points not run: no case of 'stress_many_points' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_many_points not run: 'stress_many_points' is not run, so only the form picture stress_many_points_form.png exists, for a person to look at [HUMAN]
+=== launch LabConstrictorPlayground_tool_stress_out_of_memory (phase tool, tool stress_out_of_memory)
+CHECK ui_qupath_form_stress_out_of_memory_opens PASS 0 parameter(s), one widget of the declared kind each:
+CHECK ui_qupath_form_stress_out_of_memory_controls PASS 0 control(s) activated and read back:
+NOTE ui_qupath_run_stress_out_of_memory not run: no case of 'stress_out_of_memory' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_out_of_memory not run: 'stress_out_of_memory' is not run, so only the form picture stress_out_of_memory_form.png exists, for a person to look at [HUMAN]
+=== launch LabConstrictorPlayground_tool_stress_real_memory (phase tool, tool stress_real_memory)
+CHECK ui_qupath_form_stress_real_memory_opens PASS 2 parameter(s), one widget of the declared kind each: target_mb:integer, limit_mb:integer
+CHECK ui_qupath_form_stress_real_memory_controls PASS 3 control(s) activated and read back: section:Advanced settings, target_mb, limit_mb
+NOTE ui_qupath_run_stress_real_memory not run: no case of 'stress_real_memory' is run (declared in no_case.json: opt-in, uses real memory; covered by the sandbox extras); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_real_memory not run: 'stress_real_memory' is not run, so only the form picture stress_real_memory_form.png exists, for a person to look at [HUMAN]
+=== launch LabConstrictorPlayground_tool_stress_slow (phase tool, tool stress_slow)
+CHECK ui_qupath_form_stress_slow_opens PASS 1 parameter(s), one widget of the declared kind each: seconds:float
+CHECK ui_qupath_form_stress_slow_controls PASS 1 control(s) activated and read back: seconds
+NOTE ui_qupath_run_stress_slow not run: no case of 'stress_slow' is run (a stress tool: it is never run through the form (a person runs it)); the form checks were made [HUMAN]
+NOTE ui_qupath_screens_stress_slow not run: 'stress_slow' is not run, so only the form picture stress_slow_form.png exists, for a person to look at [HUMAN]
+=== launch LabConstrictorPlayground_tool_summarise_table (phase tool, tool summarise_table)
+CHECK ui_qupath_form_summarise_table_opens PASS 1 parameter(s), one widget of the declared kind each: table:table
+CHECK ui_qupath_form_summarise_table_controls PASS 1 control(s) activated and read back: table
+NOTE ui_qupath_form_summarise_table_browse not run: the native file chooser of [table] cannot be driven under Xvfb: the browse buttons were checked for presence, enabled state and an action, and the path was typed into the field [HUMAN]
+NOTE ui_qupath_run_summarise_table_unverified not run: expectation(s) the GUI cannot check: summary.cells [HUMAN]
+CHECK ui_qupath_run_summarise_table PASS COMPLETE in 1.4 s, 2 result(s) shown and checked against their files, record 20261015T135629882051_LabConstrictorPlayground_summarise_table
+CHECK ui_qupath_screens_summarise_table PASS summarise_table_form.png and summarise_table_after_run.png exist, are fresh and of plausible size (look at them: this does not show the picture is right)
+CHECK ui_qupath_controls_all_known PASS every control found is expected and every expected control was found, in every window of every launch
+SUMMARY qupath LabConstrictorPlayground pass=67 fail=0 not_run=1 human=22 (matrix: /home/user/results/alpha3/LabConstrictorPlayground/ui_qupath/matrix_ui_qupath_LabConstrictorPlayground.json)
+matrix: /home/user/results/alpha3/LabConstrictorPlayground/ui_qupath/matrix_ui_qupath_LabConstrictorPlayground.json
+exit status 1

@@ -1,0 +1,94 @@
+NOTE ui_napari_host_version 0.1.0a1
+WARNING: could not determine DPI
+CHECK ui_napari_app_listed PASS LabConstrictorPlayground is offered with all 17 tools of its schema file
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_list_devices_opens PASS 0 parameters: 
+CHECK ui_napari_form_list_devices_controls PASS 0 parameters activated
+CHECK ui_napari_run_list_devices PASS COMPLETE in 0.1s, 0 progress updates, outputs: values(values)
+CHECK ui_napari_screens_list_devices PASS list_devices_form.png and list_devices_after_run.png written for a person to look at (119060 and 123644 bytes)
+CHECK ui_napari_form_check_everything_opens PASS 2 parameters: run_benchmark:boolean, check_internet:boolean
+CHECK ui_napari_form_check_everything_controls PASS 2 parameters activated
+CHECK ui_napari_run_check_everything PASS COMPLETE in 1.0s, 2 progress updates, outputs: readout(message), details(table), report(file)
+CHECK ui_napari_screens_check_everything PASS check_everything_form.png and check_everything_after_run.png written for a person to look at (129148 and 201992 bytes)
+CHECK ui_napari_form_run_on_device_opens PASS 3 parameters: device:string, size:integer, repeats:integer
+CHECK ui_napari_form_run_on_device_controls PASS 3 parameters activated (advanced box)
+CHECK ui_napari_run_run_on_device PASS COMPLETE in 0.1s, 2 progress updates, outputs: result(message), values(values)
+CHECK ui_napari_screens_run_on_device PASS run_on_device_form.png and run_on_device_after_run.png written for a person to look at (204936 and 172291 bytes)
+CHECK ui_napari_form_make_test_data_opens PASS 3 parameters: folder:folder, kind:choice, size:integer
+CHECK ui_napari_form_make_test_data_controls PASS 3 parameters activated
+CHECK ui_napari_run_make_test_data PASS COMPLETE in 0.3s, 0 progress updates, outputs: files(message), values(values) (prerequisites replayed: run_on_device(FAILED))
+CHECK ui_napari_screens_make_test_data PASS make_test_data_form.png and make_test_data_after_run.png written for a person to look at (187510 and 213156 bytes)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_form_feature_tour_opens PASS 6 parameters: image:image, region:labels, look_for:choice, threshold:float, min_size_px:integer, side_note:string
+CHECK ui_napari_form_feature_tour_controls PASS 6 parameters activated (group 'Extras')
+CHECK ui_napari_run_feature_tour PASS COMPLETE in 0.6s, 2 progress updates, outputs: blobs(labels), outlines(shapes), centres(points), measurements(table), summary(message)
+CHECK ui_napari_screens_feature_tour PASS feature_tour_form.png and feature_tour_after_run.png written for a person to look at (202366 and 200582 bytes)
+CHECK ui_napari_form_look_inside_file_opens PASS 1 parameters: file:file
+CHECK ui_napari_form_look_inside_file_controls PASS 1 parameters activated
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_run_look_inside_file FAIL AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
+CHECK ui_napari_screens_look_inside_file PASS look_inside_file_form.png and look_inside_file_after_run.png written for a person to look at (192394 and 189706 bytes)
+CHECK ui_napari_form_summarise_table_opens PASS 1 parameters: table:table
+CHECK ui_napari_form_summarise_table_controls FAIL AssertionError: top-level windows are ['QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', 'QRadioButton', '_QtMainWindow'], expected ['_QtMainWindow']
+CHECK ui_napari_run_summarise_table PASS COMPLETE in 0.1s, 0 progress updates, outputs: summary(table), values(values) (prerequisites replayed: look_inside_file, look_inside_file(FAILED))
+CHECK ui_napari_screens_summarise_table PASS summarise_table_form.png and summarise_table_after_run.png written for a person to look at (185847 and 180061 bytes)
+CHECK ui_napari_form_count_above_level_opens PASS 4 parameters: image:image, mode:choice, level:float, percentile:float
+CHECK ui_napari_form_count_above_level_controls PASS 4 parameters activated
+CHECK ui_napari_run_count_above_level PASS COMPLETE in 0.1s, 0 progress updates, outputs: values(values)
+CHECK ui_napari_screens_count_above_level PASS count_above_level_form.png and count_above_level_after_run.png written for a person to look at (153552 and 152257 bytes)
+CHECK ui_napari_form_bright_area_opens PASS 3 parameters: image:image, pixel_size:float, threshold:float
+CHECK ui_napari_form_bright_area_controls PASS 3 parameters activated
+CHECK ui_napari_run_bright_area PASS COMPLETE in 0.1s, 0 progress updates, outputs: values(values) (prerequisites replayed: count_above_level, count_above_level)
+CHECK ui_napari_screens_bright_area PASS bright_area_form.png and bright_area_after_run.png written for a person to look at (153772 and 154610 bytes)
+CHECK ui_napari_form_align_centres_opens PASS 2 parameters: image:image, reference:image
+CHECK ui_napari_form_align_centres_controls PASS 2 parameters activated
+NOTE ui_napari_prerequisite_bright_area_case27 not run: [human] case 27 of bright_area types a pixel size of 0, which the form reads as 'use the image's calibration' (documented in the status line); the form ended FAILED pixel_size_unknown instead of the tool's invalid_pixel_size, which the CLI covers | ✖ [pixel_size_unknown] The pixel size of the image is unknown, so an area in um2 cannot be given. Set 'pixel_size' (um per pixel) or calibrate the image.  - click Details… for the full report (log: /home/user/apps/a3_lc_home_Playground/logs/labconstrictor.log
+CHECK ui_napari_run_align_centres PASS COMPLETE in 0.1s, 0 progress updates, outputs: alignment(affine) (prerequisites replayed: bright_area(FAILED), bright_area(FAILED))
+CHECK ui_napari_screens_align_centres PASS align_centres_form.png and align_centres_after_run.png written for a person to look at (174602 and 158997 bytes)
+CHECK ui_napari_form_stress_big_image_opens PASS 1 parameters: megabytes:integer
+CHECK ui_napari_form_stress_big_image_controls PASS 1 parameters activated
+NOTE ui_napari_run_stress_big_image not run: [human] stress_big_image is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_big_image not run: [human] stress_big_image is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_big_image_form.png was taken
+CHECK ui_napari_form_stress_crash_opens PASS 0 parameters: 
+CHECK ui_napari_form_stress_crash_controls PASS 0 parameters activated
+NOTE ui_napari_run_stress_crash not run: [human] stress_crash is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_crash not run: [human] stress_crash is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_crash_form.png was taken
+CHECK ui_napari_form_stress_hang_opens PASS 1 parameters: seconds:float
+CHECK ui_napari_form_stress_hang_controls PASS 1 parameters activated
+NOTE ui_napari_run_stress_hang not run: [human] stress_hang is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_hang not run: [human] stress_hang is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_hang_form.png was taken
+CHECK ui_napari_form_stress_many_points_opens PASS 1 parameters: count:integer
+CHECK ui_napari_form_stress_many_points_controls PASS 1 parameters activated
+NOTE ui_napari_run_stress_many_points not run: [human] stress_many_points is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_many_points not run: [human] stress_many_points is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_many_points_form.png was taken
+CHECK ui_napari_form_stress_out_of_memory_opens PASS 0 parameters: 
+CHECK ui_napari_form_stress_out_of_memory_controls PASS 0 parameters activated
+NOTE ui_napari_run_stress_out_of_memory not run: [human] stress_out_of_memory is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_out_of_memory not run: [human] stress_out_of_memory is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_out_of_memory_form.png was taken
+CHECK ui_napari_form_stress_real_memory_opens PASS 2 parameters: target_mb:integer, limit_mb:integer
+CHECK ui_napari_form_stress_real_memory_controls PASS 2 parameters activated (advanced box)
+NOTE ui_napari_run_stress_real_memory not run: [human] stress_real_memory is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_real_memory not run: [human] stress_real_memory is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_real_memory_form.png was taken
+CHECK ui_napari_form_stress_slow_opens PASS 1 parameters: seconds:float
+CHECK ui_napari_form_stress_slow_controls PASS 1 parameters activated
+NOTE ui_napari_run_stress_slow not run: [human] stress_slow is a stress tool: the app's own extras run it, the UI audit never does
+NOTE ui_napari_screens_stress_slow not run: [human] stress_slow is a stress tool: the app's own extras run it, the UI audit never does; the form screenshot stress_slow_form.png was taken
+CHECK ui_napari_controls_all_known PASS 11 controls found = the 11 table rows: run, cancel, rescan_apps, restart_worker, keep_the_worker_running, details, copy_as_command, copy_terminal_command, copy_python_snippet, app_chooser, tool_chooser
+CHECK ui_napari_panel_run PASS clicked for list_devices: started, disabled while running, enabled after (COMPLETE)
+CHECK ui_napari_panel_cancel PASS greyed out and a no-op when idle (status unchanged)
+CHECK ui_napari_panel_details PASS dialog 'LabConstrictor - last run' opened and closed; the run record and the log it names exist on disk
+CHECK ui_napari_panel_copy_as_command PASS menu entries ['Terminal command', 'Python snippet']
+CHECK ui_napari_panel_copy_terminal_command PASS terminal line: run LabConstrictorPlayground list_devices with the 0 values of the case: /home/user/apps/Playground/bin/python -m labconstrictor_tools run LabConstrictorPlayground list_devices
+CHECK ui_napari_panel_copy_python_snippet PASS Python snippet parses and holds the app, the tool and the case's text values (4 lines)
+CHECK ui_napari_panel_rescan_apps PASS registry read again; apps ['LabConstrictorPlayground'] of the files ['LabConstrictorPlayground'], choice kept
+CHECK ui_napari_panel_restart_worker PASS worker process 5027 ended after Restart worker
+CHECK ui_napari_panel_keep_the_worker_running PASS ticked (default): worker 5594 stayed alive; unticked: worker 5605 ended
+CHECK ui_napari_panel_app_chooser PASS apps and their tool counts: LabConstrictorPlayground(17)
+/home/user/w/venv/lib/python3.11/site-packages/magicgui/widgets/_concrete.py:123: UserWarning: 'text' and 'label' are synonymous for button widgets. To suppress this warning, only provide one of the two kwargs.
+  super(cls, self).__init__(**kwargs)  # type: ignore
+CHECK ui_napari_panel_tool_chooser PASS 17 tools chosen, each gave its form and the description of the schema
+CHECK ui_napari_panel_cancel_running PASS Cancel (real click) ended stress_slow as CANCELED; the 11 controls were the same while it ran
+NAPARI UI AUDIT SUMMARY failed=2

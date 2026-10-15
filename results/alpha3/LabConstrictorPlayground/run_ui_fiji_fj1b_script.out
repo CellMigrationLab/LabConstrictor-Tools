@@ -1,0 +1,17 @@
+NOTE ui_fiji_parts not run: only ['panel'] ran (LC_UI_PARTS)
+CHECK ui_fiji_panel_chooser_cancel PASS Cancel on the first chooser ended the plugin: cancelled, no run, no worker, no run record
+NOTE ui_fiji_panel_copy_empty not run: LC_HOME already holds a last command (state/last_command.json), so the 'nothing to copy yet' state cannot be tested here
+CHECK ui_fiji_panel_menu PASS Plugins > LabConstrictor holds ['labconstrictor tools'] (loose script)
+NOTE ui_fiji_panel_chooser_app not run: not applicable: only one app is listed, so Fiji shows no app chooser
+CHECK ui_fiji_panel_chooser_tool PASS lists ['Align the centres of two images', 'Area of the bright region', 'Check everything', 'Count the pixels above a level', 'Feature tour', 'List the devices', 'Look inside a file', 'Make test data', 'Run a small test on a device', 'Stress: a big image', 'Stress: crash the worker', 'Stress: a tool that ignores Cancel', 'Stress: many points', 'Stress: out of memory (simulated)', 'Stress: real memory pressure (bounded, opt-in)', 'Stress: slow run with progress', 'Summarise a table']; the combo...
+CHECK ui_fiji_panel_chooser_ok PASS OK on the tool chooser opened 'Align the centres of two images'
+CHECK ui_fiji_form_align_centres_opens PASS 2 parameter(s): every declared widget found and nothing else but OK and Cancel; inside the 1600x1000 screen; no other window or dialog
+CHECK ui_fiji_form_align_centres_controls PASS 6 control(s) activated and read back: file_browse, image_choice, text_field
+CHECK ui_fiji_panel_form_cancel PASS Cancel on the form ended the plugin: cancelled, no run, no worker, no run record
+CHECK ui_fiji_panel_copy_terminal FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_copy_python FAIL not run: no tool completed a run in this audit, so there is no command to copy
+CHECK ui_fiji_panel_log FAIL not run: no tool completed a run, so there is no Log of a run to read
+CHECK ui_fiji_fj1b_cancel_form_make_test_data PASS plain Cancel on the untouched form ended the command: cancelled, nothing ran, no run record, status line 'LabConstrictor: cancelled'
+CHECK ui_fiji_fj1b_missing_image_align_centres PASS no image open, OK on the untouched form: refused: error "[missing_parameter] 'Image' is required: open an image or choose a file", code None, status None, status line 'Command canceled: Align the centres of two images'
+CHECK ui_fiji_controls_all_known PASS 53 control(s) in 3 form(s) and 4 chooser(s), every one in the control table (20 kinds)
+CHECK ui_fiji_panel_form_ok FAIL not run: the audit ended without producing this check (a crash, a timeout, or a step that was never reached)
