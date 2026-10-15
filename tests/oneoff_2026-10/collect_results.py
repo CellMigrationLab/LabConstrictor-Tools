@@ -7,9 +7,12 @@ from pathlib import Path
 from typing import Any
 
 
-def load(directory: Path) -> list[dict[str, Any]]:
+def load(directory: Path, rerun: bool = False) -> list[dict[str, Any]]:
+    """The matrices under `directory`; the alpha.2 rerun lives in `directory/alpha2/` and is kept apart from the alpha.1 round (`rerun=True` reads only that)."""
     documents: list[dict[str, Any]] = []
     for path in sorted(directory.rglob("matrix_*.json")):
+        if ("alpha2" in path.relative_to(directory).parts) != rerun:
+            continue
         try:
             documents.append(json.loads(path.read_text(encoding="utf-8")))
         except (OSError, json.JSONDecodeError) as problem:
@@ -52,6 +55,9 @@ def main() -> int:
     text = render(load(directory))
     (directory / "RESULTS.md").write_text(text, encoding="utf-8")
     print("wrote %s (%d bytes)" % (directory / "RESULTS.md", len(text)))
+    if (directory / "alpha2").is_dir():  # the rerun's generated tables go next to its hand-written RESULTS.md, never into the alpha.1 file
+        again = render(load(directory, rerun=True)).replace("# Results of the one-off test run", "# Results of the alpha.2 rerun (generated from the matrices)")
+        (directory / "alpha2" / "MATRICES.md").write_text(again, encoding="utf-8")
     return 0
 
 
