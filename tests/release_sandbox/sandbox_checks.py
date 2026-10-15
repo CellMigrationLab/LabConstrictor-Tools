@@ -149,7 +149,9 @@ def cli_params(case: "dict[str, Any]", base: Path) -> list[str]:
     for k, v in (case.get("inputs") or {}).items():
         if isinstance(v, bool):
             v = "true" if v else "false"
-        elif isinstance(v, str) and (base / v).exists():
+        elif isinstance(v, str) and v.strip() and v == v.strip() and (base / v).exists():
+            # a value is turned into a path only when it is a real name: on Windows `base / "   "` is `base` itself (trailing spaces are dropped by the
+            # system), which would turn a blank input into the folder of the test files
             v = str((base / v).resolve())
         out.append("%s=%s" % (k, v))
     return out

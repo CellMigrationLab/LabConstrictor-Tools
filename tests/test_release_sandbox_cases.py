@@ -152,5 +152,32 @@ class CasesPhases(unittest.TestCase):
         self.assertIn("CHECK 4_cli_case_00_create_demo_COMPLETE PASS", text, text)
 
 
+class CliParams(unittest.TestCase):
+    """A blank or space-padded input stays exactly as the case wrote it. On Windows `base / "   "` is `base` itself (trailing spaces are dropped), so exists()
+    answers True; the helper must not turn such a value into the path of the test folder (Guess the Condition's blank-guess case failed on Windows for this).
+    """
+
+    def test_blank_and_padded_values_are_never_paths(self) -> None:
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as t, mock.patch.object(Path, "exists", return_value=True):
+            out = sc.cli_params(
+                {"inputs": {"guess": "   ", "empty": "", "padded": " x ", "name": "Fresh"}}, Path(t)
+            )
+        self.assertEqual(out[0], "guess=   ")
+        self.assertEqual(out[1], "empty=")
+        self.assertEqual(out[2], "padded= x ")
+        self.assertTrue(
+            out[3].startswith("name=") and out[3] != "name=Fresh", out
+        )  # a real name that exists still becomes its absolute path
+
+    def test_an_existing_file_name_still_becomes_an_absolute_path(self) -> None:
+        with tempfile.TemporaryDirectory() as t:
+            (Path(t) / "a.csv").write_text("x")
+            out = sc.cli_params({"inputs": {"tracks": "a.csv", "n": 3, "flag": True}}, Path(t))
+        self.assertEqual(out[0], "tracks=%s" % (Path(t) / "a.csv").resolve())
+        self.assertEqual(out[1:], ["n=3", "flag=true"])
+
+
 if __name__ == "__main__":
     unittest.main()
