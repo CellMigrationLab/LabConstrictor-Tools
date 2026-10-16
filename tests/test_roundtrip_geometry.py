@@ -166,6 +166,18 @@ class Outlines(unittest.TestCase):
                     bool(inside), bool(labels[r, c]), "pixel centre (row %d, column %d)" % (r, c)
                 )
 
+    @given(
+        hnp.arrays(np.uint8, st.tuples(st.integers(1, 12), st.integers(1, 12)), elements=st.integers(0, 3))
+    )
+    def test_no_outline_vertex_leaves_the_image_by_more_than_half_a_pixel(self, labels: np.ndarray) -> None:
+        """Labels touching the border give vertices at -0.5 or size - 0.5 (pixel edges), never beyond, at any simplify."""
+        for simplify in (0, 0.5, 1.0):
+            for feature in shapes.labels_to_shapes(labels, simplify=simplify)["features"]:
+                for x, y in all_vertices(feature):
+                    self.assertGreaterEqual(min(x, y), -0.5, "simplify %s" % simplify)
+                    self.assertLessEqual(x, labels.shape[1] - 0.5, "simplify %s" % simplify)
+                    self.assertLessEqual(y, labels.shape[0] - 0.5, "simplify %s" % simplify)
+
     def test_a_single_pixel_is_a_diamond_around_its_centre(self) -> None:
         labels = np.zeros((5, 7), np.uint8)
         labels[2, 3] = 1  # row 2, column 3
