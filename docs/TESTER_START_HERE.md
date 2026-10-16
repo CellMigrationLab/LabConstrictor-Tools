@@ -83,6 +83,8 @@ the disk is short (say which apps you reached): Guess the Condition, VLab4Mic, C
 * **VLab4Mic 0.1.7:** the images `simulate_sample` writes carry no pixel size (type it when you compare them); the parameter-sweeps notebook probably ignores the folder chosen for saving until the upstream widgets package is fixed.
 * **Fiji:** a pixel-size field follows the image's calibration and has no "use the image's calibration" button; typing the value the box already shows clears it and blocks the run; fields that do not apply are not greyed out ([HOST_FEATURES.md](HOST_FEATURES.md)).
 * **Napari:** typing 0 in a pixel-size box resets it to the image's calibration and says so in the status line; it cannot reach the tool's own "invalid pixel size" message.
+* **NucleiSky 0.1.4:** the two 3D notebooks have known faults, fixed on the main branch but not in this release: NucleiSky3DApp stops with a `NameError` (`plot_warp_overlay3D`) when you run it, and the 3D API workflow example ends with "Matching failed" on its own demo volume. A reference image containing NaN is accepted instead of refused.
+* **Napari alpha.4:** the status line can keep the previous tool's warning after you pick another tool (fixed on main). **QuPath alpha.4:** a points CSV whose cell contains a line break can split into several points (fixed on main). **Fiji alpha.4:** after you stop a long run, a worker's child process can stay alive and a finished run can briefly show without its outputs (fix pending).
 * **All hosts:** native file choosers cannot be tested by our automation: a chooser that does not open **is** worth reporting.
 The full list of automated findings is in the `test-results` branch of this repository (`alpha2/FINDINGS.md`, `alpha3/FINDINGS.md`).
 
