@@ -1,0 +1,2 @@
+# The documentation site (mkdocs.yml). Pinned to the version LabConstrictor-Site uses, so both sites build the same way; bump deliberately.
+zensical==0.0.65

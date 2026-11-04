@@ -1,0 +1,34 @@
+/* LabConstrictor look for this documentation site: the main site's colours (from the logo) and fonts (Bricolage Grotesque for
+ * headings, Inter for text). A stand-in until the main site publishes a versioned theme; the fonts are the main site's own files
+ * (SIL Open Font License), served from its address. */
+
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("https://cellmigrationlab.github.io/LabConstrictor-Site/assets/fonts/inter-latin-wght-normal.woff2") format("woff2"); }
+@font-face { font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 300 800; font-display: swap;
+  src: url("https://cellmigrationlab.github.io/LabConstrictor-Site/assets/fonts/bricolage-latin-wght-normal.woff2") format("woff2"); }
+
+/* Palette sampled from the LabConstrictor logo: green #1fb221 and #1c5f1c, orange #ff8000 (as on the main site). */
+:root {
+  --lc-fg: #33433a; --lc-strong: #10211a; --lc-muted: #5b6a61; --lc-line: #dde7dd; --lc-soft: #f3f8f1;
+  --lc-accent: #1fb221; --lc-accent-strong: #1c5f1c; --lc-accent-soft: #e4f4e2;
+  --md-text-font: "Inter"; --md-code-font: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+  --md-primary-fg-color: #1c5f1c; --md-primary-fg-color--light: #1fb221; --md-primary-fg-color--dark: #134313;
+  --md-primary-bg-color: #fff;
+  --md-accent-fg-color: #1fb221;
+  --md-typeset-a-color: #1c5f1c;
+  --md-default-fg-color: #33433a; --md-default-fg-color--light: #5b6a61;
+}
+body { -webkit-font-smoothing: antialiased; }
+.md-typeset { line-height: 1.7; }
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-family: "Bricolage Grotesque", "Inter", system-ui, sans-serif; color: var(--lc-strong); letter-spacing: -.01em; }
+.md-typeset h1 { font-weight: 700; }
+.md-typeset h2 { font-weight: 600; }
+.md-header__title { font-family: "Bricolage Grotesque", "Inter", system-ui, sans-serif; font-weight: 700; }
+.md-typeset table:not([class]) { font-size: .72rem; }
+.md-typeset table:not([class]) th { background: var(--lc-accent-soft); color: var(--lc-strong); }
+
+/* Home page: the three doors */
+.lc-doors { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; margin: 1.6rem 0; }
+.lc-door { border: 1px solid var(--lc-line); border-radius: 12px; padding: 1rem 1.2rem; background: var(--lc-soft); }
+.lc-door h3 { margin-top: 0; }
+.lc-door p { margin: .4rem 0; }

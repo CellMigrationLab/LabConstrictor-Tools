@@ -9,3 +9,6 @@ mutants/
 .coverage*
 .hypothesis/
 htmlcov/
+
+# documentation site build output (mkdocs.yml)
+site/

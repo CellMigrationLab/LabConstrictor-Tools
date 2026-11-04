@@ -98,7 +98,7 @@ The problems are: `hosts must be a list of host names`, `hosts is empty; write a
 
 **What is not filtered.** The command line (`labconstrictor-tools list|run|check|test`), notebooks (`%%lc_tool`, `run_once`) and the worker are never filtered: `hosts` decides what Napari, Fiji and QuPath offer, nothing else. `labconstrictor-tools list` prints the declaration of every app (`hosts: notebook, fiji`, `not declared (listed in every host)`, or `INVALID (...)`), and `list --json` adds `"hosts": {app: [...] | null}` (null: not declared, or present but not a list) and `"hosts_status": {app: "declared" | "absent" | "invalid"}` to tell those apart. An app that declares only `notebook` (CellTracksColab) is registered, usable from the command line and hidden from all three hosts.
 
-**Matrix agreed on 14 Oct 2026** (the sandbox reads it from `tests/release_sandbox/expected_hosts.json`, [tests/release_sandbox/README.md](../tests/release_sandbox/README.md)):
+**Matrix agreed on 14 Oct 2026** (the sandbox reads it from `tests/release_sandbox/expected_hosts.json`, [tests/release_sandbox/README.md](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/tests/release_sandbox/README.md)):
 
 | App | `hosts:` | Napari | Fiji | QuPath |
 |---|---|---|---|---|

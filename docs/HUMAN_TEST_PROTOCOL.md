@@ -418,7 +418,7 @@ Run `doctor` and `list` with **another app's** Python. Start the hosts and read 
 ---
 
 ## 10. Report back
-For human testing, follow your [OS checklist](TEST_MATRIX.md#1-windows--volunteer---windows-version-) and create **one report per tester/OS**, titled `Test report: <OS> <your name> <date> <Tools tag>`:
+For human testing, follow your [OS checklist](TEST_MATRIX.md) and create **one report per tester/OS**, titled `Test report: <OS> <your name> <date> <Tools tag>`:
 - [ ] the filled **record sheet (section 0.1 and 0.2)**: without it a result cannot be tied to versions;
 - [ ] one short report with the rows you attempted, listing test IDs, outcomes and D1 findings (no full protocol copy required);
 - [ ] screenshots: one per FAIL and optional illustrative PASS screenshots;
@@ -434,4 +434,4 @@ For human testing, follow your [OS checklist](TEST_MATRIX.md#1-windows--voluntee
 
 Documentation updated for the tagged alpha.4 set published 14–15 October 2026. The release source for **CellTracksColab 1.1.2** includes `celltracks_lc_tools` (`Calculate Track Metrics`), Tools `v0.3.0-alpha.1`, and `labconstrictor-app.yaml` with `hosts: [notebook]`: `CT-2` must assert **successful registration**, and `D3` must separately assert **not listed in Napari, Fiji or QuPath**. The tagged sources of the other four apps also include host manifests and hooks that pass `--app-manifest`.
 
-Actual end-to-end human installation and GUI runs on Windows and macOS are **not established by this documentation** and must be reported through the [test packets](TEST_MATRIX.md#1-windows--volunteer---windows-version-). The historic Linux screenshots, numeric tolerances, exact Fiji/QuPath error wording and whether native installer drag-and-drop succeeds are not proof of behaviour on these platforms. Distinguish **expected**, **observed**, and **not yet tested**.
+Actual end-to-end human installation and GUI runs on Windows and macOS are **not established by this documentation** and must be reported through the [test packets](TEST_MATRIX.md). The historic Linux screenshots, numeric tolerances, exact Fiji/QuPath error wording and whether native installer drag-and-drop succeeds are not proof of behaviour on these platforms. Distinguish **expected**, **observed**, and **not yet tested**.
