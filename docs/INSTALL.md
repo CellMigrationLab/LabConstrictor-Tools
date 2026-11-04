@@ -5,7 +5,7 @@ installation instructions of the apps and the hosts are kept here and in the hos
 you install exactly the versions of the [test set](HUMAN_TEST_PROTOCOL.md#0-record-sheet-the-test-set-fill-in-before-you-start); this page
 describes how, the protocol says which versions.
 
-Round `alpha.4`: Tools `v0.3.0-alpha.1`, Napari, Fiji and QuPath plugins `v0.1.0-alpha.4` (all three published; the full table of versions is in the [test set](HUMAN_TEST_PROTOCOL.md#01-the-test-set-round-alpha4-the-maintainer-updates-this-table-for-each-round)). A tester starts at [TESTER_START_HERE.md](TESTER_START_HERE.md).
+Round `alpha.4`: Tools `v0.3.0-alpha.1`, Napari and Fiji plugins `v0.1.0-alpha.4`, QuPath plugin `v0.1.0-alpha.5` (alpha.4 plus the Windows run-record fix) (all published; the full table of versions is in the [test set](HUMAN_TEST_PROTOCOL.md#01-the-test-set-round-alpha4-the-maintainer-updates-this-table-for-each-round)). A tester starts at [TESTER_START_HERE.md](TESTER_START_HERE.md).
 
 ## 1. Install an app (one click)
 1. Download the installer for your system from the app's **GitHub Releases page** (Windows `.exe`, Apple-silicon Mac `.pkg` or `.sh`, Linux `.sh`; **Intel Macs are not supported**). Take the **exact release specified in the current test round**, not simply the newest available release. The apps: [Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases), [NucleiSky](https://github.com/CellMigrationLab/NucleiSky/releases), [VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases), [Guess the Condition](https://github.com/CellMigrationLab/GuessTheCondition/releases), [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab/releases) (a notebook app: no host shows it).
@@ -39,7 +39,7 @@ No-jar alternative: the same release has `labconstrictor-fiji-script-v0.1.0-alph
 
 ## 5. QuPath
 QuPath **0.7.0** (built with Java 25; the jar needs it; other versions are not supported).
-1. Download `labconstrictor-qupath-v0.1.0-alpha.4.jar` from the [LabConstrictor-QuPath Releases page](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.4).
+1. Download `labconstrictor-qupath-v0.1.0-alpha.5.jar` from the [LabConstrictor-QuPath Releases page](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.5).
 2. Drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences) and restart QuPath.
 3. Run **Extensions > LabConstrictor tools...**.
 
