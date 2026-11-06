@@ -1,6 +1,6 @@
 # Stage 2 of the smoke test: build an app's installer (CellTracksColab by default; the inputs choose another LabConstrictor app) on each operating system (the release workflow's steps, but
 # nothing is released), install it silently as a plain user, and check that the tools bridge is established. The app's sources
-# come from the app repository (default branch bridge-test); the check itself is tests/smoke_bridge.py of this repository.
+# come from the app repository (default: its main branch); the check itself is tests/smoke_bridge.py of this repository.
 name: smoke-install
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ on:
       app_ref:
         description: "Branch or tag of the app to build"
         required: false
-        default: bridge-test
+        default: main
       app_name:
         description: "Name of the app as registered (construct.yaml name)"
         required: false
@@ -30,7 +30,7 @@ on:
 
 env:
   APP_REPO: ${{ inputs.app_repo || 'CellMigrationLab/CellTracksColab' }}
-  APP_REF: ${{ inputs.app_ref || 'bridge-test' }}
+  APP_REF: ${{ inputs.app_ref || 'main' }}
   APP_NAME: ${{ inputs.app_name || 'CellTracksColab' }}
   TOOLS_MODULE: ${{ inputs.tools_module || 'celltracks_lc_tools' }}
   SMOKE_ARGS: ${{ inputs.smoke_args || '--tool calculate_metrics --param tracks=app/lc_tests/fixtures/tracks.csv --bad-param tracks=/nonexistent/none.csv' }}

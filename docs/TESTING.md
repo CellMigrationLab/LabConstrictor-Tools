@@ -63,9 +63,9 @@ Run a slice: `LC_ROUNDTRIP_FILTER='echo_bounded' python -m unittest test_roundtr
 
 | Workflow | Input | Default |
 |---|---|---|
-| `smoke_install` | `app_ref` | the branch `bridge-test` of `CellMigrationLab/CellTracksColab` (branch exists, checked 14 Oct 2026; it is the held bridge branch, not `main`, which registers no tools) |
+| `smoke_install` | `app_ref` | `main` of `CellMigrationLab/CellTracksColab` (its bridge, `celltracks_lc_tools`, is on `main`; the old default, the branch `bridge-test`, no longer exists, checked 6 Nov 2026) |
 | `smoke_migration` | `template_ref` | `main` of `CellMigrationLab/LabConstrictor` |
-| `smoke_migration` | `app_ref` | the branch `claude/merge-bridge-test` of `CellMigrationLab/NucleiSky` (branch exists, checked 14 Oct 2026 in the GitHub branch list; the bridge it carried is now on NucleiSky `main`, so the branch is only a leftover: if it is deleted the default breaks and `app_ref` must be `main` or a tag; `.github/workflows/smoke_migration.yml` lines 31 and 67) |
+| `smoke_migration` | `app_ref` | `main` of `CellMigrationLab/NucleiSky` (its bridge, `nucleisky_lc_tools`, is on `main`; the old default, the branch `claude/merge-bridge-test`, no longer exists, checked 6 Nov 2026; `.github/workflows/smoke_migration.yml` lines 31 and 67) |
 | `smoke_migration` | `old_template_ref` | a commit (`900d0cac...`, template 0.1.15): fixed |
 | `release_sandbox` | `napari_ref`, `fiji_ref`, `qupath_ref` | `main` of `LabConstrictor-napari`, `LabConstrictor-Fiji`, `labconstrictor-qupath`; pass a tag to pin `fiji_ref` and `qupath_ref` (they go to `git clone --branch`: a branch or a tag, not a commit). `napari_ref` is put into `.../archive/<napari_ref>.zip` (`release_sandbox.yml`, step "Napari host check"), which GitHub resolves for a branch and for a tag (checked with `curl` for `main` and for a tag of this repository, not by a sandbox run) |
 | `release_sandbox` | `tools_pin`, `tag` | the tag `v0.3.0-alpha.1` of Tools, a release tag of the app: fixed |
@@ -220,7 +220,7 @@ The discovery matrix (decided 14 Oct; binding rule in Tools, feature `app_hosts_
 | An app with no tools (CellTracksColab, tools module `optional`) | stated (`tools_module_absent_as_declared`); the tool, case and retention checks do not run; the sandbox asserts that nothing is registered or, if the installer registers a module, that its `hosts` is `[notebook]`; an app whose row says `required` and has no module stops the run |
 | Apps run so far | which app each of the five `release-sandbox` runs on `claude/release-sandbox-run` tested: not verified |
 
-The three hosts honour the rule (Napari #61, Fiji #47, QuPath #35: merged; no host has a tag, so the default `main` of each is the ref to use). What still fails is the registry check: it needs an installer that passes `hosts` (template 0.1.18, template PR #33: not merged, it waits for the Tools tag `v0.3.0-alpha.1`), so `hosts_1_registry_entry_declares_the_hosts` is red for every app released before that and the hosts list such an app everywhere.
+The three hosts honour the rule (Napari #61, Fiji #47, QuPath #35: merged; each host now has alpha tags, so pass a tag to pin a run, or keep the default `main`). The registry check needs an installer that passes `hosts`: template 0.1.18 (template PR #33, merged 14 Oct 2026; the current release of every app is built with it), so `hosts_1_registry_entry_declares_the_hosts` is red only for an app release built before 0.1.18, and the hosts list such an app everywhere.
 
 A run on a release that predates these fixes states what it expects, e.g. `-f expected_fail=3_tools_version_is_the_pin,hosts_1_registry_entry_declares_the_hosts`: without the input the verdict step is red, with it the verdict is green and the NOTE lists the ids.
 

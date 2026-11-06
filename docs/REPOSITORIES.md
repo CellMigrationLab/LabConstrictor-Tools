@@ -5,7 +5,7 @@ The project has a shared Python toolkit, host-specific interfaces and applicatio
 | Repository | What it contains |
 |---|---|
 | [LabConstrictor-Tools](https://github.com/CellMigrationLab/LabConstrictor-Tools) | Python declarations (`@tool`, types and annotations), schema generation, registry, worker, CLI, notebook helpers, diagnostics and tests |
-| [LabConstrictor-napari](https://github.com/CellMigrationLab/LabConstrictor-napari) | Napari dock widget, layer conversion and presentation of results (pip package `napari-labconstrictor`; the old link name `napari-labconstrictor` redirects to this repository, checked 14 Oct 2026; Qt6 backend, `napari[pyqt6]`; no tag or release when this was written) |
+| [LabConstrictor-napari](https://github.com/CellMigrationLab/LabConstrictor-napari) | Napari dock widget, layer conversion and presentation of results (pip package `napari-labconstrictor`; the old link name `napari-labconstrictor` redirects to this repository, checked 14 Oct 2026; Qt6 backend, `napari[pyqt6]`; alpha pre-releases, latest `v0.1.0-alpha.4` on 6 Nov 2026, installed from the tag's source archive) |
 | [LabConstrictor-Fiji](https://github.com/CellMigrationLab/LabConstrictor-Fiji) | Fiji menu command, SciJava forms, ImageJ ROI handling and the worker connection. Release files (made by its release workflow when the maintainer publishes a release): `labconstrictor-fiji-<tag>.jar`, `labconstrictor-fiji-script-<tag>.zip` (script and its `lib` folder) and `SHA256SUMS` |
 | [LabConstrictor-QuPath](https://github.com/CellMigrationLab/LabConstrictor-QuPath) | QuPath extension (QuPath 0.7.0), image-area export, annotation coordinates and result presentation. Release files: `labconstrictor-qupath-<tag>.jar`, the single script `LabConstrictorTools-all.groovy` (the only form the Script Editor can run) and `SHA256SUMS` |
 | [LabConstrictor-Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground) | An installable test application (17 tools): diagnostics, synthetic image analysis and deliberately difficult cases for hosts (the repository's canonical name is lower case, `labconstrictor-playground`; the link works either way) |
@@ -15,15 +15,15 @@ Two other kinds of repository have different jobs:
 - [LabConstrictor](https://github.com/CellMigrationLab/LabConstrictor) is the **notebook-to-desktop-application packaging template**, not another graphical host for the tools.
 - Scientific applications own their analysis code and tool declarations. LabConstrictor installers register the applications' tool modules automatically when they are packaged; the toolkit also supports manual registration. The applications of the first human-test round:
 
-| Application | Repository | Tools registered for hosts | Tag of the next release (decided) |
+| Application | Repository | Tools registered for hosts | Latest release |
 |---|---|---|---|
-| NucleiSky | [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) | 2 (List the devices, Relocalize 2D) | 0.1.4 (latest 0.1.3) |
-| Guess the Condition | [GuessTheCondition](https://github.com/CellMigrationLab/GuessTheCondition) | 6 (five game actions and one helper) | 0.0.1, decided (latest 0.0.0) |
-| Playground | the Playground row above | 17 | 0.0.4 (latest 0.0.3) |
-| VLab4Mic | [LabConstrictor-VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) | 2 (Simulate imaging of a virtual sample, Compare an image with a reference) | 0.1.6, decided (latest 0.1.5) |
-| CellTracksColab | [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab) (its desktop app is released from this repository; the repository name `CellTracksColab_LabConstrictor` that this page and the README used to link was not reachable from here: not verified that it exists) | none on `main` (a bridge exists on the held branch `bridge-test`) | 1.1.2, held until the bridge decision (latest 1.1.1) |
+| NucleiSky | [NucleiSky](https://github.com/CellMigrationLab/NucleiSky) | 2 (List the devices, Relocalize 2D) | 0.1.4 |
+| Guess the Condition | [GuessTheCondition](https://github.com/CellMigrationLab/GuessTheCondition) | 6 (five game actions and one helper) | 0.0.1 |
+| Playground | the Playground row above | 17 | 0.0.5 |
+| VLab4Mic | [LabConstrictor-VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) | 2 (Simulate imaging of a virtual sample, Compare an image with a reference) | 0.1.7 |
+| CellTracksColab | [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab) (its desktop app is released from this repository; the repository name `CellTracksColab_LabConstrictor` that this page and the README used to link was not reachable from here: not verified that it exists) | 1 (Calculate Track Metrics), registered but listed in no host (`hosts: [notebook]`) | 1.1.5 |
 
-Tool counts and latest releases are as of 14 Oct 2026 (the code of each repository's `main`, the GitHub release lists); "decided" numbers are the next free ones after the pin pull requests, decided by the maintainer (NucleiSky 0.1.4, Playground 0.0.4, VLab4Mic 0.1.6, Guess the Condition 0.0.1; [OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)).
+Tool counts and latest releases are as of 6 Nov 2026 (the `@tool` declarations of each repository's `main`, the GitHub release lists); every one of these releases pins Tools `v0.3.0-alpha.1` ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)).
 
 ## What is shared
 
@@ -31,7 +31,7 @@ The toolkit defines the [schema and worker protocol](PROTOCOL.md). Hosts read ca
 
 Hosts do **not** need to install the application's scientific dependencies. The application does **not** need to import Napari, Fiji or QuPath.
 
-**Which host shows which app is a rule, not a side effect of registration.** An application with a valid registered manifest is discoverable by every host its `hosts:` line names; no other host lists it ([PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app)). Decided 14 Oct 2026; the rule is in Tools (feature `app_hosts_v1`, Tools PR #133, merged). The three hosts honour it (merged: Napari #61, Fiji #47, QuPath #35); an app with no declaration (installed before template 0.1.18 reaches the apps) is listed in every host, with the 'declares no hosts' sentence in the Tools log. The practical value of a particular tool still depends on the host's workflow and on whether its inputs and outputs are relevant there.
+**Which host shows which app is a rule, not a side effect of registration.** An application with a valid registered manifest is discoverable by every host its `hosts:` line names; no other host lists it ([PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app)). Decided 14 Oct 2026; the rule is in Tools (feature `app_hosts_v1`, Tools PR #133, merged). The three hosts honour it (merged: Napari #61, Fiji #47, QuPath #35); an app with no declaration (installed with an installer older than template 0.1.18; every current app release uses 0.1.18 or later) is listed in every host, with the 'declares no hosts' sentence in the Tools log. The practical value of a particular tool still depends on the host's workflow and on whether its inputs and outputs are relevant there.
 
 | App | Napari | Fiji | QuPath | Notebook |
 |---|---|---|---|---|
@@ -41,7 +41,7 @@ Hosts do **not** need to install the application's scientific dependencies. The 
 
 discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)"
 
-The `hosts:` line of an app's `labconstrictor-app.yaml` (App-Centre metadata, schema `.tools/schema/labconstrictor-app.schema.json` of the template) is the binding rule in Tools (PROTOCOL.md, section "App hosts (which host lists an app)"); the three hosts honour it (merged); installers pass it from template 0.1.18 (`--app-manifest` or `--hosts`; template PR #33, not merged: it waits for the Tools tag `v0.3.0-alpha.1`).
+The `hosts:` line of an app's `labconstrictor-app.yaml` (App-Centre metadata, schema `.tools/schema/labconstrictor-app.schema.json` of the template) is the binding rule in Tools (PROTOCOL.md, section "App hosts (which host lists an app)"); the three hosts honour it (merged); installers pass it from template 0.1.18 (`--app-manifest` or `--hosts`; template PR #33, merged 14 Oct 2026; the current release of every app is built with it).
 
 This is a shared contract, **not a promise that every host implements every presentation hint**. For example, an image selection, a dynamic dropdown or an output table may be handled differently by each host. Consult the relevant host README for current behavior and limits.
 

@@ -4,7 +4,7 @@ Part of the [human test protocol](../HUMAN_TEST_PROTOCOL.md): fill in its record
 (release 1.1.5). **Discovery: hidden in Napari, Fiji and QuPath (notebook only).** It is **not** a
 host UI test app: earlier versions of this protocol used it as a second app in Napari and Fiji, that expectation is gone.
 
-**What is shipped in release 1.1.2 (verified in the tagged source):** the `celltracks_lc_tools` module declares **Calculate Track Metrics** (`calculate_metrics`), the installer pins Tools `v0.3.0-alpha.1` and registers the module with `--app-manifest`, and `labconstrictor-app.yaml` declares `hosts: [notebook]`. It **must be registered but not offered in Napari, Fiji or QuPath**. A missing registration is a failure even when it makes the hosts appear to hide the app. The actual installer behaviour remains to be verified by a human.
+**What is shipped since release 1.1.2 (verified in the tagged sources of 1.1.2 and 1.1.5):** the `celltracks_lc_tools` module declares **Calculate Track Metrics** (`calculate_metrics`), the installer pins Tools `v0.3.0-alpha.1` and registers the module with `--app-manifest`, and `labconstrictor-app.yaml` declares `hosts: [notebook]`. It **must be registered but not offered in Napari, Fiji or QuPath**. A missing registration is a failure even when it makes the hosts appear to hide the app. The actual installer behaviour remains to be verified by a human.
 
 ## CT-1. Install and open the notebook
 **Do:** install the latest release (protocol S0 and S1: a path without a space). Start the app from the menu or desktop and open a notebook it offers.

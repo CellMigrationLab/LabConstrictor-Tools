@@ -316,7 +316,7 @@ A mismatch is a **Major** FAIL (an app that must be hidden is shown, or one that
 
 ### D3. CellTracksColab is offered nowhere
 **Do:** install CellTracksColab next to another app, and first confirm that `list` shows CellTracksColab's registered `Calculate Track Metrics` tool and notebook-only host declaration (CT-2). Then look at all three hosts (Rescan apps / restart Fiji).
-**Expect:** registered, but **not in any of the three host lists**; no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule; the declaration exists only once the installers pass `--app-manifest` (template 0.1.18 and the app sync are not merged yet), so verify the actual installed manifest/registration before considering an absent host entry a PASS.
+**Expect:** registered, but **not in any of the three host lists**; no error. The host writes `'CellTracksColab' is not listed in <host>: the app declares hosts: notebook` to the Tools log and shows it wherever it reports left-out apps (write down the line you see). The other app still works. The hosts honour the rule and the installers pass the declaration with `--app-manifest` (template 0.1.18 and later, which every current app release uses); still verify the actual installed manifest/registration before considering an absent host entry a PASS.
 
 - [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
