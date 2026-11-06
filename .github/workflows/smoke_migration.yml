@@ -28,7 +28,7 @@ on:
       app_ref:
         description: "Branch or tag of the app that has the tools module"
         required: false
-        default: claude/merge-bridge-test
+        default: main
       old_template_ref:
         description: "Commit, tag or branch of the template whose installer scripts are the old ones (version 0.1.15, no hooks)"
         required: false
@@ -64,7 +64,7 @@ env:
   TEMPLATE_REPO: ${{ inputs.template_repo || 'CellMigrationLab/LabConstrictor' }}
   TEMPLATE_REF: ${{ inputs.template_ref || 'main' }}
   APP_REPO: ${{ inputs.app_repo || 'CellMigrationLab/NucleiSky' }}
-  APP_REF: ${{ inputs.app_ref || 'claude/merge-bridge-test' }}
+  APP_REF: ${{ inputs.app_ref || 'main' }}
   OLD_TEMPLATE_REF: ${{ inputs.old_template_ref || '900d0cac40ad503642e6b0d94b6e5337f38117d8' }}
   PYTHON_PACKAGE: ${{ inputs.python_package || 'nucleisky' }}
   APP_NAME: ${{ inputs.app_name || 'NucleiSky' }}
