@@ -21,6 +21,7 @@ Each host reads the registry. Which app each host *must* offer is the discovery 
 | Feature | Napari | Fiji | QuPath |
 |---|---|---|---|
 | Plain parameters, bounds, units, tooltips | yes | yes | yes |
+| Input help marker (ⓘ): an ⓘ after the label of each input that has a description (required of hosts, Tools #147) | planned: the description on hover and on keyboard focus; a click keeps it open | planned: the ⓘ on the label, the description on hover (SciJava's dialog allows no more) | planned: the description on hover and on keyboard focus; a click keeps it open |
 | `Optional` / "set" box | yes | yes ("Set <name>") | yes |
 | `Group` headings, `Advanced` section | yes (checkbox toggles it) | headings in the dialog | heading, folded section |
 | `Collapsed` (accordion) | yes (click the heading) | plain heading (SciJava cannot fold) | yes (titled pane) |

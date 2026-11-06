@@ -544,7 +544,13 @@ def run_suite(
     return reports, untested
 
 
-def format_report(reports: list[CaseReport], untested: list[str]) -> str:
+def format_report(
+    reports: list[CaseReport], untested: list[str], undescribed: list[tuple[str, list[str]]] | None = None
+) -> str:
+    """The text report of `labconstrictor-tools test`; `undescribed` (introspection.inputs_without_description) adds the same
+    missing-description warnings as `check`."""
+    from .introspection import missing_description_warning
+
     lines = []
     for r in reports:
         mark = "-" if r["status"] == "SKIPPED" else ("✖" if r["problems"] else "✔")
@@ -559,6 +565,8 @@ def format_report(reports: list[CaseReport], untested: list[str]) -> str:
             lines.append("      | %s" % text)
     if untested:
         lines.append("⚠ tools with no test case: %s" % ", ".join(untested))
+    for tool_id, names in undescribed or []:
+        lines.append("⚠ %s" % missing_description_warning(tool_id, names))
     failed = sum(1 for r in reports if r["problems"])
     ran = sum(1 for r in reports if r["status"] != "SKIPPED")
     lines.append("%d run, %d failed, %d skipped" % (ran, failed, len(reports) - ran))
