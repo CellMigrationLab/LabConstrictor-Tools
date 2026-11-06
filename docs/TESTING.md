@@ -2,7 +2,7 @@
 
 The round-trip tests prove that every value that travels between a host and a tool arrives unchanged, in both directions, through
 every real path, and that the tests themselves would notice if the production code broke. (Older suites are listed in
-[tests/README.md](../tests/README.md); this page covers the round-trip work.)
+[tests/README.md](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/tests/README.md); this page covers the round-trip work.)
 
 ## The rule: production code, independent oracles
 
@@ -209,7 +209,7 @@ Not covered: Fiji and QuPath on macOS and Windows (their GUI test runners need X
 
 ### Which apps and hosts the sandbox covers today
 
-The discovery matrix (decided 14 Oct; binding rule in Tools, feature `app_hosts_v1`, Tools PR #133, merged; discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)") is in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix): CellTracksColab hidden from Napari, Fiji and QuPath (notebook only); Guess the Condition, Playground and NucleiSky listed in all three; VLab4Mic listed in Napari and Fiji, not in QuPath. The sandbox reads the expectation from `tests/release_sandbox/expected_hosts.json` (the contract for the host drivers is in [tests/release_sandbox/README.md](../tests/release_sandbox/README.md)). What the workflow can assert (read from `release_sandbox.yml` and `tests/release_sandbox/`, 14 Oct 2026):
+The discovery matrix (decided 14 Oct; binding rule in Tools, feature `app_hosts_v1`, Tools PR #133, merged; discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)") is in [HUMAN_TEST_PROTOCOL.md](HUMAN_TEST_PROTOCOL.md#3-which-host-shows-which-app-the-discovery-matrix): CellTracksColab hidden from Napari, Fiji and QuPath (notebook only); Guess the Condition, Playground and NucleiSky listed in all three; VLab4Mic listed in Napari and Fiji, not in QuPath. The sandbox reads the expectation from `tests/release_sandbox/expected_hosts.json` (the contract for the host drivers is in [tests/release_sandbox/README.md](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/tests/release_sandbox/README.md)). What the workflow can assert (read from `release_sandbox.yml` and `tests/release_sandbox/`, 14 Oct 2026):
 
 | Item | Today |
 |---|---|

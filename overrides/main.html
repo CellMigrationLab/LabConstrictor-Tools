@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{#- Unlisted until launch: while extra.listed is false (mkdocs.yml), search engines are asked not to index any page. -#}
+{% block extrahead %}
+  {{ super() }}
+  {% if not config.extra.listed %}<meta name="robots" content="noindex, nofollow">{% endif %}
+{% endblock %}

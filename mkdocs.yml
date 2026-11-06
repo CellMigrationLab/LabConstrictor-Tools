@@ -1,0 +1,91 @@
+# The documentation site of LabConstrictor Tools, built with Zensical from the Markdown in docs/ (the Markdown stays the source:
+# fix a page there, never in the built site). Build: pip install -r requirements-docs.txt && zensical build --strict
+site_name: LabConstrictor Tools
+site_description: Declare Python analysis tools once and use them in napari, Fiji, QuPath, notebooks and the command line.
+site_author: Cell Migration Lab and Henriques Lab
+site_url: https://cellmigrationlab.github.io/LabConstrictor-Tools/
+repo_url: https://github.com/CellMigrationLab/LabConstrictor-Tools
+repo_name: CellMigrationLab/LabConstrictor-Tools
+edit_uri: blob/main/docs/
+copyright: © Cell Migration Lab and Henriques Lab
+docs_dir: docs
+use_directory_urls: true
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  font: false                     # the LabConstrictor fonts come from the main site (docs/assets/stylesheets/lc-docs.css)
+  logo: https://cellmigrationlab.github.io/LabConstrictor-Site/assets/images/logo.png
+  favicon: https://cellmigrationlab.github.io/LabConstrictor-Site/assets/images/favicon.png
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.view
+  palette:
+    scheme: default
+    primary: custom
+    accent: custom
+
+nav:
+  - Home: index.md
+  - Use apps:
+      - Use apps in napari, Fiji and QuPath: user-guide.md
+      - Install an app and the hosts: INSTALL.md
+      - Operations and troubleshooting: OPERATIONS.md
+  - Write tools:
+      - Writing tools: AUTHORING.md
+      - What each host does with each feature: HOST_FEATURES.md
+      - The manifest: MANIFEST.md
+  - How it works:
+      - Where the tools live: REPOSITORIES.md
+      - Protocol reference: PROTOCOL.md
+      - Conformance data: CONFORMANCE.md
+      - How the template registers tools: LABCONSTRICTOR_INTEGRATION.md
+  - Test:
+      - Start here: TESTER_START_HERE.md
+      - Human test protocol: HUMAN_TEST_PROTOCOL.md
+      - Test checklist: TEST_MATRIX.md
+      - Test data: TEST_DATA.md
+      - App test pages:
+          - Playground: human_tests/playground.md
+          - NucleiSky: human_tests/nucleisky.md
+          - Guess the Condition: human_tests/guessthecondition.md
+          - VLab4Mic: human_tests/vlab4mic.md
+          - CellTracksColab: human_tests/celltrackscolab.md
+      - Automated testing: TESTING.md
+      - Test strategy: TEST_STRATEGY.md
+  - Maintain:
+      - Host parity inventory: HOST_PARITY.md
+      - Regression ledger: REGRESSION_LEDGER.md
+      - Design record:
+          - Wave 1: SPEC_WAVE1.md
+          - Wave 2: SPEC_WAVE2.md
+          - Wrong-science fixes: SPEC_WRONG_SCIENCE.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - fenced_code
+  - sane_lists
+  - tables
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+extra:
+  # false = not for search engines yet (noindex on every page, see overrides/main.html). Set to true at launch.
+  listed: false
+
+extra_css:
+  - assets/stylesheets/lc-docs.css
