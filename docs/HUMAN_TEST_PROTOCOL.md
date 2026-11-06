@@ -68,13 +68,13 @@ knowing which pieces met.) The same table, with the install lines, is in [TESTER
 | Tools | `v0.3.0-alpha.1` (Python version `0.3.0a1`); installed by every app below, nothing to download | https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/tag/v0.3.0-alpha.1 |
 | Napari plugin | `v0.1.0-alpha.4` | `https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.4.zip` |
 | Fiji plugin | `v0.1.0-alpha.4`: `labconstrictor-fiji-v0.1.0-alpha.4.jar` (also `labconstrictor-fiji-script-v0.1.0-alpha.4.zip`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/tag/v0.1.0-alpha.4 |
-| QuPath plugin | `v0.1.0-alpha.4`: `labconstrictor-qupath-v0.1.0-alpha.4.jar` (also `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.4 |
+| QuPath plugin | `v0.1.0-alpha.5` (alpha.4 plus the Windows run-record fix): `labconstrictor-qupath-v0.1.0-alpha.5.jar` (also `LabConstrictorTools-all.groovy`, `SHA256SUMS`) | https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/tag/v0.1.0-alpha.5 |
 | Napari / Fiji / QuPath themselves | Napari 0.9 or newer (Python 3.11+, Qt6); the current "Fiji with Java"; QuPath **0.7.0** exactly (the plugin is built against it) | https://napari.org, https://fiji.sc, https://qupath.github.io |
 | NucleiSky | **0.1.4** | https://github.com/CellMigrationLab/NucleiSky/releases/tag/0.1.4 |
 | Playground | **0.0.5** | https://github.com/CellMigrationLab/LabConstrictor-Playground/releases/tag/0.0.5 |
 | VLab4Mic | **0.1.7** | https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases/tag/0.1.7 |
 | Guess the Condition | **0.0.1** | https://github.com/CellMigrationLab/GuessTheCondition/releases/tag/0.0.1 |
-| CellTracksColab | **1.1.3** (notebook app only) | https://github.com/CellMigrationLab/CellTracksColab/releases/tag/1.1.3 |
+| CellTracksColab | **1.1.5** (notebook app only) | https://github.com/CellMigrationLab/CellTracksColab/releases/tag/1.1.5 |
 | Installer file names | `<App>-<version>-Windows-x86_64.exe`, `<App>-<version>-MacOSX-arm64.pkg`, `<App>-<version>-Linux-x86_64.sh` (Playground: `LabConstrictorPlayground-...`) | on each release page |
 
 All five apps install Tools `v0.3.0-alpha.1` (their `post_install` hooks pin it). An app release that pins an older Tools is **not** part of this
@@ -178,7 +178,7 @@ your system, never the Linux file on a Mac). This takes several minutes (6 to 8 
 * Windows: expect `Found <package>_lc_tools: registering ...` followed by a block of text containing `"schema_path"`. (The Windows script does not print "Tools registered".)
 * Neither: no line starting with `WARNING: tool registration failed`.
 
-**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab 1.1.3:** its bridge tool `Calculate Track Metrics` **must be registered** and visible in `list`, with notebook-only hosts; absence from the three host UIs is checked separately in CT-3/D3.
+**Expect:** `list` shows the app at the release version with its tools (the case file of the app names them). **CellTracksColab 1.1.5:** its bridge tool `Calculate Track Metrics` **must be registered** and visible in `list`, with notebook-only hosts; absence from the three host UIs is checked separately in CT-3/D3.
 
 - [ ] PASS  - [ ] FAIL  - [ ] BLOCKED  - [ ] N/A   Notes: ______________________________
 
@@ -277,7 +277,7 @@ Use `napari[pyqt6]` (PySide6 is the other tested backend, `napari[pyside6]`); **
 (Source: `LabConstrictor-Fiji` README, "Known limits of the pixel-size field", and [HOST_FEATURES.md](HOST_FEATURES.md).)
 
 ### Q0. QuPath
-**Do (jar, preferred):** install QuPath **0.7.0** (QuPath 0.7 is built with Java 25 and the jar needs it; older QuPath versions are not supported). Download `labconstrictor-qupath-v0.1.0-alpha.4.jar` from the QuPath release of the record sheet, drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences), restart QuPath.
+**Do (jar, preferred):** install QuPath **0.7.0** (QuPath 0.7 is built with Java 25 and the jar needs it; older QuPath versions are not supported). Download `labconstrictor-qupath-v0.1.0-alpha.5.jar` from the QuPath release of the record sheet, drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences), restart QuPath.
 **Alternative (Script Editor):** download the **single file** `LabConstrictorTools-all.groovy` from the same release, open it in QuPath's Script Editor (`Automate > Show script editor`) and run it. The repository's source script is split into several part files joined by the build; **the parts are not usable in the Script Editor**, only the all-in-one file from the release (the jar joins the parts itself). Write down which one you used.
 
 **Expect:** **Extensions > LabConstrictor tools...** exists. With no app registered the window says "No LabConstrictor app is registered on this machine" (install an app, press **Rescan apps**).
