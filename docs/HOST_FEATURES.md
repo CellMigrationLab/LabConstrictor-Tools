@@ -30,7 +30,7 @@ Each host reads the registry. Which app each host *must* offer is the discovery 
 | `EnabledWhen` | greys out | ignored: every field stays editable | greys out |
 | `PixelSizeOf` | prefilled from the layer's scale and length unit; a bare scale with pixel units is *not calibrated* (blank, run blocked) | prefilled from the calibration; uncalibrated: blank, run blocked; no "use the image's calibration" button, and typing the value the box shows clears it (CAL-T9, see above) | prefilled from the image; uncalibrated: blank, run blocked |
 | `ChoicesFrom` (dropdown) | yes, updates when its inputs change | yes, from the previous run's values; text field the first time | yes, updates when its inputs change |
-| `ClearAfterRun` | yes | not needed (a fresh dialog every run) | yes |
+| `ClearAfterRun` | yes | yes, in the form that comes back after a run | yes |
 | `Replace` | updates the layer or dock in place | closes the previous window, overlay or ROIs | reuses the results window, replaces the annotation |
 | `PickChannel` | RGB colours, channels of a TIFF file | a channel number | channel names |
 | `RegionOf` (run on the selection) | "use the selection" box: the selected Shapes layer (labels 1..N) | "Use the selection" box: ROI Manager selection, else the image ROI (labels 1..N) | "use the selection" box: selected annotations (labels 1..N) |
