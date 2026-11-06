@@ -114,6 +114,53 @@ class CliAndRegistry(unittest.TestCase):
         self.assertEqual(bad.returncode, 1)
         self.assertIn("no type annotation", bad.stdout)
 
+    def test_check_warns_about_inputs_without_description(self) -> None:
+        """#147: hosts show an input's description as its help, so `check` names the inputs without one, as a warning only."""
+        d = Path(tempfile.mkdtemp())
+        (d / "help_tools.py").write_text(
+            '''from typing import Annotated
+from labconstrictor_tools import Description, Scalars, tool
+
+
+@tool()
+def partly(
+    declared: Annotated[float, Description("How bright a spot must be")] = 1.0,
+    documented: int = 2,
+    blank: Annotated[str, Description("   ")] = "x",
+    bare: bool = False,
+) -> Scalars:
+    """Partly described.
+
+    Args:
+        documented: Found in the docstring.
+    """
+    return {}
+
+
+@tool()
+def lone(only: int = 1) -> Scalars:
+    return {}
+
+
+@tool()
+def described(value: Annotated[int, Description("A count")] = 1) -> Scalars:
+    return {}
+''',
+            encoding="utf-8",
+        )
+        checked = cli("check", "--module", "help_tools", "--pythonpath", str(d), home=self.home)
+        self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)  # a warning, never a failure
+        warnings = [line for line in checked.stdout.splitlines() if line.startswith("⚠")]
+        self.assertEqual(
+            warnings,
+            [
+                '⚠ tool lone: 1 input has no description (only): add Description("...") or an Args: entry in the docstring',
+                '⚠ tool partly: 2 inputs have no description (blank, bare): add Description("...") or an Args: entry'
+                " in the docstring",
+            ],
+            checked.stdout,
+        )  # a blank Description counts as none; an Args: entry counts as one; a fully described tool is not named
+
     def test_doctor_reports_healthy_stale_and_broken_installs(self) -> None:
         register(self.home, "synthetic")
         self.assertEqual(cli("doctor", home=self.home).returncode, 0)

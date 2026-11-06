@@ -42,7 +42,7 @@ app lists in `construct.yaml` under `extra_files` like the rest of `src/`). Any 
 | `x: Folder` | a folder (you receive a `Path`; the worker checks that it exists; hosts show a folder chooser) |
 | a default value | the form's default; no default = required |
 | `Optional[T]`, `T \| None`, or a default of `None` | optional **and unset by default**: Napari shows a "set" checkbox, Fiji "Set <name>"; if it stays unticked your function receives `None` (never 0 or an empty string) |
-| `Annotated[float, Min(0), Max(1), Unit("um/px"), Description("..."), Label("...")]` | bounds (enforced everywhere), unit, tooltip, label |
+| `Annotated[float, Min(0), Max(1), Unit("um/px"), Description("..."), Label("...")]` | bounds (enforced everywhere), unit, the input's help (see rule 8), label |
 | `Annotated[Image, Axes("YX")]` | the tool wants exactly that many dimensions; a clear error otherwise |
 | `Annotated[float, PixelSizeOf("image")]` | hosts prefill this from the image's calibration (converted to um) |
 | `Annotated[..., Group("Segmentation")]` | the parameter is listed under that heading; the parameters of a group are shown together |
@@ -54,7 +54,7 @@ app lists in `construct.yaml` under `extra_files` like the rest of `src/`). Any 
 | `Annotated[str, ChoicesFrom("list_conditions", depends=["results_folder", "user_name"])]` | a dropdown filled by another tool (which returns `Scalars` with a `choices` list); a text field when it cannot be answered, so the tool accepts any string |
 | `Annotated[str, ClearAfterRun()]` | Napari empties/resets the field after a successful run (a stale answer cannot be sent twice) |
 | `Annotated[..., EnabledWhen("other")]` or `EnabledWhen("other", "a", "b")` | greyed out in Napari unless `other` is set/true or equals one of the values; **Fiji ignores it** (all fields stay editable) |
-| docstring `Args:` section | tooltips |
+| docstring `Args:` section | the inputs' help, as `Description` (`Description` wins when both are given) |
 
 Return one value or a tuple. Annotate the return type with what it is:
 
@@ -83,6 +83,12 @@ Return one value or a tuple. Annotate the return type with what it is:
 5. **Write outputs through the return value**, not into the app folder (it may be read-only, e.g. on a network share).
 6. **"Nothing found" is not an error.** When the honest answer is "no result" (no match, no nuclei), raise `ToolError("no_match", "No match found: ...say what to try...")` (or code `no_result`). Napari shows it as a notice (a warning sign, not a red cross) and Fiji as a plain message window instead of an error dialog.
 7. **Presentation hints are only hints.** `Group`, `Advanced` and `EnabledWhen` may be ignored by a host (Fiji ignores `EnabledWhen`; older hosts ignore all three), so the function must accept every parameter whether or not it is "enabled".
+8. **Describe every input.** The description is the input's help: hosts show it when the person points at the field, and an
+   ⓘ after the label says it is there (Tools #147; each host's status is in [HOST_FEATURES.md](HOST_FEATURES.md)). It is expected for technical parameters and unfamiliar terms, and recommended
+   for all. One line: what the value does and a typical value, e.g. `Description("Fraction of the intensity range that separates
+   blobs from background; 0.3 suits most images")`. Write it with `Description("...")` or in the docstring's `Args:` section.
+   `labconstrictor-tools check` and `test` print a warning for each tool with inputs that have none (it never fails them):
+   `⚠ tool find_spots: 2 inputs have no description (threshold, min_size): add Description("...") or an Args: entry in the docstring`.
 
 ## Where do images come from?
 

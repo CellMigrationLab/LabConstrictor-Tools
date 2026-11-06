@@ -503,3 +503,25 @@ def _check_choice_sources(tools: list[ToolSchema]) -> None:
                     raise DeclarationError(
                         "%s: the source tool's required parameter %r is not in depends" % (where, name)
                     )
+
+
+def inputs_without_description(schema: AppSchema) -> list[tuple[str, list[str]]]:
+    """(tool id, its inputs that have no description), for each tool with at least one. A description is recommended for every
+    input: hosts show it as the input's help (tooltip, ⓘ). `check` and `test` warn about these; they never fail for it (#147).
+    """
+    found = []
+    for t in schema["tools"]:
+        names = [p["name"] for p in t["inputs"] if not str(p.get("description", "")).strip()]
+        if names:
+            found.append((t["id"], names))
+    return found
+
+
+def missing_description_warning(tool_id: str, names: list[str]) -> str:
+    """The one warning line for a tool whose inputs `names` have no description (said the same way by `check` and `test`)."""
+    return 'tool %s: %d %s no description (%s): add Description("...") or an Args: entry in the docstring' % (
+        tool_id,
+        len(names),
+        "input has" if len(names) == 1 else "inputs have",
+        ", ".join(names),
+    )

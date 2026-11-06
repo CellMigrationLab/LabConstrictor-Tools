@@ -10,6 +10,8 @@
                               "minimum"?, "maximum"?, "unit"?, "axes"?, "pixel_size_of"?, "nullable"?, "group"?, "advanced"?, "enabled_when"?, "group_collapsed"?, "clear_after_run"?, "choices_from"?, "pick_channel"? } ],
                "outputs": [ { "name", "type", "axes"?, "display"?: {"apply_to", "relative_to"?}, "replace"? } ] } ] }
 ```
+An input's `description` is optional in the protocol but recommended for every input: it is the input's help, which hosts show on hover and, as each host adopts it, with an ⓘ after the label ([HOST_FEATURES.md](HOST_FEATURES.md)). `labconstrictor-tools check` and `test` warn about inputs without one; nothing refuses them.
+
 Value rules (enforced by the worker, each violation is a `FAILURE` with code `invalid_parameter` or a declaration error at registration):
 * `boolean` must be a JSON `true`/`false` (never text or numbers); `choice` values must match a choice in type and value; a `float` is never a boolean.
 * A parameter given as `null` is treated as not given: it takes its default, or (when `nullable`) the tool receives `None`. `Optional[...]` with a non-None default is refused when the app is registered (a host can only leave it at the default or unset).

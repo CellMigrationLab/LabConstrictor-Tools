@@ -261,7 +261,12 @@ def _hints(item: Mapping[str, Any]) -> str:
 
 def cmd_check(args: argparse.Namespace) -> int:
     from .decorators import tools_in
-    from .introspection import DeclarationError, describe_tools
+    from .introspection import (
+        DeclarationError,
+        describe_tools,
+        inputs_without_description,
+        missing_description_warning,
+    )
 
     for path in args.pythonpath:
         sys.path.insert(0, path)
@@ -307,6 +312,10 @@ def cmd_check(args: argparse.Namespace) -> int:
         )
     if seconds > SLOW_DECLARATIONS_S:
         print("⚠ loading the declarations took %.1f s" % seconds)
+    for tool_id, names in inputs_without_description(
+        schema
+    ):  # a warning: hosts show the description as the input's help
+        print("⚠ %s" % missing_description_warning(tool_id, names))
     return manifest_code
 
 
@@ -336,10 +345,22 @@ def cmd_test(args: argparse.Namespace) -> int:
         check_cancel=args.check_cancel,
         python=args.python,
     )
+    from .introspection import describe_tools, inputs_without_description
+
+    undescribed = inputs_without_description(describe_tools(args.module))  # run_suite imported the module
     if args.json:
-        print(json.dumps({"reports": reports, "untested": untested}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "reports": reports,
+                    "untested": untested,
+                    "undescribed": [{"tool": t, "inputs": names} for t, names in undescribed],
+                },
+                indent=2,
+            )
+        )
     else:
-        print(testing.format_report(reports, untested))
+        print(testing.format_report(reports, untested, undescribed))
     return 1 if any(r["problems"] for r in reports) or not reports else 0
 
 

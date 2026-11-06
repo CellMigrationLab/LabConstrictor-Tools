@@ -45,6 +45,10 @@ class TestCommand(unittest.TestCase):
         )  # fmt: skip
         self.assertEqual(code, 0, out)
         self.assertIn("4 run, 0 failed", out)
+        self.assertIn(
+            '⚠ tool scalar_echo: 2 inputs have no description (a, b): add Description("...") or an Args: entry',
+            out,
+        )  # the same warning as `check` (#147); the run still passes
 
     def test_wrong_expectation_fails_the_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -66,7 +70,9 @@ class TestCommand(unittest.TestCase):
                 "test", "--module", SYNTHETIC, "--cases", str(cases), "--json",
             )  # fmt: skip
         self.assertEqual(code, 1, out)
-        reports = json.loads(out[out.index("{") :])["reports"]
+        result = json.loads(out[out.index("{") :])
+        reports = result["reports"]
+        self.assertIn({"tool": "scalar_echo", "inputs": ["a", "b"]}, result["undescribed"])
         self.assertIn("sum is 3.0, expected 99", reports[0]["problems"][0])
         self.assertIn("status FAILED, expected COMPLETE", reports[1]["problems"][0])
 
