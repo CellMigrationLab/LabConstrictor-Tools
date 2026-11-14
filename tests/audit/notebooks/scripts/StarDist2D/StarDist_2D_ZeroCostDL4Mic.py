@@ -385,8 +385,8 @@ def oracle(ctx: Any) -> list[tuple[str, str, str]]:
             continue
         labels = tifffile.imread(out / "small_blobs.tif")
         count = _objects(out / "small_blobs.tif")
-        listed = (
-            csv.reader((out / "Nuclei_count.csv").read_text(encoding="utf-8").splitlines())
+        listed: list[list[str]] = (
+            list(csv.reader((out / "Nuclei_count.csv").read_text(encoding="utf-8").splitlines()))
             if present["Nuclei_count.csv"]
             else []
         )
