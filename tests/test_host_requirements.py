@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 import _paths  # noqa: F401  (must come first)
-import yaml
+import yaml  # type: ignore[import-untyped]  # PyYAML is a test extra; its stubs are not installed
 from _paths import GENERIC_PREFIX, SYNTHETIC_MODULE
 from test_cli_and_registry import cli
 
