@@ -21,7 +21,7 @@ from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
-from . import app_hosts, log, registry, retention
+from . import app_hosts, host_requirements, log, registry, retention
 from .client import Task
 from .command import quote
 from .structures import AppSchema, ParamSchema, RegistryEntry, ToolSchema
@@ -302,6 +302,9 @@ def cmd_check(args: argparse.Namespace) -> int:
     if args.app_manifest:
         manifest_code, line = app_hosts.manifest_report(args.app_manifest)
         print(line)
+        requirements_code, line = host_requirements.manifest_report(args.app_manifest)
+        print(line)
+        manifest_code = max(manifest_code, requirements_code)
     if heavy:
         print(
             "⚠ importing this module also imported %s - move those imports inside the tool functions so that"

@@ -71,7 +71,8 @@ def _add_register_command(sub: "Subparsers") -> None:
     )
     declared.add_argument(
         "--app-manifest",
-        help="labconstrictor-app.yaml of the app: its hosts: line says which hosts may list it",
+        help="labconstrictor-app.yaml of the app: its hosts: line says which hosts may list it, "
+        "its host_requirements: block which plugin versions it needs",
     )
     register.add_argument(
         "--dir", help="write the entry here instead of the per-user registry (e.g. a shared folder)"
@@ -110,7 +111,10 @@ def _add_check_command(sub: "Subparsers") -> None:
     check = sub.add_parser("check", help="validate a declaration module (for app authors)")
     check.add_argument("--module", required=True)
     check.add_argument("--pythonpath", action="append", default=[])
-    check.add_argument("--app-manifest", help="also check the hosts: line of this labconstrictor-app.yaml")
+    check.add_argument(
+        "--app-manifest",
+        help="also check the hosts: line and host_requirements: of this labconstrictor-app.yaml",
+    )
 
 
 def _add_test_command(sub: "Subparsers") -> None:
@@ -224,10 +228,11 @@ def _main(argv: list[str] | None = None) -> int:
 
         Worker(args.module, args.pythonpath).serve()
     elif args.command == "register":
-        from . import app_hosts, registry
+        from . import app_hosts, host_requirements, registry
 
         try:
             hosts = app_hosts.from_arguments(args.hosts, args.app_manifest)
+            requirements = host_requirements.from_manifest(args.app_manifest)
         except ValueError as problem:
             print("labconstrictor-tools register: %s; nothing was registered" % problem, file=sys.stderr)
             return 2
@@ -247,6 +252,7 @@ def _main(argv: list[str] | None = None) -> int:
             args.display_name,
             args.dir,
             hosts,
+            requirements,
         )
         print(json.dumps(entry, indent=2))
     elif args.command == "unregister":

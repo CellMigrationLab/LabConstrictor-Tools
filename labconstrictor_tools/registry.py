@@ -19,10 +19,11 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
+from typing import Any
 
-from . import app_hosts
+from . import app_hosts, host_requirements
 from .command import quote
 from .structures import AppSchema, RegistryEntry
 
@@ -121,11 +122,14 @@ def register(
     display_name: str | None = None,
     directory: str | Path | None = None,
     hosts: Sequence[str] | None = None,
+    requirements: Mapping[str, Any] | None = None,
 ) -> RegistryEntry:
     """Register an installed app: generate its schema with the app's own interpreter, cache it, write the entry.
 
     `hosts` is the app's declared list (app_hosts.py): invalid -> ValueError and nothing is written; None -> the entry has no
     `hosts` field, so every host lists the app, and that is logged (older installers register this way).
+    `requirements` is the app's `host_requirements` (host_requirements.py): invalid -> ValueError and nothing is written;
+    None -> no field (any plugin version will do).
     """
     _check_name(name)
     declared = (
@@ -133,6 +137,7 @@ def register(
         if hosts is None
         else app_hosts.parse_declared(hosts if isinstance(hosts, (str, list)) else list(hosts))
     )
+    required = None if requirements is None else host_requirements.parse_declared(requirements)
     # a relative path is only meaningful from the folder the person registered in: store absolute ones (not resolved, a venv's python is a symlink)
     prefix = os.path.abspath(prefix)
     pythonpath = [os.path.abspath(x) for x in pythonpath]
@@ -170,6 +175,8 @@ def register(
         log.warning(app_hosts.ABSENT.format(app=name))
     else:
         entry["hosts"] = declared
+    if required:
+        entry["host_requirements"] = required
     _write_atomic(
         target / (name + ".json"), json.dumps(entry, indent=2)
     )  # entry last: it is what makes the app visible
@@ -201,7 +208,6 @@ def _generate_schema(
             % (name, REGISTER_TIMEOUT_S, interpreter, module, quote(module))
         ) from error
     if result.returncode:
-
         log.error(
             "register %s failed (exit %s) command=%s\n%s", name, result.returncode, command, result.stderr
         )

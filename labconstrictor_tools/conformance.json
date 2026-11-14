@@ -2666,5 +2666,437 @@
     "app_hosts_v1"
    ]
   }
+ },
+ "host_requirements": {
+  "_about": "docs/PROTOCOL.md, 'Host requirements'. Reference: labconstrictor_tools.host_requirements.check(entry, host, host_version, host_features) -> (ok | warn | refuse, sentence). Each case gives the registry `entry` (only the fields that matter), the asking `host` with its own `host_version` (null: unknown) and `host_features`, and the expected verdict with the exact sentence. 'error' means the host's own code is wrong (an unknown host name). `version_order` lists versions oldest first: a host's version comparison must sort them in this order (and treat `v0.1.0-alpha.6` and `0.1.0a6` as equal).",
+  "feature": "host_requirements_v1",
+  "hosts": [
+   "napari",
+   "fiji",
+   "qupath"
+  ],
+  "messages": {
+   "too_old": {
+    "template": "{app} needs LabConstrictor-{plugin} {min_version} or newer{why}; this is {host_version}. Update the plugin: {url}"
+   },
+   "missing": {
+    "template": "{app} needs LabConstrictor-{plugin} with {features}{why}; this plugin does not have it. Update the plugin: {url}"
+   },
+   "unknown_version": {
+    "template": "{app} needs LabConstrictor-{plugin} {min_version} or newer{why}; the version of this plugin is unknown. Update the plugin if the app misbehaves: {url}"
+   },
+   "invalid": {
+    "template": "{app} has a host_requirements declaration that is not valid ({problem}); register the app again with a valid one"
+   }
+  },
+  "update_url": {
+   "template": "https://github.com/CellMigrationLab/LabConstrictor-{plugin}/releases/latest",
+   "plugin": {
+    "napari": "napari",
+    "fiji": "Fiji",
+    "qupath": "QuPath"
+   }
+  },
+  "version_order": [
+   "0.1.0.dev0",
+   "0.1.0a5.dev0",
+   "0.1.0a5",
+   "v0.1.0-alpha.6",
+   "0.1.0a7",
+   "0.1.0b1",
+   "0.1.0rc1",
+   "0.1.0",
+   "0.1.0.post1",
+   "0.1.1",
+   "0.2.0",
+   "1.0.0"
+  ],
+  "cases": [
+   {
+    "case": "no declaration",
+    "entry": {
+     "name": "Old"
+    },
+    "host": "qupath",
+    "host_version": "0.0.1",
+    "host_features": [],
+    "expect": "ok",
+    "sentence": ""
+   },
+   {
+    "case": "nothing for this host",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "napari",
+    "host_version": "0.1.0a5",
+    "host_features": [],
+    "expect": "ok",
+    "sentence": ""
+   },
+   {
+    "case": "new enough, feature present",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "qupath",
+    "host_version": "0.1.0a6",
+    "host_features": [
+     "shapes_owner_v1"
+    ],
+    "expect": "ok",
+    "sentence": ""
+   },
+   {
+    "case": "newer release than required",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "qupath",
+    "host_version": "0.1.0",
+    "host_features": [
+     "shapes_owner_v1"
+    ],
+    "expect": "ok",
+    "sentence": ""
+   },
+   {
+    "case": "tag with v equals PEP 440",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "fiji",
+    "host_version": "v0.1.0-alpha.6",
+    "host_features": [],
+    "expect": "ok",
+    "sentence": ""
+   },
+   {
+    "case": "older alpha warns",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "fiji",
+    "host_version": "0.1.0a5",
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "StarDist2D needs LabConstrictor-Fiji v0.1.0-alpha.6 or newer; this is 0.1.0a5. Update the plugin: https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/latest"
+   },
+   {
+    "case": "dev build of the required alpha is older",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "fiji",
+    "host_version": "0.1.0a6.dev0",
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "StarDist2D needs LabConstrictor-Fiji v0.1.0-alpha.6 or newer; this is 0.1.0a6.dev0. Update the plugin: https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/latest"
+   },
+   {
+    "case": "rc after alpha",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "fiji",
+    "host_version": "0.1.0rc1",
+    "host_features": [],
+    "expect": "ok",
+    "sentence": ""
+   },
+   {
+    "case": "feature missing warns",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "qupath",
+    "host_version": "0.1.0a7",
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "StarDist2D needs LabConstrictor-QuPath with shapes_owner_v1 (Replace keeps your own annotations); this plugin does not have it. Update the plugin: https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/latest"
+   },
+   {
+    "case": "version unknown warns",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "fiji",
+    "host_version": null,
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "StarDist2D needs LabConstrictor-Fiji v0.1.0-alpha.6 or newer; the version of this plugin is unknown. Update the plugin if the app misbehaves: https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/latest"
+   },
+   {
+    "case": "version unreadable warns",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "fiji",
+    "host_version": "SNAPSHOT",
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "StarDist2D needs LabConstrictor-Fiji v0.1.0-alpha.6 or newer; the version of this plugin is unknown. Update the plugin if the app misbehaves: https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases/latest"
+   },
+   {
+    "case": "version unknown and feature missing",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "qupath",
+    "host_version": "",
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "StarDist2D needs LabConstrictor-QuPath with shapes_owner_v1 (Replace keeps your own annotations); this plugin does not have it. Update the plugin: https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases/latest"
+   },
+   {
+    "case": "required and older refuses",
+    "entry": {
+     "name": "Strict",
+     "host_requirements": {
+      "napari": {
+       "min_version": "0.2.0",
+       "required": true
+      }
+     }
+    },
+    "host": "napari",
+    "host_version": "0.1.0a5",
+    "host_features": [],
+    "expect": "refuse",
+    "sentence": "Strict needs LabConstrictor-napari 0.2.0 or newer; this is 0.1.0a5. Update the plugin: https://github.com/CellMigrationLab/LabConstrictor-napari/releases/latest"
+   },
+   {
+    "case": "required and unknown version only warns",
+    "entry": {
+     "name": "Strict",
+     "host_requirements": {
+      "napari": {
+       "min_version": "0.2.0",
+       "required": true
+      }
+     }
+    },
+    "host": "napari",
+    "host_version": null,
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "Strict needs LabConstrictor-napari 0.2.0 or newer; the version of this plugin is unknown. Update the plugin if the app misbehaves: https://github.com/CellMigrationLab/LabConstrictor-napari/releases/latest"
+   },
+   {
+    "case": "required and new enough",
+    "entry": {
+     "name": "Strict",
+     "host_requirements": {
+      "napari": {
+       "min_version": "0.2.0",
+       "required": true
+      }
+     }
+    },
+    "host": "napari",
+    "host_version": "0.2.0",
+    "host_features": [],
+    "expect": "ok",
+    "sentence": ""
+   },
+   {
+    "case": "invalid declaration warns",
+    "entry": {
+     "name": "Bad",
+     "host_requirements": {
+      "notebook": {
+       "min_version": "1"
+      }
+     }
+    },
+    "host": "qupath",
+    "host_version": "0.1.0",
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "Bad has a host_requirements declaration that is not valid (unknown host 'notebook' in host_requirements (known: napari, fiji, qupath; the notebook needs no plugin)); register the app again with a valid one"
+   },
+   {
+    "case": "invalid version in declaration warns",
+    "entry": {
+     "name": "Bad",
+     "host_requirements": {
+      "fiji": {
+       "min_version": "latest"
+      }
+     }
+    },
+    "host": "fiji",
+    "host_version": "0.1.0",
+    "host_features": [],
+    "expect": "warn",
+    "sentence": "Bad has a host_requirements declaration that is not valid (host_requirements.fiji.min_version 'latest' is not a version like 0.1.0-alpha.6); register the app again with a valid one"
+   },
+   {
+    "case": "unknown asking host is a host bug",
+    "entry": {
+     "name": "StarDist2D",
+     "display_name": "StarDist2D",
+     "host_requirements": {
+      "qupath": {
+       "min_version": "0.1.0-alpha.6",
+       "features": [
+        "shapes_owner_v1"
+       ],
+       "why": "Replace keeps your own annotations"
+      },
+      "fiji": {
+       "min_version": "v0.1.0-alpha.6"
+      }
+     }
+    },
+    "host": "notebook",
+    "host_version": "1.0",
+    "host_features": [],
+    "expect": "error"
+   }
+  ]
  }
 }
