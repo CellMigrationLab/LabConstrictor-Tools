@@ -112,7 +112,7 @@ The problems are: `hosts must be a list of host names`, `hosts is empty; write a
 ## Host requirements (which plugin an app needs)
 Issue #155. The compatibility rules above let a **host** require a minimum Tools inside the app. This is the other direction: an **app** says which host plugin it needs, so that a person with an old LabConstrictor-Fiji, -napari or -QuPath is told to update instead of silently getting the old behaviour. Feature id `host_requirements_v1`; reference: `labconstrictor_tools.host_requirements` (`check`); vectors: `conformance.json`, section `host_requirements`.
 
-**Where the declaration comes from.** The app's `labconstrictor-app.yaml` (see [MANIFEST.md](MANIFEST.md#6-which-plugin-version-the-app-needs-host_requirements)):
+**Where the declaration comes from.** The app's `labconstrictor-app.yaml` (see [MANIFEST.md](MANIFEST.md#6-which-plugin-version-the-app-needs-host_requirements-app-manifest-not-a-tool-marker)):
 
 ```yaml
 host_requirements:
