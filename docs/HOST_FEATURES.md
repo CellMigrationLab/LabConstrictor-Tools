@@ -51,6 +51,21 @@ Not yet in any host (see the roadmap): shapes outputs, run on the selected regio
 
 How this table is kept honest: each row has a test in the host's own suite that runs the example app (`labconstrictor_tools.examples.interactions`); a change that breaks a row fails that suite.
 
+## Host feature ids (for `host_requirements`)
+An app can require a host feature by id in `host_requirements.<host>.features` ([PROTOCOL.md](PROTOCOL.md#host-requirements-which-plugin-an-app-needs)). Each host declares its ids next to its version and passes both to the rule. An id is never renamed or reused; it is added in the release that implements it.
+
+| Host | Id | Meaning | Since |
+|---|---|---|---|
+| every host | `host_requirements_v1` | the host applies the `host_requirements` rule (a host without it ignores the field) | the release that implements #155 |
+| QuPath | `shapes_owner_v1` | Replace removes only the annotations tagged with the run's `labconstrictor.output` (QuPath #48) | v0.1.0-alpha.6 |
+| Fiji | `log_progress_v1` | progress and a heartbeat in the Log window during long runs (Fiji #65) | v0.1.0-alpha.6 |
+
+| Host | Its version, as passed to `check` |
+|---|---|
+| napari | `importlib.metadata.version("napari-labconstrictor")` |
+| Fiji | the jar manifest's `Implementation-Version` (the release tag); the loose script has none: `None` (unknown). The system property `lc.fiji.plugin_version` replaces it in tests |
+| QuPath | the jar's `Implementation-Version` (the release tag); the system property `lc.qupath.plugin_version` replaces it in tests |
+
 ## Copy as command: the format every host produces
 
 Reference implementation: `labconstrictor_tools.command` (`command_line`, `python_snippet`). Fiji and QuPath build the same text.

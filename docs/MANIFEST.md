@@ -56,6 +56,21 @@ A tool declares itself with Python types and a few markers; hosts (Napari, Fiji,
 ## 5. Where the app is listed: `hosts:` (app manifest, not a tool marker)
 This one is not a marker on a tool: it is a line of the app's `labconstrictor-app.yaml`, `hosts: [notebook, napari, fiji, qupath]`, and it is **binding**. Registration copies it into the registry entry and a host never lists an app that does not name it ([PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app), feature `app_hosts_v1`). Write the hosts you have tested the app in; `[notebook]` alone means "no host lists it" (the tools stay usable from the command line). An empty list, a misspelt or capitalised name and a repeated name are refused at registration. A manifest with no `hosts:` line is accepted and the app is then listed in every host, with a warning in the log and in `check --app-manifest`: older installers work that way, new apps should say what they mean. `labconstrictor-tools check --module M --app-manifest labconstrictor-app.yaml` prints the line, and the installer's `register` step passes `--app-manifest` (template 0.1.18 and later; apps sync to it; the file has to be one of the installer's bundled files). The key may be quoted and a UTF-8 byte order mark is accepted; a form the reader does not understand is refused, never read as "no hosts".
 
+## 6. Which plugin version the app needs: `host_requirements:` (app manifest, not a tool marker)
+Also a block of `labconstrictor-app.yaml`, optional, and a **request**, not a filter: write it when the app relies on a fix or a feature of a host plugin that older plugins lack.
+
+```yaml
+host_requirements:
+  qupath:
+    min_version: 0.1.0-alpha.6
+    features: [shapes_owner_v1]
+    why: Replace keeps your own annotations
+  fiji:
+    min_version: 0.1.0-alpha.6
+```
+
+Each of `napari`, `fiji`, `qupath` takes `min_version` (a plugin release tag, `v` optional) and/or `features` (host feature ids, [HOST_FEATURES.md](HOST_FEATURES.md#host-feature-ids-for-host_requirements)), and optionally `why` (one line shown to the person) and `required: true` (refuse instead of warn; use it only when the tools really fail on older plugins). A host with an older plugin keeps listing the app and says, once, which plugin to update and where ([PROTOCOL.md](PROTOCOL.md#host-requirements-which-plugin-an-app-needs), feature `host_requirements_v1`). `labconstrictor-tools check --module M --app-manifest labconstrictor-app.yaml` prints what was read; `register --app-manifest` refuses a malformed block (an unknown host, the notebook, an unknown key, a version like `latest`). Write it as a block, as above: the inline form `{fiji: {...}}` is refused.
+
 ## Errors and progress (not markers)
 `ToolError("code", "message")` gives the person a readable message (`no_result` and `no_match` are shown as notices, not failures); `progress(fraction, "text")` updates the progress bar; `check_cancel()` lets Cancel stop the tool between steps.
 

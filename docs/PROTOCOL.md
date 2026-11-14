@@ -66,6 +66,7 @@ Feature ids (the implemented ones are in `FEATURES`; a planned id appears there 
 | `retention_prune` | the CLI command `labconstrictor-tools prune [--root results\|runs\|all] [--dry-run] [--json]` and `labconstrictor_tools.retention`: only folders carrying a valid `.lc-owner.json` and a `.lc-done.json` are ever removed ([SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) section 3; hosts only mark a run finished, then start `prune`) | in 0.2.0rc1 (tag `v0.2.0-rc.1`) and every later version |
 | `shm_order_v1` | a shared-memory image descriptor's `order` is honoured: `C` / `C_ORDER` (or no `order`) and `F` / `F_ORDER` read the block in the order it was written, the tool always gets a C-ordered copy; any other value is refused with `unreadable_image` and a message naming `'C' or 'F'` (a block read in the wrong order would give the transposed image with no error) | in 0.3.0a1. **The behaviour already existed (PR #125) before the id: this is the one case where the id is added after the change, because versions 0.2.0rc1 and 0.2.0rc2 and `main` all reported the same `features` and could not be told apart; from now on an id is added in the change that implements the behaviour.** A host that sends `F` blocks requires it |
 | `app_hosts_v1` | `register` records the app's declared `hosts` (a list of `notebook`, `napari`, `fiji`, `qupath`) in the registry entry, and every host lists an app only for a host named in that list ([App hosts](#app-hosts-which-host-lists-an-app) below); an entry without `hosts` stays listed in every host and says so | in 0.3.0a1 (added before the tag `v0.3.0-alpha.1`). Napari, Fiji and QuPath honour the rule (merged 14 Oct) and require it |
+| `host_requirements_v1` | `register --app-manifest` records the app's `host_requirements` (the oldest napari, Fiji or QuPath plugin it needs, and host feature ids) in the registry entry; `host_requirements.check` gives every host the same verdict and sentence ([Host requirements](#host-requirements-which-plugin-an-app-needs) below) | after 0.3.0a1 (issue #155); hosts follow |
 
 ### Compatibility rules for hosts
 A host that needs a minimum states it as `(min_tools_version, required_features)` and applies the rules below to every schema it loads, with `labconstrictor_tools.compat.check_schema` (Python hosts: Napari, notebooks) or the same rules written in its own language (Fiji, QuPath; the data is in `conformance.json`, [CONFORMANCE.md](CONFORMANCE.md), `compat` section). The result is `ok`, `warn` or `refuse`, with one sentence for the person:
@@ -107,6 +108,38 @@ The problems are: `hosts must be a list of host names`, `hosts is empty; write a
 | CellTracksColab | `[notebook]` | no | no | no |
 | GuessTheCondition, Playground, NucleiSky | `[notebook, napari, fiji, qupath]` | yes | yes | yes |
 | VLab4Mic | `[notebook, napari, fiji]` | yes | yes | no |
+
+## Host requirements (which plugin an app needs)
+Issue #155. The compatibility rules above let a **host** require a minimum Tools inside the app. This is the other direction: an **app** says which host plugin it needs, so that a person with an old LabConstrictor-Fiji, -napari or -QuPath is told to update instead of silently getting the old behaviour. Feature id `host_requirements_v1`; reference: `labconstrictor_tools.host_requirements` (`check`); vectors: `conformance.json`, section `host_requirements`.
+
+**Where the declaration comes from.** The app's `labconstrictor-app.yaml` (see [MANIFEST.md](MANIFEST.md#6-which-plugin-version-the-app-needs-host_requirements-app-manifest-not-a-tool-marker)):
+
+```yaml
+host_requirements:
+  qupath:
+    min_version: 0.1.0-alpha.6        # a release tag of the plugin, with or without "v"
+    features: [shapes_owner_v1]       # optional: host feature ids (HOST_FEATURES.md)
+    why: Replace keeps your own annotations   # optional, one line
+    required: false                   # optional; true refuses instead of warning
+```
+
+`register --app-manifest` validates it and copies it into the registry entry (field `host_requirements`); an invalid one is refused and nothing is registered. Only `napari`, `fiji` and `qupath` can be named: the notebook ships with the app. Tools has no YAML parser: the reader understands this block form only (two levels of `key: value`, a flow list on one line, quoted or plain text, `true`/`false`); `check --app-manifest` prints what it read.
+
+**The rule, for every host.** For each registered app the host calls `check(entry, "<its own name>", <its own version or None>, <its own feature ids>)` (Fiji and QuPath write the same rule in Groovy and test it against the vectors) and acts on `(status, sentence)`:
+
+| Situation | status | sentence (exact; `{app}` is the entry's `display_name`, `{why}` is ` (<why>)` or empty, `{url}` is `https://github.com/CellMigrationLab/LabConstrictor-{plugin}/releases/latest`) |
+|---|---|---|
+| nothing declared for this host, or new enough with every feature | `ok` | none |
+| the host's version is below `min_version` | `warn` (`refuse` with `required: true`) | `{app} needs LabConstrictor-{plugin} {min_version} or newer{why}; this is {host_version}. Update the plugin: {url}` |
+| a required host feature is missing | `warn` (`refuse` with `required: true`) | `{app} needs LabConstrictor-{plugin} with {features}{why}; this plugin does not have it. Update the plugin: {url}` |
+| the host's version is unknown or unreadable (Fiji's loose script) while `min_version` is set | always `warn` | `{app} needs LabConstrictor-{plugin} {min_version} or newer{why}; the version of this plugin is unknown. Update the plugin if the app misbehaves: {url}` |
+| the declaration is not valid (hand-edited entry) | `warn` | `{app} has a host_requirements declaration that is not valid ({problem}); register the app again with a valid one` |
+
+`{plugin}` is `napari`, `Fiji` or `QuPath`. Versions compare as PEP 440 after dropping a leading `v` (`v0.1.0-alpha.6` = `0.1.0a6`; `0.1.0a6.dev0 < 0.1.0a6 < 0.1.0rc1 < 0.1.0`); `version_order` in the vectors pins the order. An unknown asking host is a programming error (an exception).
+
+**What a host does with it.** `ok`: nothing. `warn`: the app stays listed and the sentence is shown where the person picks the app (a status line, tooltip or one dialog per session) and written to the Tools log. `refuse`: its tools do not start, and the sentence says why: napari keeps the app listed and refuses Run with the sentence; Fiji and QuPath leave it out of their list with the sentence where they say what they skipped (the Log window, the dialog's status line). A host that does not implement `host_requirements_v1` ignores the field, as hosts did before it existed, so the field is backward-compatible. The command line and notebooks are never checked.
+
+**Where a host gets its version.** napari: the installed package version (`importlib.metadata`). Fiji: the jar manifest's version (set from the release tag); the loose script has none, so it is unknown. QuPath: the jar's `Implementation-Version`. Their feature ids are in [HOST_FEATURES.md](HOST_FEATURES.md#host-feature-ids-for-host_requirements).
 
 ## Result folders and run records (retention)
 Under `<LC_HOME>` two folders hold what runs leave behind: `results/<YYYYMMDDTHHMMSS>_<6 hex>_<app>_<tool>` (the files of a run) and `runs/<time>_<app>_<tool>` (the run record). Feature `retention_prune`; the full policy is [SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) section 3, in short:

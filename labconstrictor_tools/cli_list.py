@@ -7,7 +7,7 @@ what Napari, Fiji and QuPath offer.
 import argparse
 import json
 
-from . import app_hosts, registry
+from . import app_hosts, host_requirements, registry
 
 
 def cmd_list(args: argparse.Namespace) -> int:
@@ -16,9 +16,17 @@ def cmd_list(args: argparse.Namespace) -> int:
     if args.json:
         hosts = {name: entries[name].get("hosts") for name in schemas if name in entries}
         status = {name: app_hosts.declaration_status(entries[name]) for name in hosts}
+        requirements = {name: entries[name].get("host_requirements") for name in hosts}
         print(
             json.dumps(
-                {"apps": schemas, "problems": problems, "hosts": hosts, "hosts_status": status}, indent=2
+                {
+                    "apps": schemas,
+                    "problems": problems,
+                    "hosts": hosts,
+                    "hosts_status": status,
+                    "host_requirements": requirements,
+                },
+                indent=2,
             )
         )
         return 0
@@ -26,6 +34,7 @@ def cmd_list(args: argparse.Namespace) -> int:
         print("%s  (%s)" % (name, schema.get("version") or "no version"))
         if name in entries:
             print("    hosts: %s" % app_hosts.declaration_text(entries[name]))
+            print("    needs: %s" % host_requirements.declaration_text(entries[name]))
         for tool in schema["tools"]:
             print("    %-24s %s" % (tool["id"], tool["label"]))
     for name, reason in problems:

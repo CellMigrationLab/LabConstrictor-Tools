@@ -11,6 +11,8 @@ class _EntryOptional(TypedDict, total=False):
     features: list[str]  # its feature ids (absent: unknown/old)
     # the hosts that may list the app (app_hosts.py, feature app_hosts_v1); absent: no declaration, listed in every host
     hosts: list[str]
+    # the oldest host plugins the app needs (host_requirements.py, feature host_requirements_v1); absent: any version
+    host_requirements: dict[str, dict[str, Any]]
 
 
 class RegistryEntry(_EntryOptional):
