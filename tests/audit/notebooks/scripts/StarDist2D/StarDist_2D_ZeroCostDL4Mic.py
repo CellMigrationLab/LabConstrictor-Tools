@@ -407,6 +407,17 @@ def oracle(ctx: Any) -> list[tuple[str, str, str]]:
                     % (count, _DATA["small_count"]),
                 )
             )
+        elif choice != "2D_versatile_fluo":
+            # a model trained on other cells (CML: HUVEC nuclei found 3 of the 12 synthetic discs): the count says nothing about the app;
+            # that the model downloads, loads and writes its outputs is asserted above, and its own tool case on real nuclei passes
+            rows.append(
+                (
+                    "%s_objects" % ident,
+                    "NOTE",
+                    "%s found %d of %d synthetic discs (not asserted: the discs are not the cells this model was trained on)"
+                    % (choice, count, _DATA["small_count"]),
+                )
+            )
         else:
             rows.append(
                 _row(
