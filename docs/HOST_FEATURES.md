@@ -63,8 +63,8 @@ An app can require a host feature by id in `host_requirements.<host>.features` (
 | Host | Its version, as passed to `check` |
 |---|---|
 | napari | `importlib.metadata.version("napari-labconstrictor")` |
-| Fiji | the jar manifest's `Implementation-Version` (the release tag); the loose script has none: `None` (unknown) |
-| QuPath | the jar's `Implementation-Version` (the release tag) |
+| Fiji | the jar manifest's `Implementation-Version` (the release tag); the loose script has none: `None` (unknown). The system property `lc.fiji.plugin_version` replaces it in tests |
+| QuPath | the jar's `Implementation-Version` (the release tag); the system property `lc.qupath.plugin_version` replaces it in tests |
 
 ## Copy as command: the format every host produces
 
