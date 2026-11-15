@@ -162,7 +162,7 @@ A request's `inputs` may carry fields that are not tool parameters. Their names 
 |---|---|---|---|
 | `_job_dir` | every host | host-owned directory for outputs; the worker consumes it | this file |
 | `_calibration` | hosts that send a `PixelSizeOf` value | per-axis pixel/voxel size with provenance (`x`, `y`, later `z`, `t`) | [SPEC_WRONG_SCIENCE.md](SPEC_WRONG_SCIENCE.md) 2.3.4 |
-| `_axes` | hosts that write a file without axes metadata | `{param: "TZCYX"}`, the axes of the file just written | [SPEC_WAVE2.md](SPEC_WAVE2.md) |
+| `_axes` | hosts that write a file without axes metadata | `{param: "TZCYX"}`, the axes of the file just written | reserved for a later feature; no worker reads it yet |
 
 Adding a name is additive within protocol 1: add it to `RESERVED_INPUTS` and to this table in the same change. **Order of work for issue #51 (reject undeclared inputs):** the worker must already tolerate the reserved names (this section) before #51 starts to refuse anything. #51 rejects exactly `convert.undeclared_inputs(schema, inputs)` (names that are neither declared nor reserved); it must not look at anything else. The worker refuses undeclared names with `invalid_parameter` (issue #51).
 

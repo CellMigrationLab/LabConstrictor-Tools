@@ -63,8 +63,6 @@ nav:
       - Host parity inventory: HOST_PARITY.md
       - Regression ledger: REGRESSION_LEDGER.md
       - Design record:
-          - Wave 1: SPEC_WAVE1.md
-          - Wave 2: SPEC_WAVE2.md
           - Wrong-science fixes: SPEC_WRONG_SCIENCE.md
 
 plugins:
