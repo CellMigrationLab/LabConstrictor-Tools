@@ -1,4 +1,4 @@
-"""The result matrix of the audit (docs/TEST_STRATEGY.md section 0): one JSON file per family, host and app, rewritten atomically after
+"""The result matrix of the audit (tests/audit/README.md): one JSON file per family, host and app, rewritten atomically after
 every row, so that a crash, a kill or an empty credit balance leaves everything done so far.
 
 Rows: {id, family, host, app, tool, control, status, detail, seconds, screenshot, ts}. Statuses: PASS, FAIL, NOT_RUN (expected, not executed: red),

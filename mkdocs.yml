@@ -59,7 +59,6 @@ nav:
           - VLab4Mic: human_tests/vlab4mic.md
           - CellTracksColab: human_tests/celltrackscolab.md
       - Automated testing: TESTING.md
-      - Test strategy: TEST_STRATEGY.md
   - Maintain:
       - Host parity inventory: HOST_PARITY.md
       - Regression ledger: REGRESSION_LEDGER.md

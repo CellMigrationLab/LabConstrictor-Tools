@@ -1,6 +1,6 @@
 # Synthetic datasets with known ground truth
 
-Audit run of 14 Oct 2026 and its re-runs (alpha.2 to alpha.4) (see `docs/TEST_STRATEGY.md`, sections 0, 3.1 and 3.8). For every LabConstrictor app the generator writes input data
+Part of the audit tooling ([../README.md](../README.md)). For every LabConstrictor app the generator writes input data
 whose right answer is computed by the generator itself (an independent oracle), so wrong-science bugs (calibration, axes, frame, units, off-by-one,
 silent rounding) show up as a disagreement instead of a green run.
 
