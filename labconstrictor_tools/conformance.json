@@ -42,7 +42,7 @@
    "value": 10,
    "status": "decided",
    "spec": "5.6",
-   "note": "HOST_PARITY K03"
+   "note": "the time a host waits for its workers to close before it kills them"
   },
   "lookup_in_flight_max": {
    "value": 1,
@@ -72,7 +72,7 @@
   "number_above_maximum": {
    "template": "'{label}' must be <= {maximum}",
    "spec": "6.2",
-   "note": "HOST_PARITY I06 worker templates"
+   "note": "the worker's own sentences"
   },
   "number_below_minimum": {
    "template": "'{label}' must be >= {minimum}",
@@ -1609,7 +1609,7 @@
    "done_status": {
     "spec": "3.2",
     "status": "decided",
-    "note": "decided (user, 13 Oct): the status a host writes in .lc-done.json from how the task ended; a crash after the person pressed Cancel is cancelled (HOST_PARITY J08), a crash without Cancel is failed, a FAILED task is failed either way",
+    "note": "decided (user, 13 Oct): the status a host writes in .lc-done.json from how the task ended; a crash after the person pressed Cancel is cancelled, a crash without Cancel is failed, a FAILED task is failed either way",
     "by_task_status": {
      "COMPLETE": "ok",
      "CANCELED": "cancelled",

@@ -167,7 +167,7 @@ class DoneStatus(unittest.TestCase):
             ("FAILED", False): "failed",
             ("FAILED", True): "failed",  # the tool raised: failed, whether or not Cancel was pressed
             ("CRASHED", False): "failed",
-            ("CRASHED", True): "cancelled",  # the person asked for the stop (HOST_PARITY J08)
+            ("CRASHED", True): "cancelled",  # the person asked for the stop (SPEC_WRONG_SCIENCE 3.2)
             ("RUNNING", False): "failed",
             ("SOMETHING_NEW", True): "failed",
         }

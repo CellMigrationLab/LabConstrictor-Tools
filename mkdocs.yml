@@ -60,7 +60,6 @@ nav:
           - CellTracksColab: human_tests/celltrackscolab.md
       - Automated testing: TESTING.md
   - Maintain:
-      - Host parity inventory: HOST_PARITY.md
       - Regression ledger: REGRESSION_LEDGER.md
       - Design record:
           - Wrong-science fixes: SPEC_WRONG_SCIENCE.md

@@ -361,9 +361,9 @@ class AgainstTheCode(unittest.TestCase):
             self.assertTrue(entry["spec"], name)
 
     def test_every_message_template_is_a_sentence_of_the_spec(self) -> None:
-        flat = spec().replace("\\u00B5", "") + (ROOT / "docs" / "HOST_PARITY.md").read_text(
+        flat = spec().replace("\\u00B5", "") + (ROOT / "docs" / "PROTOCOL.md").read_text(
             encoding="utf-8"
-        )  # I06 has the >= form
+        )  # PROTOCOL.md has the >= form
         for name, entry in DATA["messages"].items():
             pieces = re.split(r"\{\w+\}", entry["template"])
             pattern = ".+?".join(re.escape(piece) for piece in pieces)
