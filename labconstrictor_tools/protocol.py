@@ -25,7 +25,7 @@ RESERVED_INPUTS = frozenset(
     {
         JOB_DIR_KEY,  # host-owned output directory (consumed by the worker)
         "_calibration",  # per-axis pixel/voxel size with provenance (SPEC_WRONG_SCIENCE 2.3.4); tools never see it
-        "_axes",  # axes of a file the host just wrote, {param: "TZCYX"} (SPEC_WAVE2); tools never see it
+        "_axes",  # axes of a file the host just wrote, {param: "TZCYX"} (reserved; no worker reads it yet); tools never see it
     }
 )
 RESERVED_PREFIX = "_"  # any other name that starts with it is reserved for a future protocol field: accepted and ignored too

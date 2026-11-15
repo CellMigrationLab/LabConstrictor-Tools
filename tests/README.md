@@ -23,9 +23,9 @@ interpreter that runs them (needs `pip install -e ".[test]"`).
 | test_testing_hardening | the author test harness: unknown expectation keys refused, 3x3 matrices, directories are not files, text inputs never become paths, describe output stays JSON, cancel check verdict |
 | test_logging | failures are explained and logged; `support-bundle` |
 | test_roundtrip_* | the generated round-trip matrix, properties, geometry, hints, failure injection, known failures, sabotage: see [../docs/TESTING.md](../docs/TESTING.md) |
-| test_audit_* | the parts of `tests/audit/` that need no installed app: matrix statuses and NOT_RUN, collect_results round separation, click-script lookup, synthetic ground truth (alpha.4 refusals), synthetic-to-matrix rows. The audit tooling itself is described in [../docs/TEST_STRATEGY.md](../docs/TEST_STRATEGY.md), section 0.1 |
+| test_audit_* | the parts of `tests/audit/` that need no installed app: matrix statuses and NOT_RUN, collect_results round separation, click-script lookup, synthetic ground truth (alpha.4 refusals), synthetic-to-matrix rows. The audit tooling itself is described in [audit/README.md](audit/README.md) |
 | windows/test_windows.py | the same layer on Windows: `python tests/windows/test_windows.py` (also run under Wine via run_suite.sh) |
 
 Run everything: `cd tests && python -m unittest discover -p "test_*.py"` (several minutes; the number of tests is whatever `unittest` reports, it is not kept here. Some tests skip on purpose and say why: the read-only-prefix test needs `LC_TEST_RO_PREFIX`, the foreign-owned-entry test needs root, the torch probe needs torch, and the vulture and coverage report tests need those tools).
 
-Real apps are tested in the apps' own repositories (`lc_tests/`), with `labconstrictor-tools test`. A checklist for people testing on a real computer: [../docs/HUMAN_TEST_PROTOCOL.md](../docs/HUMAN_TEST_PROTOCOL.md).
+Real apps are tested in the apps' own repositories (`lc_tests/`), with `labconstrictor-tools test`.
