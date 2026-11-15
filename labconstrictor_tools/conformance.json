@@ -1,6 +1,6 @@
 {
  "conformance": 1,
- "_about": "Rules every host must agree on, as data. Loaded with labconstrictor_tools.conformance.load(); validated by labconstrictor_tools.conformance.validate(). Only rules that are already decided in docs/SPEC_WRONG_SCIENCE.md (section 8) or carried by Tools code are here; a rule marked status 'default' is the spec's working default, not yet confirmed. Gaps (rules that are not decided yet) are listed in docs/CONFORMANCE.md, never invented here. A host test must fail when a key it knows is missing (no silent skip) and report 'unsupported' for a case its host cannot run, never 'pass'.",
+ "_about": "Rules every host must agree on, as data. Loaded with labconstrictor_tools.conformance.load(); validated by labconstrictor_tools.conformance.validate(). Only rules that are already decided in docs/SPEC_WRONG_SCIENCE.md or carried by Tools code are here; a rule marked status 'default' is the spec's working default, not yet confirmed. Gaps (rules that are not decided yet) are listed in docs/CONFORMANCE.md, never invented here. A host test must fail when a key it knows is missing (no silent skip) and report 'unsupported' for a case its host cannot run, never 'pass'.",
  "limits": {
   "results_kept": {
    "value": 20,
@@ -218,7 +218,7 @@
  },
  "wrong_science": {
   "_spec": "docs/SPEC_WRONG_SCIENCE.md",
-  "_scope": "v1: 2D. N-D (T/Z stacks) and QuPath downsample fixtures follow in Wave 2 (SPEC_WRONG_SCIENCE, header).",
+  "_scope": "2D. N-D (T/Z stacks) and QuPath downsample fixtures are not covered yet (SPEC_WRONG_SCIENCE, header).",
   "coordinate": {
    "image": {
     "id": "ASYM",
@@ -230,7 +230,7 @@
     "value": "100*y + x"
    },
    "axis_order": {
-    "decision": "SPEC_WRONG_SCIENCE section 8 (confirmed): a rect region is [y, x], like the image arrays; protocol shapes stay [x, y] (GeoJSON)",
+    "decision": "SPEC_WRONG_SCIENCE 1.5: a rect region is [y, x], like the image arrays; protocol shapes stay [x, y] (GeoJSON)",
     "rect": "[y, x] per vertex",
     "points": "[y, x]",
     "protocol_shapes": "[x, y] (GeoJSON)",

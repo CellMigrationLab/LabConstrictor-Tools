@@ -1,21 +1,17 @@
-# Spec (proposal): the "wrong-science" fix wave
+# Wrong-science rules: frame, calibration, retention, run identity, lookups, number limits
 
-Status: **for review; the retention rules of section 3 are implemented in Tools (`labconstrictor_tools.retention`, `labconstrictor-tools prune`, feature `retention_prune`), nothing else is.** Maintainer decisions are recorded in section 8.
+These rules exist because a tool run can succeed and still be scientifically wrong: a mask on the wrong pixels, a result drawn away from its image, a pixel size from another image, a researcher's folder deleted. Every host implements **the same rule**, so a fix in one host cannot leave another one behind. Retention (section 3) is implemented in Tools (`labconstrictor_tools.retention`, `labconstrictor-tools prune`, feature `retention_prune`); the other sections are implemented by the hosts.
 
-**v1: 2D. N-D (T/Z stacks) and the QuPath resolution (downsample) choice follow in Wave 2.** The frame (1.1.2) and the placement formula (1.1.3) already have their final shape, so Wave 2 adds fixtures, not rules. Wave 2 fixtures still needed: `TYX` and `ZYX` results with `t`/`z` columns, a 2D result on a `TYX` layer (Napari), a per-axis `_calibration` with z and t, and QuPath export at downsample 2 and 4 on a real pyramid (CF-14 is the data, the GUI harness is the missing part). Conventions: additive within `protocol: 1`, rules are host-neutral, a rule is "done" when its fixtures pass in every host that claims the feature. The fixtures below are data and live in `labconstrictor_tools/conformance.json` under the key `wrong_science` (see [CONFORMANCE.md](CONFORMANCE.md)), to be reused by the conformance suite (Tools #87).
+| # | Theme | Rule set |
+|---|---|---|
+| 1 | Coordinate frame | section 1 |
+| 2 | Calibration | section 2 |
+| 3 | Retention (hosts write markers, only Tools prunes) | section 3 |
+| 4 | Run identity | section 4 |
+| 5 | Async lookups | section 5 |
+| 6 | Number limits | section 6 |
 
-These rules exist because a tool run can succeed and still be scientifically wrong: a mask on the wrong pixels, a result drawn away from its image, a pixel size from another image, a researcher's folder deleted. Each host fixes its own code, but all of them implement **the same rule**, so a fix in one host cannot leave another one behind.
-
-| # | Theme | Rule set | Issues it settles |
-|---|---|---|---|
-| 1 | Coordinate frame | section 1 | Napari #31 #33 #34, Fiji #30, QuPath #21 (and the plane/offset half of QuPath #16) |
-| 2 | Calibration | section 2 | Napari #35 #38, Fiji #26, QuPath #15 |
-| 3 | Retention (hosts write markers, only Tools prunes) | section 3 | Tools #55, Napari #32, Fiji #28, QuPath #14 |
-| 4 | Run identity | section 4 | QuPath #16 (and the same hazard in Napari and Fiji) |
-| 5 | Async lookups | section 5 | Napari #36 #37, QuPath #19 |
-| 6 | Number limits | section 6 | HOST_PARITY A06, A07, C01, D05 |
-
-Out of scope here (tracked in their own issues): Fiji #29 (macro replay of required scalars), Fiji #31 (optional warp comparison blocking the overlay), Fiji #33 (Appose completion ordering). They are host bugs with no cross-host rule.
+**Scope: 2D.** N-D (T/Z stacks) and the QuPath resolution (downsample) choice are not covered yet. The frame (1.1.2) and the placement formula (1.1.3) already have their final shape, so N-D support adds fixtures, not rules. Fixtures still needed: `TYX` and `ZYX` results with `t`/`z` columns, a 2D result on a `TYX` layer (Napari), a per-axis `_calibration` with z and t, and QuPath export at downsample 2 and 4 on a real pyramid (CF-14 is the data, the GUI harness is the missing part). Conventions: additive within `protocol: 1`, rules are host-neutral, a rule is met when its fixtures pass in every host that claims the feature. The fixtures below are data and live in `labconstrictor_tools/conformance.json` under the key `wrong_science` (see [CONFORMANCE.md](CONFORMANCE.md)).
 
 Words: **MUST** and **MUST NOT** are tested by a fixture; **SHOULD** is not. "Source" is the input named by `ApplyTo` (else the first `Image` or `Labels` input in manifest order, never "the first value of any type", never the active, last shown or topmost image). "Refuse" means: do not start the run (inputs) or do not draw the result (outputs), say why in one sentence, keep every output file, never fall back to another image.
 
@@ -24,7 +20,7 @@ Words: **MUST** and **MUST NOT** are tested by a fixture; **SHOULD** is not. "So
 ## 1. Coordinate frame
 
 ### 1.1 The rule
-1. **A result lives in the data space of its source, as it was exported.** `PointsOut`, `ShapesOut`, `ImageOut` and `LabelsOut` coordinates are pixel coordinates of the image file the host wrote for the source (after any crop or plane choice), pixel centres at integers, `(y, x)` for points and `[x, y]` for shapes, as in PROTOCOL.md and HOST_PARITY H06. The worker never sees a world, viewer, slide or calibrated coordinate.
+1. **A result lives in the data space of its source, as it was exported.** `PointsOut`, `ShapesOut`, `ImageOut` and `LabelsOut` coordinates are pixel coordinates of the image file the host wrote for the source (after any crop or plane choice), pixel centres at integers, `(y, x)` for points and `[x, y]` for shapes, as in PROTOCOL.md. The worker never sees a world, viewer, slide or calibrated coordinate.
 2. **The host owns the mapping back.** It records, at run start (section 4), a *frame* for each exported image: `{source, shape, axes_offset, plane, downsample, transform}`. `axes_offset` is `(t, z, y, x)`: the origin of the exported area inside the source's full-resolution grid (all zero unless the host exports a crop; `t` and `z` are the exported plane's indices); `plane` is the exported `(t, z)`; `downsample` is the factor between exported and full-resolution pixels (1 unless the host exports a reduced copy); `transform` is the source's spatial transform (identity where the host has none). `shape` is the exported Y/X (and T/Z) shape.
 3. **Placement formula (stated once).** A result coordinate `x` (likewise `y`) is in exported-pixel units with the centre of pixel `i` at integer `i`. Its **continuous full-resolution coordinate** is `c = x0 + (x + 0.5) * downsample`, where `x0` is `axes_offset` for that axis and full-resolution pixel `i` spans `[i, i+1)`. Hosts draw at `c` as follows: Fiji and QuPath use `c` as the ROI vertex; Napari uses the data coordinate `c - 0.5` and its layer transform does the rest (`result.data_to_world(p) == source.data_to_world(c - 0.5)`). At `downsample = 1` and `x0 = 0` this is today's `x + 0.5` (Fiji, QuPath) and `x` (Napari). Shapes `[x, y]` use the same formula per vertex.
 4. **No lossy resampling.** The host never resamples a result to fit; it carries the source transform over. Conversion is exact, so "refuse" is reserved for cases where an exact mapping does not exist (1.4).
@@ -41,7 +37,7 @@ Words: **MUST** and **MUST NOT** are tested by a fixture; **SHOULD** is not. "So
 4. A selection MUST NOT be rasterised in its own raw data coordinates.
 5. All vertices of one selection must land on one plane of the image. Otherwise refuse with `selection_mixed_planes`.
 6. QuPath: the crop is the integer bounding box of the selected annotations in full-resolution pixels (floor of the minimum, ceil of the maximum, clamped to the image); `axes_offset` is its top-left corner; with `downsample` d the exported shape is `ceil(size / d)` and a mask pixel centre `(i + 0.5) * d + offset` is tested against the annotation (1.1.3). v1 exports at `downsample = 1`.
-7. **QuPath planes.** Every selected annotation MUST be on one `ImagePlane`, and that plane MUST be the one exported (the viewer's plane at run start). Different planes among the selection: refuse `selection_mixed_planes`. One plane that is not the exported one: refuse `selection_plane_mismatch` (the host does not switch planes behind the person's back). The exported TIFF, the mask and the restored annotations all carry that one plane. **Whole-image export uses the same plane as the viewport and selection export** (the viewer's plane at run start). Today whole-image export uses `z=0, t=0` while the viewport area uses the viewer plane; that is a defect (QuPath #16, #21) and fixture CF-10 covers it.
+7. **QuPath planes.** Every selected annotation MUST be on one `ImagePlane`, and that plane MUST be the one exported (the viewer's plane at run start). Different planes among the selection: refuse `selection_mixed_planes`. One plane that is not the exported one: refuse `selection_plane_mismatch` (the host does not switch planes behind the person's back). The exported TIFF, the mask and the restored annotations all carry that one plane. **Whole-image export uses the same plane as the viewport and selection export** (the viewer's plane at run start). Fixture CF-10 covers it.
 
 ### 1.3 How each host maps
 | | frame comes from | result drawn with | file input | transform that cannot be mapped |
@@ -67,7 +63,7 @@ Note on the Napari row: a lower-dimensional result on a higher-dimensional sourc
 New host-side codes `frame_unsupported_transform`, `selection_mixed_planes`, `selection_plane_mismatch`, `target_unavailable` go into `host_internal_codes` of the conformance file; wording is one sentence naming the source and the reason, always followed by `(nothing was changed; files are in <path>)` when files exist.
 
 ### 1.5 Fixtures: coordinate frame
-Base image `ASYM`: uint16, 8 rows by 12 columns, `value(y, x) = 100*y + x`. Rectangles have vertices on half pixels, so no pixel centre lies on an edge. **Axis order (decided, section 8): the vertices of `rect` are `[y, x]`, like the image arrays and `rect_mask_pixels`; protocol shapes stay `[x, y]`, as GeoJSON requires.** In the cases below `server_wh` is `[width, height]` (the file also gives `server_shape_yx`, the same size as `[rows, columns]`), while `export_shape`, `offset_yx` and `c_yx` are y first, and the shape of `ASYM` is `[rows, columns]`. `world` is Napari only; `target_px` is `c - 0.5` on the target image in its own full-resolution data pixels (so Fiji and QuPath draw at `target_px + 0.5`), the check in every host.
+Base image `ASYM`: uint16, 8 rows by 12 columns, `value(y, x) = 100*y + x`. Rectangles have vertices on half pixels, so no pixel centre lies on an edge. **Axis order: the vertices of `rect` are `[y, x]`, like the image arrays and `rect_mask_pixels`; protocol shapes stay `[x, y]`, as GeoJSON requires.** In the cases below `server_wh` is `[width, height]` (the file also gives `server_shape_yx`, the same size as `[rows, columns]`), while `export_shape`, `offset_yx` and `c_yx` are y first, and the shape of `ASYM` is `[rows, columns]`. `world` is Napari only; `target_px` is `c - 0.5` on the target image in its own full-resolution data pixels (so Fiji and QuPath draw at `target_px + 0.5`), the check in every host.
 
 ```json
 {
@@ -141,10 +137,10 @@ Checks that every case also makes: the **worker's input file** (exported pixels 
 
 ### 2.1 What "calibrated" means
 1. A source is **calibrated** only if the host can state a physical length per pixel **from explicit metadata**: a length unit plus a numeric size. The number alone (`1.0`, `0.25`) is never evidence, in either direction.
-2. **Unknown is a first-class value.** Pixel, empty, dimensionless or missing units give *unknown*, whatever the number. The host never assumes 1 um/px, and **a bare scale with default pixel units is unknown, never assumed to be um** (this removes the Napari behaviour recorded in HOST_PARITY C19).
+2. **Unknown is a first-class value.** Pixel, empty, dimensionless or missing units give *unknown*, whatever the number. The host never assumes 1 um/px, and **a bare scale with default pixel units is unknown, never assumed to be um**.
 3. Explicit units win even when the scale is exactly 1: `1 micrometer` is 1.0 um/px; `1 millimeter` is 1000.0 um/px.
 4. Unit conversion is to **micrometres per pixel** (the contract of `PixelSizeOf`). The length units and their names are a **catalog** in `conformance.json` (`wrong_science.calibration.length_units`: each canonical unit with its `um_per_unit` and its accepted names); a host loads it and converts nothing by its own list. Today: `nm`, `um` (with `micron(s)`, `micrometer(s)`, `micrometre(s)`), `mm`, `cm`, `m`, each with its `-meter` / `-metre` words and plurals, and the Angstrom (U+00C5, U+212B, `angstrom(s)`; 1 Angstrom = 1e-4 um). **Matching rule:** symbols (`m`, `nm`, `um`, `mm`, `cm`, the micro-sign forms, the Angstrom signs) are exact text, case-sensitive, nothing trimmed (`UM`, `Mm`, ` um`, `mms` are unknown); words are matched case-insensitively after trimming surrounding whitespace (`Micron`, ` MILLIMETER `); a space inside a word is unknown. **Anything not in the catalog is an unknown unit and means unknown calibration.** Adding a unit or an alias is a data change (docs/CONFORMANCE.md, "How to add a unit"). TIFF `ResolutionUnit` INCH / CENTIMETER and the 72 / 96 dpi rule (2.1.6) are not unit names and are unchanged. The micro sign has three accepted spellings: U+00B5 (micro sign), U+03BC (Greek mu) and ASCII `u`, each followed by `m`. **U+FFFD (the replacement character, a damaged micro sign) followed by `m` is not accepted**: the result is unknown with the warning `unit text 'X' is damaged; enter the pixel size`.
-5. Anisotropic pixels (Y and X differ by more than 1e-3, relative to the larger) and non-length units give *unknown* plus a warning (`pixels are not square` / `unit 's' is not a length`); the scalar field is not filled (within the tolerance the field takes the mean of the X and Y sizes). **This is a behaviour change** in every host that fills the field from one axis today. Release-note line: *"A pixel size is no longer filled in automatically when the image's pixels are not square (X and Y differ by more than 0.1 %) or its unit is not a length; enter the pixel size yourself."*
+5. Anisotropic pixels (Y and X differ by more than 1e-3, relative to the larger) and non-length units give *unknown* plus a warning (`pixels are not square` / `unit 's' is not a length`); the scalar field is not filled (within the tolerance the field takes the mean of the X and Y sizes).
 6. Sources: Napari layer `scale` + `units`; Fiji `Calibration` (`scaled()`, `getUnit()`, `pixelWidth`); QuPath `PixelCalibration` (`hasPixelSizeMicrons()`); a file input by its TIFF/OME metadata with a length unit (`ResolutionUnit` NONE is unknown). **TIFF resolution tags alone are not a calibration when they look like a default:** `ResolutionUnit` INCH or CENTIMETER with a resolution equal (within 0.5 %) to 72 or 96 dpi (28.35 or 37.80 per cm) is unknown, not 352.8 or 264.6 um/px. An ImageJ `unit=` or OME `PhysicalSizeX` unit in the file wins over the tags.
 
 ### 2.2 The field, its states, and the transitions
@@ -160,19 +156,19 @@ A `PixelSizeOf` field has one of three states: `unset`, `auto(source, value)`, `
 | file input is set | any non-`user` | derived from the **file** (the file is the exported source and wins over the open image) |
 | file input is cleared | any non-`user` | derived from the open image again |
 
-Precedence of the source is the precedence of what is exported: file input first, then the chosen image (Fiji #26 asks the same for the initial prefill).
+Precedence of the source is the precedence of what is exported: file input first, then the chosen image.
 
 ### 2.3 Submitting, and what the request carries
-1. **Run is blocked while a required linked field (`PixelSizeOf`, and in Wave 2 `TimeIntervalOf`, `ZStepOf`) is `unset`.** Message: `'pixel_size' needs a value: 'image' has no pixel size. Enter it in um.` A declared default on a linked field is **not** used as a stand-in (it was written for an author's example image).
+1. **Run is blocked while a required linked field (`PixelSizeOf`, and `TimeIntervalOf` and `ZStepOf` once they exist) is `unset`.** The unknown-calibration rule (2.1) applies to all three. Message: `'pixel_size' needs a value: 'image' has no pixel size. Enter it in um.` A declared default on a linked field is **not** used as a stand-in (it was written for an author's example image).
 2. `Optional[float]` linked field: `unset` sends `null`. Nothing is blocked.
-3. A value outside `(0, inf)` or not finite is refused as today.
+3. A value outside `(0, inf)` or not finite is refused.
 4. The request carries two things. The value in the manifest parameter, in um/px (unchanged). And a reserved input `_calibration`, like `_job_dir` and `_axes`, which tools never see. It is **per axis**, keyed by manifest parameter, with overall provenance:
 ```json
 {"_calibration": {"pixel_size": {"of": "image", "source": "image|file|user",
   "axes": {"x": {"value": 1.0, "unit": "um", "source": "image", "raw": {"scale": 1.0, "unit": "micrometer"}},
            "y": {"value": 1.0, "unit": "um", "source": "image", "raw": {"scale": 1.0, "unit": "micrometer"}}}}}}
 ```
-   `value` is in the canonical unit of the link (`um` per pixel for x, y and z; `s` for t); `unit` is that canonical unit; `source` is `image`, `file` or `user` per axis (an entered value is `user`); `raw` keeps the original scale and unit text when there was one. **Phase 1 fills `x` and `y` only** (a scalar `PixelSizeOf` needs an isotropic pair, 2.1.5); `z` (`ZStepOf`) and `t` (`TimeIntervalOf`) are added by Wave 2 with the same entry shape. The worker only copies the object into `run.json`; hosts write it into the run record too. A request with a `PixelSizeOf` value and no `_calibration` entry is a host bug and a test failure.
+   `value` is in the canonical unit of the link (`um` per pixel for x, y and z; `s` for t); `unit` is that canonical unit; `source` is `image`, `file` or `user` per axis (an entered value is `user`); `raw` keeps the original scale and unit text when there was one. **Phase 1 fills `x` and `y` only** (a scalar `PixelSizeOf` needs an isotropic pair, 2.1.5); `z` (`ZStepOf`) and `t` (`TimeIntervalOf`) will use the same entry shape. The worker only copies the object into `run.json`; hosts write it into the run record too. A request with a `PixelSizeOf` value and no `_calibration` entry is a host bug and a test failure.
 5. CLI and notebook: the same rule. The value comes from `--pixel-size` / the argument, or from the file's own calibration if linking is implemented; otherwise the run fails with the sentence of 2.3.1. They never default silently.
 
 ### 2.4 Fixtures: calibration
@@ -239,7 +235,7 @@ Transitions (each asserts the field **and** the request/worker input):
 | `CRASHED` | no | `failed` |
 | `FAILED` (the tool raised an error) | either | `failed` |
 
-A crash after Cancel is `cancelled` because the person asked for the stop and a tool that does not stop cooperatively is killed (HOST_PARITY J08: the status line says "cancelled", not "crashed"); the crash text stays in the run record. Only a crash is read this way: a tool that reports its own failure has failed even if Cancel was pressed. The same mapping applies to the run record folder and to the results folder of that run. It is data in `conformance.json` (`wrong_science.retention.done_status`) and is exercised by HRET-05 and HRET-06.
+A crash after Cancel is `cancelled` because the person asked for the stop and a tool that does not stop cooperatively is killed (the status line says "cancelled", not "crashed"); the crash text stays in the run record. Only a crash is read this way: a tool that reports its own failure has failed even if Cancel was pressed. The same mapping applies to the run record folder and to the results folder of that run. It is data in `conformance.json` (`wrong_science.retention.done_status`) and is exercised by HRET-05 and HRET-06.
 
 ### 3.3 What `prune` may delete
 Only two roots are ever pruned: `<LC_HOME>/results` and `<LC_HOME>/runs`. An entry is **eligible** only if **all** hold:
@@ -257,15 +253,6 @@ Temporary job folders outside `LC_HOME` (Napari `lcin_*`, Fiji `lcjob_fiji_*`, n
 
 ### 3.5 Concurrency (Tools only)
 `prune` takes one exclusive, non-blocking lock on `<LC_HOME>/.retention.lock`, implemented once in `labconstrictor_tools.retention`. If it cannot take the lock it exits 0 without deleting (another prune is running, or the share does not support locks). Creation needs no lock: owner first, done last. Several hosts starting `prune` at once is therefore safe.
-
-### 3.6 Where the reference changes
-| today | rule |
-|---|---|
-| CLI: start-anchored `^\d{8}T\d{6}_`, prunes before creating (Tools #55) | `retention.prune` after done, marker-based (3.3); CLI `prune` command |
-| `runs._prune`: every sub-folder | `retention.prune(root, "run", 50)`, eligible only |
-| Fiji `writeRunRecord`: prunes every sub-folder | no pruning; writes markers; starts `prune` (3.1.3) |
-| QuPath `newJobDir`: deletes every sub-folder beyond 20 | no pruning; adopts the CLI folder name (HOST_PARITY L01), markers, `prune` |
-| Napari / Fiji `rmtree(job_dir)` | allowed outside `LC_HOME`, after 3.4 |
 
 ### 3.7 Fixtures: retention
 All use a temporary `LC_HOME`; every survivor is checked **by file contents** (a sentinel file with fixed bytes), not only by count. `done(n)` = n owned folders with both markers, `created` increasing. **Windows note:** a plain symlink needs administrator rights or developer mode; a directory junction is made with `mklink /J`. RET-05 creates a symlink and, on Windows, also a junction; if a link kind cannot be created the fixture reports `unsupported` for it, never `pass`.
@@ -341,7 +328,7 @@ All use a temporary `LC_HOME`; every survivor is checked **by file contents** (a
 3. **A dependency change invalidates immediately.** The moment a dependency changes, the parameter's latest `request_id` is advanced and its choices marked pending; the debounce (400 ms) only delays the new request, it does not delay the invalidation.
 4. **Bounded work.** At most one lookup is in flight per widget (per host window). Pending lookups are coalesced: one pending slot per parameter, a newer request replaces an older pending one; at most 8 pending in all (oldest dropped and logged). A lookup that exceeds 60 s is cancelled and its worker discarded. No unbounded thread creation: one worker thread (executor) per widget.
 5. **One owner for the worker.** A single controller per window owns the worker cache; every start, reuse, release, reap and close goes through it (one lock, or one thread). Each job (run or lookup) captures the worker instance and its app at submission and uses only that one. A lookup never uses or replaces a worker held by a running tool; while a run is active, lookups wait (existing retry, 1500 ms). An app switch during a run never replaces the run's worker; the new app's worker is created after the run ends.
-6. **Shutdown.** On widget close: set `closed`, drop pending lookups, cancel the in-flight one, close workers within the close timeout (10 s, HOST_PARITY K03), then kill. A worker created after `closed` was set is closed by the thread that created it. After close there are no live workers and no live threads of the widget.
+6. **Shutdown.** On widget close: set `closed`, drop pending lookups, cancel the in-flight one, close workers within the close timeout (10 s, `limits.worker_close_timeout_s`), then kill. A worker created after `closed` was set is closed by the thread that created it. After close there are no live workers and no live threads of the widget.
 7. Fixtures (deterministic barriers; the delayed source tool blocks on an event the test releases):
 
 | id | sequence | expected |
@@ -358,41 +345,19 @@ All use a temporary `LC_HOME`; every survivor is checked **by file contents** (a
 ---
 
 ## 6. Number limits for form fields
-1. A form field with no declared `Min` / `Max` accepts integers up to **+-(2^53 - 1) = +-9007199254740991** (the largest integer every double and every JSON number holds exactly) and floats up to **+-1e15**. This replaces the `+-(2^31-1)` and `+-1e9` limits of HOST_PARITY A06, A07.
-2. A typed, pasted or macro value beyond a limit (declared or default) is **refused, never clamped**: no run starts, nothing is sent, the message names the field and the limit: `'L' must be <= 9007199254740991` (or `>= -9007199254740991`), the worker templates of HOST_PARITY I06. A GUI box that cannot hold such a number uses a text-backed or `long` / `double` widget; it must not silently shorten a value.
-3. Conformance key `limits.form_integer_max = 9007199254740991` (replaces `unbounded_integer`), and `limits.unbounded_float = 1e15`.
+1. A form field with no declared `Min` / `Max` accepts integers up to **+-(2^53 - 1) = +-9007199254740991** (the largest integer every double and every JSON number holds exactly) and floats up to **+-1e15**.
+2. A typed, pasted or macro value beyond a limit (declared or default) is **refused, never clamped**: no run starts, nothing is sent, the message names the field and the limit: `'L' must be <= 9007199254740991` (or `>= -9007199254740991`), the worker's own sentences (PROTOCOL.md). A GUI box that cannot hold such a number uses a text-backed or `long` / `double` widget; it must not silently shorten a value.
+3. Conformance key `limits.form_integer_max = 9007199254740991`, and `limits.unbounded_float = 1e15`.
 4. Fixture per host (Napari, Fiji dialog, Fiji macro, QuPath, notebook; the CLI is the worker's reference): `NUM-01` typed `9007199254740991` is accepted and the request carries exactly that integer; `NUM-02` typed `9007199254740992` is refused with the message above, no clamp (the value never becomes `9007199254740991` or `2147483647`), no run, no request; `NUM-03` typed `-9007199254740992` likewise; `NUM-04` float `1e15` accepted, `1.0000000000000002e15` refused; `NUM-05` a declared `Max` of 10 refuses 11 (unchanged).
 
 ---
 
-## 7. Order of work and acceptance
-1. Tools PR: `retention` module and CLI `prune` (3.1-3.5), fixtures from sections 1-6 in `conformance.json` (`wrong_science`), new `host_internal_codes`, the per-axis `_calibration` reserved input (2.3.4), `PixelSizeOf` wording in AUTHORING.md and PROTOCOL.md, the number limits. Replaces HOST_PARITY L01-L03 and H05.
-2. One PR per host, each closing the issues in the table at the top and running its themes' fixtures through a real GUI or harness (never only the helper function).
-3. Tools #87 imports `wrong_science` as its first known-answer fixtures; Napari #31-#38, Fiji #26-#30 and QuPath #14-#21 become regressions when fixed.
+## 7. Defaults not yet confirmed
+These rules apply today; each may still change.
 
-## 8. Decisions and follow-ups
-Decided by the maintainers:
-* A linked pixel-size field with an unknown source blocks the run (2.3.1).
-* A bare scale with default pixel units is unknown, never assumed um (2.1.2).
-* QuPath refuses an ROI on another plane and never switches the viewer (1.2.7).
-* Legacy unmarked folders are never auto-deleted (3.3).
-* **Hosts never prune.** Hosts write markers and start `labconstrictor-tools prune` in a subprocess; only Tools deletes (3.1). Final: the retention and hosts-prune-subprocess decisions (section 3) are not open for change in this wave.
-* Form integers up to +-(2^53-1), floats +-1e15; beyond is refused, never clamped (section 6).
-* The per-axis `_calibration` shape (x, y, z, t; phase 1 fills x, y) is final.
-* Decided (user, 12 Oct): a damaged micro sign (U+FFFD followed by `m`) is unknown with a warning, never read as micrometres (2.1.4).
-* Decided (user, 12 Oct): TIFF resolution tags equal to 72 or 96 dpi (within 0.5 %) with INCH units are unknown (2.1.6).
-* Decided (user, 12 Oct): the axis order of a `rect` region is `[y, x]`, like the image arrays (1.5); protocol shapes stay `[x, y]` as GeoJSON requires. In the fixtures `server_wh` is `[width, height]` and `export_shape` is `[rows, columns]`.
-* Decided (user, 12 Oct): the accepted length-unit names are **a catalog in `conformance.json`, edited by data change** (2.1.4): a reasonable set (nm, um with micron(s), micrometer(s)/-metre(s) and the micro signs, mm, cm, m with their words, the Angstrom), matched as exact text for symbols and case-insensitively after trimming for words. This replaces the strict list of the first version of this decision. Everything not in the catalog is unknown calibration; the 72 / 96 dpi rule is unchanged.
-* Decided (user, 12 Oct): the unknown-calibration rule applies to `TimeIntervalOf` and `ZStepOf` as well as `PixelSizeOf` (2.3.1).
-* Decided (user, 13 Oct): a source that is still open but **changed size** (shape) while the tool ran gets its own refusal: the result is not drawn, its files are kept, and the host status says `run <run_id> on '<source>': '<source>' changed size while the tool ran; results are in <path>`. It is distinct from the "no longer open" sentence of 4.4, which stays as it is. Data: `messages.target_changed_size`, fixture RUN-07 (4.4).
-* Decided (user, 13 Oct): a task that **crashes after the person pressed Cancel** is recorded with done status `cancelled` (the person asked for the stop; HOST_PARITY J08); a crash with no prior Cancel is `failed`. A task that ends `FAILED` is `failed` either way (3.2). Data: `retention.done_status`, fixtures HRET-05 and HRET-06 (3.7).
-
-Follow-up item: an explicit `labconstrictor-tools clean --legacy` command with a dry run (lists, then deletes only on confirmation). Not part of this wave.
-
-Working decisions, **default, not yet confirmed**:
 1. Fiji with a file source opens the file in its own window; QuPath uses table plus file (1.3). (default, not yet confirmed)
 2. Napari with a file source: pixel-frame layer only, no extra image layer (1.3). (default, not yet confirmed)
-3. Napari lower-dimensional results on N-D sources only when dropped axes do not move the plane; confirm in Wave 2 (1.3). (default, not yet confirmed)
+3. Napari lower-dimensional results on N-D sources only when dropped axes do not move the plane; to be confirmed with N-D support (1.3). (default, not yet confirmed)
 4. Crashed runs (no `.lc-done.json`) are never pruned (3.3). (default, not yet confirmed)
 5. Retention quota counts only eligible folders (3.3). (default, not yet confirmed)
 6. Lookup limits: one in flight, 8 pending, 60 s timeout (section 5). (default, not yet confirmed)

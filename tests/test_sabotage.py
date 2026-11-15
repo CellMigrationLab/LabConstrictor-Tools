@@ -889,7 +889,7 @@ BREAKS = [
         "        print(path().parent)\n",
         unittest_slice("test_conformance.Loader.test_the_command_line_gives_the_path_and_validates"),
     ),
-    # ---- the data of the decisions of 12 Oct (SPEC_WRONG_SCIENCE section 8): the file itself is the thing that can break
+    # ---- the calibration data (SPEC_WRONG_SCIENCE 2.1): the file itself is the thing that can break
     Break(
         "conformance data: the millimetre is 100 um",
         "conformance.json",

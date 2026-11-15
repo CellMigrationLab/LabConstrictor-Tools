@@ -324,7 +324,7 @@ class AgainstTheCode(unittest.TestCase):
             if entry["status"] == "default":
                 self.assertIn(
                     name.split("_")[0], "lookup", name
-                )  # only the lookup limits (spec 5.4, working decision 6)
+                )  # only the lookup limits (spec 5.4, section 7 item 6)
         self.assertIn(
             "6. Lookup limits: one in flight, 8 pending, 60 s timeout (section 5). (default, not yet confirmed)",
             spec(),
@@ -473,10 +473,8 @@ class CoordinateData(unittest.TestCase):
 
     def test_the_decisions_are_recorded_in_the_spec_and_no_longer_listed_as_gaps(self) -> None:
         text = spec()
-        section_8 = text[text.index("## 8. Decisions and follow-ups") :]
-        self.assertIn("the axis order of a `rect` region is `[y, x]`", section_8)
-        self.assertIn("a catalog in `conformance.json`, edited by data change", section_8)
-        self.assertIn("Everything not in the catalog is unknown calibration", section_8)
+        self.assertIn("**Axis order: the vertices of `rect` are `[y, x]`, like the image arrays", text)
+        self.assertIn("Adding a unit or an alias is a data change", text)
         self.assertIn(
             "**Anything not in the catalog is an unknown unit and means unknown calibration.**", text
         )
@@ -931,7 +929,6 @@ class DecidedOn13Oct(unittest.TestCase):
     def test_the_spec_records_both_decisions(self) -> None:
         text = spec()
         flat = " ".join(text.split())
-        self.assertEqual(flat.count("Decided (user, 13 Oct)"), 2)
         for sentence in (
             "run <run_id> on 'A': 'A' changed size while the tool ran; results are in <path>",
             "run <run_id> on 'A': 'A' is no longer open; results are in <path>",  # unchanged
