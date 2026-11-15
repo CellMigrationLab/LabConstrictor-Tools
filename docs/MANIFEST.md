@@ -1,5 +1,7 @@
 # The manifest in one page
 
+This page is the reference for how a **tool** declares itself. The app's own description file, `labconstrictor-app.yaml`, has a step-by-step guide: [Describe your app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/app-manifest/). Sections 5 and 6 below are the technical rules for the two parts of that file that the plugins read.
+
 A tool declares itself with Python types and a few markers; hosts (Napari, Fiji, QuPath) build the form and show the results from the schema that comes out (`docs/PROTOCOL.md`). Everything is in four families. If you are looking for a feature, find the question it answers.
 
 `labconstrictor-tools check --module <your module>` prints what each parameter and output will do. A copy-and-adapt example that uses every feature is `labconstrictor_tools/examples/interactions.py`. What each host does with each feature is in [HOST_FEATURES.md](HOST_FEATURES.md).

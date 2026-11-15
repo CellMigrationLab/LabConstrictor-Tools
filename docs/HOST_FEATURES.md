@@ -1,5 +1,7 @@
 # What each host does with each feature
 
+The technical reference for app authors and plugin developers: what Napari, Fiji and QuPath do with each marker of a tool's declaration. For a plain summary of what works in each host, the notebook and the command line, read [What works where](CAPABILITIES.md) first.
+
 Hosts: **Napari** (dock widget), **Fiji** (SciJava dialog, Groovy script or jar), **QuPath** (JavaFX window). "plain" = shown as an ordinary field, nothing is lost.
 
 ## Installing and requirements per host
@@ -44,8 +46,8 @@ Each host reads the registry. Which app each host offers is the app's own `hosts
 | Shared-memory image `order` (feature id `shm_order_v1`, Tools 0.3.0a1) | Worker side, same for every host: `C` / `F` (and Appose's `C_ORDER` / `F_ORDER`) are read in the order they were written, anything else is refused with `unreadable_image`. A host that sends an F-ordered block must require `shm_order_v1` ([PROTOCOL.md](PROTOCOL.md#tools-version-and-features)). Which host sends which order is not checked in this repository | same | same |
 | Big TIFF inputs are memory-mapped (Tools 0.3.0a1, no feature id) | Worker side, same for every host, nothing to do: a TIFF of 8 MiB or more that is uncompressed and contiguous is mapped copy-on-write; any other big TIFF is read the plain way and the worker says why in the log and on stderr (`LC_TIFF_MEMMAP=0` turns it off). On Windows a tool that keeps its input keeps the file locked until the worker ends ([OPERATIONS.md](OPERATIONS.md#troubleshooting)) | same | same |
 | Per-host listing of apps (`hosts` of the app, feature id `app_hosts_v1`, Tools 0.3.0a1) | binding rule in Tools; Napari lists an app only if its registry entry names `napari` (or has no `hosts`, logged); an excluded app is skipped with the sentence of [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app) | same | same |
-| Progress, Cancel, kept worker, run details | yes | progress and Esc | yes |
-| Macro / command recording | no | yes (macro recorder, replay) | no |
+| Progress, Cancel, kept worker, run details | yes | progress and Esc to cancel; a new worker for each run; an error dialog | yes |
+| Fiji macro | no | a macro line typed by hand runs the tool without a dialog (jar only); the Macro Recorder does not record the plugin | no |
 
 Not yet in any host: tracks, time-lapse and 3D axes, figure output, Repeat, batch.
 

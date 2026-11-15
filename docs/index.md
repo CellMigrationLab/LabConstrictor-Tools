@@ -12,7 +12,7 @@ The tool runs in a separate process, so your image software never imports the ap
 ### Use apps
 You have an app and want to run its tools in your image software.
 
-[Use apps in napari, Fiji and QuPath](user-guide.md)
+[Use apps in napari, Fiji and QuPath](user-guide.md) · [What works where](CAPABILITIES.md)
 </div>
 
 <div class="lc-door" markdown>
@@ -26,7 +26,7 @@ You make an app and want its functions to appear in every host.
 ### Test and maintain
 You check a release or change the bridge.
 
-[Automated testing](TESTING.md) · [Protocol](PROTOCOL.md)
+[Automated testing](TESTING.md) · [Protocol](PROTOCOL.md) · [Publish the plugins and apps](PUBLISHING.md)
 </div>
 
 </div>
