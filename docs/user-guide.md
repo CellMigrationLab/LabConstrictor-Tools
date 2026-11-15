@@ -20,7 +20,7 @@ A first run needs step 1: an installed LabConstrictor app that declares tools. W
 
 Then pick an app and a tool. Parameters become fields with their ranges and units, and each image input accepts an image you have open or a file.
 
-Help with testing is welcome: the [human test protocol](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/docs/HUMAN_TEST_PROTOCOL.md) says what to try.
+Found a problem? [Open an issue](https://github.com/CellMigrationLab/LabConstrictor-Tools/issues) with the host, operating system, app and the steps that show it.
 
 ## Very long texts on Windows
 

@@ -24,9 +24,9 @@ You make an app and want its functions to appear in every host.
 
 <div class="lc-door" markdown>
 ### Test and maintain
-You test a release or change the bridge.
+You check a release or change the bridge.
 
-[Testing: start here](TESTER_START_HERE.md) · [Protocol](PROTOCOL.md)
+[Automated testing](TESTING.md) · [Protocol](PROTOCOL.md)
 </div>
 
 </div>

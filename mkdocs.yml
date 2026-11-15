@@ -47,22 +47,10 @@ nav:
       - Protocol reference: PROTOCOL.md
       - Conformance data: CONFORMANCE.md
       - How the template registers tools: LABCONSTRICTOR_INTEGRATION.md
-  - Test:
-      - Start here: TESTER_START_HERE.md
-      - Human test protocol: HUMAN_TEST_PROTOCOL.md
-      - Test checklist: TEST_MATRIX.md
-      - Test data: TEST_DATA.md
-      - App test pages:
-          - Playground: human_tests/playground.md
-          - NucleiSky: human_tests/nucleisky.md
-          - Guess the Condition: human_tests/guessthecondition.md
-          - VLab4Mic: human_tests/vlab4mic.md
-          - CellTracksColab: human_tests/celltrackscolab.md
+  - Test and maintain:
       - Automated testing: TESTING.md
-  - Maintain:
       - Regression ledger: REGRESSION_LEDGER.md
-      - Design record:
-          - Wrong-science fixes: SPEC_WRONG_SCIENCE.md
+      - Wrong-science rules: SPEC_WRONG_SCIENCE.md
 
 plugins:
   - search
