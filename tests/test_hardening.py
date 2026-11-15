@@ -113,8 +113,12 @@ class RegistryNamesAndPriority(unittest.TestCase):
     def test_foreign_owned_or_group_writable_shared_entry_is_skipped(self) -> None:
         register(self.home, "synthetic")
         source = self.home / "apps"
-        for name in ("synthetic.json", "synthetic.schema.json"):
-            (self.shared / name).write_text((source / name).read_text())
+        (self.shared / "synthetic.schema.json").write_text((source / "synthetic.schema.json").read_text())
+        # the entry must point at the schema next to it (a schema in another folder is refused)
+        entry = json.loads((source / "synthetic.json").read_text())
+        entry["schema_path"] = str(self.shared / "synthetic.schema.json")
+        (self.shared / "synthetic.json").write_text(json.dumps(entry))
+        os.chmod(self.shared / "synthetic.schema.json", 0o644)
         (self.home / "apps" / "synthetic.json").unlink()
         old = dict(os.environ)
         try:

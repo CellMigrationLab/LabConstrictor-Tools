@@ -1,4 +1,4 @@
-"""Oracle of NucleiSky2D_API_Workflow_Example.ipynb: a script (no widgets). The configuration cell holds the placeholder `path/to/your/data` and two file names: as a user must,
+"""Oracle of NucleiSky2D_API_Workflow_Example.ipynb: a script (no widgets). The configuration cell holds the placeholder `path/to/your/data` (PLACEHOLDER_FOLDER, since 0.1.6) and two file names: as a user must,
 the script edits that cell to point at the synthetic data of scripts/_nucleisky.py (1200x1200 image with 300 blobs, 400x400 crop cut at y=300, x=500, 0.65 um/px, no rotation).
 
 Oracle (geometry we cut the crop with, not the notebook's variables): the segmentation finds about as many nuclei as we drew (300 in the image, those inside the crop in the crop),
@@ -29,7 +29,9 @@ def edit_cells(ctx: Any) -> dict[int, list[tuple[str, str]]]:
     folder = str(Path(_DATA["full"]).parent)
     return {
         3: [
-            ('Path("path/to/your/data")', "Path(%r)" % folder),
+            # NucleiSky 0.1.6 keeps the placeholder in PLACEHOLDER_FOLDER and refuses to run while base_path still equals it:
+            # set base_path itself, as the cell tells a user to
+            ("base_path = PLACEHOLDER_FOLDER", "base_path = Path(%r)" % folder),
             ("reference_image.tif", "full.tif"),
             ("crop_image.tif", "crop.tif"),
         ]
