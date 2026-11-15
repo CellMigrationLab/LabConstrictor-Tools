@@ -10,18 +10,18 @@ All three need an app whose Tools is **0.3.0a1 or newer**; how to install each h
 | What you install | `pip install` of the Tools tag and the plugin tag into napari's Python 3.11+ environment; **Qt6 backend** (`napari[pyqt6]` or `napari[pyside6]`; PyQt5 is not tested) | the jar from the release into `Fiji.app/plugins/`; alternative: the script zip (script **and `lib`**) | the jar from the release (drag onto QuPath, QuPath **0.7.0**); alternative for the Script Editor: the **single** `LabConstrictorTools-all.groovy` (the repository's part files do not run there) |
 | Menu entry | Plugins > LabConstrictor tools | Plugins > LabConstrictor > LabConstrictor Tools... (jar) / ... Tools (script) | Extensions > LabConstrictor tools... |
 | Tested by | CI on Linux, Windows, macOS with PySide6 and PyQt6 | GUI cases on Linux in CI; Windows and macOS (arm64) only best effort in the release run | GUI cases on Linux in CI; Windows and macOS (arm64) informative in the release run |
-| Releases (6 Nov 2026) | alpha pre-releases, latest `v0.1.0-alpha.4` (installed from the tag's source archive; nothing on PyPI) | alpha pre-releases, latest `v0.1.0-alpha.4` (jar, script zip and `SHA256SUMS`) | alpha pre-releases, latest `v0.1.0-alpha.5` (jar, single script and `SHA256SUMS`) |
+| Current release | `v0.1.0-alpha.5` (installed from the tag's source archive; nothing on PyPI) | `v0.1.0-alpha.7` (jar, script zip and `SHA256SUMS`) | `v0.1.0-alpha.7` (jar, single script and `SHA256SUMS`) |
 
 **Fiji limits (known, stated in the Fiji README):** a pixel-size field linked to an image follows that image's calibration by itself and there is **no "use the image's calibration" button**; typing the value the box already shows cannot be detected in a SciJava dialog (conformance case CAL-T9), so that field is cleared and the run blocked with a message, never a wrong value sent; `EnabledWhen` is ignored; `Collapsed` is a plain heading; no kept worker (a new worker for each run); the Macro Recorder does not record the plugin (a hand-typed macro line works, jar only).
 
 ## Which apps a host offers
-Each host reads the registry. Which app each host *must* offer is the discovery rule (decided 14 Oct 2026; binding rule in Tools, feature `app_hosts_v1`, Tools PR #133, merged): **CellTracksColab** is hidden from Napari, Fiji and QuPath (notebook only); **NucleiSky, Guess the Condition and Playground** are offered by all three; **VLab4Mic** is offered by Napari and Fiji and **not** by QuPath. discovery rule: see PROTOCOL.md, section "App hosts (which host lists an app)". All three hosts honour the rule (merged: Napari #61, Fiji #47, QuPath #35). Installers pass it from template 0.1.18 (template PR #33, merged 14 Oct 2026; the current release of every app is built with it); an app installed with an older installer has no declaration and every host lists it, logging the 'declares no hosts' sentence of [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app). A host also leaves out, with a sentence in its Log, an app whose Tools is too old.
+Each host reads the registry. Which app each host offers is the app's own `hosts:` declaration (the discovery rule, feature `app_hosts_v1`; [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app)), and all three hosts honour it: **CellTracksColab** is hidden from Napari, Fiji and QuPath (notebook only; **LabConstrictor Demo** has no tools at all); **NucleiSky, Guess the Condition, Playground and StarDist2D** are offered by all three; **VLab4Mic** is offered by Napari and Fiji and **not** by QuPath. Installers pass the declaration from template 0.1.18; an app installed with an older installer has no declaration and every host lists it, logging the 'declares no hosts' sentence of [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app). A host also leaves out, with a sentence in its Log, an app whose Tools is too old.
 
 
 | Feature | Napari | Fiji | QuPath |
 |---|---|---|---|
 | Plain parameters, bounds, units, tooltips | yes | yes | yes |
-| Input help marker (ⓘ): an ⓘ after the label of each input that has a description (required of hosts, Tools #147) | yes (napari #81): the description on hover and on keyboard focus; a click keeps it open | yes (Fiji #63): the ⓘ on the label, the description on hover (SciJava's dialog allows no more) | yes (QuPath #45): the description on hover and on keyboard focus; a click keeps it open |
+| Input help marker (ⓘ): an ⓘ after the label of each input that has a description (required of hosts) | yes: the description on hover and on keyboard focus; a click keeps it open | yes: the ⓘ on the label, the description on hover (SciJava's dialog allows no more) | yes: the description on hover and on keyboard focus; a click keeps it open |
 | `Optional` / "set" box | yes | yes ("Set <name>") | yes |
 | `Group` headings, `Advanced` section | yes (checkbox toggles it) | headings in the dialog | heading, folded section |
 | `Collapsed` (accordion) | yes (click the heading) | plain heading (SciJava cannot fold) | yes (titled pane) |
@@ -43,11 +43,11 @@ Each host reads the registry. Which app each host *must* offer is the discovery 
 | `Affine` | overlay layer | overlay window | matrix shown |
 | Shared-memory image `order` (feature id `shm_order_v1`, Tools 0.3.0a1) | Worker side, same for every host: `C` / `F` (and Appose's `C_ORDER` / `F_ORDER`) are read in the order they were written, anything else is refused with `unreadable_image`. A host that sends an F-ordered block must require `shm_order_v1` ([PROTOCOL.md](PROTOCOL.md#tools-version-and-features)). Which host sends which order is not checked in this repository | same | same |
 | Big TIFF inputs are memory-mapped (Tools 0.3.0a1, no feature id) | Worker side, same for every host, nothing to do: a TIFF of 8 MiB or more that is uncompressed and contiguous is mapped copy-on-write; any other big TIFF is read the plain way and the worker says why in the log and on stderr (`LC_TIFF_MEMMAP=0` turns it off). On Windows a tool that keeps its input keeps the file locked until the worker ends ([OPERATIONS.md](OPERATIONS.md#troubleshooting)) | same | same |
-| Per-host listing of apps (`hosts` of the app, feature id `app_hosts_v1`, Tools 0.3.0a1) | binding rule in Tools; Napari (PR #61, merged) lists an app only if its registry entry names `napari` (or has no `hosts`, logged); an excluded app is skipped with the sentence of [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app) | same (Fiji PR #47, merged) | same (QuPath PR #35, merged) |
+| Per-host listing of apps (`hosts` of the app, feature id `app_hosts_v1`, Tools 0.3.0a1) | binding rule in Tools; Napari lists an app only if its registry entry names `napari` (or has no `hosts`, logged); an excluded app is skipped with the sentence of [PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app) | same | same |
 | Progress, Cancel, kept worker, run details | yes | progress and Esc | yes |
 | Macro / command recording | no | yes (macro recorder, replay) | no |
 
-Not yet in any host (see the roadmap): shapes outputs, run on the selected region, tracks, slider and radio styles, time-lapse and 3D axes, figure output, Repeat, batch.
+Not yet in any host: tracks, time-lapse and 3D axes, figure output, Repeat, batch.
 
 How this table is kept honest: each row has a test in the host's own suite that runs the example app (`labconstrictor_tools.examples.interactions`); a change that breaks a row fails that suite.
 
@@ -56,9 +56,9 @@ An app can require a host feature by id in `host_requirements.<host>.features` (
 
 | Host | Id | Meaning | Since |
 |---|---|---|---|
-| every host | `host_requirements_v1` | the host applies the `host_requirements` rule (a host without it ignores the field) | the release that implements #155 |
-| QuPath | `shapes_owner_v1` | Replace removes only the annotations tagged with the run's `labconstrictor.output` (QuPath #48) | v0.1.0-alpha.6 |
-| Fiji | `log_progress_v1` | progress and a heartbeat in the Log window during long runs (Fiji #65) | v0.1.0-alpha.6 |
+| every host | `host_requirements_v1` | the host applies the `host_requirements` rule (a host without it ignores the field) | napari v0.1.0-alpha.5, Fiji v0.1.0-alpha.7, QuPath v0.1.0-alpha.7 |
+| QuPath | `shapes_owner_v1` | Replace removes only the annotations tagged with the run's `labconstrictor.output` | v0.1.0-alpha.6 |
+| Fiji | `log_progress_v1` | progress and a heartbeat in the Log window during long runs | v0.1.0-alpha.6 |
 
 | Host | Its version, as passed to `check` |
 |---|---|

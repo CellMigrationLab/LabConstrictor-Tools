@@ -35,7 +35,7 @@ class Schema(unittest.TestCase):
             ["app_hosts_v1", "host_requirements_v1", "reserved_inputs_v1", "retention_prune", "shm_order_v1"],
         )
         text = (ROOT / "docs" / "PROTOCOL.md").read_text(encoding="utf-8")
-        self.assertIn("The behaviour already existed (PR #125) before the id", text)
+        self.assertIn("the one id added after its behaviour", text)
         self.assertIn(
             "Tools >= 0.3.0a1 maps big TIFF files", text
         )  # an optimisation: documented, no feature id
