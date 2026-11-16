@@ -1,6 +1,6 @@
 # Writing tools for LabConstrictor apps (10 minutes)
 
-> The whole manifest on one page: [MANIFEST.md](MANIFEST.md). What each host does with each feature: [HOST_FEATURES.md](HOST_FEATURES.md).
+> The whole manifest on one page: [The manifest](https://cellmigrationlab.github.io/LabConstrictor-Tools/MANIFEST/). What each host does with each feature: [What each host does with each feature](https://cellmigrationlab.github.io/LabConstrictor-Tools/HOST_FEATURES/).
 
 A *tool* is a normal Python function with type hints. Napari, Fiji, notebooks and the command line all build their
 forms from the signature - you write no GUI code and no JSON.
@@ -84,7 +84,7 @@ Return one value or a tuple. Annotate the return type with what it is:
 6. **"Nothing found" is not an error.** When the honest answer is "no result" (no match, no nuclei), raise `ToolError("no_match", "No match found: ...say what to try...")` (or code `no_result`). Napari shows it as a notice (a warning sign, not a red cross) and Fiji as a plain message window instead of an error dialog.
 7. **Presentation hints are only hints.** `Group`, `Advanced` and `EnabledWhen` may be ignored by a host (Fiji ignores `EnabledWhen`; older hosts ignore all three), so the function must accept every parameter whether or not it is "enabled".
 8. **Describe every input.** The description is the input's help: hosts show it when the person points at the field, and an
-   ⓘ after the label says it is there (each host's status is in [HOST_FEATURES.md](HOST_FEATURES.md)). It is expected for technical parameters and unfamiliar terms, and recommended
+   ⓘ after the label says it is there (each host's status is in [What each host does with each feature](https://cellmigrationlab.github.io/LabConstrictor-Tools/HOST_FEATURES/)). It is expected for technical parameters and unfamiliar terms, and recommended
    for all. One line: what the value does and a typical value, e.g. `Description("Fraction of the intensity range that separates
    blobs from background; 0.3 suits most images")`. Write it with `Description("...")` or in the docstring's `Args:` section.
    `labconstrictor-tools check` and `test` print a warning for each tool with inputs that have none (it never fails them):

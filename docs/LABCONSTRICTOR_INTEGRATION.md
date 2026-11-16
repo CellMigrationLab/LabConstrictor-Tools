@@ -1,6 +1,6 @@
 # How the LabConstrictor template registers an app's tools (as built)
 
-Implemented in the template (0.1.16 and later); the template's `post_install` hooks pin Tools `v0.3.0-alpha.2` (`LC_TOOLS_PIN`), and apps get the hooks by the template sync.
+Implemented in the template (0.1.16 and later); the template's `post_install` hooks pin a Tools tag (`LC_TOOLS_PIN`, [OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)), and apps get the hooks by the template sync.
 The Linux (`.sh`) hooks run inside real installers built with `constructor`; the template's CI runs `post_install` on Linux, Windows and macOS, and the Windows (`.bat`) hooks also run in the release sandbox on a Windows runner ([TESTING.md](TESTING.md)). A person has not yet tested them on Windows or macOS.
 
 ## What an app must contain

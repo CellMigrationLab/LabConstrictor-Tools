@@ -5,9 +5,9 @@ The project has a shared Python toolkit, host-specific interfaces and applicatio
 | Repository | What it contains |
 |---|---|
 | [LabConstrictor-Tools](https://github.com/CellMigrationLab/LabConstrictor-Tools) | Python declarations (`@tool`, types and annotations), schema generation, registry, worker, CLI, notebook helpers, diagnostics and tests |
-| [LabConstrictor-napari](https://github.com/CellMigrationLab/LabConstrictor-napari) | Napari dock widget, layer conversion and presentation of results (pip package `napari-labconstrictor`; the link name `napari-labconstrictor` redirects to this repository; Qt6 backend, `napari[pyqt6]`; latest release `v0.1.0-alpha.5`, installed from the tag's source archive) |
-| [LabConstrictor-Fiji](https://github.com/CellMigrationLab/LabConstrictor-Fiji) | Fiji menu command, SciJava forms, ImageJ ROI handling and the worker connection. Release files (made by its release workflow when the maintainer publishes a release): `labconstrictor-fiji-<tag>.jar`, `labconstrictor-fiji-script-<tag>.zip` (script and its `lib` folder) and `SHA256SUMS`; latest release `v0.1.0-alpha.7` |
-| [LabConstrictor-QuPath](https://github.com/CellMigrationLab/LabConstrictor-QuPath) | QuPath extension (QuPath 0.7.0), image-area export, annotation coordinates and result presentation. Release files: `labconstrictor-qupath-<tag>.jar`, the single script `LabConstrictorTools-all.groovy` (the only form the Script Editor can run) and `SHA256SUMS`; latest release `v0.1.0-alpha.7` |
+| [LabConstrictor-napari](https://github.com/CellMigrationLab/LabConstrictor-napari) | Napari dock widget, layer conversion and presentation of results (pip package `napari-labconstrictor`; the link name `napari-labconstrictor` redirects to this repository; installed from the source archive of a release tag) |
+| [LabConstrictor-Fiji](https://github.com/CellMigrationLab/LabConstrictor-Fiji) | Fiji menu command, SciJava forms, ImageJ ROI handling and the worker connection. Release files (made by its release workflow when the maintainer publishes a release): `labconstrictor-fiji-<tag>.jar`, `labconstrictor-fiji-script-<tag>.zip` (script and its `lib` folder) and `SHA256SUMS` |
+| [LabConstrictor-QuPath](https://github.com/CellMigrationLab/LabConstrictor-QuPath) | QuPath extension (QuPath 0.7.0), image-area export, annotation coordinates and result presentation. Release files: `labconstrictor-qupath-<tag>.jar`, the single script `LabConstrictorTools-all.groovy` (the only form the Script Editor can run) and `SHA256SUMS` |
 | [LabConstrictor-Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground) | An installable test application (17 tools): diagnostics, synthetic image analysis and deliberately difficult cases for hosts (the repository's canonical name is lower case, `labconstrictor-playground`; the link works either way) |
 
 Two other kinds of repository have different jobs:
@@ -25,7 +25,7 @@ Two other kinds of repository have different jobs:
 | CellTracksColab | [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab) (its desktop app is released from this repository) | 1 (Calculate Track Metrics), registered but listed in no host (`hosts: [notebook]`) | 1.1.5 |
 | LabConstrictor Demo | [LabConstrictor_Demo](https://github.com/CellMigrationLab/LabConstrictor_Demo) | none (notebook only) | 0.0.4 |
 
-The installers of these releases pin Tools `v0.3.0-alpha.2`, except CellTracksColab 1.1.5, which still pins `v0.3.0-alpha.1` ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)).
+Each app's installer pins a Tools tag (`LC_TOOLS_PIN`); an app gets a new pin by the template sync and its next release ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)). An app's latest release is on its page in the [App Centre](https://cellmigrationlab.github.io/LabConstrictor-Site/) and on its GitHub Releases page.
 
 ## What is shared
 
@@ -61,4 +61,4 @@ The protocol is versioned. Hosts must reject and report incompatible schema vers
 
 The repositories have different packaging requirements: a Python package for the toolkit and Napari plugin, a Fiji jar or script, a QuPath extension or script, and platform-specific Playground installers. Do not assume they share a release schedule.
 
-The project remains in testing. How to install an app and the three hosts is on one page, [INSTALL.md](INSTALL.md): tagged versions only, no space in the install path, Linux `-u` only after a finished install. The host READMEs record their tested platforms and current limitations. Released apps are checked on fresh runners by the release sandbox ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)).
+The project remains in testing. How to install an app and each plugin is on the LabConstrictor website ([Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/), and the [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) and [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/) guides); what Tools needs is in [INSTALL.md](INSTALL.md). The host READMEs record their tested platforms and current limitations. Released apps are checked on fresh runners by the release sandbox ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)).

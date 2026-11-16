@@ -2,15 +2,15 @@
 
 Where each LabConstrictor plugin and app is released today, and what it takes to make it installable from inside Fiji, napari and QuPath. This page is for maintainers of the plugins and for app authors.
 
-If you only want to install something, use [Install an app and the hosts](https://cellmigrationlab.github.io/LabConstrictor-Tools/INSTALL/).
+If you only want to install something, use [Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/) or the guide of your plugin: [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) or [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/).
 
 ## Where things stand
 
 | What | How people install it today | The easier route | Status of the easier route |
 |---|---|---|---|
-| Fiji plugin | Download the jar from the GitHub release and copy it into `Fiji.app/plugins/` | An ImageJ update site | Not yet available |
-| napari plugin | `pip install` from the GitHub tag | PyPI, which also lists it in napari's plugin installer and on the napari hub | Not yet available |
-| QuPath extension | Download the jar from the GitHub release and drag it onto QuPath | A catalog for QuPath's extension manager | Not yet available |
+| Fiji plugin | The jar from the GitHub release, installed by hand ([Fiji guide](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/)) | An ImageJ update site | Not yet available |
+| napari plugin | `pip install` from the GitHub tag ([napari guide](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/)) | PyPI, which also lists it in napari's plugin installer and on the napari hub | Not yet available |
+| QuPath extension | The jar from the GitHub release, installed by hand ([QuPath guide](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/)) | A catalog for QuPath's extension manager | Not yet available |
 | Apps | Download the installer from the app's GitHub release | A page in the LabConstrictor App Centre | Available |
 
 Every release is a GitHub release made by a maintainer. Nothing below has been registered anywhere yet, except the apps listed in the App Centre.
@@ -19,7 +19,7 @@ Every release is a GitHub release made by a maintainer. Nothing below has been r
 
 ### Today
 
-Each release of [LabConstrictor-Fiji](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases) carries `labconstrictor-fiji-<tag>.jar`, a script zip and `SHA256SUMS`. People copy the jar into `Fiji.app/plugins/` and restart Fiji. To update, they replace the jar by hand.
+Each release of [LabConstrictor-Fiji](https://github.com/CellMigrationLab/LabConstrictor-Fiji/releases) carries `labconstrictor-fiji-<tag>.jar`, a script zip and `SHA256SUMS`. People install the jar by hand, as the [Fiji guide](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) says, and replace it by hand to update.
 
 ### Next step: an update site
 
@@ -50,13 +50,7 @@ For each later release, replace the jar in that Fiji, choose *View locally modif
 
 ### Today
 
-The plugin is a Python package, `napari-labconstrictor`, in the repository [LabConstrictor-napari](https://github.com/CellMigrationLab/LabConstrictor-napari). It is installed from the source archive of a GitHub tag, together with Tools:
-
-```bash
-python -m pip install "napari[pyqt6]" \
-  https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.2.zip \
-  https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.5.zip
-```
+The plugin is a Python package, `napari-labconstrictor`, in the repository [LabConstrictor-napari](https://github.com/CellMigrationLab/LabConstrictor-napari). It is installed with `pip` from the source archive of a GitHub tag, together with Tools; the command is in the [napari guide](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/).
 
 Neither `napari-labconstrictor` nor `labconstrictor-tools` is on PyPI.
 
@@ -87,7 +81,7 @@ What is missing:
 
 ### Today
 
-Each release of [LabConstrictor-QuPath](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases) carries `labconstrictor-qupath-<tag>.jar`, a single-file script and `SHA256SUMS`. People drag the jar onto the QuPath window and restart. The jar needs QuPath 0.7.0.
+Each release of [LabConstrictor-QuPath](https://github.com/CellMigrationLab/LabConstrictor-QuPath/releases) carries `labconstrictor-qupath-<tag>.jar`, a single-file script and `SHA256SUMS`. People install the jar by hand, as the [QuPath guide](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/) says.
 
 ### Next step: a catalog for the extension manager
 
@@ -133,4 +127,4 @@ The apps' tools need no publishing of their own. The installer registers them on
 1. Publish `labconstrictor-tools` on PyPI, then `napari-labconstrictor` with the classifier.
 2. Request the Fiji update site, upload the jar, and ask for it to be listed.
 3. Add a `catalog.json` for QuPath and document its address in the QuPath guide.
-4. Update [Install an app and the hosts](https://cellmigrationlab.github.io/LabConstrictor-Tools/INSTALL/) and the three plugin guides with the new steps.
+4. Update the install steps in the three plugin guides, each kept in the plugin's own `docs/user-guide.md`.

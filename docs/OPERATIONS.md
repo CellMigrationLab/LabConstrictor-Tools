@@ -1,13 +1,9 @@
-# Operations: install, shared/network installs, security, troubleshooting
+# Operations: shared installs, security, troubleshooting
 
 ## Install
-How a person installs an app and the three hosts is one page: [INSTALL.md](INSTALL.md). In short:
-* Each app environment needs `labconstrictor-tools` (standard library only, no dependencies); the app installer installs it from a **tag** (`LC_TOOLS_PIN`, below), and the hosts need Tools **0.3.0a1 or newer** in the app.
-* **Install rules**: no space anywhere in the install path (the installers refuse it); macOS and Windows update by uninstalling first; Linux `installer.sh -u` updates in place only after a *finished* install (otherwise delete `<prefix>/pkgs` or uninstall first); install only tagged versions, and take the latest.
-* Napari (nothing is on PyPI yet; **Python 3.11 or newer, Qt6 backend**): `pip install "napari[pyqt6]" https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.2.zip https://github.com/CellMigrationLab/LabConstrictor-napari/archive/refs/tags/v0.1.0-alpha.5.zip` in the napari environment (use a newer tag of each when it exists). Source archives: no `git` program needed. Plugins > LabConstrictor tools.
-* Fiji (jar from the release, `labconstrictor-fiji-<tag>.jar`; latest `v0.1.0-alpha.7`): copy it to `Fiji.app/plugins/`, restart: Plugins > LabConstrictor > LabConstrictor Tools... The release also carries `labconstrictor-fiji-script-<tag>.zip` (the script **and its `lib` folder**, to unzip into `Fiji.app/scripts/Plugins/LabConstrictor/`; entry without the dots; macro calls need the jar) and `SHA256SUMS`.
-* QuPath 0.7.0 (jar from the release, `labconstrictor-qupath-<tag>.jar`; latest `v0.1.0-alpha.7`): drag it onto the QuPath window and restart: Extensions > LabConstrictor tools... The Script Editor alternative is the **single file** `LabConstrictorTools-all.groovy` of the release; the repository's script is split into part files that only the jar and the build join.
-* Fiji, Napari and QuPath never import an app's packages, so apps with conflicting dependencies can coexist.
+How a person installs an app and each plugin is written once, on the LabConstrictor website: [Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/), and the [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) and [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/) guides. What Tools itself needs from an installed app, how to check one and how to install `labconstrictor-tools` by hand: [INSTALL.md](INSTALL.md). In short:
+* Each app environment needs `labconstrictor-tools` (standard library only, no dependencies); the app installer installs it from a **tag** (`LC_TOOLS_PIN`, below), and the plugins need Tools **0.3.0a1 or newer** in the app.
+* Fiji, napari and QuPath never import an app's packages, so apps with conflicting dependencies can coexist.
 
 ## Releases and tags
 The version lives in one place, `labconstrictor_tools/_version.py` (`__version__`); `pyproject.toml` and `labconstrictor_tools.__version__` both read it. `describe`, the registry and `doctor` report it as `tools_version` ([PROTOCOL.md](PROTOCOL.md#tools-version-and-features)).
@@ -26,7 +22,7 @@ An app installer must install a **tagged** Tools, never `main`: `main` moves, so
 * After installing, the hook may record the version by running `labconstrictor-tools doctor`, which shows `Tools <version>`; a test of the installer checks that the version equals the pinned tag.
 * A tag is only pinned after the maintainer created it ([Releases and tags](#releases-and-tags)); an installer that pins a tag that does not exist fails at `pip install`, which the hook already reports without stopping the rest of the install.
 
-The pin is the line `LC_TOOLS_PIN` of the template's `app/bash_bat_scripts/post_install.sh` and `post_install.bat` (today `v0.3.0-alpha.2`); apps get it by the template sync and reach users with their next release. A pin change is a one-string pull request, merged only after the maintainer created the tag.
+The pin is the line `LC_TOOLS_PIN` of the template's `app/bash_bat_scripts/post_install.sh` and `post_install.bat` (the [template's files](https://github.com/CellMigrationLab/LabConstrictor/tree/main/app/bash_bat_scripts) say which tag it is today); apps get it by the template sync and reach users with their next release. A pin change is a one-string pull request, merged only after the maintainer created the tag.
 
 The tests of this repository keep the strings `LC_TOOLS_SPEC`, `refs/tags/`, `refs/heads/main.zip`, `post_install.sh` and `post_install.bat` in the pinning section above.
 
