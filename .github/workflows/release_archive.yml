@@ -1,0 +1,65 @@
+# Attach a source archive with a fixed name, labconstrictor-tools.zip, to each GitHub release, so that
+#   pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/latest/download/labconstrictor-tools.zip
+# installs the newest release. GitHub's /releases/latest is the newest release that is NOT marked pre-release; a release marked
+# pre-release gets the file too, under .../releases/download/<tag>/labconstrictor-tools.zip.
+# The archive is `git archive` of the release tag, the same files as GitHub's own source archive; it is installed in a clean venv and
+# its version checked against the tag before it is uploaded. Nothing else on the release is changed: the file is only added, an
+# existing labconstrictor-tools.zip is never replaced, and no tag is created or moved (the maintainer makes releases, docs/OPERATIONS.md).
+# Pinned installers keep using .../archive/refs/tags/<tag>.zip, which this workflow does not touch.
+name: release-archive
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag of an existing release to attach the archive to (for a release published before this workflow existed)"
+        required: true
+
+permissions:
+  contents: write   # gh release upload
+
+concurrency:
+  group: release-archive-${{ github.event.release.tag_name || inputs.tag }}
+
+jobs:
+  attach:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Check the tag name
+        run: |
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$'; then
+            echo "::error::'$TAG' is not a release tag like v0.3.0 or v0.3.0-alpha.2 (docs/OPERATIONS.md, tag names)"; exit 1
+          fi
+          gh release view "$TAG" --json tagName --jq .tagName >/dev/null
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          persist-credentials: false   # gh uses GH_TOKEN; keep the token out of .git/config
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Build labconstrictor-tools.zip from the tag
+        run: git archive --format=zip --prefix=labconstrictor-tools/ -o "$RUNNER_TEMP/labconstrictor-tools.zip" HEAD   # HEAD is the tag (checkout above)
+      - name: Install it in a clean venv and check its version against the tag
+        run: |
+          python -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install --no-cache-dir "$RUNNER_TEMP/labconstrictor-tools.zip"
+          expected=$(printf '%s' "${TAG#v}" | sed -E 's/-alpha\./a/; s/-beta\./b/; s/-rc\./rc/')
+          # -I: not the checkout in the current folder, the installed copy
+          installed=$("$RUNNER_TEMP/venv/bin/python" -I -c "import labconstrictor_tools; print(labconstrictor_tools.__version__)")
+          echo "tag $TAG -> expected $expected, installed $installed"
+          if [ "$installed" != "$expected" ]; then echo "::error::the archive reports $installed, the tag $TAG means $expected"; exit 1; fi
+          "$RUNNER_TEMP/venv/bin/labconstrictor-tools" --help >/dev/null
+      - name: Attach it to the release (never replace one that is there)
+        run: |
+          if gh release view "$TAG" --json assets --jq '.assets[].name' | grep -qx 'labconstrictor-tools.zip'; then
+            echo "::notice::release $TAG already has labconstrictor-tools.zip; it is left as it is"
+          else
+            gh release upload "$TAG" "$RUNNER_TEMP/labconstrictor-tools.zip"
+          fi
