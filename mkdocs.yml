@@ -33,21 +33,22 @@ theme:
     accent: custom
 
 nav:
+  # Developer reference only: the pages for people who use apps are on LabConstrictor-Site, which fetches user-guide.md,
+  # CAPABILITIES.md, PUBLISHING.md and AUTHORING.md from this repository (see AGENTS.md, "Documentation").
   - Home: index.md
-  - Use apps:
-      - Use apps in napari, Fiji and QuPath: user-guide.md
-      - What works where: CAPABILITIES.md
-      - Install an app and the hosts: INSTALL.md
-      - Operations and troubleshooting: OPERATIONS.md
   - Write tools:
       - Writing tools: AUTHORING.md
       - What each host does with each feature: HOST_FEATURES.md
       - The manifest: MANIFEST.md
+      - What works where: CAPABILITIES.md
   - How it works:
       - Where the tools live: REPOSITORIES.md
       - Protocol reference: PROTOCOL.md
       - Conformance data: CONFORMANCE.md
       - How the template registers tools: LABCONSTRICTOR_INTEGRATION.md
+  - Install and operate:
+      - Install LabConstrictor Tools: INSTALL.md
+      - Operations and troubleshooting: OPERATIONS.md
   - Test and maintain:
       - Automated testing: TESTING.md
       - Regression ledger: REGRESSION_LEDGER.md

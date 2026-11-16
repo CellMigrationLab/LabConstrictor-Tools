@@ -62,7 +62,7 @@ Good to know:
 | A record of each run (`run.json`) | Yes | Yes | Yes | No | Yes |
 | Old results and records removed automatically | Yes | Yes | Yes | No | Yes |
 | Details after a failure | Yes: a Details button | Yes: an error dialog | Yes: a Details button | Partial: the error line | Yes |
-| Copy the run as a command | Yes: a terminal line or a Python snippet | Yes: printed in the Log window after each run; also *Plugins > LabConstrictor > Copy last run as command* | Yes: a terminal line or a Python snippet | — | — |
+| Copy the run as a command | Yes: a terminal line or a Python snippet | Yes: printed in the Log window after each run; also the menu command *Copy last run as command* | Yes: a terminal line or a Python snippet | — | — |
 | Fiji macros | — | Partial: a macro line you write by hand runs a tool without a dialog (jar install only). The Macro Recorder does not record it yet | — | — | — |
 | Run without a window (scripts, batch) | No | No | No | — | Yes |
 
@@ -130,10 +130,10 @@ Automated tests run on GitHub's machines; people have also installed apps and us
 - Time-lapse, 3D data and tracks as such: hosts do not yet tell a tool which axis is time or depth, and no host shows tracks.
 - Figures as a result type.
 - Running one tool over many images from a host (use the command line).
-- A Fiji update site, a napari plugin on PyPI and a QuPath catalog. See [Install and publish the plugins and apps](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/docs/PUBLISHING.md).
+- A Fiji update site, a napari plugin on PyPI and a QuPath catalog. See [Publish the plugins and apps](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/publishing/).
 
 ## More detail
 
 - For app authors, the marker behind each row and each host's exact behaviour: [What each host does with each feature](https://cellmigrationlab.github.io/LabConstrictor-Tools/HOST_FEATURES/).
-- How to install an app and each plugin: [Install](https://cellmigrationlab.github.io/LabConstrictor-Tools/INSTALL/).
+- How to install an app: [Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/). How to install each plugin: the [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) and [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/) guides.
 - Logs, shared installs and known limits: [Operations and troubleshooting](https://cellmigrationlab.github.io/LabConstrictor-Tools/OPERATIONS/).
