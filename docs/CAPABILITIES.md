@@ -121,9 +121,9 @@ A number you type outside the allowed range is refused with a sentence. It is ne
 | Fiji plugin | Automated tests, full set | A short automated check at each release (the menu entry exists, the dialog lists an app) | The same short check, Apple silicon |
 | QuPath extension | Automated tests, full set | Short automated checks at each release | The same short checks, Apple silicon |
 | App installers | The release check installs and runs a released app on a fresh machine | The same | The same |
-| Used by a person | napari and Fiji: yes. QuPath: not yet | Not yet | Not yet |
+| Tested by people | napari and Fiji: yes. QuPath: not yet | Yes: app installs and the three plugins | Yes: app installs and the three plugins |
 
-Automated tests run on GitHub's machines, not on a real desktop. If you use LabConstrictor on Windows or macOS, please [tell us what you find](https://github.com/CellMigrationLab/LabConstrictor-Tools/issues).
+Automated tests run on GitHub's machines; people have also installed apps and used the plugins on Windows and macOS. If something does not work for you, please [tell us what you find](https://github.com/CellMigrationLab/LabConstrictor-Tools/issues).
 
 ## Not yet available
 

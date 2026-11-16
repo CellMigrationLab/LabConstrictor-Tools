@@ -38,4 +38,4 @@ see that, the substitution did not happen.
 ## Open questions
 * Publishing `labconstrictor-tools` on PyPI, so that `LC_TOOLS_SPEC` is no longer needed (and pinning it with hashes in the apps' requirements).
 * Per-machine ("all users") installs: supported by `register --dir` and `LC_APPS_PATH`, not wired into the installers.
-* The `.bat` hooks on Windows and the whole flow on macOS run in CI but are not yet tested by a person.
+* The `.bat` hooks on Windows and the whole flow on macOS run in CI, and people have done clean installs on Windows and macOS.

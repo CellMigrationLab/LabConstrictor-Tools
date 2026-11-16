@@ -35,7 +35,7 @@ Both addresses are source archives of tags (no `git` needed); put the latest tag
 2. Put it into `Fiji.app/plugins/` (not a subfolder; remove an older `labconstrictor-fiji-*.jar`) and restart Fiji.
 3. Run **Plugins > LabConstrictor > LabConstrictor Tools...**.
 
-No-jar alternative: the same release has `labconstrictor-fiji-script-<tag>.zip` with the script `LabConstrictor_Tools.groovy` **and the `lib` folder it needs**; unzip it so both sit in `Fiji.app/scripts/Plugins/LabConstrictor/`; the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots). Macro calls need the jar. Install one of the two, not both. Windows and macOS are tried only by the release run, not yet by a person.
+No-jar alternative: the same release has `labconstrictor-fiji-script-<tag>.zip` with the script `LabConstrictor_Tools.groovy` **and the `lib` folder it needs**; unzip it so both sit in `Fiji.app/scripts/Plugins/LabConstrictor/`; the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots). Macro calls need the jar. Install one of the two, not both. Windows and macOS are checked by the release run and have been tested by people.
 
 ## 5. QuPath
 QuPath **0.7.0** (built with Java 25; the jar needs it; other versions are not supported).
@@ -43,7 +43,7 @@ QuPath **0.7.0** (built with Java 25; the jar needs it; other versions are not s
 2. Drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences) and restart QuPath.
 3. Run **Extensions > LabConstrictor tools...**.
 
-Script Editor alternative: download the **single file** `LabConstrictorTools-all.groovy` from the same release, open it in QuPath's Script Editor and run it. The script in the repository is split into part files; only the all-in-one file from the release works in the Script Editor. Linux is tested in CI; macOS (Apple silicon) and Windows are tried by the release run and informative only.
+Script Editor alternative: download the **single file** `LabConstrictorTools-all.groovy` from the same release, open it in QuPath's Script Editor and run it. The script in the repository is split into part files; only the all-in-one file from the release works in the Script Editor. Linux is tested in CI; macOS (Apple silicon) and Windows are checked by the release run and have been tested by people.
 
 ## 6. Check it works
 Open the host and look for the app in its list. If the list is empty or an app is missing: `labconstrictor-tools list` and `labconstrictor-tools doctor` in the app's Python say why (an interpreter that is gone, a Tools that is too old), and the log is `~/.labconstrictor/logs/labconstrictor.log` ([OPERATIONS.md](OPERATIONS.md#when-something-goes-wrong-logs)).

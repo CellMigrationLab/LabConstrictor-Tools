@@ -58,7 +58,7 @@ The separate process is **not a security sandbox**. Install and run only apps yo
 
 ## Status
 
-Alpha. Current releases: Tools `v0.3.0-alpha.2`, napari plugin `v0.1.0-alpha.5`, Fiji and QuPath plugins `v0.1.0-alpha.7`. Automated tests run on Linux, Windows and macOS; people have used it on Linux only so far. The details are in [What works where](https://cellmigrationlab.github.io/LabConstrictor-Tools/CAPABILITIES/).
+Alpha. Current releases: Tools `v0.3.0-alpha.2`, napari plugin `v0.1.0-alpha.5`, Fiji and QuPath plugins `v0.1.0-alpha.7`. Automated tests run on Linux, Windows and macOS; people have also tested it on Windows and macOS. The details are in [What works where](https://cellmigrationlab.github.io/LabConstrictor-Tools/CAPABILITIES/).
 
 Found a problem? [Open an issue](https://github.com/CellMigrationLab/LabConstrictor-Tools/issues) with the host, the operating system, the app and the steps.
 

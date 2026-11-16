@@ -100,7 +100,7 @@ Places where the code deliberately carries on with a substitute instead of faili
 
 ## Known limits (testing phase)
 * Verified on Linux with real NucleiSky and CellTracksColab installers (the CellTracksColab one with the bridge branch, which is not on its `main`), in Napari and Fiji, in October 2026 and earlier (an earlier VLab4Mic check is not repeated here); the release sandbox runs released apps on fresh Linux, macOS and Windows runners ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)). QuPath: GUI tests on Linux in its own CI; nobody has used it by hand on any system.
-  Windows by a person: not done; the `.bat` install hooks run in the sandbox on a Windows runner only; macOS by a person, UNC/NFS shares and multi-user "all users" installs are untested.
+  Windows and macOS: people have done clean installs of the apps and used the plugins there; UNC/NFS shares and multi-user "all users" installs are untested.
 * The worker reads image files whole (no lazy/chunked reading); TIFF always, other formats only when the app has `imageio`.
 * No sandbox: a tool runs with the user's rights, like any app code. The worker only executes tools declared by the registered module.
 * A protocol change is a major version; hosts say so in the UI when an app speaks a newer protocol than they do.
