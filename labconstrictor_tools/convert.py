@@ -644,6 +644,16 @@ def _job_file(job_dir: Path, name: str, suffix: str) -> Path:
     return path
 
 
+def _photometric(array: Any) -> str | None:
+    """How a result image is stored. Only an 8-bit Y X 3 or Y X 4 array is a colour image (tifffile's RGB); everything else is
+    stored as grey planes. Left to itself, tifffile also writes a (3, Y, X) or (4, Y, X) array, e.g. three channels or three
+    timepoints, as ONE page of 3 or 4 colour samples, which Fiji cannot open unless it is 8-bit."""
+    if array.ndim < 3:
+        return None  # one plane (or a 1D array): tifffile's own choice, which is already grey
+    rgb = array.ndim == 3 and array.shape[-1] in (3, 4) and array.dtype == "uint8"
+    return "rgb" if rgb else "minisblack"
+
+
 def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
     kind, name = out["type"], out["name"]
     if kind in ("image", "labels"):
@@ -658,7 +668,7 @@ def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
                 % (kind, name, declared, len(declared), array.ndim, tuple(array.shape)),
             )
         path = _job_file(job_dir, name, ".tif")
-        tifffile.imwrite(path, array)
+        tifffile.imwrite(path, array, photometric=_photometric(array))
         axes = declared or DEFAULT_AXES.get(array.ndim, "")
         return {"type": kind, "name": name, "path": str(path), "axes": axes}
     if kind == "table":
