@@ -20,7 +20,7 @@ The version lives in one place, `labconstrictor_tools/_version.py` (`__version__
 * **The CI `compat` job** installs the newest tag (if one exists) and reads schemas across versions, see [TESTING.md](TESTING.md).
 
 ### Pinning Tools in app installers
-An app installer must install a **tagged** Tools, never `main`: `main` moves, so two installs of the same app a week apart would run different workers, and a breaking change (for example issue #51) would reach installed apps without any release. The installer already reads the source from `LC_TOOLS_SPEC` and installs it with one `pip install` ([LABCONSTRICTOR_INTEGRATION.md](LABCONSTRICTOR_INTEGRATION.md)); pinning only changes the default:
+An app installer must install a **tagged** Tools, never `main`: `main` moves, so two installs of the same app a week apart would run different workers, and a breaking change would reach installed apps without any release. The installer already reads the source from `LC_TOOLS_SPEC` and installs it with one `pip install` ([LABCONSTRICTOR_INTEGRATION.md](LABCONSTRICTOR_INTEGRATION.md)); pinning only changes the default:
 * Default value: `https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/<tag>.zip` (for example `v0.2.0` once it exists) or a pre-release tag such as `.../refs/tags/v0.3.0-alpha.2.zip` while only pre-releases exist. Never `refs/heads/main.zip`, never a bare branch or a commit that is not a tag. An app moves to a newer Tools by a pull request that changes this one string (and runs its `lc_tests`), not by anybody tagging.
 * `LC_TOOLS_SPEC` stays the override (a local wheel for tests, a mirror, a branch for a developer).
 * After installing, the hook may record the version by running `labconstrictor-tools doctor`, which shows `Tools <version>`; a test of the installer checks that the version equals the pinned tag.
@@ -61,6 +61,7 @@ Every feature or limit needs a Playground tool or case, a generated matrix case 
   error, traceback, interpreter, worker output). Napari's *Details...* button shows it; attach it to bug reports. The newest 50 finished records are kept (`prune`, same rules).
   A Python host that makes its own record folder (Napari) builds the content with `labconstrictor_tools.runs.build_record`, writes it with `runs.record_json` and picks the done status with `runs.done_status` (a crash after Cancel is `cancelled`); none of them prunes, the host starts `labconstrictor-tools prune` itself ([PROTOCOL.md](PROTOCOL.md#result-folders-and-run-records-retention)). They exist from 0.3.0a1 (they are in the code of `v0.2.0-rc.2` too, which still reports `0.2.0rc1`, so a host requires `min_tools_version` 0.3.0a1 or checks `hasattr`). There is no feature id for them.
 * A file that a tool still holds is locked on Windows. From 0.3.0a1 Tools opens TIFF files of 8 MiB or more that are uncompressed and contiguous as a copy-on-write memory map (set `LC_TIFF_MEMMAP=0` to read them the plain way). On Windows a tool that keeps a reference to its input (a global, a stored exception, a thread that outlives the run) keeps the file mapped and therefore locked until the worker ends; the host cannot delete or overwrite that file meanwhile. Linux and macOS are not affected.
+* A terminal line copied from a plugin ("Copy as command") cannot start on Windows when it is longer than about 32,000 characters, the system's command-line limit. Run a text parameter that long from the plugin's form or from the copied Python snippet, which have no such limit.
 * First run slow? Imports dominate (a repeat run in a kept worker is ~10x faster). Napari keeps the worker for 10 minutes by default.
 * Tool hangs on Windows? Please report with the run record; two such hangs (numpy/scipy imports vs a pending stdin read) were found
   and fixed during development.
@@ -99,7 +100,7 @@ Places where the code deliberately carries on with a substitute instead of faili
 
 ## Known limits (testing phase)
 * Verified on Linux with real NucleiSky and CellTracksColab installers (the CellTracksColab one with the bridge branch, which is not on its `main`), in Napari and Fiji, in October 2026 and earlier (an earlier VLab4Mic check is not repeated here); the release sandbox runs released apps on fresh Linux, macOS and Windows runners ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)). QuPath: GUI tests on Linux in its own CI; nobody has used it by hand on any system.
-  Windows by a person: not done; the `.bat` install hooks run in the sandbox on a Windows runner only; macOS by a person, UNC/NFS shares and multi-user "all users" installs are untested.
+  Windows and macOS: people have done clean installs of the apps and used the plugins there; UNC/NFS shares and multi-user "all users" installs are untested.
 * The worker reads image files whole (no lazy/chunked reading); TIFF always, other formats only when the app has `imageio`.
 * No sandbox: a tool runs with the user's rights, like any app code. The worker only executes tools declared by the registered module.
 * A protocol change is a major version; hosts say so in the UI when an app speaks a newer protocol than they do.

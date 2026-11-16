@@ -4,10 +4,11 @@ This is the one page that says how to install a LabConstrictor app and the progr
 installation instructions of the apps and the hosts are kept here and in the host repositories, not in the app repositories.
 
 Current releases: Tools `v0.3.0-alpha.2`, Napari plugin `v0.1.0-alpha.5`, Fiji and QuPath plugins `v0.1.0-alpha.7`. Take the latest
-release of each; when a release page shows a newer tag than this page, use that one.
+release of each; when a release page shows a newer tag than this page, use that one. The plugins are not yet on PyPI, an ImageJ update
+site or a QuPath catalog; what that would take is in [Publish the plugins and apps](PUBLISHING.md).
 
 ## 1. Install an app (one click)
-1. Download the installer for your system from the latest release on the app's **GitHub Releases page** (Windows `.exe`, Apple-silicon Mac `.pkg` or `.sh`, Linux `.sh`; **Intel Macs are not supported**). The apps: [Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases), [NucleiSky](https://github.com/CellMigrationLab/NucleiSky/releases), [StarDist2D](https://github.com/CellMigrationLab/Stardist2D/releases), [VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases), [Guess the Condition](https://github.com/CellMigrationLab/GuessTheCondition/releases), [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab/releases) and [LabConstrictor Demo](https://github.com/CellMigrationLab/LabConstrictor_Demo/releases) (the last two are notebook apps: no host shows them).
+1. Download the installer for your system from the latest release on the app's **GitHub Releases page** (Windows `.exe`, Mac `.pkg` or `.sh`, Linux `.sh`; an app offers an Intel Mac installer only if its release has a `MacOSX-x86_64` file). The apps: [Playground](https://github.com/CellMigrationLab/LabConstrictor-Playground/releases), [NucleiSky](https://github.com/CellMigrationLab/NucleiSky/releases), [StarDist2D](https://github.com/CellMigrationLab/Stardist2D/releases), [VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic/releases), [Guess the Condition](https://github.com/CellMigrationLab/GuessTheCondition/releases), [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab/releases) and [LabConstrictor Demo](https://github.com/CellMigrationLab/LabConstrictor_Demo/releases) (the last two are notebook apps: no host shows them).
 2. Run it. Installing takes 6 to 8 minutes for a small app and longer for the apps that bring PyTorch; the window may look idle. You need internet during the installation.
 3. The installers are not code-signed: Windows says "Windows protected your PC" (More info, Run anyway); macOS refuses until you use System Settings > Privacy & Security > Open Anyway. Download only from the app's own release page.
 4. The installer registers the app's tools for the hosts. Check: `<install folder>/bin/python -m labconstrictor_tools list` (Windows: `<install folder>\python.exe`) shows the app, and `doctor` shows no cross. CellTracksColab **does register** `Calculate Track Metrics`, but its manifest specifies `hosts: [notebook]`; it appears in `list` and is hidden in Napari, Fiji and QuPath.
@@ -34,7 +35,7 @@ Both addresses are source archives of tags (no `git` needed); put the latest tag
 2. Put it into `Fiji.app/plugins/` (not a subfolder; remove an older `labconstrictor-fiji-*.jar`) and restart Fiji.
 3. Run **Plugins > LabConstrictor > LabConstrictor Tools...**.
 
-No-jar alternative: the same release has `labconstrictor-fiji-script-<tag>.zip` with the script `LabConstrictor_Tools.groovy` **and the `lib` folder it needs**; unzip it so both sit in `Fiji.app/scripts/Plugins/LabConstrictor/`; the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots). Macro calls need the jar. Install one of the two, not both. Windows and macOS are tried only by the release run, not yet by a person.
+No-jar alternative: the same release has `labconstrictor-fiji-script-<tag>.zip` with the script `LabConstrictor_Tools.groovy` **and the `lib` folder it needs**; unzip it so both sit in `Fiji.app/scripts/Plugins/LabConstrictor/`; the entry is **Plugins > LabConstrictor > LabConstrictor Tools** (no dots). Macro calls need the jar. Install one of the two, not both. Windows and macOS are checked by the release run and have been tested by people.
 
 ## 5. QuPath
 QuPath **0.7.0** (built with Java 25; the jar needs it; other versions are not supported).
@@ -42,7 +43,7 @@ QuPath **0.7.0** (built with Java 25; the jar needs it; other versions are not s
 2. Drag it onto the QuPath window (or copy it into the extensions folder shown in QuPath's Preferences) and restart QuPath.
 3. Run **Extensions > LabConstrictor tools...**.
 
-Script Editor alternative: download the **single file** `LabConstrictorTools-all.groovy` from the same release, open it in QuPath's Script Editor and run it. The script in the repository is split into part files; only the all-in-one file from the release works in the Script Editor. Linux is tested in CI; macOS (Apple silicon) and Windows are tried by the release run and informative only.
+Script Editor alternative: download the **single file** `LabConstrictorTools-all.groovy` from the same release, open it in QuPath's Script Editor and run it. The script in the repository is split into part files; only the all-in-one file from the release works in the Script Editor. Linux is tested in CI; macOS (Apple silicon) and Windows are checked by the release run and have been tested by people.
 
 ## 6. Check it works
 Open the host and look for the app in its list. If the list is empty or an app is missing: `labconstrictor-tools list` and `labconstrictor-tools doctor` in the app's Python say why (an interpreter that is gone, a Tools that is too old), and the log is `~/.labconstrictor/logs/labconstrictor.log` ([OPERATIONS.md](OPERATIONS.md#when-something-goes-wrong-logs)).

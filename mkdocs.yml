@@ -36,6 +36,7 @@ nav:
   - Home: index.md
   - Use apps:
       - Use apps in napari, Fiji and QuPath: user-guide.md
+      - What works where: CAPABILITIES.md
       - Install an app and the hosts: INSTALL.md
       - Operations and troubleshooting: OPERATIONS.md
   - Write tools:
@@ -50,6 +51,7 @@ nav:
   - Test and maintain:
       - Automated testing: TESTING.md
       - Regression ledger: REGRESSION_LEDGER.md
+      - Publish the plugins and apps: PUBLISHING.md
       - Wrong-science rules: SPEC_WRONG_SCIENCE.md
 
 plugins:

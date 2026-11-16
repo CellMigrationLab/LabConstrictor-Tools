@@ -5,7 +5,7 @@ Some apps declare **tools**: scientific functions with typed inputs. A plugin fo
 The tool runs in the app's own Python environment, in a separate process. Your image software never imports the app's packages, so apps with conflicting dependencies can live side by side. Fiji (ImageJ) and QuPath need no Python at all; napari is itself a Python program, and its plugin is installed into the environment where napari runs.
 
 > [!WARNING]
-> **Under heavy construction.** The napari, Fiji and QuPath plugins are untested and unlikely to be stable. Expect bugs, missing features and changes without notice. Each plugin's own guide says what stage it is at.
+> **Alpha software.** The napari, Fiji and QuPath plugins are tested automatically and by people on Windows and macOS, but they are still young. Expect bugs, missing features and changes without notice. [What works where](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/docs/CAPABILITIES.md) lists what each one supports today.
 
 ## Three steps
 
@@ -22,14 +22,10 @@ Then pick an app and a tool. Parameters become fields with their ranges and unit
 
 Found a problem? [Open an issue](https://github.com/CellMigrationLab/LabConstrictor-Tools/issues) with the host, operating system, app and the steps that show it.
 
-## Very long texts on Windows
-
-A terminal line copied from a plugin (the "copy as command" button) carries your parameter values. On Windows a line longer than about 32,000 characters cannot start, because of the operating system's command-line limit, so a text parameter longer than that cannot be run from a copied terminal line. Run such a text from the plugin's form, or from the notebook or worker path (the Python snippet), which have no such limit.
-
 ## Check that everything works
 
 Install the **LabConstrictor Playground** app and press **Check everything**. It tests your machine and every plugin feature, and writes a report you can attach to an issue.
 
 ## Make your own tools
 
-App authors declare tools once, in Python, and get all of this without writing any interface code. See the [authoring guide](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/docs/AUTHORING.md).
+App authors declare tools once, in Python, and get all of this without writing any interface code. See [Writing tools](https://cellmigrationlab.github.io/LabConstrictor-Tools/AUTHORING/).
