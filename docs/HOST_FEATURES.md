@@ -46,7 +46,7 @@ Each host reads the registry. Which app each host offers is the app's own `hosts
 | Progress, Cancel, kept worker, run details | yes | progress and Esc to cancel; a new worker for each run; an error dialog | yes |
 | Fiji macro | no | a macro line typed by hand runs the tool without a dialog (jar only); the Macro Recorder does not record the plugin | no |
 
-Not yet in any host: tracks, time-lapse and 3D axes, figure output, Repeat, batch.
+Not yet in any host: tracks, time-lapse and 3D axes of inputs (a result with known axes does open in Fiji as a hyperstack: `result_axes_v1`), figure output, Repeat, batch.
 
 How this table is kept honest: each row has a test in the host's own suite that runs the example app (`labconstrictor_tools.examples.interactions`); a change that breaks a row fails that suite.
 

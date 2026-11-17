@@ -442,6 +442,42 @@ def image_cases() -> list[Case]:
     return cases
 
 
+def image_axes_cases() -> list[Case]:
+    """Images returned with their axes (WithAxes, feature result_axes_v1): written as an ImageJ hyperstack when the axes are in
+    ImageJ order and no dimension is 1, as before otherwise; the array read back is the one sent, every time.
+    """
+    cases: list[Case] = []
+    shapes = (
+        ("TYX", (4, 6, 7)),
+        ("TZYX", (3, 4, 6, 7)),
+        ("ZCYX", (4, 2, 6, 7)),
+        ("CYX", (3, 6, 7)),
+        ("TZCYX", (2, 3, 2, 6, 7)),
+        ("TZYX", (3, 1, 6, 7)),  # a single slice: ImageJ cannot record it, written as before
+        ("TZYX", (1, 4, 6, 7)),  # a single time point
+        ("ZYX", (1, 6, 7)),
+        ("ZCYX", (4, 1, 6, 7)),  # a single channel
+        ("TZYX", (3, 4, 6, 1)),  # X of size 1
+        ("CZYX", (2, 3, 6, 7)),  # not ImageJ order: never reordered
+    )
+    for axes, shape in shapes:
+        for dtype in ("uint8", "uint16", "float32", "bool"):
+            a = ramp(shape, dtype)
+            case_id = "%s/%s/%s" % (dtype, axes, "x".join(str(n) for n in shape))
+            cases.append(
+                Case(
+                    "echo_image_with_axes/%s" % case_id,
+                    "echo_image_with_axes",
+                    {"image": a, "axes": axes},
+                    _image_expect(a, "image"),
+                    ("worker", "cli", "snippet", "notebook"),
+                    False,
+                    "image_axes",
+                )
+            )
+    return cases
+
+
 def labels_cases() -> list[Case]:
     cases: list[Case] = []
     for dtype in LABEL_DTYPES:
@@ -2507,7 +2543,7 @@ def all_cases() -> tuple[Case, ...]:
     """Every case, deterministic order. Ids are unique."""
     cases: list[Case] = []
     for generator in (
-        image_cases, labels_cases, outline_cases, _scalar_cases, _choice_cases, _default_cases, _nullable_cases, _bound_cases,
+        image_cases, image_axes_cases, labels_cases, outline_cases, _scalar_cases, _choice_cases, _default_cases, _nullable_cases, _bound_cases,
         table_cases, points_cases, shapes_cases, affine_cases, message_cases, scalars_out_cases, file_cases, transform_cases,
     ):  # fmt: skip
         cases.extend(generator())

@@ -84,6 +84,18 @@ def echo_image(
     return image, _array_report(image)
 
 
+@tool("Echo image with axes")
+def echo_image_with_axes(
+    image: Image,
+    axes: str,
+) -> tuple[Annotated[ImageOut, Name("image")], Annotated[Scalars, Name("received")]]:
+    """Returns the image it received with the axes it is given (WithAxes): an ImageJ hyperstack when the axes and the shape
+    allow it, the same array either way."""
+    from labconstrictor_tools import WithAxes
+
+    return WithAxes(image, axes), _array_report(image)
+
+
 @tool("Make an array")
 def make_array(kind: Literal["empty", "complex", "object", "text"]) -> Annotated[ImageOut, Name("image")]:
     """Returns an array that no host can open as an image: the result must be refused with a readable message."""

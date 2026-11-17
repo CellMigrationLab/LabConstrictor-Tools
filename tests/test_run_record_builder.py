@@ -256,5 +256,12 @@ class Documented(unittest.TestCase):
 
         self.assertEqual(
             sorted(features.FEATURES),
-            ["app_hosts_v1", "host_requirements_v1", "reserved_inputs_v1", "retention_prune", "shm_order_v1"],
+            [
+                "app_hosts_v1",
+                "host_requirements_v1",
+                "reserved_inputs_v1",
+                "result_axes_v1",  # result files (0.3.0a4), not run records
+                "retention_prune",
+                "shm_order_v1",
+            ],
         )

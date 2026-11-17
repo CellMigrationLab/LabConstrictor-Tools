@@ -39,6 +39,7 @@ from .types import (
     ToolError,
     Unit,
     Widget,
+    WithAxes,
 )
 
 __all__ = [
@@ -54,6 +55,7 @@ __all__ = [
     "RegionOf",
     "ShapesOut",
     "Widget",
+    "WithAxes",
     "Description",
     "EnabledWhen",
     "File",
