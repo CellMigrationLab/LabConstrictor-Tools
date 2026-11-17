@@ -101,7 +101,7 @@ read with `tifffile`; other formats (PNG, JPEG, ...) are read if the app environ
 
 ## Try it without any GUI
 
-```
+```bash
 labconstrictor-tools check --module my_app_lc_tools --pythonpath .
 labconstrictor-tools register --name myapp --prefix <app prefix> --module my_app_lc_tools --pythonpath .   # by hand; the installer does it
 labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/      # without --out: <LC_HOME>/results/<time>_<app>_<tool> (newest 20 completed kept by `labconstrictor-tools prune`)
@@ -144,7 +144,7 @@ Without Jupyter (CI, a notebook someone else wrote): `labconstrictor-tools expor
 
 Runs each tool through the real worker (the same process model as Napari/Fiji), on small samples:
 
-```
+```bash
 labconstrictor-tools test --module my_app_lc_tools --pythonpath . --cases tests.json
 labconstrictor-tools test --module my_app_lc_tools --pythonpath . --sample image=small.tif   # smoke test of every tool
 ```
