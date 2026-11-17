@@ -32,7 +32,14 @@ class Schema(unittest.TestCase):
         # shm_order_v1 (PR #125) is what tells 0.3.0a1 from the rc.1 / rc.2 / main that all reported 0.2.0rc1 with the first two
         self.assertEqual(
             sorted(features.FEATURES),
-            ["app_hosts_v1", "host_requirements_v1", "reserved_inputs_v1", "retention_prune", "shm_order_v1"],
+            [
+                "app_hosts_v1",
+                "host_requirements_v1",
+                "reserved_inputs_v1",
+                "result_axes_v1",
+                "retention_prune",
+                "shm_order_v1",
+            ],
         )
         text = (ROOT / "docs" / "PROTOCOL.md").read_text(encoding="utf-8")
         self.assertIn("the one id added after its behaviour", text)
