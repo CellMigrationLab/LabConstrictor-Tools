@@ -4,7 +4,7 @@ A LabConstrictor app can offer **tools**: analysis steps that you run from napar
 
 **Yes** works. **Partial** works with the limit written next to it. **No** is not available. **—** does not apply. Nothing on this page is a promise for the future unless it says *planned*.
 
-The plugins for napari, Fiji and QuPath are alpha releases. This page describes Tools `v0.3.0-alpha.2`, the napari plugin `v0.1.0-alpha.5`, and the Fiji and QuPath plugins `v0.1.0-alpha.7`.
+The plugins for napari, Fiji and QuPath are alpha releases. This page describes Tools `v0.3.0-alpha.3`, the napari plugin `v0.1.0-alpha.5`, and the Fiji and QuPath plugins `v0.1.0-alpha.7`.
 
 "Notebook" is the form a notebook shows for a tool (`labconstrictor_tools.notebook.form`). "Command line" is `labconstrictor-tools run`.
 
