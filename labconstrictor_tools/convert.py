@@ -18,7 +18,7 @@ from typing import Any, Literal
 
 from .protocol import RESERVED_INPUTS, RESERVED_PREFIX
 from .structures import OutputSchema, ParamSchema, Result, ToolSchema
-from .types import ToolError
+from .types import ToolError, WithAxes
 
 UINT16_MAX = (
     65535  # integer images within the 16-bit ranges are narrowed to uint16 / int16, which every host opens
@@ -654,22 +654,76 @@ def _photometric(array: Any) -> str | None:
     return "rgb" if rgb else "minisblack"
 
 
+IMAGEJ_ORDER = "TZCYX"  # the order of an ImageJ hyperstack; T, Z and C may be left out
+IMAGEJ_DTYPES = ("uint8", "uint16", "int16", "float32")  # what tifffile writes as an ImageJ hyperstack
+
+
+def _stated_axes(kind: str, name: str, axes: Any, declared: str | None) -> str:
+    """The axes a tool returned with `WithAxes`: distinct letters from T C Z Y X S, and the same as a declared `Axes`, or `bad_return`."""
+    from .introspection import AXIS_LABELS
+
+    if (
+        not isinstance(axes, str)
+        or not axes
+        or len(set(axes)) != len(axes)
+        or any(c not in AXIS_LABELS for c in axes)
+    ):
+        raise ToolError(
+            "bad_return",
+            "the %s output '%s' was returned with axes %r: use distinct letters from %s, one per dimension, e.g. 'TZYX'"
+            % (kind, name, axes, ", ".join(AXIS_LABELS)),
+        )
+    if declared and axes != declared:
+        raise ToolError(
+            "bad_return",
+            "the %s output '%s' is declared %s but was returned with axes %s" % (kind, name, declared, axes),
+        )
+    return axes
+
+
+def _imagej_hyperstack(array: Any, axes: str) -> bool:
+    """True when a result with these (known) axes is written as an ImageJ hyperstack: more than two dimensions, the axes a
+    subsequence of T Z C Y X that ends in Y X (so the array is never reordered), and a pixel type ImageJ stores.
+    """
+    if array.ndim < 3 or not axes.endswith("YX") or any(c not in IMAGEJ_ORDER for c in axes):
+        return False
+    positions = [IMAGEJ_ORDER.index(c) for c in axes]
+    return positions == sorted(positions) and str(array.dtype) in IMAGEJ_DTYPES
+
+
 def _write_one(out: OutputSchema, value: Any, job_dir: Path) -> Result:
     kind, name = out["type"], out["name"]
     if kind in ("image", "labels"):
         import tifffile
 
-        array = portable_dtype(_as_array(kind, name, value), name)
         declared = out.get("axes")
-        if declared and array.ndim != len(declared):
+        stated = None
+        if isinstance(value, WithAxes):
+            stated = _stated_axes(kind, name, value.axes, declared)
+            value = value.array
+        array = portable_dtype(_as_array(kind, name, value), name)
+        known = stated or declared
+        if known and array.ndim != len(known):
             raise ToolError(
                 "bad_return",
-                "the %s output '%s' is declared %s (%dD) but the tool returned a %dD array of shape %s"
-                % (kind, name, declared, len(declared), array.ndim, tuple(array.shape)),
+                "the %s output '%s' is %s %s (%dD) but the tool returned a %dD array of shape %s"
+                % (
+                    kind,
+                    name,
+                    "returned with axes" if stated else "declared",
+                    known,
+                    len(known),
+                    array.ndim,
+                    tuple(array.shape),
+                ),
             )
         path = _job_file(job_dir, name, ".tif")
-        tifffile.imwrite(path, array, photometric=_photometric(array))
-        axes = declared or DEFAULT_AXES.get(array.ndim, "")
+        if known and _imagej_hyperstack(array, known):
+            # Fiji opens it with its time points, slices and channels; tifffile reads back the same array (same order, shape, values).
+            tifffile.imwrite(path, array, imagej=True, metadata={"axes": known})
+        else:
+            tifffile.imwrite(path, array, photometric=_photometric(array))
+        axes = known or DEFAULT_AXES.get(array.ndim, "")
         return {"type": kind, "name": name, "path": str(path), "axes": axes}
     if kind == "table":
         frame = _as_frame("table", name, value)

@@ -68,6 +68,20 @@ class Affine:
     "3x3 homogeneous matrix in (y,x) pixel coordinates mapping SOURCE pixels -> TARGET pixels"
 
 
+class WithAxes:
+    """An image or label result together with its axes, for a tool whose axes are only known when it runs (the axes the person
+    typed, for example): `return WithAxes(corrected, "TZYX")`. One letter per dimension, from T C Z Y X S. When the axes are in
+    ImageJ's order (T, Z, C, then Y X), the result is written as an ImageJ hyperstack, so Fiji opens it with its dimensions; the
+    array is never reordered. An `Axes(...)` declared on the output, if any, must be the same."""
+
+    def __init__(self, array: object, axes: str) -> None:
+        self.array = array
+        self.axes = axes
+
+    def __repr__(self) -> str:
+        return "WithAxes(<%s>, %r)" % (type(self.array).__name__, self.axes)
+
+
 INPUT_TYPES = {Image: "image", Labels: "labels", Table: "table", File: "file", Folder: "folder"}
 OUTPUT_TYPES = {
     ImageOut: "image",

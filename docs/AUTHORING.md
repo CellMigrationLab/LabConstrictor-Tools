@@ -70,6 +70,7 @@ Return one value or a tuple. Annotate the return type with what it is:
 | `Annotated[ShapesOut, ApplyTo("image")]` | `labels_to_shapes(labels)` from `labconstrictor_tools.shapes` (needs scikit-image), a GeoJSON FeatureCollection, or a list of polygons (arrays of `(y, x)` vertices, or dicts with `polygon` plus properties) -> Napari shapes layer, Fiji polygon ROIs, QuPath annotations |
 | `Annotated[ImageOut, Name("view"), Replace()]` | each run replaces the previous result named `view` (Napari layer / Fiji window) instead of adding "view [1]" |
 | `Annotated[ImageOut, Name("aligned"), Axes("YX")]` | name the output / say what its axes are |
+| `return WithAxes(array, axes)` (for an `ImageOut` / `LabelsOut`) | the axes of this result, when they depend on the input (for example the axes the person typed). With axes in ImageJ order (`TYX`, `TZYX`, `ZCYX`, `TZCYX`...), from `Axes` or `WithAxes`, Fiji opens the result as a hyperstack with its dimensions instead of one long stack; the array is never reordered |
 
 ## Rules that keep it fast and pleasant
 

@@ -35,7 +35,7 @@ Good to know:
 
 | Result | napari | Fiji | QuPath | Notebook | Command line |
 |---|---|---|---|---|---|
-| Image, label image | Yes: a new layer | Yes: a new window | Partial: a preview, with an "Open in QuPath" button | Partial: a picture of the first plane | Yes: a TIFF file |
+| Image, label image | Yes: a new layer | Yes: a new window; a time-lapse or stack opens with its dimensions when the tool states its axes | Partial: a preview, with an "Open in QuPath" button | Partial: a picture of the first plane | Yes: a TIFF file |
 | Table | Yes: a table panel | Yes: a Results table | Yes: a table in the results window | Yes | Yes: a CSV file |
 | Numbers and short values | Yes: in the status line | Yes: in the Log window | Yes: in the results window | Yes | Yes |
 | Message | Yes | Yes: the Log window and a dialog | Yes | Yes | Yes |
