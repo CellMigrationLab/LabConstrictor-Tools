@@ -656,6 +656,7 @@ def _photometric(array: Any) -> str | None:
 
 IMAGEJ_ORDER = "TZCYX"  # the order of an ImageJ hyperstack; T, Z and C may be left out
 IMAGEJ_DTYPES = ("uint8", "uint16", "int16", "float32")  # what tifffile writes as an ImageJ hyperstack
+IMAGEJ_MAX_BYTES = 2**32 - 2**25  # an ImageJ TIFF is a classic TIFF (4 GiB at most, with room for its tags)
 
 
 def _stated_axes(kind: str, name: str, axes: Any, declared: str | None) -> str:
@@ -682,10 +683,14 @@ def _stated_axes(kind: str, name: str, axes: Any, declared: str | None) -> str:
 
 
 def _imagej_hyperstack(array: Any, axes: str) -> bool:
-    """True when a result with these (known) axes is written as an ImageJ hyperstack: more than two dimensions, the axes a
-    subsequence of T Z C Y X that ends in Y X (so the array is never reordered), and a pixel type ImageJ stores.
+    """True when a result with these (known) axes is written as an ImageJ hyperstack: more than two dimensions, none of size 1
+    (ImageJ cannot record a T, Z or C of size 1, so tifffile would read the array back without it), the axes a subsequence of
+    T Z C Y X that ends in Y X (so the array is never reordered), a pixel type ImageJ stores, and less than 4 GiB (an ImageJ
+    TIFF is never a BigTIFF).
     """
-    if array.ndim < 3 or not axes.endswith("YX") or any(c not in IMAGEJ_ORDER for c in axes):
+    if array.ndim < 3 or min(array.shape) < 2 or array.nbytes >= IMAGEJ_MAX_BYTES:
+        return False
+    if not axes.endswith("YX") or any(c not in IMAGEJ_ORDER for c in axes):
         return False
     positions = [IMAGEJ_ORDER.index(c) for c in axes]
     return positions == sorted(positions) and str(array.dtype) in IMAGEJ_DTYPES

@@ -103,18 +103,75 @@ class WrittenAsBefore(unittest.TestCase):
                 self.assertEqual(result["axes"], axes)
 
     def test_a_pixel_type_imagej_cannot_store_is_written_as_before(self) -> None:
-        data = array(
-            (4, 8, 10), np.uint32
-        )  # portable_dtype makes it something hosts open; never int32 / uint32 in ImageJ mode
+        """portable_dtype leaves a big-endian 16-bit array as it is; tifffile cannot write it in ImageJ mode."""
+        data = array((4, 8, 10), ">u2")
         _, path = write(WithAxes(data, "TYX"))
-        back = tifffile.imread(path)
-        np.testing.assert_array_equal(back, data)
-        if str(back.dtype) not in convert.IMAGEJ_DTYPES:
-            self.assertIsNone(imagej(path))
+        self.assertIsNone(imagej(path))
+        np.testing.assert_array_equal(tifffile.imread(path), data)
+
+    def test_a_dimension_of_size_1_is_never_dropped(self) -> None:
+        """ImageJ cannot record a T, Z or C of size 1: such a result is written as before and reads back with every dimension,
+        also when only Axes is declared (found by an independent review)."""
+        cases = (
+            ("TZYX", (3, 1, 8, 9), True),
+            ("TZYX", (1, 4, 8, 9), True),
+            ("TYX", (1, 8, 9), True),
+            ("ZYX", (1, 8, 9), False),
+            ("ZCYX", (4, 1, 8, 9), True),
+            ("TZYX", (3, 4, 8, 1), True),
+        )
+        for axes, shape, returned in cases:
+            data = array(shape, np.uint8)
+            with self.subTest(axes=axes, shape=shape, returned=returned):
+                result, path = write(WithAxes(data, axes)) if returned else write(data, axes=axes)
+                self.assertIsNone(imagej(path))
+                back = tifffile.imread(path)
+                self.assertEqual(back.shape, data.shape)
+                np.testing.assert_array_equal(back, data)
+                self.assertEqual(result["axes"], axes)
+
+    def test_a_result_of_4_gib_or_more_is_written_as_before(self) -> None:
+        """An ImageJ TIFF is never a BigTIFF: above the limit the result is written as before (the limit is lowered here)."""
+        data = array((4, 8, 10), np.uint16)
+        limit = convert.IMAGEJ_MAX_BYTES
+        convert.IMAGEJ_MAX_BYTES = data.nbytes
+        try:
+            _, path = write(WithAxes(data, "TYX"))
+        finally:
+            convert.IMAGEJ_MAX_BYTES = limit
+        self.assertIsNone(imagej(path))
+        np.testing.assert_array_equal(tifffile.imread(path), data)
 
     def test_a_2d_result_is_written_as_before(self) -> None:
         _, path = write(WithAxes(array((8, 10)), "YX"))
         self.assertIsNone(imagej(path))
+
+
+class OtherResults(unittest.TestCase):
+    def test_a_label_result_with_axes_is_a_hyperstack_too(self) -> None:
+        data = array((3, 4, 8, 10), np.uint16)
+        out = {"type": "labels", "name": "masks"}
+        result = convert._write_one(out, WithAxes(data, "TZYX"), Path(tempfile.mkdtemp()))  # type: ignore[arg-type]
+        meta = imagej(Path(result["path"]))
+        assert meta is not None
+        self.assertEqual((meta.get("frames"), meta.get("slices")), (3, 4))
+        np.testing.assert_array_equal(tifffile.imread(result["path"]), data)
+
+    def test_booleans_become_0_and_1_bytes_in_a_hyperstack(self) -> None:
+        data = array((3, 4, 8, 10), np.uint8) % 2 == 0
+        _, path = write(WithAxes(data, "TZYX"))
+        self.assertIsNotNone(imagej(path))
+        np.testing.assert_array_equal(tifffile.imread(path), data.astype(np.uint8))
+
+    def test_a_declared_axes_result_reads_back_the_same(self) -> None:
+        for axes, shape in (("ZYX", (4, 8, 10)), ("ZYX", (4, 8, 3)), ("CYX", (3, 8, 10))):
+            data = array(shape, np.uint8)
+            with self.subTest(axes=axes, shape=shape):
+                _, path = write(data, axes=axes)
+                self.assertIsNotNone(imagej(path))
+                back = tifffile.imread(path)
+                self.assertEqual(back.shape, data.shape)
+                np.testing.assert_array_equal(back, data)
 
 
 class Refusals(unittest.TestCase):
