@@ -13,7 +13,7 @@ If you only want to install something, use [Install an app](https://cellmigratio
 | QuPath extension | The jar from the GitHub release, installed by hand ([QuPath guide](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/)) |
 | Apps | The installer from the app's GitHub release, found through its page in the LabConstrictor App Centre |
 
-Every release is a GitHub release made by a maintainer. None of the plugins is in a Fiji update site, on PyPI or in a QuPath extension catalog yet; the steps and open questions for those are in [TESTING.md](TESTING.md#open-items-publishing-channels).
+Every release is a GitHub release made by a maintainer. None of the plugins is in a Fiji update site, on PyPI or in a QuPath extension catalog yet.
 
 ## Fiji
 
