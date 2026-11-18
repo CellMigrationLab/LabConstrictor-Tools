@@ -12,10 +12,15 @@ This page covers what the plugins need from an installed app, how to check an ap
 
 ## Check an installed app
 
-Run these with the app's own Python:
+Run these with the app's own Python. On macOS and Linux:
 
-    <install folder>/bin/python -m labconstrictor_tools list      # Windows: <install folder>\python.exe
+    <install folder>/bin/python -m labconstrictor_tools list
     <install folder>/bin/python -m labconstrictor_tools doctor
+
+On Windows:
+
+    <install folder>\python.exe -m labconstrictor_tools list
+    <install folder>\python.exe -m labconstrictor_tools doctor
 
 `list` shows the app and its tools; `doctor` should show no cross. If a plugin's list is empty or an app is missing, these commands say why (an interpreter that is gone, a Tools that is too old). The log is `~/.labconstrictor/logs/labconstrictor.log` ([Operations](OPERATIONS.md#when-something-goes-wrong-logs)).
 
