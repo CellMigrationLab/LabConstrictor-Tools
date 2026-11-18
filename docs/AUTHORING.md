@@ -138,6 +138,14 @@ Without Jupyter (in CI, or for a notebook someone else wrote): `labconstrictor-t
 
 `test` runs each tool through a real worker, as the hosts do, on small samples:
 
+The examples below use `small.tif`, a 64 x 64 test image. To make one (any small image works for the smoke test):
+
+```bash
+python -c "import numpy, tifffile; tifffile.imwrite('small.tif', numpy.random.default_rng(0).random((64, 64), dtype='float32'))"
+```
+
+Then:
+
 ```bash
 labconstrictor-tools test --module my_app_lc_tools --pythonpath src --cases tests.json
 labconstrictor-tools test --module my_app_lc_tools --pythonpath src --sample image=small.tif   # a smoke test of every tool
