@@ -1,106 +1,92 @@
 # Operations: shared installs, security, troubleshooting
 
-## Install
-How a person installs an app and each plugin is written once, on the LabConstrictor website: [Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/), and the [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) and [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/) guides. What Tools itself needs from an installed app, how to check one and how to install `labconstrictor-tools` by hand: [INSTALL.md](INSTALL.md). In short:
-* Each app environment needs `labconstrictor-tools` (standard library only, no dependencies); the app installer installs it from a **tag** (`LC_TOOLS_PIN`, below), and the plugins need Tools **0.3.0a1 or newer** in the app.
-* Fiji, napari and QuPath never import an app's packages, so apps with conflicting dependencies can coexist.
-
-## Releases and tags
-The version lives in one place, `labconstrictor_tools/_version.py` (`__version__`); `pyproject.toml` and `labconstrictor_tools.__version__` both read it. `describe`, the registry and `doctor` report it as `tools_version` ([PROTOCOL.md](PROTOCOL.md#tools-version-and-features)).
-* **Tag names:** `vX.Y.Z` for a release (`v0.2.0`), `vX.Y.Z-rc.N` or `vX.Y.Z-alpha.N` (`-beta.N`) for a pre-release, always on a commit of `main`. The tag is a **lightweight** tag, the one GitHub creates when the release is made from the Releases page (step 4 below); it is the standard here, an annotated tag is not required. The tag has a leading `v`; the Python version in `_version.py` has not, and spells the pre-release PEP 440 style: `-rc.N` <-> `rcN`, `-alpha.N` <-> `aN`, `-beta.N` <-> `bN`. So tag `v0.2.0-rc.1` <-> `__version__ = "0.2.0rc1"` and tag `v0.3.0-alpha.1` <-> `"0.3.0a1"`. Order: `0.2.0rc1 < 0.3.0a1 < 0.3.0`.
-* **Pinning a pre-release.** An app pins a tagged release; it may also pin a pre-release tag (`-rc.N`, `-alpha.N`) when it needs exactly that Tools (for example `v0.3.0-alpha.2`). An app never pins a branch or an untagged commit, and a pre-release pin is replaced by the final release when it exists.
-* **One number, one code.** A tag and the version it reports must tell the code apart: a code change that a host can observe gets a new number in the same pull request. History: `v0.2.0-rc.1` and `v0.2.0-rc.2` (and `main` after it) all reported `0.2.0rc1` because `rc.2` did not bump the version string, so hosts could not tell them apart; `0.3.0a1` (tag `v0.3.0-alpha.1`) is the first number that does. Pre-releases continue as `-alpha.N` / `-rc.N` of the number they lead to (`v0.3.0-alpha.1`, `v0.3.0-alpha.2`, ...).
-* **Who tags:** the maintainer tags. Claude and CI never create tags or GitHub releases; a pull request that wants a release says so in its description and the maintainer tags after merging.
-* **Procedure:** (1) CI is green on `main` on all three systems (and the nightly of the same commit); (2) a pull request sets `_version.py` to the new number and moves the "unreleased" notes of the ledger; merge it; (3) and (4) in one step: on GitHub create the release with the new tag name, targeting the merge commit on `main` (GitHub creates the lightweight tag; tick "pre-release" for `-rc.N` and `-alpha.N`; the notes go in the body of the GitHub release, not in this repository); (5) check `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/v0.3.0-alpha.1.zip` in a clean environment and `labconstrictor-tools --help`; (6) a new `main` commit after the tag keeps the tag's version until the next bump PR (so `main` between releases reports the last number: `doctor` shows what is installed, not where it came from).
-* **Fixed-name archive.** When a release is published, the workflow `release-archive` (`.github/workflows/release_archive.yml`) builds `git archive` of the tag, installs it in a clean venv, checks that its version matches the tag, and attaches it to the release as `labconstrictor-tools.zip`. So `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/latest/download/labconstrictor-tools.zip` installs the newest release that is not marked pre-release (GitHub's "latest"); a pre-release has the file at `.../releases/download/<tag>/labconstrictor-tools.zip`. The file is only added, never replaced, and the release's other files are not touched. For a release published before the workflow existed, the maintainer can run it from Actions with the tag. App installers keep pinning `.../archive/refs/tags/<tag>.zip` ([Pinning Tools in app installers](#pinning-tools-in-app-installers)).
-* **Never move or recreate a tag.** A broken release is fixed with the next number (`-alpha.2`, `0.3.1`); installers pin tags, and a moved or recreated tag would change what a pinned installer installs.
-* **The CI `compat` job** installs the newest tag (if one exists) and reads schemas across versions, see [TESTING.md](TESTING.md).
-
-### Pinning Tools in app installers
-An app installer must install a **tagged** Tools, never `main`: `main` moves, so two installs of the same app a week apart would run different workers, and a breaking change would reach installed apps without any release. The installer already reads the source from `LC_TOOLS_SPEC` and installs it with one `pip install` ([LABCONSTRICTOR_INTEGRATION.md](LABCONSTRICTOR_INTEGRATION.md)); pinning only changes the default:
-* Default value: `https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/<tag>.zip` (for example `v0.2.0` once it exists) or a pre-release tag such as `.../refs/tags/v0.3.0-alpha.2.zip` while only pre-releases exist. Never `refs/heads/main.zip`, never a bare branch or a commit that is not a tag. An app moves to a newer Tools by a pull request that changes this one string (and runs its `lc_tests`), not by anybody tagging.
-* `LC_TOOLS_SPEC` stays the override (a local wheel for tests, a mirror, a branch for a developer).
-* After installing, the hook may record the version by running `labconstrictor-tools doctor`, which shows `Tools <version>`; a test of the installer checks that the version equals the pinned tag.
-* A tag is only pinned after the maintainer created it ([Releases and tags](#releases-and-tags)); an installer that pins a tag that does not exist fails at `pip install`, which the hook already reports without stopping the rest of the install.
-
-The pin is the line `LC_TOOLS_PIN` of the template's `app/bash_bat_scripts/post_install.sh` and `post_install.bat` (the [template's files](https://github.com/CellMigrationLab/LabConstrictor/tree/main/app/bash_bat_scripts) say which tag it is today); apps get it by the template sync and reach users with their next release. A pin change is a one-string pull request, merged only after the maintainer created the tag.
-
-The tests of this repository keep the strings `LC_TOOLS_SPEC`, `refs/tags/`, `refs/heads/main.zip`, `post_install.sh` and `post_install.bat` in the pinning section above.
-
-## Playground rule
-Every feature or limit needs a Playground tool or case, a generated matrix case and a host GUI check; how it is checked is written in [TESTING.md](TESTING.md#the-playground-rule).
-
-## Many apps, many users, network shares
-* Any number of apps can be registered; hosts list them all. Same name registered twice: the higher-priority directory wins
-  (the per-user entry overrides a shared one); two versions of one app side by side are not supported.
-* An administrator can publish apps for everybody: `labconstrictor-tools register --dir <shared folder> ...` and users add the folder to
-  `LC_APPS_PATH` (or use the system directory). Entries whose interpreter does not exist on a user's machine are reported as
-  "not available on this machine" instead of disappearing silently (roaming profiles).
-* An app on a network share works if its Python can be started locally from that path; temporary files stay local; the app folder is
-  never written to by the runtime. Tested: a read-only install at a different path than where it was created. **Not tested:**
-  UNC paths, latency (first imports of torch/scipy over a network can take minutes), antivirus/AppLocker, many users on one share.
-* Remote execution (app on a server, host elsewhere) is not supported: the design assumes local process launch and shared files.
-
-## Security model
-* The worker never runs host-supplied code: only tools declared by the app's own module can be started.
-* Tools themselves are ordinary Python and can read/write any file the user can: **installing an app means trusting it**, exactly as
-  running its notebook does. There is no sandbox.
-* A registry entry makes hosts start a program. Entries must live in a directory only the user can write, the
-  interpreter must be inside the entry's install prefix, and system-wide directories must be admin-controlled. These checks (owner, group/other-writable, interpreter inside the prefix, world-writable folders on the way) run on **POSIX only**. **Windows is unchecked**: file ownership and permission bits do not map to its access-control lists, and no equivalent check has been written, so on Windows a registry entry is trusted as found. Treat write access to
-  these directories like write access to the user's startup items.
-* Pin `labconstrictor-tools` in app requirements (with hashes if you can); it is the only code every app shares.
-
-## Troubleshooting
-* `labconstrictor-tools doctor` checks every entry (interpreter, schema, protocol, staleness) and prints what to fix.
-* Stale tool list after an app update: run `labconstrictor-tools register ...` again (the installer does this).
-* `labconstrictor-tools run` without `--out` writes its results to `<LC_HOME>/results/<time>_<app>_<tool>` (the newest 20 finished ones are kept by `labconstrictor-tools prune`, which the hosts start after a run: hosts never prune themselves, they write the markers and call the Tools CLI; a host that works in its own temporary folder writes the markers there and starts `prune`). `prune` removes only folders that carry LabConstrictor's own marker files (`.lc-owner.json` and `.lc-done.json`): a folder you made yourself, or one from an older version without markers, is never touched. Look first with `labconstrictor-tools prune --dry-run`; the rules are in [PROTOCOL.md](PROTOCOL.md#result-folders-and-run-records-retention).
-* Every run writes `<LC_HOME>/runs/<time>_<app>_<tool>/run.json` (parameters as file paths and values, never pixel data; status,
-  error, traceback, interpreter, worker output). Napari's *Details...* button shows it; attach it to bug reports. The newest 50 finished records are kept (`prune`, same rules).
-  A Python host that makes its own record folder (Napari) builds the content with `labconstrictor_tools.runs.build_record`, writes it with `runs.record_json` and picks the done status with `runs.done_status` (a crash after Cancel is `cancelled`); none of them prunes, the host starts `labconstrictor-tools prune` itself ([PROTOCOL.md](PROTOCOL.md#result-folders-and-run-records-retention)). They exist from 0.3.0a1 (they are in the code of `v0.2.0-rc.2` too, which still reports `0.2.0rc1`, so a host requires `min_tools_version` 0.3.0a1 or checks `hasattr`). There is no feature id for them.
-* A file that a tool still holds is locked on Windows. From 0.3.0a1 Tools opens TIFF files of 8 MiB or more that are uncompressed and contiguous as a copy-on-write memory map (set `LC_TIFF_MEMMAP=0` to read them the plain way). On Windows a tool that keeps a reference to its input (a global, a stored exception, a thread that outlives the run) keeps the file mapped and therefore locked until the worker ends; the host cannot delete or overwrite that file meanwhile. Linux and macOS are not affected.
-* A terminal line copied from a plugin ("Copy as command") cannot start on Windows when it is longer than about 32,000 characters, the system's command-line limit. Run a text parameter that long from the plugin's form or from the copied Python snippet, which have no such limit.
-* First run slow? Imports dominate (a repeat run in a kept worker is ~10x faster). Napari keeps the worker for 10 minutes by default.
-* Tool hangs on Windows? Please report with the run record; two such hangs (numpy/scipy imports vs a pending stdin read) were found
-  and fixed during development.
-
+How a person installs an app and each plugin is in [Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/) and the [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) and [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/) guides. What Tools needs from an installed app, and how to install it by hand, is in [INSTALL.md](INSTALL.md). In short: each app environment has its own `labconstrictor-tools`, installed by the app's installer from a tag, and the plugins need 0.3.0a1 or newer. Hosts never import an app's packages, so apps with conflicting dependencies can live side by side.
 
 ## When something goes wrong: logs
-Every front-end (command line, Napari, Fiji, notebooks) appends to ONE file, `<LC_HOME>/logs/labconstrictor.log`
-(default `~/.labconstrictor/logs/`, rotated at 1 MB, five files kept). It records: session start with versions and interpreter,
-every worker start (exact interpreter, module, PYTHONPATH), every task (inputs, outcome, timings), apps that were skipped and why,
-and for failures the tool's traceback and the worker's own stderr. A worker that dies reports its exit code with a likely cause
-(missing package, killed by the OS for memory, native crash) and its last output, in the error shown to the user.
 
-    labconstrictor-tools logs -n 100          # the tail
+Every front-end (command line, napari, Fiji, QuPath, notebooks) appends to one file, `<LC_HOME>/logs/labconstrictor.log` (default `~/.labconstrictor/logs/`, rotated at 1 MB, five old files kept). It records the session start with versions and interpreter, every worker start (interpreter, module, `PYTHONPATH`), every task (inputs, outcome, timings), apps that were skipped and why, and for failures the tool's traceback and the worker's stderr. When a worker dies, the error shown to the person gives its exit code, a likely cause (a missing package, killed by the system for memory, a native crash) and its last output.
+
+    labconstrictor-tools logs -n 100          # the end of the log
     labconstrictor-tools logs --path          # where the file is
-    labconstrictor-tools doctor               # state of the installation
-    labconstrictor-tools support-bundle       # zip: logs, registered apps, last 10 run records, versions -> attach to the bug report
+    labconstrictor-tools doctor               # the state of the installation
+    labconstrictor-tools support-bundle       # a zip of logs, registered apps, the last 10 run records and versions, to attach to a bug report
 
-Napari: after a failure the status line says so and **Details...** shows the error, traceback, worker output and the log tail.
-Fiji: the error dialog shows the worker's last lines and the log location; unexpected script errors are logged with their stack trace.
-Each run also has `<LC_HOME>/runs/<time>_<app>_<tool>/run.json`.
+After a failure, napari and QuPath have a **Details** button with the error, the traceback, the worker's output and the end of the log; Fiji's error dialog shows the worker's last lines and where the log is.
 
-## Fallbacks (intended)
-Places where the code deliberately carries on with a substitute instead of failing. Each one writes one line to the log when it happens
-(see "When something goes wrong: logs"); none of them hides a failure the person could act on.
+Every run also writes a record, `<LC_HOME>/runs/<time>_<app>_<tool>/run.json`: the parameters (file paths and values, never pixel data), the status, the error and traceback, the interpreter and the worker's output. Attach it to bug reports.
+
+## Troubleshooting
+
+* **Something is wrong with an app.** `labconstrictor-tools doctor` checks every registered app (interpreter, schema, protocol, staleness) and says what to fix.
+* **The tool list is out of date after an app update.** Run `labconstrictor-tools register ...` again; the app's installer normally does this.
+* **Where results go, and cleanup.** `labconstrictor-tools run` without `--out` writes to a new folder under `<LC_HOME>/results/`. `labconstrictor-tools prune` keeps the newest 20 finished result folders and the newest 50 run records; hosts start it after each run. It removes only folders that carry LabConstrictor's marker files (`.lc-owner.json` and `.lc-done.json`): a folder you made, or one from an older version, is never touched. Look first with `labconstrictor-tools prune --dry-run`. The rules are in [PROTOCOL.md](PROTOCOL.md#result-folders-and-run-records-retention).
+* **Writing run records from a Python host.** Use `runs.build_record`, `runs.record_json` and `runs.done_status` (Tools 0.3.0a1 and later), then start `prune`; a host never deletes folders itself ([PROTOCOL.md](PROTOCOL.md#result-folders-and-run-records-retention)). There is no feature id for them: require Tools 0.3.0a1.
+* **A file stays locked on Windows.** Tools memory-maps uncompressed, contiguous TIFF files of 8 MiB or more. A tool that keeps a reference to its input (a global, a stored exception, a thread that outlives the run) keeps the file locked until the worker ends, and the host cannot delete or overwrite it meanwhile. Set `LC_TIFF_MEMMAP=0` to read files the plain way. Linux and macOS are not affected.
+* **A copied terminal line does not start on Windows.** Windows limits a command line to about 32,000 characters. Run such a long text parameter from the plugin's form or the copied Python snippet.
+* **The first run is slow.** Imports dominate; a repeat run in a kept worker is about 10 times faster. napari keeps an idle worker for 10 minutes.
+* **A tool hangs on Windows.** Please report it with the run record.
+
+## Many apps, many users, network shares
+
+* Any number of apps can be registered, and hosts list them all. When the same name is registered twice, the higher-priority directory wins (a per-user entry overrides a shared one). Two versions of one app side by side are not supported.
+* An administrator can publish apps for everybody with `labconstrictor-tools register --dir <shared folder> ...`; users add the folder to `LC_APPS_PATH`, or the administrator uses the system directory ([PROTOCOL.md](PROTOCOL.md#registry)). An entry whose interpreter does not exist on a user's machine is reported as "not available on this machine" instead of disappearing (roaming profiles).
+* An app on a network share works if its Python can be started from that path. Temporary files stay local, and the runtime never writes to the app folder. A read-only install at a different path from where it was created is tested. UNC paths, slow networks (the first import of torch or scipy over a network can take minutes), antivirus or AppLocker rules and many users on one share are not tested. The installers do not offer per-machine ("all users") installs, although `register --dir` and `LC_APPS_PATH` support them.
+* Running the app on another computer than the host is not supported: the design assumes a local process and shared files.
+
+## Security model
+
+* The worker never runs code sent by a host: it starts only tools declared by the app's own module.
+* Tools are ordinary Python and can read and write any file the user can. **Installing an app means trusting it**, exactly as running its notebook does. There is no sandbox.
+* A registry entry makes hosts start a program. Entries must live in a directory only the user can write, the interpreter must be inside the entry's install prefix, and system-wide directories must be controlled by an administrator. These checks (owner, group- or world-writable files, interpreter inside the prefix, world-writable folders on the way) run **on Linux and macOS only**. On Windows a registry entry is trusted as found, because ownership and permission bits do not map to its access-control lists. Treat write access to these directories like write access to the user's startup items.
+* `labconstrictor-tools` is the only code every app shares: installers pin it to a tag (below).
+
+## Known limits
+
+* The worker reads image files whole; there is no tile-by-tile reading. TIFF is always read; other formats only when the app has `imageio`.
+* A protocol change is a new major version; hosts say so when an app speaks a newer protocol than they do.
+* A tool must stop the threads it starts before it returns: a leftover thread that calls `progress()` while the next task runs is reported on that task.
+* The log is one shared rotating file; napari, Fiji and the command line do not lock it while writing.
+* A worker starts with `PYTHONSAFEPATH=1` (Python 3.11 and later), so the folder the host was started from is not on the tool's import path. On older Pythons a stray `pandas.py` there could shadow the real package.
+
+## Deliberate fallbacks
+
+In these places the code carries on with a substitute instead of failing. Each writes one line to the log when it happens; none hides a failure the person could act on.
 
 | Where | What happens | What the person sees |
 |---|---|---|
-| `log.version()` (session start line, `doctor`, support bundle) | `labconstrictor-tools` is not installed as a package (a source checkout): the version is reported as `unknown (checkout)` | That text instead of a number; one info line in the log |
-| `diagnostics.probe_worker()` | Same situation: the package row says `running from a source folder` | That text in the "Check this installation" table; one info line in the log |
-| `diagnostics.probe_worker()` (numpy, pandas, scipy, tifffile, matplotlib) | A library that is not installed is left out of the table | Its row is absent; a debug line in the log |
-| `diagnostics._ram_gb()` | `os.sysconf` has no memory value (Windows): the Windows memory API is used instead; if that also fails the memory row is omitted | The memory row, or no memory row plus a warning in the log |
-| `cli` environment report (`support-bundle`) | An app's interpreter cannot be run for `-VV`: its line says `cannot run: ...` and the bundle is still written | That line in the bundle; a warning in the log |
-| `convert._memmap_tiff` (a TIFF input of 8 MiB or more) | The file could not be memory-mapped (compressed, tiled, multi-series, OME or other special layout, big-endian, truncated, not contiguous, `LC_TIFF_MEMMAP=0`, or the mapping failed): it is read the plain way with `tifffile.imread`, same pixels, more memory and time. Files under 8 MiB are the normal plain path and say nothing | One warning line with the file name and the reason, in the log and on the worker's stderr |
-| `Worker._orphan_exit` | The host is gone and a temporary folder of the worker could not be removed completely: the worker leaves anyway | One warning line in the log file only (stderr has no reader any more) |
-| `log.tail()` (`logs`, Details windows) | The log file does not exist or cannot be read: an empty tail | Nothing to show; a debug line explaining why |
+| `log.version()` (session start, `doctor`, support bundle) | `labconstrictor-tools` runs from a source checkout, not an installed package | `unknown (checkout)` instead of a version; an info line in the log |
+| `diagnostics.probe_worker()` | the same situation | `running from a source folder` in the "Check this installation" table |
+| `diagnostics.probe_worker()` (numpy, pandas, scipy, tifffile, matplotlib) | a library that is not installed is left out | its row is absent; a debug line in the log |
+| `diagnostics._ram_gb()` | `os.sysconf` has no memory value (Windows): the Windows memory API is used; if that also fails, the row is omitted | the memory row, or none and a warning in the log |
+| `support-bundle` environment report | an app's interpreter cannot run `-VV`: its line says `cannot run: ...` and the bundle is still written | that line in the bundle; a warning in the log |
+| `convert._memmap_tiff` (a TIFF of 8 MiB or more) | the file cannot be memory-mapped (compressed, tiled, multi-series, OME or another special layout, big-endian, truncated, not contiguous, `LC_TIFF_MEMMAP=0`, or the mapping failed): it is read with `tifffile.imread`, same pixels, more memory and time | one warning line with the file name and the reason, in the log and on the worker's stderr |
+| `Worker._orphan_exit` | the host is gone and a temporary folder could not be removed completely: the worker exits anyway | one warning line in the log file |
+| `log.tail()` (`logs`, Details windows) | the log file does not exist or cannot be read | an empty tail; a debug line explaining why |
 
-## Known limits (testing phase)
-* Verified on Linux with real NucleiSky and CellTracksColab installers (the CellTracksColab one with the bridge branch, which is not on its `main`), in Napari and Fiji, in October 2026 and earlier (an earlier VLab4Mic check is not repeated here); the release sandbox runs released apps on fresh Linux, macOS and Windows runners ([TESTING.md](TESTING.md#release-sandbox-a-released-app-on-fresh-runners)). QuPath: GUI tests on Linux in its own CI; nobody has used it by hand on any system.
-  Windows and macOS: people have done clean installs of the apps and used the plugins there; UNC/NFS shares and multi-user "all users" installs are untested.
-* The worker reads image files whole (no lazy/chunked reading); TIFF always, other formats only when the app has `imageio`.
-* No sandbox: a tool runs with the user's rights, like any app code. The worker only executes tools declared by the registered module.
-* A protocol change is a major version; hosts say so in the UI when an app speaks a newer protocol than they do.
-* A tool must stop the threads it starts before it returns: a leftover thread that calls `progress()` while the NEXT task runs is reported on that next task (after its own task ends the hooks do nothing).
-* Logs are one shared rotating file; concurrent writers (Napari, Fiji, CLI) do not lock it.
-* A worker is started with `PYTHONSAFEPATH=1` (Python 3.11+) so that the directory the host was started from is not on the tool's import path; on older Pythons a stray `pandas.py` there could shadow a real package.
+## Releases and tags
+
+The version is written once, in `labconstrictor_tools/_version.py` (`__version__`); `pyproject.toml` and `labconstrictor_tools.__version__` read it. `describe`, the registry and `doctor` report it as `tools_version` ([PROTOCOL.md](PROTOCOL.md#tools-version-and-features)).
+
+* **Tag names.** `vX.Y.Z` for a release (`v0.2.0`); `vX.Y.Z-rc.N`, `vX.Y.Z-alpha.N` or `vX.Y.Z-beta.N` for a pre-release; always on a commit of `main`. Tags are lightweight, as GitHub creates them from the Releases page. The Python version has no `v` and uses PEP 440 spelling: `-rc.N` is `rcN`, `-alpha.N` is `aN`, `-beta.N` is `bN`. So tag `v0.2.0-rc.1` is `__version__ = "0.2.0rc1"` and tag `v0.3.0-alpha.1` is `"0.3.0a1"`. Order: `0.2.0rc1 < 0.3.0a1 < 0.3.0`.
+* **One number, one code.** A code change a host can observe gets a new version number in the same pull request, so that hosts can tell versions apart. Pre-releases count up towards the number they lead to (`v0.3.0-alpha.1`, `v0.3.0-alpha.2`, ...).
+* **Who tags.** Only the maintainer. Claude and CI never create tags or GitHub releases; a pull request that wants a release says so, and the maintainer tags after merging.
+* **Procedure.**
+  1. CI is green on `main` on all three systems, and so is the nightly run of the same commit.
+  2. A pull request sets `_version.py` to the new number and moves the "unreleased" notes of the regression ledger; merge it.
+  3. On GitHub, create the release with the new tag name, targeting the merge commit on `main`. GitHub creates the tag. Tick "pre-release" for `-rc.N` and `-alpha.N`. The release notes go in the GitHub release.
+  4. In a clean environment, check `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/<tag>.zip` and `labconstrictor-tools --help`.
+
+  Commits on `main` after the tag keep reporting the tag's version until the next bump.
+* **Fixed-name archive.** When a release is published, the workflow `release-archive` (`.github/workflows/release_archive.yml`) archives the tag, installs it in a clean environment, checks that its version matches the tag, and attaches it to the release as `labconstrictor-tools.zip`. `pip install https://github.com/CellMigrationLab/LabConstrictor-Tools/releases/latest/download/labconstrictor-tools.zip` installs the newest release that is not a pre-release; a pre-release has the file at `.../releases/download/<tag>/labconstrictor-tools.zip`. The file is only added, never replaced. For an older release the maintainer can run the workflow from Actions with the tag.
+* **Never move or recreate a tag.** Installers pin tags, so a moved tag would change what a pinned installer installs. A broken release is fixed with the next number.
+* **The CI `compat` job** installs the newest tag and reads schemas across versions ([TESTING.md](TESTING.md)).
+
+### Pinning Tools in app installers
+
+An app installer installs a **tagged** Tools, never `main`: `main` moves, so two installs of the same app a week apart would run different workers, and a breaking change would reach installed apps without a release.
+
+* The installer installs `LC_TOOLS_SPEC` with one `pip install` ([LABCONSTRICTOR_INTEGRATION.md](LABCONSTRICTOR_INTEGRATION.md)). Its default is `https://github.com/CellMigrationLab/LabConstrictor-Tools/archive/refs/tags/<tag>.zip`, built from the pinned tag. Never `refs/heads/main.zip`, a branch or a commit that is not a tag.
+* `LC_TOOLS_SPEC` stays the override: a local wheel for tests, a mirror, a branch for a developer.
+* The pin is the line `LC_TOOLS_PIN` of the template's `app/bash_bat_scripts/post_install.sh` and `post_install.bat`; the [template's files](https://github.com/CellMigrationLab/LabConstrictor/tree/main/app/bash_bat_scripts) show the current tag. Apps get it by the template sync, and users get it with the app's next release.
+* A pin may name a pre-release tag (`-rc.N`, `-alpha.N`) while no final release exists; it is replaced by the final release when there is one.
+* A pin change is a one-line pull request to the template, merged only after the maintainer has created the tag. An installer that pins a missing tag fails at `pip install`; the installer reports it and finishes the rest of the install.
