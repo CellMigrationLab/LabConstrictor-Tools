@@ -2,7 +2,7 @@
 
 You do not install `labconstrictor-tools` to use an app: the app's installer brings it. To install an app or a plugin, follow [Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/) and the [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) or [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/) guide.
 
-This page covers what the plugins need from an installed app, how to check an app, and how to install `labconstrictor-tools` by hand. Shared and network installs are in [Operations](OPERATIONS.md#many-apps-many-users-network-shares).
+Shared and network installs are in [Operations](OPERATIONS.md#many-apps-many-users-network-shares).
 
 ## What the plugins need from an app
 

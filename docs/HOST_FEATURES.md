@@ -1,6 +1,6 @@
 # What each host does with each feature
 
-What napari, Fiji and QuPath do with each marker of a tool's declaration, for app authors and plugin developers. For a plain summary of what a person can do in each host, read [What works where](CAPABILITIES.md) first; the notebook form and the command line are covered [below](#in-a-notebook-and-on-the-command-line).
+For app authors and plugin developers: how napari, Fiji and QuPath present each marker of a tool's declaration. For a plain summary of what a person can do in each host, read [What works where](CAPABILITIES.md) first; the notebook form and the command line are covered [below](#in-a-notebook-and-on-the-command-line).
 
 The hosts are the napari plugin (a dock widget), the Fiji plugin (a SciJava dialog, from the jar or the script) and the QuPath extension (a JavaFX window). All three need an app whose Tools is 0.3.0a1 or newer ([INSTALL.md](INSTALL.md#what-the-plugins-need-from-an-app)). How to install and open each plugin is in its own guide: [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/), [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/).
 

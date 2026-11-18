@@ -20,8 +20,6 @@ A LabConstrictor app can offer **tools**: analyses that you run from napari, Fij
 | Pixel size read from the image | Yes | Yes | Yes |
 | Part of a large image | No: the whole image | No: the whole image | Yes: the whole image, the selected annotations or the current view |
 
-Good to know:
-
 - **Image files** are TIFF or OME-TIFF. Other formats work only if the app includes the `imageio` package.
 - **Pixel size is never guessed.** If the image has no usable calibration, the field stays empty and the run is refused until you type a value. A value you type is always kept.
 - **A tool made for 2D images refuses a stack.** No host picks a plane for you. In QuPath, choosing an image area sends the plane you are looking at.
@@ -41,8 +39,6 @@ Good to know:
 | File | Yes: its path is shown | Yes: its path is in the Log window | Yes |
 | A new run replaces the previous result | Yes | Yes | Yes: only the annotations the tool drew itself |
 
-Good to know:
-
 - **Points and outlines land on the image they belong to**, also when the napari layer is scaled or moved, or when QuPath sent only an area.
 - **Very large results are cut for display, never in the files.** napari and QuPath show the first 100 000 rows of a table. napari draws at most 50 000 outlines and does not load a result image over 4 GiB. The tool's own files hold everything.
 
@@ -61,8 +57,6 @@ Good to know:
 | Copy the run as a command | Yes: a terminal line or a Python snippet | Yes: printed in the Log window after each run; also the menu command *Copy last run as command* | Yes: a terminal line or a Python snippet |
 | Fiji macros | — | Partial: a macro line you write by hand runs a tool without a dialog (jar install only). The Macro Recorder does not record it yet | — |
 | Run without a window (scripts, batch) | No: use the command line | No: use the command line | No: use the command line |
-
-Good to know:
 
 - **Cancel always ends the run.** A tool that does not react is stopped after 3 seconds, and nothing it started is left running.
 - **The log** is `~/.labconstrictor/logs/labconstrictor.log`. Every front-end writes to it.

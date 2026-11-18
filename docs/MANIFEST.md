@@ -1,6 +1,6 @@
 # Tool markers
 
-Every type and marker a tool can use to declare its inputs and outputs. Hosts (napari, Fiji, QuPath) build the form and show the results from what you declare. This page is about markers on tools; the app's own description file, `labconstrictor-app.yaml`, has its guide in [Describe your app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/app-manifest/), and the last two sections below give the technical rules for the two keys of that file that the plugins read.
+Tool markers define a tool's inputs and outputs and how the plugins present them: napari, Fiji and QuPath build the form and show the results from what you declare. An app's own metadata belongs in `labconstrictor-app.yaml` ([Describe your app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/app-manifest/)); the last two sections below give the technical rules for the two keys of that file that the plugins read.
 
 `labconstrictor-tools check --module <your module>` prints what each parameter and output will do. `labconstrictor_tools/examples/interactions.py` is a copy-and-adapt example that uses every marker. What each host does with each marker is in [HOST_FEATURES.md](HOST_FEATURES.md), and a step-by-step introduction is [AUTHORING.md](AUTHORING.md).
 

@@ -31,7 +31,7 @@ Each release of [LabConstrictor-QuPath](https://github.com/CellMigrationLab/LabC
 
 ## Apps
 
-App authors do not publish to any store. This part is in place:
+App authors do not publish to any store. To make an app available through the App Centre:
 
 1. **Release.** A GitHub release of the app's repository builds the installers and attaches them ([Create executable installers](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/executable-creation/)).
 2. **Describe.** The repository holds a small file, `labconstrictor-app.yaml`, that says what the app is ([Describe your app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/app-manifest/)).
