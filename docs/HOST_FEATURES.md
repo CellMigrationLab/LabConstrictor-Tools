@@ -1,6 +1,6 @@
 # What each host does with each feature
 
-What napari, Fiji and QuPath do with each marker of a tool's declaration, for app authors and plugin developers. For a plain summary that also covers the notebook and the command line, read [What works where](CAPABILITIES.md) first.
+What napari, Fiji and QuPath do with each marker of a tool's declaration, for app authors and plugin developers. For a plain summary of what a person can do in each host, read [What works where](CAPABILITIES.md) first; the notebook form and the command line are covered [below](#in-a-notebook-and-on-the-command-line).
 
 The hosts are the napari plugin (a dock widget), the Fiji plugin (a SciJava dialog, from the jar or the script) and the QuPath extension (a JavaFX window). All three need an app whose Tools is 0.3.0a1 or newer ([INSTALL.md](INSTALL.md#what-the-plugins-need-from-an-app)). How to install and open each plugin is in its own guide: [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/), [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/).
 
@@ -45,8 +45,63 @@ Each row has a test in the host's own suite that runs the example app `labconstr
 These come from Tools and the worker, so every host behaves the same:
 
 - **Which apps a host lists.** A host lists an app only if the app's `hosts:` line names it; an app installed with an older installer has no such line and is listed everywhere, with a sentence in the log ([PROTOCOL.md](PROTOCOL.md#app-hosts-which-host-lists-an-app)). A host also leaves out an app whose Tools is too old, with a sentence saying why.
-- **Big TIFF inputs are memory-mapped** (Tools 0.3.0a1 and later). An uncompressed, contiguous TIFF of 8 MiB or more is mapped copy-on-write; any other big TIFF is read the plain way, and the worker says why in the log. `LC_TIFF_MEMMAP=0` turns it off. On Windows, a tool that keeps a reference to its input keeps the file locked until the worker ends ([OPERATIONS.md](OPERATIONS.md#troubleshooting)).
-- **Shared-memory images** (`shm_order_v1`): the worker reads `C` and `F` blocks in the order they were written and refuses any other `order`. A host that sends F-ordered blocks requires `shm_order_v1` ([PROTOCOL.md](PROTOCOL.md#shared-memory-images)). No host sends shared memory today.
+- **Data travels as files.** Images and label images go as TIFF files: the host writes an open image to a temporary TIFF, or passes the path of the person's file. Tables and points go as CSV files, outlines as GeoJSON files, and results always come back as files. The app and the host must be on the same computer.
+- **Big TIFF inputs are memory-mapped** (Tools 0.3.0a1 and later). An uncompressed, contiguous TIFF of 8 MiB or more is mapped copy-on-write; any other big TIFF is read whole, and the worker says why in the log. There is no tile-by-tile reading. `LC_TIFF_MEMMAP=0` turns it off. On Windows, a tool that keeps a reference to its input keeps the file locked until the worker ends ([OPERATIONS.md](OPERATIONS.md#troubleshooting)).
+- **Shared-memory images** (`shm_order_v1`): the worker reads `C` and `F` blocks in the order they were written and refuses any other `order`. A host that sends F-ordered blocks requires `shm_order_v1` ([PROTOCOL.md](PROTOCOL.md#shared-memory-images)). The worker can read an image from a shared-memory block, but no host sends shared memory today.
+
+## In a notebook and on the command line
+
+"Notebook" is the form a notebook shows for a tool (`labconstrictor_tools.notebook.form`). "Command line" is `labconstrictor-tools run`. Neither is filtered by `hosts` or `host_requirements`: every registered tool runs there.
+
+| Input | Notebook | Command line |
+|---|---|---|
+| Image, label image | type the path of a file | the path of a file |
+| Table | type the path of a CSV file | the path of a CSV file |
+| File, folder | type the path | the path |
+| Number, text, yes/no, choice | yes | yes |
+| Optional value left unset | a "set" box | leave it out |
+| Choices filled by another tool (`ChoicesFrom`) | a text field | type the value |
+| Selection as a region (`RegionOf`) | give a label image file | give a label image file |
+| One channel of an image (`PickChannel`) | no: the whole image is sent | no: the whole image is sent |
+| Pixel size read from the image (`PixelSizeOf`) | no: type it | no: type it |
+| Part of a large image | no | no |
+
+| Result | Notebook | Command line |
+|---|---|---|
+| Image, label image | a picture of the first plane | a TIFF file |
+| Table | yes | a CSV file |
+| Numbers and short values, message | yes | yes |
+| Points | a table | a CSV file |
+| Outlines | the file is named, nothing is drawn | a GeoJSON file |
+| Alignment | the matrix is printed | the matrix is printed |
+| File | its path is printed | yes |
+| `Replace` | — | — |
+
+| Running | Notebook | Command line |
+|---|---|---|
+| Runs in the app's own Python, in a separate process | no: in the notebook's own kernel | yes |
+| Progress | yes | printed lines |
+| Cancel | interrupt the kernel | Ctrl+C |
+| Faster repeat runs (kept worker) | — | no |
+| Shared log file | yes | yes |
+| A run record (`run.json`), and cleanup of old results and records | no | yes |
+| Details after a failure | the error line | yes |
+| Run without a window (scripts, batch) | — | yes |
+
+The notebook form shows ranges and tooltips, but no groups or "advanced" section (one flat list), no greyed-out fields, no sliders or radio buttons, and it does not clear `ClearAfterRun` fields after a run.
+
+## How each host is tested
+
+| | Linux | Windows | macOS |
+|---|---|---|---|
+| Tools (worker, command line) | automated tests | automated tests | automated tests |
+| napari plugin | automated tests, full set | automated tests, full set | automated tests, full set |
+| Fiji plugin | automated tests, full set | a short automated check at each release (the menu entry exists, the dialog lists an app) | the same short check, Apple silicon |
+| QuPath extension | automated tests, full set | short automated checks at each release | the same short checks, Apple silicon |
+| App installers | the release check installs and runs a released app on a fresh machine | the same | the same |
+| Tested by people | napari and Fiji; QuPath not yet | app installs and the three plugins | app installs and the three plugins |
+
+Automated tests run on GitHub's machines.
 
 ## Host feature ids (for host_requirements)
 
