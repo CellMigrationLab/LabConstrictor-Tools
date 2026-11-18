@@ -9,10 +9,10 @@ Every marker is listed in [Tool markers](https://cellmigrationlab.github.io/LabC
 ```python
 # src/my_app_lc_tools/__init__.py  (next to your package `my_app`; the name must be <package>_lc_tools)
 from typing import Annotated
-from labconstrictor_tools import Image, ImageOut, Min, progress, check_cancel, tool
+from labconstrictor_tools import Image, ImageOut, Min, Name, progress, check_cancel, tool
 
 @tool("Gaussian blur")
-def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
+def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> Annotated[ImageOut, Name("blurred")]:
     """Smooth an image.
 
     Args:
@@ -25,9 +25,16 @@ def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
     return gaussian(image, sigma, preserve_range=True)
 ```
 
-`labconstrictor-tools init my_app_lc_tools.py` writes this starter for you.
+To get a starter file, create the folder and let `init` write it (`init` does not create folders):
 
-**Name the module `<package>_lc_tools`.** The app's installer registers its tools only if the app's Python package `<package>` comes with a module named exactly `<package>_lc_tools`. For the package `nucleisky` that is `src/nucleisky_lc_tools/__init__.py`, listed in `construct.yaml` under `extra_files` like the rest of `src/`. Any other name works from the command line but is never registered by the installer.
+```bash
+mkdir -p src/my_app_lc_tools
+labconstrictor-tools init src/my_app_lc_tools/__init__.py
+```
+
+The starter is this example without `Name("blurred")`, so its output is named `image`, after its type. The commands `init` prints next assume a module named after the file; use the ones in [Try it without a host](#try-it-without-a-host) instead.
+
+**Name the module `<package>_lc_tools`.** The app's installer registers its tools only if the app's Python package `<package>` comes with a module named exactly `<package>_lc_tools`. For the package `nucleisky` that is `src/nucleisky_lc_tools/__init__.py`. Any other name works from the command line but is never registered by the installer. The app's release bundles everything under `src/` automatically, so you do not edit `construct.yaml` or `setup.py`.
 
 ## Inputs
 
@@ -93,9 +100,11 @@ You do not decide: every `Image` or `Labels` parameter offers an open image or a
 
 ## Try it without a host
 
+Run these from the repository root:
+
 ```bash
-labconstrictor-tools check --module my_app_lc_tools --pythonpath .
-labconstrictor-tools register --name myapp --prefix <app prefix> --module my_app_lc_tools --pythonpath .   # the installer does this for real apps
+labconstrictor-tools check --module my_app_lc_tools --pythonpath src
+labconstrictor-tools register --name myapp --prefix <app prefix> --module my_app_lc_tools --pythonpath src   # the installer does this for real apps
 labconstrictor-tools run myapp blur image=cells.tif sigma=3 --out results/
 labconstrictor-tools run myapp blur --usage
 ```
@@ -114,40 +123,41 @@ LabConstrictor apps are notebooks, so you can declare a tool where you already w
 %load_ext labconstrictor_tools.notebook_magic
 ```
 ```python
-%%lc_tool "Gaussian blur" --export my_app_lc_tools.py
+%%lc_tool "Gaussian blur" --export ../src/my_app_lc_tools/__init__.py
 def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
     from skimage.filters import gaussian
     return gaussian(image, sigma)
 ```
 
-`Image`, `Annotated`, `Min`, `tool` and the other markers are already available in the notebook. The magic adds `@tool`, checks the cell as a stand-alone module and shows the form the hosts will build (`--no-form` skips it). With `--export` it writes the function to the module as a managed block (`# >>> lc-tool: blur` ... `# <<< lc-tool: blur`); running the cell again replaces that block. Use `--function NAME` when the cell defines several functions. `--export` alone writes `lc_tools.py`, a name the installer does not pick up: give `<package>_lc_tools.py`.
+`Image`, `Annotated`, `Min`, `tool` and the other markers are already available in the notebook. The magic adds `@tool`, checks the cell as a stand-alone module and shows the form the hosts will build (`--no-form` skips it). With `--export` it writes the function to the module as a managed block (`# >>> lc-tool: blur` ... `# <<< lc-tool: blur`); running the cell again replaces that block. Use `--function NAME` when the cell defines several functions. The path is relative to the notebook's folder (in an app repository, `notebooks/`, hence `../src/`), and the folder must exist. `--export` alone writes `lc_tools.py` next to the notebook, a name the installer does not pick up.
 
 The check catches, before the tool ever runs in a worker: a function that uses a name defined in another cell (`uses 'helper', defined elsewhere in the notebook`), invalid declarations and heavy module-level imports. Only imports, function and class definitions and literal constants are exported; other top-level statements are listed as "not exported". A cell with problems is not run and nothing is written.
 
-Without Jupyter (in CI, or for a notebook someone else wrote): `labconstrictor-tools export-notebook analysis.ipynb --out my_app_lc_tools.py`.
+Without Jupyter (in CI, or for a notebook someone else wrote): `labconstrictor-tools export-notebook notebooks/analysis.ipynb --out src/my_app_lc_tools/__init__.py`.
 
 ## Test your tools: `labconstrictor-tools test`
 
 `test` runs each tool through a real worker, as the hosts do, on small samples:
 
 ```bash
-labconstrictor-tools test --module my_app_lc_tools --pythonpath . --cases tests.json
-labconstrictor-tools test --module my_app_lc_tools --pythonpath . --sample image=small.tif   # a smoke test of every tool
+labconstrictor-tools test --module my_app_lc_tools --pythonpath src --cases tests.json
+labconstrictor-tools test --module my_app_lc_tools --pythonpath src --sample image=small.tif   # a smoke test of every tool
 ```
 
 For every run that completes, with no configuration, it checks that the results match the declared outputs, files exist, images use a type ImageJ can open, tables parse, affines are finite 3x3 matrices and values are plain JSON. `--check-cancel` also cancels each running tool and fails the case if the tool ignores the request for 10 seconds. The exit status is non-zero when anything fails, so `test` can run in CI. Tools without a case, and tools skipped because a required `--sample` is missing, are listed.
 
-`tests.json` (paths are relative to the file):
+`tests.json` for the first tool (paths are relative to the file; `blurred` is the output's `Name`):
 
 ```json
 [
   {"tool": "blur", "inputs": {"image": "small.tif", "sigma": 1.5},
    "expect": {"results": {"blurred": {"shape": [64, 64], "dtype": "float32"}}, "max_seconds": 30, "progress_events_min": 1}},
   {"tool": "blur", "inputs": {"image": "small.tif", "sigma": -1},
-   "expect": {"status": "FAILED", "code": "invalid_parameter", "message_contains": "Sigma"}},
-  {"tool": "slow_tool", "inputs": {}, "cancel_after_s": 1.0}
+   "expect": {"status": "FAILED", "code": "invalid_parameter", "message_contains": "Sigma"}}
 ]
 ```
+
+A case with `"cancel_after_s": 1.0` cancels the run after one second and expects the status `CANCELED`.
 
 Expectations per output type: images `shape`, `dtype`, `mean`, `max`, `n_labels`; tables `columns`, `rows`, `cells` (`{"speed[0]": 1.5}`); values `{key: value}` or `{key: {"approx": 12.0, "tol": 0.5}}`; affines `matrix` (3x3). Floats compare with a relative tolerance of 1e-6.
 
