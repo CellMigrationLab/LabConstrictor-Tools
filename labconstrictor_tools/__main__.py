@@ -97,7 +97,9 @@ def _add_run_command(sub: "Subparsers") -> None:
     run.add_argument("tool")
     run.add_argument("params", nargs="*", metavar="name=value")
     run.add_argument("--usage", action="store_true", help="show the tool's parameters and exit")
-    run.add_argument("--out", help="directory for the results (default: a new folder under <LC_HOME>/results)")
+    run.add_argument(
+        "--out", help="directory for the results (default: a new folder under <LC_HOME>/results)"
+    )
     run.add_argument(
         "--keep", action="store_true", help="(no effect, kept for compatibility: results are always kept)"
     )
