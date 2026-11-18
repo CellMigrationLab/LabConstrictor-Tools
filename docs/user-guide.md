@@ -1,6 +1,6 @@
 # Use apps inside napari, Fiji and QuPath
 
-Some apps declare **tools**: scientific functions with typed inputs. A plugin for your image software turns each tool into a form, runs it, and puts the result back into your software: images become layers or windows, outlines become overlays, points become point ROIs, numbers go to a log or a table.
+Some apps come with **tools**: analyses you can run from napari, Fiji or QuPath, with a form for their settings. The napari and Fiji plugins and the QuPath extension show that form, run the tool, and put the result back into your software: images become layers or windows, outlines become overlays, points become point ROIs, numbers go to a log or a table.
 
 The tool runs in the app's own Python environment, in a separate process. Your image software never imports the app's packages, so apps with conflicting dependencies can live side by side. Fiji (ImageJ) and QuPath need no Python at all; napari is itself a Python program, and its plugin is installed into the environment where napari runs.
 
@@ -19,8 +19,10 @@ Found a problem? [Open an issue](https://github.com/CellMigrationLab/LabConstric
 
 ## Check that everything works
 
-Install the **LabConstrictor Playground** app and run its **Check everything** tool. It tests your machine and every plugin feature, and writes a report you can attach to an issue.
+Install the **LabConstrictor Playground** app and run its **Check everything** tool. It checks your computer, the installation and the GPU libraries, and writes a report you can attach to an issue. It does not test the napari, Fiji or QuPath plugins.
+
+To check a plugin, run the Playground's **Feature tour** tool in that program. It uses every kind of setting and result the plugins support. See the guide for [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) or [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/).
 
 ## Make your own tools
 
-App authors declare tools once, in Python, and get all of this without writing any interface code. See [Writing tools](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/writing-tools/).
+To make an app's analyses run in napari, Fiji and QuPath, see [Connect an app](https://cellmigrationlab.github.io/LabConstrictor-Site/connect/).
