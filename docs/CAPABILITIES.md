@@ -2,7 +2,7 @@
 
 A LabConstrictor app can offer **tools**: analysis steps that you run from napari, Fiji, QuPath, a notebook or the command line. This page lists what each of them supports today, so you can check before you plan your work.
 
-**Yes** works. **Partial** works with the limit written next to it. **No** is not available. **—** does not apply. Nothing on this page is a promise for the future unless it says *planned*.
+**Yes** works. **Partial** works with the limit written next to it. **No** is not available. **—** does not apply. This page describes what exists, not plans.
 
 This page describes Tools `v0.3.0-alpha.4`, the napari plugin `v0.1.0-alpha.5`, and the Fiji and QuPath plugins `v0.1.0-alpha.7`.
 
@@ -94,7 +94,7 @@ A number you type outside the allowed range is refused with a sentence. It is ne
 | Tables and points | As CSV files. |
 | Outlines | As GeoJSON files. |
 | Large TIFF files | The worker maps an uncompressed TIFF of 8 MiB or more into memory instead of reading it whole. Other files are read whole; there is no tile-by-tile reading. |
-| Shared memory | **Not used by any host.** The worker can read an image from a shared-memory block, and Tools tests this on Linux, Windows and macOS. napari, Fiji and QuPath all send TIFF files, and results are always files. In our measurements (Linux only) shared memory gave no gain for napari; it could help Fiji with images above about 256 MiB. Not planned for a release yet. |
+| Shared memory | Not used by any host. The worker can read an image from a shared-memory block, but napari, Fiji and QuPath all send TIFF files, and results are always files. |
 | Remote computers | No. The app and the host must be on the same computer. |
 
 ## Apps, plugins and versions
@@ -134,6 +134,6 @@ Automated tests run on GitHub's machines; people have also installed apps and us
 
 ## More detail
 
-- For app authors, the marker behind each row and each host's exact behaviour: [What each host does with each feature](https://cellmigrationlab.github.io/LabConstrictor-Tools/HOST_FEATURES/).
+- For app authors, the marker behind each row and each host's exact behaviour: [What each host does with each feature](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/host-features/).
 - How to install an app: [Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/). How to install each plugin: the [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) and [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/) guides.
-- Logs, shared installs and known limits: [Operations and troubleshooting](https://cellmigrationlab.github.io/LabConstrictor-Tools/OPERATIONS/).
+- Logs, shared installs and known limits: [Operations and troubleshooting](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/tools-operations/).

@@ -5,7 +5,7 @@ Some apps declare **tools**: scientific functions with typed inputs. A plugin fo
 The tool runs in the app's own Python environment, in a separate process. Your image software never imports the app's packages, so apps with conflicting dependencies can live side by side. Fiji (ImageJ) and QuPath need no Python at all; napari is itself a Python program, and its plugin is installed into the environment where napari runs.
 
 > [!NOTE]
-> **What each plugin supports.** The napari, Fiji and QuPath plugins have been tested on Linux, Windows and macOS. [What works where](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/capabilities/) lists what each one supports today.
+> The napari, Fiji and QuPath plugins are tested on Linux, Windows and macOS. [What works where](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/capabilities/) lists what each one supports today.
 
 ## Three steps
 
@@ -19,8 +19,8 @@ Found a problem? [Open an issue](https://github.com/CellMigrationLab/LabConstric
 
 ## Check that everything works
 
-Install the **LabConstrictor Playground** app and press **Check everything**. It tests your machine and every plugin feature, and writes a report you can attach to an issue.
+Install the **LabConstrictor Playground** app and run its **Check everything** tool. It tests your machine and every plugin feature, and writes a report you can attach to an issue.
 
 ## Make your own tools
 
-App authors declare tools once, in Python, and get all of this without writing any interface code. See [Writing tools](https://github.com/CellMigrationLab/LabConstrictor-Tools/blob/main/docs/AUTHORING.md).
+App authors declare tools once, in Python, and get all of this without writing any interface code. See [Writing tools](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/writing-tools/).

@@ -1,6 +1,6 @@
 # Publish the plugins and apps
 
-Where each LabConstrictor plugin and app is released today, and what it takes to make it installable from inside Fiji, napari and QuPath. This page is for maintainers of the plugins and for app authors.
+Where each LabConstrictor plugin and app is released today, and what it would take to make the plugins installable from inside Fiji, napari and QuPath. For maintainers of the plugins and for app authors.
 
 If you only want to install something, use [Install an app](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/install/) or the guide of your plugin: [napari](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/), [Fiji](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/fiji/) or [QuPath](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/).
 
@@ -13,7 +13,7 @@ If you only want to install something, use [Install an app](https://cellmigratio
 | QuPath extension | The jar from the GitHub release, installed by hand ([QuPath guide](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/qupath/)) | A catalog for QuPath's extension manager | Not yet available |
 | Apps | Download the installer from the app's GitHub release | A page in the LabConstrictor App Centre | Available |
 
-Every release is a GitHub release made by a maintainer. Nothing below has been registered anywhere yet, except the apps listed in the App Centre.
+Every release is a GitHub release made by a maintainer. None of the plugins is registered in an update site, on PyPI or in a catalog yet.
 
 ## Fiji
 
@@ -73,9 +73,9 @@ What is missing:
 
 **To decide or check first:**
 
-- Both names were free on PyPI when this page was written. Register them before announcing.
+- Check that both names are still free on PyPI, and register them before announcing.
 - Releases are alphas. `pip install napari-labconstrictor` skips pre-releases unless people add `--pre` or name the exact version.
-- App installers install Tools from a pinned GitHub tag ([Operations](https://cellmigrationlab.github.io/LabConstrictor-Tools/OPERATIONS/#pinning-tools-in-app-installers)). Publishing on PyPI does not change that by itself; moving the installers to PyPI would be a separate change in the template.
+- App installers install Tools from a pinned GitHub tag ([Operations](https://cellmigrationlab.github.io/LabConstrictor-Site/guides/tools-operations/#pinning-tools-in-app-installers)). Publishing on PyPI does not change that by itself; moving the installers to PyPI would be a separate change in the template.
 
 ## QuPath
 
