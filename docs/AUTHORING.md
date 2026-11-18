@@ -31,7 +31,7 @@ To get a starter file, let `init` write it:
 labconstrictor-tools init src/my_app_lc_tools/__init__.py
 ```
 
-The starter is this example without `Name("blurred")`, so its output is named `image`, after its type. `init` creates the folder and prints the `check` and `register` commands for it.
+The starter is the example above, so the tests.json example further down passes on it unchanged. `init` creates the folder and prints the `check` and `register` commands for it.
 
 **Name the module `<package>_lc_tools`.** The app's installer registers its tools only if the app's Python package `<package>` comes with a module named exactly `<package>_lc_tools`. For the package `nucleisky` that is `src/nucleisky_lc_tools/__init__.py`. Any other name works from the command line but is never registered by the installer. The app's release bundles everything under `src/` automatically, so you do not edit `construct.yaml` or `setup.py`.
 

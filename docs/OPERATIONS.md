@@ -10,7 +10,7 @@ Every front-end (command line, napari, Fiji, QuPath, notebooks) appends to one f
     labconstrictor-tools logs --path          # where the file is
     labconstrictor-tools doctor               # the state of the installation
 
-A support bundle holds paths, app names and the last run records: look through it before you share it.
+A support bundle can hold private details: file paths (which show your user name and folder names), the names of your apps, and the last 10 run records with the settings and file names of each run. Open the zip and remove what you do not want to share before you attach it.
 
     labconstrictor-tools support-bundle       # a zip of logs, registered apps, the last 10 run records and versions, to attach to a bug report
 

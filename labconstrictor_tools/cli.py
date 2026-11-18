@@ -601,11 +601,11 @@ package INSIDE the function so that registering and browsing tools stays instant
 
 from typing import Annotated
 
-from labconstrictor_tools import Image, ImageOut, Min, check_cancel, progress, tool
+from labconstrictor_tools import Image, ImageOut, Min, Name, check_cancel, progress, tool
 
 
 @tool("Gaussian blur")
-def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> ImageOut:
+def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> Annotated[ImageOut, Name("blurred")]:
     """Smooth an image.
 
     Args:
