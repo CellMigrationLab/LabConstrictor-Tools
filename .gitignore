@@ -10,5 +10,5 @@ mutants/
 .hypothesis/
 htmlcov/
 
-# documentation site build output (mkdocs.yml)
+# GitHub Pages build output (scripts/build_redirect_site.py)
 site/
