@@ -23,7 +23,6 @@ Two other kinds of repository have different jobs:
 | VLab4Mic | [LabConstrictor-VLab4Mic](https://github.com/CellMigrationLab/LabConstrictor-VLab4Mic) | 2 (Simulate imaging of a virtual sample, Compare an image with a reference) | 0.1.8 |
 | StarDist2D | [Stardist2D](https://github.com/CellMigrationLab/Stardist2D) | yes | 1.2.1 |
 | CellTracksColab | [CellTracksColab](https://github.com/CellMigrationLab/CellTracksColab) (its desktop app is released from this repository) | 1 (Calculate Track Metrics), registered but listed in no host (`hosts: [notebook]`) | 1.1.5 |
-| LabConstrictor Demo | [LabConstrictor_Demo](https://github.com/CellMigrationLab/LabConstrictor_Demo) | none (notebook only) | 0.0.4 |
 
 Each app's installer pins a Tools tag (`LC_TOOLS_PIN`); an app gets a new pin by the template sync and its next release ([OPERATIONS.md](OPERATIONS.md#pinning-tools-in-app-installers)). An app's latest release is on its page in the [App Centre](https://cellmigrationlab.github.io/LabConstrictor-Site/) and on its GitHub Releases page.
 
@@ -40,7 +39,6 @@ Hosts do **not** need to install the application's scientific dependencies. The 
 | NucleiSky, Guess the Condition, Playground, StarDist2D | listed | listed | listed | yes |
 | VLab4Mic | listed | listed | **not listed** | yes |
 | CellTracksColab | hidden | hidden | hidden | yes (notebook only: the release sandbox expects "not listed" in all three) |
-| LabConstrictor Demo | (no tools) | (no tools) | (no tools) | yes |
 
 The `hosts:` line of an app's `labconstrictor-app.yaml` (App-Centre metadata, schema `.tools/schema/labconstrictor-app.schema.json` of the template) is the binding rule; installers pass it to Tools (`--app-manifest` or `--hosts`) from template 0.1.18.
 
