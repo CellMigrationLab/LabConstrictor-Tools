@@ -33,13 +33,13 @@ theme:
     accent: custom
 
 nav:
-  # Developer reference only: the pages for people who use apps are on LabConstrictor-Site, which fetches user-guide.md,
-  # CAPABILITIES.md, PUBLISHING.md and AUTHORING.md from this repository (see AGENTS.md, "Documentation").
+  # For maintainers: every page for users and tool authors is published on LabConstrictor-Site, which fetches it from
+  # this repository (the list is in AGENTS.md, "Documentation").
   - Home: index.md
   - Write tools:
       - Writing tools: AUTHORING.md
       - What each host does with each feature: HOST_FEATURES.md
-      - The manifest: MANIFEST.md
+      - Tool markers: MANIFEST.md
       - What works where: CAPABILITIES.md
   - How it works:
       - Where the tools live: REPOSITORIES.md

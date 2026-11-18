@@ -6,14 +6,21 @@ Notes for people and coding agents who change this repository.
 
 Each topic of the LabConstrictor documentation has one owner page; every other page links to it instead of copying it. The table of owners is in LabConstrictor-Site's `AGENTS.md`, section "Sources of truth" (<https://github.com/CellMigrationLab/LabConstrictor-Site/blob/main/AGENTS.md#sources-of-truth>).
 
-This repository owns these pages. LabConstrictor-Site fetches them and publishes them, so links in them must be absolute:
+This repository owns these pages. LabConstrictor-Site fetches them and publishes them. Their first heading is the menu title on the site. Relative links are fine: the site resolves them (a link to another published page becomes that page, a link to any other file becomes the file on GitHub).
 
-| Page | On the LabConstrictor website |
-|---|---|
-| `docs/user-guide.md`, "Use apps inside napari, Fiji and QuPath" | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/image-software/> |
-| `docs/CAPABILITIES.md`, "What works where" | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/capabilities/> |
-| `docs/PUBLISHING.md`, "Publish the plugins and apps" | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/publishing/> |
-| `docs/AUTHORING.md`, "Writing tools" | the "Build an app" track (being added) |
+| Page | Track | On the LabConstrictor website |
+|---|---|---|
+| `docs/user-guide.md`, "Use apps inside napari, Fiji and QuPath" | Use an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/image-software/> |
+| `docs/CAPABILITIES.md`, "What works where" | Use an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/capabilities/> |
+| `docs/AUTHORING.md`, "Writing tools" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/writing-tools/> |
+| `docs/MANIFEST.md`, "Tool markers" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/tool-markers/> |
+| `docs/HOST_FEATURES.md`, "What each host does with each feature" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/host-features/> |
+| `docs/INSTALL.md`, "Install LabConstrictor Tools" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/tools-install/> |
+| `docs/OPERATIONS.md`, "Operations: shared installs, security, troubleshooting" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/tools-operations/> |
+| `docs/PUBLISHING.md`, "Publish the plugins and apps" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/publishing/> |
+| `docs/REPOSITORIES.md`, "Where the LabConstrictor tools live" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/repositories/> |
+| `docs/LABCONSTRICTOR_INTEGRATION.md`, "How the template registers an app's tools" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/template-registration/> |
+| `docs/PROTOCOL.md`, "Protocol reference" | Connect an app | <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/protocol/> |
 
 It also owns the developer topics: the protocol, the manifest, what each host does with each feature, testing, releases and tags, shared and network installs, security, and the install of `labconstrictor-tools` itself.
 
@@ -23,4 +30,4 @@ Pages owned elsewhere, which pages here link to and never copy:
 - Install and open each plugin (commands, menu paths, current release): `docs/user-guide.md` of LabConstrictor-napari, LabConstrictor-Fiji and LabConstrictor-QuPath, at <https://cellmigrationlab.github.io/LabConstrictor-Site/guides/napari/>, `/guides/fiji/` and `/guides/qupath/`.
 - The Tools tag that app installers pin: `LC_TOOLS_PIN` in the template's `app/bash_bat_scripts/post_install.sh` and `post_install.bat`.
 
-This repository's own docs site (<https://cellmigrationlab.github.io/LabConstrictor-Tools/>, built from `mkdocs.yml`) is the developer reference only. Pages for people who use apps live on LabConstrictor-Site.
+This repository's own docs site (<https://cellmigrationlab.github.io/LabConstrictor-Tools/>, built from `mkdocs.yml`) is for maintainers only. Every page a user or a tool author needs is on LabConstrictor-Site; maintainers' material (TESTING.md, REGRESSION_LEDGER.md, SPEC_WRONG_SCIENCE.md, CONFORMANCE.md) stays on GitHub and this site.
