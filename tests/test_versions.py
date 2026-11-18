@@ -38,7 +38,7 @@ class VersionHasOneSource(unittest.TestCase):
             "v0.2.0-rc.1",
             "v0.3.0-alpha.1",
             "the maintainer tags",
-            "Claude and CI never create tags",
+            "Automated workflows never create tags",
         ):
             self.assertTrue(needle in text, "OPERATIONS.md lacks: " + needle)
 

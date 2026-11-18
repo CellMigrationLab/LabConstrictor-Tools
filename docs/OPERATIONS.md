@@ -9,6 +9,9 @@ Every front-end (command line, napari, Fiji, QuPath, notebooks) appends to one f
     labconstrictor-tools logs -n 100          # the end of the log
     labconstrictor-tools logs --path          # where the file is
     labconstrictor-tools doctor               # the state of the installation
+
+A support bundle holds paths, app names and the last run records: look through it before you share it.
+
     labconstrictor-tools support-bundle       # a zip of logs, registered apps, the last 10 run records and versions, to attach to a bug report
 
 After a failure, napari and QuPath have a **Details** button with the error, the traceback, the worker's output and the end of the log; Fiji's error dialog shows the worker's last lines and where the log is.
@@ -69,7 +72,7 @@ The version is written once, in `labconstrictor_tools/_version.py` (`__version__
 
 * **Tag names.** `vX.Y.Z` for a release (`v0.2.0`); `vX.Y.Z-rc.N`, `vX.Y.Z-alpha.N` or `vX.Y.Z-beta.N` for a pre-release; always on a commit of `main`. Tags are lightweight, as GitHub creates them from the Releases page. The Python version has no `v` and uses PEP 440 spelling: `-rc.N` is `rcN`, `-alpha.N` is `aN`, `-beta.N` is `bN`. So tag `v0.2.0-rc.1` is `__version__ = "0.2.0rc1"` and tag `v0.3.0-alpha.1` is `"0.3.0a1"`. Order: `0.2.0rc1 < 0.3.0a1 < 0.3.0`.
 * **One number, one code.** A code change a host can observe gets a new version number in the same pull request, so that hosts can tell versions apart. Pre-releases count up towards the number they lead to (`v0.3.0-alpha.1`, `v0.3.0-alpha.2`, ...).
-* **Who tags.** Only the maintainer. Claude and CI never create tags or GitHub releases; a pull request that wants a release says so, and the maintainer tags after merging.
+* **Who tags.** Only the maintainer. Automated workflows never create tags or GitHub releases; a pull request that wants a release says so, and the maintainer tags after merging.
 * **Procedure.**
   1. CI is green on `main` on all three systems, and so is the nightly run of the same commit.
   2. A pull request sets `_version.py` to the new number and moves the "unreleased" notes of the regression ledger; merge it.
