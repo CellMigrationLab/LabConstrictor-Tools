@@ -224,6 +224,14 @@ def described(value: Annotated[int, Description("A count")] = 1) -> Scalars:
             cli("init", str(d / "starter_tools.py"), home=self.home).returncode, 0
         )  # never overwrite
 
+    def test_init_of_a_package_prints_the_package_and_src(self) -> None:
+        src = Path(tempfile.mkdtemp()) / "src"
+        made = cli("init", str(src / "my_app_lc_tools" / "__init__.py"), home=self.home)
+        self.assertEqual(made.returncode, 0, made.stderr)
+        self.assertIn("--module my_app_lc_tools --pythonpath %s" % src.resolve(), made.stdout)
+        checked = cli("check", "--module", "my_app_lc_tools", "--pythonpath", str(src), home=self.home)
+        self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -25,14 +25,13 @@ def blur(image: Image, sigma: Annotated[float, Min(0)] = 2.0) -> Annotated[Image
     return gaussian(image, sigma, preserve_range=True)
 ```
 
-To get a starter file, create the folder and let `init` write it (`init` does not create folders):
+To get a starter file, let `init` write it:
 
 ```bash
-mkdir -p src/my_app_lc_tools
 labconstrictor-tools init src/my_app_lc_tools/__init__.py
 ```
 
-The starter is this example without `Name("blurred")`, so its output is named `image`, after its type. The commands `init` prints next assume a module named after the file; use the ones in [Try it without a host](#try-it-without-a-host) instead.
+The starter is this example without `Name("blurred")`, so its output is named `image`, after its type. `init` creates the folder and prints the `check` and `register` commands for it.
 
 **Name the module `<package>_lc_tools`.** The app's installer registers its tools only if the app's Python package `<package>` comes with a module named exactly `<package>_lc_tools`. For the package `nucleisky` that is `src/nucleisky_lc_tools/__init__.py`. Any other name works from the command line but is never registered by the installer. The app's release bundles everything under `src/` automatically, so you do not edit `construct.yaml` or `setup.py`.
 

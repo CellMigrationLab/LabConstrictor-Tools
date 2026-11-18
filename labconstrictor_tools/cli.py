@@ -624,9 +624,12 @@ def cmd_init(args: argparse.Namespace) -> int:
     target = Path(args.path)
     if target.exists():
         raise SystemExit("%s already exists; not overwriting" % target)
+    target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(TEMPLATE, encoding="utf-8")
-    module = quote(target.stem)
-    folder = quote(str(target.parent.resolve()))
+    # a package's __init__.py (src/<package>_lc_tools/__init__.py) is imported by the folder's name, from the folder above it
+    package = target.name == "__init__.py"
+    module = quote(target.parent.name if package else target.stem)
+    folder = quote(str((target.parent.parent if package else target.parent).resolve()))
     print(
         "wrote %s\nnext:\n  labconstrictor-tools check --module %s --pythonpath %s\n  labconstrictor-tools register --name myapp --prefix <app prefix> --module %s --pythonpath %s"
         % (target, module, folder, module, folder)
